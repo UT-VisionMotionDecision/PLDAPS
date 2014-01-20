@@ -23,6 +23,9 @@ function [PDS,dv] = runPLDAPS(subj, condition, newsession)
 % For more info visit:
 % https://github.com/Psychtoolbox-3/Psychtoolbox-3
 
+PDS = []; 
+dv  = [];
+
 if nargin<3
     newsession = true; 
     if nargin <2
@@ -49,7 +52,7 @@ try
     if isempty(getpref('PLDAPS'))
         
         disp('No PLDAPS preferences set on this rig... see setupPLDAPSenv.m')
-        help setupPLDAPSenv
+        help setupPLDAPS
         return
         
     else

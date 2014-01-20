@@ -2,7 +2,9 @@ function dv = pdsEyelinkSetup(dv)
 % dv = EyelinkSetup(dv)
 % Setup PLDAPS to use Eyelink toolbox
 
-dv.custom_calibration = 0; % this doesnt work yet
+if ~isfield(dv, 'custom_calibration')
+    dv.custom_calibration = 0; % this doesnt work yet
+end
 
 dv.el=EyelinkInitDefaults(dv.disp.ptr);
 
@@ -114,17 +116,18 @@ if dv.custom_calibration
     Eyelink('command', 'generate_default_targets = NO');
 %     Eyelink('command','calibration_samples = 5');
 %     Eyelink('command','calibration_sequence = 1,2,3,4,5');
+    scale = .25; 
     Eyelink('command','calibration_targets = %d,%d %d,%d %d,%d %d,%d %d,%d',...
-        width/2,height/2,  width/2,height*0.2,  width/2,height - height*0.2,  width*0.2,height/2,  width - width*0.2,height/2 );
+        width/2,height/2,  width/2,height*scale,  width/2,height - height*scale,  width*scale,height/2,  width - width*scale,height/2 );
     
     fprintf('calibration_targets = %d,%d %d,%d %d,%d %d,%d %d,%d\r',...
-        width/2,height/2,  width/2,height*0.2,  width/2,height - height*0.2,  width*0.2,height/2,  width - width*0.2,height/2);
+        width/2,height/2,  width/2,height*scale,  width/2,height - height*scale,  width*scale,height/2,  width - width*scale,height/2);
     
     
 %     Eyelink('command','validation_samples = 5');
 %     Eyelink('command','validation_sequence = 0,1,2,3,4,5');
     Eyelink('command','validation_targets = %d,%d %d,%d %d,%d %d,%d %d,%d',...
-        width/2,height/2,  width/2,height*0.2,  width/2,height - height*0.2,  width*0.2,height/2,  width - width*0.2,height/2 );
+        width/2,height/2,  width/2,height*scale,  width/2,height - height*scale,  width*scale,height/2,  width - width*scale,height/2 );
 else
     disp('using default calibration points')
     Eyelink('command', 'calibration_type = HV5');
