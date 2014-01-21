@@ -3,12 +3,41 @@ function ds = pdsOpenScreen(ds)
 % Opens PsychImaging Window with preferences set for use with Datapixx 
 % ds is the dv.disp struct in PLDAPS
 % 
+% required fields
+% ds.
+%   stereoMode       [double] - 0 is no stereo
+%   normalizeColor  [boolean] - 1 normalized color range on PTB screen
+%   useOverlay      [boolean] - 1 opens datapixx overlay window
+%   stereoFlip      [string]  - 'left', 'right', or [] flips one stereo
+%                               image for the planar screen
+%   colorclamp      [boolean] - 1 clamps color between 0 and 1
+%   scrnNum         [double]  - number of screen to open
+%   sourceFactorNew [string]  - see Screen Blendfunction? 
+%   destinationFactorNew      - see Screen Blendfunction? 
+%   widthcm
+%   heightcm
+%   viewdist
+%   bgColor
  
 % 12/12/2013 jly wrote it   Mostly taken from Init_StereoDispPI without any
 %                           of the switch-case in the front for each rig.
 %                           This assumes you have set up your display
 %                           struct before calling.
-% InitializeMatlabOpenGL; 
+% 01/20/2014 jly update     Updated help text and added default arguments.
+%                           Created a distinct variable to separate 
+%                           colorclamp and normalize color.
+
+if ~isfield('ds', 'screenSize'),    ds.screenSize = [];         end
+if ~isfield('ds', 'stereoMode'),    ds.stereoMode = 0;          end
+if ~isfield('ds', 'bgColor'),       ds.bgColor    = [.5 .5 .5]; end
+if ~isfield('ds', 'normalizeColor'),ds.normalizeColor = 0;      end
+if ~isfield('ds', 'stereoFlip'),    ds.stereoFlip = [];         end
+if ~isfield('ds', 'colorclamp'),    ds.colorclamp = 0;          end
+if ~isfield('ds', 'widthcm'),       ds.widthcm = 63;            end
+if ~isfield('ds', 'heightcm'),      ds.heightcm = 45;           end
+if ~isfield('ds', 'viewdist'),      ds.viewdist = 57;           end
+
+% InitializeMatlabOpenGL
 AssertOpenGL;
 % prevent splash screen
 Screen('Preference','VisualDebugLevel',3);
@@ -26,16 +55,16 @@ else
 end
 
 
-% if ds.normalizeColor == 1
-%     disp('****************************************************************')
-%     disp('****************************************************************')
-%     disp('Turning on Normalized High res Color Range')
-%     disp('Sets all displays to use color range from 0-1 (e.g. NOT 0-255)')
-%     disp('Potential danger: this fxn sets color range to unclamped...don''t')
-%     disp('know if this will cause issue. TBC 12-18-2012')
-%     disp('****************************************************************')
-% 	PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange');
-% end
+if ds.normalizeColor == 1
+    disp('****************************************************************')
+    disp('****************************************************************')
+    disp('Turning on Normalized High res Color Range')
+    disp('Sets all displays to use color range from 0-1 (e.g. NOT 0-255)')
+    disp('Potential danger: this fxn sets color range to unclamped...don''t')
+    disp('know if this will cause issue. TBC 12-18-2012')
+    disp('****************************************************************')
+	PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange');
+end
 
 
 if ds.useOverlay == 1 
@@ -49,6 +78,7 @@ if ds.useOverlay == 1
     PsychImaging('AddTask', 'General', 'FloatingPoint32Bit');
     % Turn on the overlay
     PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
+    PsychImaging('AddTask', 'General', 'UseDataPixx');
 else
     disp('****************************************************************')
     disp('****************************************************************')
@@ -84,7 +114,7 @@ disp('****************************************************************')
 disp('Adding DisplayColorCorrection LookUpTable to FinalFormatting')
 disp('****************************************************************')
 PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTable');
-PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
+
 
 
 %% Open double-buffered onscreen window with the requested stereo mode
@@ -105,6 +135,7 @@ if isfield(ds,'gamma')
         if isfield(ds.gamma, 'table')
             PsychColorCorrection('SetLookupTable', ds.ptr, ds.gamma.table, 'FinalFormatting');
         elseif isfield(ds.gamma, 'power')
+            PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
             PsychColorCorrection('SetEncodingGamma', ds.ptr, ds.gamma.power, 'FinalFormatting');
         end
     else
@@ -115,7 +146,7 @@ end
 
 
 % % This seems redundant. Is it necessary?
-if ds.normalizeColor == 1
+if isfield(ds, 'colorclamp') && ds.colorclamp == 1
     disp('****************************************************************')
     disp('****************************************************************')
     disp('clamping color range')
@@ -144,6 +175,13 @@ ds.scr_rot = 0;                                         % Screen Rotation for op
 Screen('TextFont',ds.ptr,'Helvetica'); 
 Screen('TextSize',ds.ptr,16);
 Screen('TextStyle',ds.ptr,1);
+
+if ~isfield(ds, 'sourceFactorNew')
+    ds.sourceFactorNew = GL_SRC_ALPHA;
+end
+if ~isfield(ds, 'destinationFactorNew')
+    ds.destinationFactorNew = GL_ONE_MINUS_SRC_ALPHA;
+end
 
 % Set up alpha-blending for smooth (anti-aliased) drawing 
 disp('****************************************************************')

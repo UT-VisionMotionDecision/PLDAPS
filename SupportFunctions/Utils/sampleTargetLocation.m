@@ -31,19 +31,7 @@ end
 maxIter = 50;
 iter = 1;
 
-<<<<<<< HEAD
-% commented out. ktz Jan 15 2014.
-% while sqrt(x^2 + y^2) < 150 && iter < maxIter
-%     xi = round(unifrnd(1,gridx));
-%     yi = round(unifrnd(1,gridx));
-%     
-%     x = xlocs(xi);
-%     y = ylocs(yi);
-%     
-%     iter = iter+1;
-% end
-    
-=======
+
 while sqrt(x^2 + y^2) < 150 && iter < maxIter
     
     if isempty(gridx)
@@ -59,8 +47,6 @@ while sqrt(x^2 + y^2) < 150 && iter < maxIter
     
     iter = iter+1;
 end
-
->>>>>>> 3114f350e68fc0dbb91a2e7fd8f061e4957cdc4d
 
 
 xy = [x -y];
