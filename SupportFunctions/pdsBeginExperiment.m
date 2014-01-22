@@ -4,7 +4,9 @@ function [PDS,dv] = pdsBeginExperiment(dv, PDS)
 % beginExperiment checks which devices are connected to PLDAPS and gets
 % timestamps from each of them and stores them in PDS.timing
 
-% 12/2013 jly wrote it
+% 12/2013 jly   wrote it
+% 01/2014 jly   make sure Eyelink is connected before trying to get time
+%               from it
 
 if ~isfield(PDS, 'timing')
     PDS.timing = [];
@@ -24,7 +26,7 @@ if Datapixx('IsReady')
     end
 end
 
-if isfield(dv, 'el')
+if Eyelink('IsConnected')
     if isfield(PDS.timing, 'startEyelink')
         PDS.timing.experimentStartEyelink(numel(PDS.timing.startEyelink)+1) = Eyelink('TrackerTime');
     else

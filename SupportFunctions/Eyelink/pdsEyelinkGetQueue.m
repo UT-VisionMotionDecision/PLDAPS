@@ -13,28 +13,29 @@ function dv = pdsEyelinkGetQueue(dv)
 %                         emptied
 
 % 12/2013 jly   wrote it
-
-% if time to pull samples, get them all
-while ~dv.el.drained
-    [dv.el.samplesIn, dv.el.eventsIn, dv.el.drained] = Eyelink('GetQueuedData');
-    
-    % Get Eyelink samples
-    if ~isempty(dv.el.samplesIn)
-        dv.el.sampleBuffer(:,dv.el.sampleNum:dv.el.sampleNum+size(dv.el.samplesIn,2)-1) = dv.el.samplesIn;
-        dv.el.sampleNum = dv.el.sampleNum+size(dv.el.samplesIn,2);
+if dv.useEyelink
+    % if time to pull samples, get them all
+    while ~dv.el.drained
+        [dv.el.samplesIn, dv.el.eventsIn, dv.el.drained] = Eyelink('GetQueuedData');
+        
+        % Get Eyelink samples
+        if ~isempty(dv.el.samplesIn)
+            dv.el.sampleBuffer(:,dv.el.sampleNum:dv.el.sampleNum+size(dv.el.samplesIn,2)-1) = dv.el.samplesIn;
+            dv.el.sampleNum = dv.el.sampleNum+size(dv.el.samplesIn,2);
+        end
+        
+        % Get Eyelink events
+        if ~isempty(dv.el.eventsIn)
+            dv.el.eventBuffer(:,dv.el.eventNum:dv.el.eventNum+size(dv.el.eventsIn,2)-1) = dv.el.eventsIn;
+            dv.el.eventNum = dv.el.eventNum+size(dv.el.eventsIn,2);
+        end
+        
+        % Workaround - only continue if samplesIn and eventsIn were
+        % empty
+        if ~isempty(dv.el.samplesIn) || ~isempty(dv.el.eventsIn)
+            dv.el.drained = false;
+        end
+        
     end
-    
-    % Get Eyelink events
-    if ~isempty(dv.el.eventsIn)
-        dv.el.eventBuffer(:,dv.el.eventNum:dv.el.eventNum+size(dv.el.eventsIn,2)-1) = dv.el.eventsIn;
-        dv.el.eventNum = dv.el.eventNum+size(dv.el.eventsIn,2);
-    end
-    
-    % Workaround - only continue if samplesIn and eventsIn were
-    % empty
-    if ~isempty(dv.el.samplesIn) || ~isempty(dv.el.eventsIn)
-        dv.el.drained = false;
-    end
-    
+    dv.el.drained = false;
 end
-dv.el.drained = false;
