@@ -1,8 +1,8 @@
-function [x,y,unsmoothedline,v] = DatapixxGetEyePosition(unsmoothed,i,dv)
+function [x,y] = pdsDatapixxGetEyePosition(dv)
 %
 % [x,y,unsmoothedline,v] = DatapixxGetEyePosition(unsmoothed,i,dv)
-% DatapixxGetEyePosition computes X and Y pixel values from an analog 
-% joystick via the A-D system on the Datapixx. 
+% DatapixxGetEyePosition computes X and Y pixel values from an analog
+% joystick via the A-D system on the Datapixx.
 %
 % GETJOY uses a moving average to smooth data coming from an analog
 % joystick. UNSMOOTHED is the unsmoothed analog history.  JOYCALIBRATION
@@ -24,7 +24,7 @@ Datapixx RegWrRd;
 v = Datapixx('GetAdcVoltages');
 
 % this is a tweak to remove the updated i in letsgorun
-i = i - 1;
+% i = i - 1;
 
 
 
@@ -33,7 +33,7 @@ i = i - 1;
 % Subtract correlated noise off of the current voltage measurement.  Since
 % the ambient electrical noise affects the other wires in the analog input
 % wires, we subtract the mean of these extra measurements from the voltage
-% signal. 
+% signal.
 
 % if length(unsmoothed) > 5;
 %     vnew = v - mean(v(3:16) - mean(unsmoothed(max([1 i-avg_trail+1]):i,3:16)));
@@ -64,12 +64,14 @@ neutralJVY = (dv.calibration(3)+dv.calibration(4))./2;  % neutral joystick volta
 xtemp = sqPixelCalibrateX  * (neutralJVX - vnew(1))/rangeVX   + dv.disp.winRect(3)/2;
 ytemp = sqPixelCalibrateY * (neutralJVY - vnew(2))/rangeVY   + dv.disp.winRect(4)/2;
 
+x = xtemp;
+y = ytemp;
 
-% add unsmoothed line
-unsmoothedline = [xtemp,ytemp,v(3:16)];
-
-x = mean(unsmoothed(max([1 i-dv.movav+1]):i,1));
-y = mean(unsmoothed(max([1 i-dv.movav+1]):i,2));
+% % add unsmoothed line
+% unsmoothedline = [xtemp,ytemp,v(3:16)];
+%
+% x = mean(unsmoothed(max([1 i-dv.movav+1]):i,1));
+% y = mean(unsmoothed(max([1 i-dv.movav+1]):i,2));
 
 % for troubleshooting
 % fprintf('x: %d v(1): %d\r', x, v(1,1))
