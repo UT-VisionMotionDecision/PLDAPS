@@ -6,7 +6,7 @@ if ~isfield(dv, 'custom_calibration')
     dv.custom_calibration = 0; % this doesnt work yet
 end
 
-dv.el=EyelinkInitDefaults(dv.disp.ptr);
+dv.el=EyelinkInitDefaults(); % don't pass in the window pointer or you can mess up the color range
 
 % filename can only be 8 characters long (not including extention
 dtstr = datestr(now, 'dHHMM');
