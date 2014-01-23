@@ -5,7 +5,10 @@ if dv.useEyelink
     dv.el.sampleNum     = 1;
     dv.el.eventNum      = 1;
     dv.el.drained       =   false; % drained is a flag for pulling from the buffer
-    bufferSize = str2double(dv.el.srate)*dv.el.maxTrialLength;
+    if ischar(dv.el.srate), 
+        dv.el.srate = str2double(dv.el.srate); 
+    end
+    bufferSize = dv.el.srate*dv.el.maxTrialLength;
     dv.el.sampleBuffer  = nan(dv.el.buffersamplelength,bufferSize);
     dv.el.eventBuffer   = nan(dv.el.buffereventlength,bufferSize);
     dv.el.hasSamples    = true;

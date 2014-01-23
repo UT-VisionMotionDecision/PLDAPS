@@ -1,6 +1,8 @@
 function dv = pdsEyelinkSetup(dv)
 % dv = EyelinkSetup(dv)
 % Setup PLDAPS to use Eyelink toolbox
+Eyelink('Initialize')
+
 if ~dv.useEyelink
     fprintf('****************************************************************\r')
     fprintf('****************************************************************\r')
@@ -44,6 +46,8 @@ else
         fprintf('****************************************************************\r')
         fprintf('Eyelink Init aborted. Eyelink is not connected.\n');
         fprintf('PLDAPS is NOT using EYELINK Toolbox for eyetrace. \rUsing pdsDatapixxGetEyePosition instead\r')
+        fprintf('if you want to use EYELINK Toolbox for your eyetracking needs, \rtry Eyelink(''Shutdown'') and then retry dv = pdsEyelinkSetup(dv)\r')
+        
         Beeper(500); Beeper(400)
         disp('PRESS ENTER TO CONFIRM YOU READ THIS MESSAGE'); pause
         Eyelink('Shutdown')
@@ -85,7 +89,7 @@ else
     fprintf(['Analog output range is constraiend to:\t' reply ' (volts)\r'])
     [result, srate] = Eyelink('ReadFromTracker', 'sample_rate');
     fprintf(['Sampling rate is:\t\t\t' srate 'Hz\r'])
-    dv.el.srate = srate;
+    dv.el.srate = str2double(srate);
     pause(.05)
     
     vsn = regexp(vs,'\d','match'); % wont work on EL I
@@ -110,6 +114,7 @@ else
             Eyelink('command', 'link_event_filter = LEFT,RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON,FIXUPDATE,INPUT');
             Eyelink('command', 'link_sample_data  = LEFT,RIGHT,GAZE,HREF,AREA,GAZERES,PUPIL,STATUS,INPUT,HTARGET, HMARKER');
         otherwise
+            dv.el.callback = [];
             Eyelink('command', 'file_event_filter = LEFT,RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON,INPUT');
             Eyelink('command', 'file_sample_data  = LEFT,RIGHT,GAZE,HREF,AREA,GAZERES,PUPIL,STATUS,INPUT');
             % set link data (used for gaze cursor)
@@ -193,6 +198,6 @@ else
     
     Eyelink('StartRecording');
 end
-    
-    
-    
+
+
+
