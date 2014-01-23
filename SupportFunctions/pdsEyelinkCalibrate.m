@@ -42,6 +42,22 @@ if nargin < 1
 end
 ListenChar(2)
 
+% if ~isempty(dv.el.callback)
+%     if Eyelink('IsConnected') ~= dv.el.notconnected
+%         if ~isempty(dv.el.window)            
+%             rect=Screen(dv.el.window,'Rect');
+%             % make sure we use the correct screen coordinates
+%             Eyelink('Command', 'screen_pixel_coords = %d %d %d %d',rect(1),rect(2),rect(3)-1,rect(4)-1);
+%         end
+%     else
+%         return
+%     end
+%     result = Eyelink( 'StartSetup', 1 );
+%     
+%     return;
+% end
+
+
 Eyelink('Command', 'heuristic_filter = ON');
 Eyelink( 'StartSetup' );		% start setup mode
 Eyelink( 'WaitForModeReady', dv.el.waitformodereadytime );  % time for mode change

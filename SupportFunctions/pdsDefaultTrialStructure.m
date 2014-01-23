@@ -4,10 +4,14 @@ function dv = pdsDefaultTrialStructure(dv)
 % standard task parameters we use in huk lab
 
 % 12/2013 jly   Wrote it
-dv.goodtrial = 0; 
-dv.disp.photodiode = 1; 
-dv.disp.photodiodeRect = makePhotodiodeRect(dv, 2); 
+dv.goodtrial = 0;
+dv.disp.photodiode = 1;
+dv.disp.photodiodeRect = makePhotodiodeRect(dv, 2);
 dv.disp.photodiodeFrames = 10;
+
+if ~isfield(dv, 'finish')
+    dv.finish = inf;
+end
 
 dv.pa.randomNumberGenerater = 'mt19937ar';
 % log timestamps
@@ -16,15 +20,15 @@ PsychDataPixx('LogOnsetTimestamps', 2);
 
 % Setup Timings
 %-------------------------------------------------------------------------%
-% Reward time: is time that solenoid is opened for. set to 100 miliseconds 
-% for mapping trials. 
+% Reward time: is time that solenoid is opened for. set to 100 miliseconds
+% for mapping trials.
 dv.pa.rewardTime = .1;
-dv.pa.rewardWait = 0; 
+dv.pa.rewardWait = 0;
 dv.pa.breakFixPenalty = 2;
 dv.pa.jitterSize = .5;
 % fixation
-dv.pa.preTrial     = .5;       
-dv.pa.fixWait      = 4;        
+dv.pa.preTrial     = .5;
+dv.pa.fixWait      = 4;
 dv.pa.fixHold      = 1;
 
 % targets
@@ -39,11 +43,11 @@ dv = defaultColors(dv);
 
 % Tick Marks
 %-------------------------------------------------------------------------%
-dv = initTicks(dv); 
+dv = initTicks(dv);
 
 % Bits
 %-------------------------------------------------------------------------%
-dv = defaultBitNames(dv); 
+dv = defaultBitNames(dv);
 
 % dot sizes for drawing
 dv.pa.eyeW      = 8;    % eye indicator width in pixels
@@ -63,5 +67,5 @@ dv.states.TRIALCOMPLETE = 6;
 
 % Audio
 %-------------------------------------------------------------------------%
-dv = pdsAudioSetup(dv); 
+dv = pdsAudioSetup(dv);
 
