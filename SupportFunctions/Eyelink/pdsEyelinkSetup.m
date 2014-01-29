@@ -52,8 +52,7 @@ datestr(now);
 Eyelink('command',  ['add_file_preamble_text ''Recorded by PLDAPS'  '''']);
 Eyelink('command',  'screen_pixel_coords = %ld, %ld, %ld, %ld', dv.disp.winRect(1), dv.disp.winRect(2), dv.disp.winRect(3)-1, dv.disp.winRect(4)-1);
 Eyelink('command',  'analog_dac_range = %1d, %1d', -5, 5);
-Eyelink('command',  'screen_phys_coords = %1d, %1d, %1d, %1d', -dv.disp.widthcm/2, dv.disp.heightcm/2, dv.disp.widthcm/2, -dv.disp.heightcm/2);
-
+Eyelink('command',  'screen_phys_coords = %1d, %1d, %1d, %1d', 10*-dv.disp.widthcm/2, 10*dv.disp.heightcm/2, 10*dv.disp.widthcm/2, 10*-dv.disp.heightcm/2);
 
 [v,vs] = Eyelink('GettrackerVersion');
 disp('***************************************************************')
