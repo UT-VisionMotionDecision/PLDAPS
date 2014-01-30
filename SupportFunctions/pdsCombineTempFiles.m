@@ -1,5 +1,5 @@
-function [PDS, dv] = salvagePDS(TEMPdir, filename)
-%   function [PDS, dv] = salvagePDS(TEMPdir, filename)
+function [PDS, dv] = pdsCombineTempFiles(TEMPdir, filename)
+%   function [PDS, dv] = pdsCombineTempFiles(TEMPdir, filename)
 %
 % The function loads temp PDS files that have been saved into the TEMP
 % folder and combines them into a single PDS structure as would be
