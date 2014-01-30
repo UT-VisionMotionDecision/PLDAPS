@@ -40,6 +40,6 @@ if dv.useSpikeServer
         disp('error connecting to spike server')
         dv.spikeserver.error = me;
         dv.spikeserver.isConnected = false;
-        dv.useSpikeServer = 0;
+        dv.useSpikeServer = 0;        
     end
 end
