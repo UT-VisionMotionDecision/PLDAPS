@@ -27,15 +27,15 @@ function ds = pdsOpenScreen(ds)
 %                           Created a distinct variable to separate 
 %                           colorclamp and normalize color.
 
-if ~isfield('ds', 'screenSize'),    ds.screenSize = [];         end
-if ~isfield('ds', 'stereoMode'),    ds.stereoMode = 0;          end
-if ~isfield('ds', 'bgColor'),       ds.bgColor    = [.5 .5 .5]; end
-if ~isfield('ds', 'normalizeColor'),ds.normalizeColor = 0;      end
-if ~isfield('ds', 'stereoFlip'),    ds.stereoFlip = [];         end
-if ~isfield('ds', 'colorclamp'),    ds.colorclamp = 0;          end
-if ~isfield('ds', 'widthcm'),       ds.widthcm = 63;            end
-if ~isfield('ds', 'heightcm'),      ds.heightcm = 45;           end
-if ~isfield('ds', 'viewdist'),      ds.viewdist = 57;           end
+if ~isfield(ds, 'screenSize'),    ds.screenSize = [];         end
+if ~isfield(ds, 'stereoMode'),    ds.stereoMode = 0;          end
+if ~isfield(ds, 'bgColor'),       ds.bgColor    = [.5 .5 .5]; end
+if ~isfield(ds, 'normalizeColor'),ds.normalizeColor = 0;      end
+if ~isfield(ds, 'stereoFlip'),    ds.stereoFlip = [];         end
+if ~isfield(ds, 'colorclamp'),    ds.colorclamp = 0;          end
+if ~isfield(ds, 'widthcm'),       ds.widthcm = 63;            end
+if ~isfield(ds, 'heightcm'),      ds.heightcm = 45;           end
+if ~isfield(ds, 'viewdist'),      ds.viewdist = 57;           end
 
 % InitializeMatlabOpenGL
 AssertOpenGL;
@@ -120,7 +120,7 @@ PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTabl
 %% Open double-buffered onscreen window with the requested stereo mode
 disp('****************************************************************')
 disp('****************************************************************')
-fprintf('Opening screen %d with background %d in stereo mode %d\r', ds.scrnNum, ds.bgColor(1), ds.stereoMode)
+fprintf('Opening screen %d with background %02.2f in stereo mode %d\r', ds.scrnNum, ds.bgColor(1), ds.stereoMode)
 disp('****************************************************************')
 [ds.ptr, ds.winRect]=PsychImaging('OpenWindow', ds.scrnNum, ds.bgColor, ds.screenSize, [], [], ds.stereoMode, 0);
 
