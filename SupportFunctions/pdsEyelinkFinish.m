@@ -13,7 +13,7 @@ if ~isfield(dv.disp, 'saveEDF')
     dv.disp.saveEDF = 0;
 end
 
-if dv.useEyelink && dv.disp.saveEDF
+if dv.useEyelink && dv.disp.saveEDF && Eyelink('IsConnected')
     % edfFile = fullfile(dv.el.edfFileLocation, dv.el.edfFile);
     edfFile = dv.el.edfFile;
     Eyelink('StopRecording');
@@ -34,5 +34,6 @@ if dv.useEyelink && dv.disp.saveEDF
     catch rdf
         fprintf('Problem receiving data file ''%s''\n', edfFile );
     end
+    Eyelink('Shutdown')
 end
 

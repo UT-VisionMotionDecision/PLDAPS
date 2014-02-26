@@ -191,6 +191,8 @@ try
     ShowCursor
     ListenChar(0)
     Priority(0)
+    dv = pdsEyelinkFinish(dv);
+    PDS.timing.timestamplog = PsychDataPixx('GetTimestampLog', 1);
     
     if ~isfield(dv, 'nosave')
         save(fullfile(datadir, sfile),'PDS','dv','-mat')
