@@ -17,12 +17,26 @@ if dv.useMouse
     dv.trial.eyeX = dv.trial.cursorX;
     dv.trial.eyeY = dv.trial.cursorY;
 elseif dv.useEyelink
-    %%% Eyelink toolbox way of sampling the eye position %%%
-    eye = Eyelink('getfloatdata', dv.el.SAMPLE_TYPE);
-    dv.trial.eyeX = eye.gx(dv.el.eyeIdx);
-    dv.trial.eyeY = eye.gy(dv.el.eyeIdx);
     % Get Eyelink Queue data
     dv = pdsEyelinkGetQueue(dv);
+    if isfield(dv, 'movav')
+        try
+            
+            dv.trial.eyeX = mean(dv.el.sampleBuffer(14,(dv.el.sampleNum-dv.movav):dv.el.sampleNum-1));
+            dv.trial.eyeY = mean(dv.el.sampleBuffer(16,(dv.el.sampleNum-dv.movav):dv.el.sampleNum-1));
+        catch eyeGetError
+            %%% Eyelink toolbox way of sampling the eye position %%%
+            eye = Eyelink('getfloatdata', dv.el.SAMPLE_TYPE);
+            dv.trial.eyeX = eye.gx(dv.el.eyeIdx);
+            dv.trial.eyeY = eye.gy(dv.el.eyeIdx);
+            dv.trial.eyeGetError = eyeGetError;
+        end
+    else
+        eye = Eyelink('getfloatdata', dv.el.SAMPLE_TYPE);
+        dv.trial.eyeX = eye.gx(dv.el.eyeIdx);
+        dv.trial.eyeY = eye.gy(dv.el.eyeIdx);
+    end
+    
 else
     [dv.trial.eyeX, dv.trial.eyeY] = pdsDatapixxGetEyePosition(dv);
 end
