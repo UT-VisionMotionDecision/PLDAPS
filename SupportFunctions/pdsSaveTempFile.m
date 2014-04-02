@@ -5,7 +5,11 @@ function result = pdsSaveTempFile(dv,PDS)
 result = [];
 
 % extract end of PDS -- takes less than 1ms
-PDStemp = structfun(@(x) ( x(end) ), PDS, 'UniformOutput', false);
+if PDS.trialnumber == 1
+    PDStemp = structfun(@(x)  x(end,:), PDS, 'UniformOutput', false);
+else
+    PDStemp = structfun(@(x)  getPDSval(x), PDS, 'UniformOutput', false);
+end
 % if data and timing variables are stored (extract end of those
 % too) -- takes less than 1 ms
 % Sorry - this next part is hacky. Switch to if-else statements
@@ -27,3 +31,18 @@ if ~isfield(dv, 'nosave')
         save(fullfile(dv.pref.datadir,'TEMP',[dv.pref.sfile num2str(dv.j)]),'PDStemp','dv');
     end
 end
+
+
+end
+
+%%
+
+function val = getPDSval(x)
+    if any(size(x) == 1)  && ~isstr(x) % ie vecotr and not a string
+        val = x(end);
+    else                               % ie matrix or string
+        val = x(end,:);     
+    end
+end
+
+

@@ -5,8 +5,7 @@ function [PDS, dv] = pdsCombineTempFiles(TEMPdir, filename)
 % folder and combines them into a single PDS structure as would be
 % expected, were it to be saved appropriately...
 %
-% The output file is saved into the same folder with the original name +
-% "_SALVAGED". user can then manually change this.
+% YOU MUST SAVE THE COMBINED PDS/dv YOURSELF!
 
 %% GET FILES:
 
@@ -90,9 +89,9 @@ end
   
 delete(h)
         
-save([TEMPdir '/' filename(1:end-4) '_SALVAGED.PDS'], 'PDS', 'dv', '-mat')
+% save([TEMPdir '/' filename(1:end-4) '_SALVAGED.PDS'], 'PDS', 'dv', '-mat')
 
-fprintf(['\n\n' filename ' is alive! ALIIIIIVE! \nand saved in \n' TEMPdir '\n']);
+fprintf(['\n\n' filename ' is alive! ALIIIIIVE! \n']);
 
 
 
