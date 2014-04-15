@@ -162,7 +162,7 @@ end
 ds.ppd = ds.winRect(3)/ds.width;                        % calculate pixels per degree
 ds.frate = round(1/Screen('GetFlipInterval',ds.ptr));   % frame rate (in Hz)
 ds.ifi=Screen('GetFlipInterval', ds.ptr);               % Inter-frame interval (frame rate in seconds)
-ds.ctr = [ds.winRect(3:4),ds.winRect(3:4)]./2;          % Rect defining screen center
+ds.ctr = [ds.winRect(3:4),ds.winRect(3:4)]./2 - 0.5;          % Rect defining screen center
 ds.info = Screen('GetWindowInfo', ds.ptr);              % Record a bunch of general display settings
 
 % Set screen rotation

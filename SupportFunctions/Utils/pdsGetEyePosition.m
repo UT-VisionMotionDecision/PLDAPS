@@ -1,4 +1,4 @@
-function dv = pdsGetEyePosition(dv)
+function dv = pdsGetEyePosition(dv, updateQueue)
 % dv = pdsGetEyePosition(dv)
 % Update eye position
 % Inputs: dv struct
@@ -17,9 +17,12 @@ if dv.useMouse
     dv.trial.eyeX = dv.trial.cursorX;
     dv.trial.eyeY = dv.trial.cursorY;
 elseif dv.useEyelink
+    
+    if(nargin<2 || updateQueue || (isfield(dv, 'movav') && dv.movav>1))
+        dv = pdsEyelinkGetQueue(dv);
+    end
     % Get Eyelink Queue data
-    dv = pdsEyelinkGetQueue(dv);
-    if isfield(dv, 'movav')
+    if isfield(dv, 'movav') && dv.movav>1
         try
             
             dv.trial.eyeX = mean(dv.el.sampleBuffer(14,(dv.el.sampleNum-dv.movav):dv.el.sampleNum-1));
