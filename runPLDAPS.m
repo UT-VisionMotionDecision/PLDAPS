@@ -115,13 +115,23 @@ try
         PDS = {};
         PDS.subj = opts.subj; 
         
-        if ~isfield(dv, 'nosave')
-            [sfile, datadir] = uiputfile('.PDS', 'initialize experiment file', fullfile(datadir, [opts.subj datestr(now, 'yyyymmdd') opts.condition datestr(now, 'HHMM') '.PDS']));
+        PDS.session.time{1}=now;
+        
+        dv.session.time=PDS.session.time{1};
+        
+        if ~isfield(dv, 'nosave') && dv.nosave==1
+            dv.session.file = fullfile(datadir, [opts.subj datestr(dv.session.time, 'yyyymmdd') opts.condition datestr(dv.session.time, 'HHMM') '.PDS']);
+            [sfile, datadir] = uiputfile('.PDS', 'initialize experiment file', dv.session.file);
+        else
+            dv.session.file='';
         end
         
     elseif opts.newsession == 0 % load old PDS file to continue
         [sfile, datadir] = uigetfile('*.m', 'load existing PDS file', datadir);
         load(fullfile(datadir,sfile), 'PDS', 'dv', '-mat');
+        
+        PDS.session.time{end}=now;
+        dv.session.time=PDS.session.time{end};
         
         dv.quit = 0;
         disp(dv)
@@ -192,6 +202,7 @@ try
     ListenChar(0)
     Priority(0)
     
+    pdsEyelinkFinish(dv);
     if ~isfield(dv, 'nosave')
         save(fullfile(datadir, sfile),'PDS','dv','-mat')
     end

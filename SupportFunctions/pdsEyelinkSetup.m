@@ -17,14 +17,25 @@ else
     dv.el=EyelinkInitDefaults(); % don't pass in the window pointer or you can mess up the color range
     
     % filename can only be 8 characters long (not including extention
-    dtstr = datestr(now, 'dHHMM');
-    if numel(dtstr)>5
-        dtstr = dtstr(end-4:end);
-    end
+%     dtstr = datestr(now, 'dHHMM');
+%     if numel(dtstr)>5
+%         dtstr = dtstr(end-4:end);
+%     end
     % dv.el.edfFile = [dv.subj(1:3) dtstr]; %[dv.pref.sfile(1:end-4) '.edf'];
     % dv.el.edfFileLocation = dv.pref.datadir;
     
-    dv.el.edfFile = 'pds.edf'; %[dv.subj(1:3) dtstr]; %[dv.pref.sfile(1:end-4) '.edf'];
+%     dv.el.edfFile = 'pds.edf'; %[dv.subj(1:3) dtstr]; %[dv.pref.sfile(1:end-4) '.edf'];
+    %create an 8 char (with 5.8 bit) identifyer (used for all saved files) 
+%     charList=char([33 35 36 38:43 45 48:57 63:64  65:90 91 93:96 123 125 126]);
+%     status=0;
+%     while status~=-1 %file does not exist on tracker
+%         dv.el.edfFile=charList(randi([1 length(charList)],1,8));
+%         status=Eyelink('Receivefile', dv.el.edfFile);
+%         %should we delete these files?
+%     end
+    dv.el.edfFile=datestr(dv.sessiontime, 'mmddHHMM');
+    
+          
     dv.el.edfFileLocation = pwd; %dv.pref.datadir;
     fprintf('EDFFile: %s\n', dv.el.edfFile );
     
@@ -67,6 +78,7 @@ else
     % Eyelink commands to setup the eyelink environment
     datestr(now);
     Eyelink('command',  ['add_file_preamble_text ''Recorded by PLDAPS'  '''']);
+    Eyelink('command',  ['add_file_preamble_text ''Datafile: ' dv.session.file  '''']);
     Eyelink('command',  'screen_pixel_coords = %ld, %ld, %ld, %ld', dv.disp.winRect(1), dv.disp.winRect(2), dv.disp.winRect(3)-1, dv.disp.winRect(4)-1);
     Eyelink('command',  'analog_dac_range = %1d, %1d', -5, 5);
     w = 10*dv.disp.widthcm/2;
