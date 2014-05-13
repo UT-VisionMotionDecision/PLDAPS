@@ -34,8 +34,8 @@ small_tick_length = 3;  % pixels
 big_tick_length = 10;   % pixels
 
 
-screen_size_h = dv.disp.winRect(3)/dv.disp.ppd; 
-screen_size_v = dv.disp.winRect(4)/dv.disp.ppd; 
+screen_size_h = dv.defaultParameters.display.winRect(3)/dv.defaultParameters.display.ppd; 
+screen_size_v = dv.defaultParameters.display.winRect(4)/dv.defaultParameters.display.ppd; 
 
 sH = 0:screen_size_h/2;
 bH = 0:5:screen_size_h/2;
@@ -78,7 +78,7 @@ for i = 1:length(big_horiz_degrees)
         line_matrix = [line_matrix,[big_horiz_degrees(i) big_horiz_degrees(i)+pix2deg(small_tick_length,dv);big_vert_degrees(j) big_vert_degrees(j)]];
     end
 end
-dv.disp.tick_line_matrix = line_matrix;
+dv.defaultParameters.display.tick_line_matrix = line_matrix;
 
 
 
@@ -90,7 +90,7 @@ end
 % inline functions
 function d = pix2deg(x, dv)
 
-d = x / dv.disp.ppd;
+d = x / dv.defaultParameters.display.ppd;
 end
 
 

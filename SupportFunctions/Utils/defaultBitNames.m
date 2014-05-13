@@ -12,11 +12,11 @@ function dv = defaultBitNames(dv)
 
 % 12/12/2013 jly    Wrote it
 
-dv.event.FIXATION  = 1;
-dv.event.STIMULUS  = 2;
-dv.event.TARGS     = 3;
-dv.event.REWARD    = 4;
-dv.event.BREAKFIX  = 5;
-dv.event.TRIALEND  = 6;
-dv.event.CHOICE    = 8;
-dv.event.TRIALSTART = 7;
+dv.defaultParameters.event.FIXATION  = 1;
+dv.defaultParameters.event.STIMULUS  = 2;
+dv.defaultParameters.event.TARGS     = 3;
+dv.defaultParameters.event.REWARD    = 4;
+dv.defaultParameters.event.BREAKFIX  = 5;
+dv.defaultParameters.event.TRIALEND  = 6;
+dv.defaultParameters.event.CHOICE    = 8;
+dv.defaultParameters.event.TRIALSTART = 7;

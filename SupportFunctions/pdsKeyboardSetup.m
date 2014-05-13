@@ -1,4 +1,4 @@
-function kb = pdsKeyboardSetup(scan)
+function kb = keyboardSetup(scan)
 % kb = pdsKeyboardSetup(scan)
 %
 % Setup universal Mac/PC keyboard and keynames
@@ -7,6 +7,8 @@ function kb = pdsKeyboardSetup(scan)
 %
 % T.Czuba 6-4-2008
 % ktz updated the function description Apr2013
+%TODO: should this be called each experiment or is it enough to have it in
+%the config?
 
 
 if nargin < 1

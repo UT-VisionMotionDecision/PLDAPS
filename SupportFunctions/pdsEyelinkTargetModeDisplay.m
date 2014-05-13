@@ -18,53 +18,53 @@ end
 targetvisible = 0;	% target currently drawn
 targetrect=[0 0 0 0];
 
-tx=dv.el.MISSING;
-ty=dv.el.MISSING;
+tx=dv.trial.eyelink.setup.MISSING;
+ty=dv.trial.eyelink.setup.MISSING;
 
-otx=dv.el.MISSING;    % current target position
-oty=dv.el.MISSING;
+otx=dv.trial.eyelink.setup.MISSING;    % current target position
+oty=dv.trial.eyelink.setup.MISSING;
 
 pdsEyelinkClearCalDisplay(dv);	% setup_cal_display()
 
 key=1;
 while key~= 0
-	[key, dv.el]=EyelinkGetKey(dv.el);		% dump old keys
+	[key, dv.trial.eyelink.setup]=EyelinkGetKey(dv.trial.eyelink.setup);		% dump old keys
 end
 				% LOOP WHILE WE ARE DISPLAYING TARGETS
 stop=0;
-while stop==0 && bitand(Eyelink('CurrentMode'), dv.el.IN_TARGET_MODE)
+while stop==0 && bitand(Eyelink('CurrentMode'), dv.trial.eyelink.setup.IN_TARGET_MODE)
 
-	if Eyelink( 'IsConnected' )==dv.el.notconnected
+	if Eyelink( 'IsConnected' )==dv.trial.eyelink.setup.notconnected
 		result=-1;
 		return;
 	end;
 
-	[key, dv.el]=EyelinkGetKey(dv.el);		% getkey() HANDLE LOCAL KEY PRESS
+	[key, dv.trial.eyelink.setup]=EyelinkGetKey(dv.trial.eyelink.setup);		% getkey() HANDLE LOCAL KEY PRESS
 
 	switch key 
-		case dv.el.TERMINATE_KEY,       % breakout key code
+		case dv.trial.eyelink.setup.TERMINATE_KEY,       % breakout key code
 			pdsEyelinkClearCalDisplay(dv); % clear_cal_display();
-			result=dv.el.TERMINATE_KEY;
+			result=dv.trial.eyelink.setup.TERMINATE_KEY;
 			return;
-		case dv.el.SPACE_BAR,	         		% 32: accept fixation
-			if dv.el.allowlocaltrigger==1
+		case dv.trial.eyelink.setup.SPACE_BAR,	         		% 32: accept fixation
+            if dv.trial.eyelink.setup.allowlocaltrigger==1
 				Eyelink( 'AcceptTrigger');
             end
-            pdsDatapixxAnalogOut(.1)
+            datapixxAnalogOut(.1)
             
 			break;
-		case { 0,  dv.el.JUNK_KEY	}	% No key
-		case dv.el.ESC_KEY,
-			if Eyelink('IsConnected') == dv.el.dummyconnected
+		case { 0,  dv.trial.eyelink.setup.JUNK_KEY	}	% No key
+		case dv.trial.eyelink.setup.ESC_KEY,
+            if Eyelink('IsConnected') == dv.trial.eyelink.setup.dummyconnected
 				stop=1;
-			end
-		    if dv.el.allowlocalcontrol==1 
-	       		Eyelink('SendKeyButton', key, 0, dv.el.KB_PRESS );
-			end
+            end
+            if dv.trial.eyelink.setup.allowlocalcontrol==1 
+	       		Eyelink('SendKeyButton', key, 0, dv.trial.eyelink.setup.KB_PRESS );
+            end
 		otherwise,          % Echo to tracker for remote control
-		    if dv.el.allowlocalcontrol==1 
-	       		Eyelink('SendKeyButton', key, 0, dv.el.KB_PRESS );
-			end
+            if dv.trial.eyelink.setup.allowlocalcontrol==1 
+	       		Eyelink('SendKeyButton', key, 0, dv.trial.eyelink.setup.KB_PRESS );
+            end
 	end % switch key
 
 
@@ -85,8 +85,8 @@ while stop==0 && bitand(Eyelink('CurrentMode'), dv.el.IN_TARGET_MODE)
 		targetvisible = 1;
 		otx = tx;		% record position for future tests
 		oty = ty;
-		if dv.el.targetbeep==1
-			EyelinkCalTargetBeep(dv.el);	% optional beep to alert subject
+		if dv.trial.eyelink.setup.targetbeep==1
+			EyelinkCalTargetBeep(dv);	% optional beep to alert subject
 		end
 	end
 	
@@ -94,11 +94,11 @@ end % while IN_TARGET_MODE
 
 
 % exit:					% CLEAN UP ON EXIT
-if dv.el.targetbeep==1
+if dv.trial.eyelink.setup.targetbeep==1
 	if Eyelink('CalResult')==1  % does 1 signal success?
-		EyelinkCalDoneBeep(dv.el, 1);
+		EyelinkCalDoneBeep(dv, 1);
 	else
-	  	EyelinkCalDoneBeep(dv.el, -1);
+	  	EyelinkCalDoneBeep(dv, -1);
 	end
 end
   

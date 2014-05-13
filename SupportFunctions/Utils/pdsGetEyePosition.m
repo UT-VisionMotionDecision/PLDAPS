@@ -13,34 +13,34 @@ function dv = pdsGetEyePosition(dv, updateQueue)
 %           .eyeY   [1 x 1] - vertical eye position (pixels)
 
 % quick sample current position of eye
-if dv.useMouse
+if dv.trial.mouse.use
     dv.trial.eyeX = dv.trial.cursorX;
     dv.trial.eyeY = dv.trial.cursorY;
-elseif dv.useEyelink
+elseif dv.trial.eyelink.use
     
-    if(nargin<2 || updateQueue || (isfield(dv, 'movav') && dv.movav>1))
-        dv = pdsEyelinkGetQueue(dv);
+    if(nargin<2 || updateQueue || (isfield(dv.trial.eyelink, 'movav') && dv.trial.eyelink.movav>1))
+        eyelinkGetQueue(dv);
     end
     % Get Eyelink Queue data
-    if isfield(dv, 'movav') && dv.movav>1
+    if isfield(dv.trial.eyelink, 'movav') && dv.trial.eyelink.movav>1
         try
             
-            dv.trial.eyeX = mean(dv.el.sampleBuffer(14,(dv.el.sampleNum-dv.movav):dv.el.sampleNum-1));
-            dv.trial.eyeY = mean(dv.el.sampleBuffer(16,(dv.el.sampleNum-dv.movav):dv.el.sampleNum-1));
+            dv.trial.eyeX = mean(dv.trial.eyelink.sampleBuffer(14,(dv.trial.eyelink.sampleNum-dv.trial.eyelink.movav):dv.trial.eyelink.sampleNum-1));
+            dv.trial.eyeY = mean(dv.trial.eyelink.sampleBuffer(16,(dv.trial.eyelink.sampleNum-dv.trial.eyelink.movav):dv.trial.eyelink.sampleNum-1));
         catch eyeGetError
             %%% Eyelink toolbox way of sampling the eye position %%%
-            eye = Eyelink('getfloatdata', dv.el.SAMPLE_TYPE);
-            dv.trial.eyeX = eye.gx(dv.el.eyeIdx);
-            dv.trial.eyeY = eye.gy(dv.el.eyeIdx);
-            dv.trial.eyeGetError = eyeGetError;
+            eye = Eyelink('getfloatdata', dv.trial.eyelink.setup.SAMPLE_TYPE);
+            dv.trial.eyeX = eye.gx(dv.trial.eyelink.eyeIdx);
+            dv.trial.eyeY = eye.gy(dv.trial.eyelink.eyeIdx);
+            dv.trial.eyelink.eyeGetError = eyeGetError;
         end
     else
-        eye = Eyelink('getfloatdata', dv.el.SAMPLE_TYPE);
-        dv.trial.eyeX = eye.gx(dv.el.eyeIdx);
-        dv.trial.eyeY = eye.gy(dv.el.eyeIdx);
+        eye = Eyelink('getfloatdata', dv.trial.eyelink.setup.SAMPLE_TYPE);
+        dv.trial.eyeX = eye.gx(dv.trial.eyelink.eyeIdx);
+        dv.trial.eyeY = eye.gy(dv.trial.eyelink.eyeIdx);
     end
     
 else
-    [dv.trial.eyeX, dv.trial.eyeY] = pdsDatapixxGetEyePosition(dv);
+    [dv.trial.eyeX, dv.trial.eyeY] = datapixxGetEyePosition(dv);
 end
 

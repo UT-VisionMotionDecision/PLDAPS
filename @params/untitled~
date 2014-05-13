@@ -1,0 +1,15 @@
+com.mathworks.hg.peer.utils.UIScrollPane[,0,0,190x420,
+    layout=javax.swing.ScrollPaneLayout$UIResource,
+    alignmentX=0.0,alignmentY=0.0,
+    border=com.apple.laf.AquaScrollRegionBorder@1fccc854,
+    flags=328,maximumSize=,minimumSize=,preferredSize=,columnHeader=,
+    horizontalScrollBar=com.mathworks.hg.peer.utils.UIScrollPane$2[,2,403,171x15,alignmentX=0.0,alignmentY=0.0,border=,flags=4194304,
+    maximumSize=,minimumSize=,preferredSize=,blockIncrement=10,orientation=HORIZONTAL,unitIncrement=1],
+    horizontalScrollBarPolicy=HORIZONTAL_SCROLLBAR_AS_NEEDED,lowerLeft=,lowerRight=,rowHeader=,upperLeft=,upperRight=,
+    
+    verticalScrollBar=com.mathworks.hg.peer.utils.UIScrollPane
+        $1[,173,2,15x401,alignmentX=0.0,alignmentY=0.0,border=,flags=4194304,maximumSize=,minimumSize=,preferredSize=,blockIncrement=10,
+        orientation=VERTICAL,unitIncrement=1],
+        verticalScrollBarPolicy=VERTICAL_SCROLLBAR_ALWAYS,
+        viewport=javax.swing.JViewport[,2,2,171x401,layout=javax.swing.ViewportLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=25165832,maximumSize=,minimumSize=,preferredSize=
+    ,isViewSizeSet=true,lastPaintPosition=java.awt.Point[x=0,y=0],scrollUnderway=false],viewportBorder=]

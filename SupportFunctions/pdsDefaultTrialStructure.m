@@ -4,38 +4,43 @@ function dv = pdsDefaultTrialStructure(dv)
 % standard task parameters we use in huk lab
 
 % 12/2013 jly   Wrote it
-dv.goodtrial = 0;
-dv.disp.photodiode = 1;
-dv.disp.photodiodeRect = makePhotodiodeRect(dv, 2);
-dv.disp.photodiodeFrames = 10;
+dv.defaultParameters.good = 1;
 
-if ~isfield(dv, 'finish')
-    dv.finish = inf;
+dv.defaultParameters.stimulus.photodiode.use = 1;
+dv.defaultParameters.stimulus.photodiode.location = 2;
+dv.defaultParameters.stimulus.photodiode.frames = 10;
+
+% Setup Photodiode stimuli
+%-------------------------------------------------------------------------%
+if(dv.defaultParameters.stimulus.photodiode.use)
+    dv.defaultParameters.stimulus.photodiode.rect = makePhotodiodeRect(dv);
 end
 
-dv.pa.randomNumberGenerater = 'mt19937ar';
-% log timestamps
-PsychDataPixx('LogOnsetTimestamps', 0);
-PsychDataPixx('LogOnsetTimestamps', 2);
+if ~isfield(dv.defaultParameters,'pldaps.finish')
+    dv.defaultParameters.pldaps.finish = inf;
+end
+
+dv.defaultParameters.stimulus.randomNumberGenerater = 'mt19937ar';
+
 
 % Setup Timings
 %-------------------------------------------------------------------------%
 % Reward time: is time that solenoid is opened for. set to 100 miliseconds
 % for mapping trials.
-dv.pa.rewardTime = .1;
-dv.pa.rewardWait = 0;
-dv.pa.breakFixPenalty = 2;
-dv.pa.jitterSize = .5;
+dv.defaultParameters.stimulus.rewardTime = .1;
+dv.defaultParameters.stimulus.rewardWait = 0;
+dv.defaultParameters.stimulus.breakFixPenalty = 2;
+dv.defaultParameters.stimulus.jitterSize = .5;
 % fixation
-dv.pa.preTrial     = .5;
-dv.pa.fixWait      = 4;
-dv.pa.fixHold      = 1;
+dv.defaultParameters.stimulus.preTrial     = .5;
+dv.defaultParameters.stimulus.fixWait      = 4;
+dv.defaultParameters.stimulus.fixHold      = 1;
 
 % targets
-dv.pa.targWait   = 1.5;
-dv.pa.targHold   = 0.5;
-dv.pa.targOnset  = [0.1 0.1];
-dv.pa.targDuration = [2 .2];
+dv.defaultParameters.stimulus.targWait   = 1.5;
+dv.defaultParameters.stimulus.targHold   = 0.5;
+dv.defaultParameters.stimulus.targOnset  = [0.1 0.1];
+dv.defaultParameters.stimulus.targDuration = [2 .2];
 
 % Colors
 %-------------------------------------------------------------------------%
@@ -50,22 +55,20 @@ dv = initTicks(dv);
 dv = defaultBitNames(dv);
 
 % dot sizes for drawing
-dv.pa.eyeW      = 8;    % eye indicator width in pixels
-dv.pa.fixdotW   = 8;    % width of the fixation dot
-dv.pa.targdotW  = 8;    % width of the target dot
-dv.pa.cursorW   = 8;   % cursor width in pixels
+dv.defaultParameters.stimulus.eyeW      = 8;    % eye indicator width in pixels
+dv.defaultParameters.stimulus.fixdotW   = 8;    % width of the fixation dot
+dv.defaultParameters.stimulus.targdotW  = 8;    % width of the target dot
+dv.defaultParameters.stimulus.cursorW   = 8;   % cursor width in pixels
 
 % States
 %-------------------------------------------------------------------------%
-dv.states.START     = 1;
-dv.states.FPON      = 2;
-dv.states.FPHOLD    = 3;
-dv.states.CHOOSETARG = 4;
-dv.states.HOLDTARG     = 5;
-dv.states.BREAKFIX  = 7;
-dv.states.TRIALCOMPLETE = 6;
+dv.defaultParameters.stimulus.states.START     = 1;
+dv.defaultParameters.stimulus.states.FPON      = 2;
+dv.defaultParameters.stimulus.states.FPHOLD    = 3;
+dv.defaultParameters.stimulus.states.CHOOSETARG = 4;
+dv.defaultParameters.stimulus.states.HOLDTARG     = 5;
+dv.defaultParameters.stimulus.states.BREAKFIX  = 7;
+dv.defaultParameters.stimulus.states.TRIALCOMPLETE = 6;
 
-% Audio
-%-------------------------------------------------------------------------%
-dv = pdsAudioSetup(dv);
+
 

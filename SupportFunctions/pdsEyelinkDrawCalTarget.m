@@ -10,13 +10,13 @@ function pdsEyelinkDrawCalTarget(dv, x, y)
 %   22-06-06    fwc OSX-ed
 %   12-12-13    jly Takes in dv struct and draws dots instead of ovals
 
-if dv.disp.useOverlay
-    tempcolor = dv.disp.clut.targetgood; 
-    Screen('FillRect', dv.disp.overlayptr, 0); 
-    Screen('Drawdots',dv.disp.overlayptr,[x; y],dv.pa.fixdotW,tempcolor,[],2)
+if dv.trial.display.useOverlay
+    tempcolor = dv.trial.display.clut.targetgood; 
+    Screen('FillRect', dv.trial.display.overlayptr, 0); 
+    Screen('Drawdots',dv.trial.display.overlayptr,[x; y],dv.trial.stimulus.fixdotW,tempcolor,[],2)
 else
     tempcolor = [1 0 0]';
-    Screen('Drawdots',dv.disp.ptr,[x; y],dv.pa.fixdotW,tempcolor,[],2)
+    Screen('Drawdots',dv.trial.display.ptr,[x; y],dv.trial.stimulus.fixdotW,tempcolor,[],2)
 end
 
-Screen( 'Flip',  dv.disp.ptr);
+Screen( 'Flip',  dv.trial.display.ptr);

@@ -1,4 +1,4 @@
-function rect = makePhotodiodeRect(dv, location)
+function rect = makePhotodiodeRect(dv)
 % rect = makePhotodiodeRect(dv, location)
 % makePhotodiodeRect makes a 4 coordinate rectangle for PTB fillRect calls
 % INPUTS
@@ -9,18 +9,18 @@ function rect = makePhotodiodeRect(dv, location)
 
 % 12/15/2013 jly    Wrote it
 
-switch location
+switch dv.defaultParameters.stimulus.photodiode.location
     case 1
-        rect = [dv.disp.winRect(1:2) dv.disp.winRect(1:2)+dv.disp.ppd];
+        rect = [dv.defaultParameters.display.winRect(1:2) dv.defaultParameters.display.winRect(1:2)+dv.defaultParameters.display.ppd];
     case 2
-        rect = [dv.disp.winRect(1) dv.disp.winRect(4)-dv.disp.ppd ...
-            dv.disp.winRect(1)+dv.disp.ppd dv.disp.winRect(4)];
+        rect = [dv.defaultParameters.display.winRect(1) dv.defaultParameters.display.winRect(4)-dv.defaultParameters.display.ppd ...
+            dv.defaultParameters.display.winRect(1)+dv.defaultParameters.display.ppd dv.defaultParameters.display.winRect(4)];
     case 3
-        rect = [dv.disp.winRect(3)-dv.disp.ppd dv.disp.winRect(2)...
-            dv.disp.winRect(3) dv.disp.winRect(2)+dv.disp.ppd];
+        rect = [dv.defaultParameters.display.winRect(3)-dv.defaultParameters.display.ppd dv.defaultParameters.display.winRect(2)...
+            dv.defaultParameters.display.winRect(3) dv.defaultParameters.display.winRect(2)+dv.defaultParameters.display.ppd];
     case 4
-        rect = [dv.disp.winRect(3:4)-dv.disp.ppd dv.disp.winRect(3:4)];
+        rect = [dv.defaultParameters.display.winRect(3:4)-dv.defaultParameters.display.ppd dv.defaultParameters.display.winRect(3:4)];
     otherwise
-        rect = [dv.disp.winRect(1) dv.disp.winRect(4)-dv.disp.ppd ...
-            dv.disp.winRect(1)+dv.disp.ppd dv.disp.winRect(4)];
+        rect = [dv.defaultParameters.display.winRect(1) dv.defaultParameters.display.winRect(4)-dv.defaultParameters.display.ppd ...
+            dv.defaultParameters.display.winRect(1)+dv.defaultParameters.display.ppd dv.defaultParameters.display.winRect(4)];
 end

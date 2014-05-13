@@ -8,8 +8,8 @@ function dv = defaultColors(dv)
 
 %%% CLUT colors %%%
 % note: CLUT indexing and MATLAB indexing are zero and 1-based, respectively
-dv.disp.humanCLUT = [0, 0, 0;  % IGNORE THIS LINE
-    dv.disp.bgColor; % bg           1
+dv.defaultParameters.display.humanCLUT = [0, 0, 0;  % IGNORE THIS LINE
+    dv.defaultParameters.display.bgColor; % bg           1
     0.8, 0, 0.5;  % cursor          2
     0, 1, 0;  % target color        3
     1, 0, 0;  % null target color   4
@@ -22,28 +22,28 @@ dv.disp.humanCLUT = [0, 0, 0;  % IGNORE THIS LINE
     zeros(245,3)];
 
 
-dv.disp.monkeyCLUT = [0,0,0; % IGNORE THIS LINE (CLUT is 0 based)
-    dv.disp.bgColor;     % bg (gray)          1
-    dv.disp.bgColor;     % cursor (bg)        2
+dv.defaultParameters.display.monkeyCLUT = [0,0,0; % IGNORE THIS LINE (CLUT is 0 based)
+    dv.defaultParameters.display.bgColor;     % bg (gray)          1
+    dv.defaultParameters.display.bgColor;     % cursor (bg)        2
     1, 0, 0;             % target color       3
     1, 0, 0;             % null target color  4
-    dv.disp.bgColor;     % window color       5
+    dv.defaultParameters.display.bgColor;     % window color       5
     1, 0, 0;             % fixation color     6
     1, 1, 1;             % white (dots)       7
-    dv.disp.bgColor;     % eyepos (bg)        8
+    dv.defaultParameters.display.bgColor;     % eyepos (bg)        8
     0,0,0                % black (dots)       9
     0,0,1;               % blue               10
     zeros(245,3)];
 
 %%% keeping track of which color is which
-dv.disp.clut.bg         = 1;
-dv.disp.clut.cursor     = 2;
-dv.disp.clut.targetgood = 3;
-dv.disp.clut.targetnull = 4;
-dv.disp.clut.window     = 5;
-dv.disp.clut.fixation   = 6;
-dv.disp.clut.white      = 7;
-dv.disp.clut.eyepos     = 8;
-dv.disp.clut.black      = 9;
-dv.disp.clut.blue       = 10;
-dv.disp.clut.red        = 4;
+dv.defaultParameters.display.clut.bg         = 1;
+dv.defaultParameters.display.clut.cursor     = 2;
+dv.defaultParameters.display.clut.targetgood = 3;
+dv.defaultParameters.display.clut.targetnull = 4;
+dv.defaultParameters.display.clut.window     = 5;
+dv.defaultParameters.display.clut.fixation   = 6;
+dv.defaultParameters.display.clut.white      = 7;
+dv.defaultParameters.display.clut.eyepos     = 8;
+dv.defaultParameters.display.clut.black      = 9;
+dv.defaultParameters.display.clut.blue       = 10;
+dv.defaultParameters.display.clut.red        = 4;
