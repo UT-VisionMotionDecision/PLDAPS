@@ -123,16 +123,16 @@ while stop==0 && bitand(Eyelink( 'CurrentMode'), dv.trial.eyelink.setup.IN_SETUP
                 Eyelink('SendKeyButton', double(key), 0, dv.trial.eyelink.setup.KB_PRESS );
             end
             if key == dv.trial.eyelink.setup.SPACE_BAR
-                datapixxAnalogOut(.1)
+                pdsDatapixxAnalogOut(.1)
             end
             if strcmp(char(key), 'm')
-                datapixxAnalogOut(.1)
+                pdsDatapixxAnalogOut(.1)
             end
     end
 end % while IN_SETUP_MODE
 
 pdsEyelinkClearCalDisplay(dv);	% exit_cal_display()
-dv = eyelinkSetup(dv);
+dv = pdsEyelinkSetup(dv);
 ListenChar(0)
 ShowCursor
 return;

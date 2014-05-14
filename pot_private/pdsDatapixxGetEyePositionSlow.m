@@ -1,7 +1,7 @@
-function [x,y] = datapixxGetEyePositionSlow(dv)
+function [x,y] = pdsDatapixxGetEyePositionSlow(dv)
 %
-% [x,y,unsmoothedline,v] = DatapixxGetEyePosition(unsmoothed,i,dv)
-% DatapixxGetEyePosition computes X and Y pixel values from an analog 
+% [x,y,unsmoothedline,v] = pdsDatapixxGetEyePosition(unsmoothed,i,dv)
+% pdsDatapixxGetEyePosition computes X and Y pixel values from an analog
 % joystick via the A-D system on the Datapixx. 
 %
 % GETJOY uses a moving average to smooth data coming from an analog

@@ -1,4 +1,4 @@
-function audioClearBuffer(dv)
+function pdsAudioClearBuffer(dv)
 % pdsAudioClearBuffer(dv)
 
 PsychPortAudio('Stop', dv.trial.sound.breakfix);

@@ -71,17 +71,17 @@ try
     dv = feval(dv.defaultParameters.session.experimentSetupFile, dv);
     
             %things that were in the conditionFile
-            dv = eyelinkSetup(dv);
+            dv = pdsEyelinkSetup(dv);
     
             %things that where in the default Trial Structure
             
             % Audio
             %-------------------------------------------------------------------------%
-            dv = audioSetup(dv);
+            dv = pdsAudioSetup(dv);
             
             % Audio
             %-------------------------------------------------------------------------%
-            dv = spikeserverConnect(dv);
+            dv = pdsSpikeserverConnect(dv);
             
             % From help PsychDataPixx:
             % Timestamping is disabled by default (mode == 0), as it incurs a bit of
@@ -93,7 +93,7 @@ try
             
     
             % Initialize Datapixx for Dual CLUTS
-            dv = datapixxInit(dv);
+            dv = pdsDatapixxInit(dv);
             
             pdsKeyboardSetup();
     
@@ -167,7 +167,7 @@ try
             HideCursor;
             
             
-            datapixxRefresh(dv);
+            pdsDatapixxRefresh(dv);
             
         end
         
@@ -182,8 +182,8 @@ try
     ListenChar(0)
     Priority(0)
     
-    dv = eyelinkFinish(dv);
-    dv = spikeserverDisconnect(dv);
+    dv = pdsEyelinkFinish(dv);
+    dv = pdsSpikeserverDisconnect(dv);
     if(dv.defaultParameters.datapixx.use)
         dv.defaultParameters.datapixx.timestamplog = PsychDataPixx('GetTimestampLog', 1);
     end

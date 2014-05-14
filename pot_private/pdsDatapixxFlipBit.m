@@ -1,5 +1,5 @@
-function datapixxFlipBit(bit)
-% DatapixxFlipBit(bit)
+function pdsDatapixxFlipBit(bit)
+% pdsDatapixxFlipBit(bit)
 %
 % DatapixxFlipBit flips a bit on the digital out values of the Datapixx
 % box, provided USEDATPIXXBOOL = 1.  The bit flipped is specified

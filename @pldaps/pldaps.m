@@ -252,8 +252,8 @@ classdef pldaps < handle
 %             dv.trial.targUser = 0;
 %         else
         if  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.mKey)
-            datapixxAnalogOut(dv.trial.rewardTime)
-            datapixxFlipBit(dv.trial.pldaps.events);
+            pdsDatapixxAnalogOut(dv.trial.rewardTime)
+            pdsDatapixxFlipBit(dv.trial.pldaps.events);
             dv.trial.ttime = GetSecs - dv.trial.trstart;
             dv.trial.timeReward(dv.trial.iReward) = dv.trial.ttime;
             dv.trial.iReward = dv.trial.iReward + 1;
@@ -356,7 +356,7 @@ classdef pldaps < handle
         % has less timing issues than Beeper.m -- Beeper freezes flips as long as
         % it is producing sound whereas PsychPortAudio loads a wav file into the
         % buffer and can call it instantly without wasting much compute time.
-        audioClearBuffer(dv)
+        pdsAudioClearBuffer(dv)
 
 
         if dv.trial.datapixx.use
@@ -367,16 +367,16 @@ classdef pldaps < handle
 
         %%% Initalize Keyboard %%%
         %-------------------------------------------------------------------------%
-        keyboardClearBuffer(dv);
+        pdsKeyboardClearBuffer(dv);
 
         %%% Spike server
         %-------------------------------------------------------------------------%
-        [dv,spikes] = spikeserverGetSpikes(dv); %what are we dowing with the spikes???
+        [dv,spikes] = pdsSpikeserverGetSpikes(dv); %what are we dowing with the spikes???
 
         %%% Eyelink Toolbox Setup %%%
         %-------------------------------------------------------------------------%
         % preallocate for all eye samples and event data from the eyelink
-        eyelinkStartTrial(dv);
+        pdsEyelinkStartTrial(dv);
 
 
         %%% START OF TRIAL TIMING %%
@@ -393,7 +393,7 @@ classdef pldaps < handle
         clocktime = fix(clock);
         if dv.trial.datapixx.use
             for ii = 1:6
-                datapixxStrobe(clocktime(ii));
+                pdsDatapixxStrobe(clocktime(ii));
             end
         end
         dv.trial.unique_number = clocktime;    % trial identifier
@@ -402,7 +402,7 @@ classdef pldaps < handle
 
         if dv.trial.datapixx.use
             dv.trial.timing.datapixxStartTime = Datapixx('Gettime');
-            datapixxFlipBit(dv.trial.event.TRIALSTART);  % start of trial (Plexon)
+            pdsDatapixxFlipBit(dv.trial.event.TRIALSTART);  % start of trial (Plexon)
         end
         if dv.trial.eyelink.use
             dv.trial.timing.eyelinkStartTime = Eyelink('TrackerTime');
@@ -434,7 +434,7 @@ classdef pldaps < handle
         %---------------------------------------------------------------------%
         if isfield(dv.trial, 'spikeserver') && dv.trial.spikeserver.use
             try
-                [dv, dv.trial.spikeserver.spikes] = spikeServerGetSpikes(dv);
+                [dv, dv.trial.spikeserver.spikes] = pdsSpikeServerGetSpikes(dv);
 
                 if ~isempty(dv.trial.spikeserver.spikes)
                     plbit = dv.trial.event.TRIALSTART + 2;
@@ -466,7 +466,7 @@ classdef pldaps < handle
         % end
       
         if dv.trial.eyelink.use
-            [Q, rowId] = eyelinkSaveQueue(dv);
+            [Q, rowId] = pdsEyelinkSaveQueue(dv);
             dv.trial.eyelink.samples = Q;
             dv.trial.eyelink.sampleIds = rowId; % I overwrite everytime because PDStrialTemps get saved after every trial if we for some unforseen reason ever need this for each trial
             dv.trial.eyelink.events   = dv.trial.eyelink.events(:,~isnan(dv.trial.eyelink.events(1,:)));

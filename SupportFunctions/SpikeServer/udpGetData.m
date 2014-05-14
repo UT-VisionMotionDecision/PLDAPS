@@ -2,7 +2,7 @@ function [spikes, sock] = udpGetData(selfip,selfport,remoteip,remoteport,sock, t
 % spikes = udpGetData(selfip,selfport,remoteip,remoteport)
 %
 % SPIKESERVERGETSPIKES reads spikes from the udp connection opened by
-% spikeServerConnect.m
+% pdsSpikeServerConnect.m
 spikes = [];
 
 initt0 = GetSecs;
