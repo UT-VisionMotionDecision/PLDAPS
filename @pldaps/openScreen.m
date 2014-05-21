@@ -124,7 +124,9 @@ disp('****************************************************************')
 disp('****************************************************************')
 fprintf('Opening screen %d with background %02.2f in stereo mode %d\r', dv.defaultParameters.display.scrnNum, dv.defaultParameters.display.bgColor(1), dv.defaultParameters.display.stereoMode)
 disp('****************************************************************')
-[dv.defaultParameters.display.ptr, dv.defaultParameters.display.winRect]=PsychImaging('OpenWindow', dv.defaultParameters.display.scrnNum, dv.defaultParameters.display.bgColor, dv.defaultParameters.display.screenSize, [], [], dv.defaultParameters.display.stereoMode, 0);
+[ptr, winRect]=PsychImaging('OpenWindow', dv.defaultParameters.display.scrnNum, dv.defaultParameters.display.bgColor, dv.defaultParameters.display.screenSize, [], [], dv.defaultParameters.display.stereoMode, 0);
+dv.defaultParameters.display.ptr=ptr;
+dv.defaultParameters.display.winRect=winRect;
 
 
 % % Set gamma lookup table

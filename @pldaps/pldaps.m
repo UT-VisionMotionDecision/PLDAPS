@@ -252,7 +252,7 @@ classdef pldaps < handle
 %             dv.trial.targUser = 0;
 %         else
         if  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.mKey)
-            pdsDatapixxAnalogOut(dv.trial.rewardTime)
+            pdsDatapixxAnalogOut(dv.trial.stimulus.rewardTime)
             pdsDatapixxFlipBit(dv.trial.pldaps.events);
             dv.trial.ttime = GetSecs - dv.trial.trstart;
             dv.trial.timeReward(dv.trial.iReward) = dv.trial.ttime;

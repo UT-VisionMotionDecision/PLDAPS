@@ -1,4 +1,4 @@
-function result = datapixxRefresh(dv)
+function result = pdsDatapixxRefresh(dv)
 % result = pdsDatapixxRefresh(dv)
 % pdsDatapixxRefresh refreshes voltage outs
 % It's possible (and is the case right now using Leor's Analog data

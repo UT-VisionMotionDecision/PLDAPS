@@ -1,4 +1,4 @@
- function dp = datapixxAdcStop(dp)
+ function dp = pdsDatapixxAdcStop(dp)
 % [dp] = pdsDatapixxAdcStop(dp)
 % 
 % The function should be called after AdcStart.
