@@ -157,10 +157,21 @@ try
            else
                 dv.trial.pldaps.iTrial=trialNr;
            end
+           
+           if isfield(dTrialStruct,'pldaps')
+               if isfield(dTrialStruct.pldaps,'finish') 
+                    dv.trial.pldaps.finish=dTrialStruct.pldaps.finish;
+               end
+               if isfield(dTrialStruct.pldaps,'quit') 
+                    dv.trial.pldaps.quit=dTrialStruct.pldaps.quit;
+               end
+           end
             
-        else %dbquit ==1 is meant to be pause. should be halt eyelink, datapixx, etc?
+        else %dbquit ==1 is meant to be pause. should we halt eyelink, datapixx, etc?
             ListenChar(0);
             ShowCursor;
+            dv  %#ok<NOPRT>
+            disp('Ready to begin trials. Type return to start first trial...')
             keyboard %#ok<MCKBD>
             dv.quit = 0;
             ListenChar(2);
