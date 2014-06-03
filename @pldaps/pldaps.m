@@ -130,7 +130,7 @@ classdef pldaps < handle
     
     dv.trial.currentFrameState=1;    
     
-    dv.trialSetup();
+    trialSetup(dv);
     
     timeNeeded(dv.trial.pldaps.frameStates.frameUpdate)=0.5;
     timeNeeded(dv.trial.pldaps.frameStates.framePrepareDrawing)=2;
@@ -144,7 +144,7 @@ classdef pldaps < handle
 
     %will be called just before the trial starts for time critical calls to
     %start data aquisition
-    dv.trialPrepare();
+    trialPrepare(dv);
 
 
 
@@ -178,19 +178,19 @@ classdef pldaps < handle
 
             switch dv.trial.currentFrameState
                 case dv.trial.pldaps.frameStates.frameUpdate
-                    dv.frameUpdate();
+                    frameUpdate(dv);
                     dv.trial.currentFrameState = dv.trial.pldaps.frameStates.framePrepareDrawing;
 
                 case dv.trial.pldaps.frameStates.framePrepareDrawing
-                    dv.framePrepareDrawing();
+                    framePrepareDrawing(dv);
                     dv.trial.currentFrameState = dv.trial.pldaps.frameStates.frameDraw;
 
                 case dv.trial.pldaps.frameStates.frameDraw
-                    dv.frameDraw();
+                    frameDraw(dv);
                     dv.trial.currentFrameState=dv.trial.pldaps.frameStates.frameIdlePreLastDraw;
  
                 case dv.trial.pldaps.frameStates.frameIdlePreLastDraw
-                    dv.frameIdlePreLastDraw();
+                    frameIdlePreLastDraw(dv);
 
                     if(remainingTime<sum(timeNeeded(dv.trial.pldaps.frameStates.frameIdlePreLastDraw+1:end)))
                         dv.trial.currentFrameState=dv.trial.pldaps.frameStates.frameDrawTimecritical;
@@ -198,7 +198,7 @@ classdef pldaps < handle
                     dv.trial.framePreLastDrawIdleCount = dv.trial.framePreLastDrawIdleCount +1;
 
                 case dv.trial.pldaps.frameStates.frameDrawTimecritical
-                    dv.drawTimecritical();
+                    drawTimecritical(dv);
                     dv.trial.currentFrameState = dv.trial.pldaps.frameStates.frameDrawingFinished;
                      
                 case dv.trial.pldaps.frameStates.frameDrawingFinished
@@ -208,11 +208,11 @@ classdef pldaps < handle
                     %%use the till till the flip to prepare the next frame.
                     %%we could probably alsways do this (async). If there is no
                     %%time left, we won't benefit that much, but it shoudn't hurt.
-                    dv.frameDrawingFinished();
+                    frameDrawingFinished(dv);
                     dv.trial.currentFrameState=dv.trial.pldaps.frameStates.frameIdlePostDraw;
 
                 case dv.trial.pldaps.frameStates.frameIdlePostDraw
-                    dv.frameIdlePostDraw();
+                    frameIdlePostDraw(dv);
 
                     if(remainingTime<sum(timeNeeded(dv.trial.pldaps.frameStates.frameIdlePostDraw+1:end)))
                         dv.trial.currentFrameState=dv.trial.pldaps.frameStates.frameFlip;
@@ -220,7 +220,7 @@ classdef pldaps < handle
                     dv.trial.framePostLastDrawIdleCount = dv.trial.framePostLastDrawIdleCount +1;
 
                 case dv.trial.pldaps.frameStates.frameFlip
-                    dv.frameFlip();
+                    frameFlip(dv);
                     %advance to next frame
                     dv.trial.currentFrameState=dv.trial.pldaps.frameStates.frameUpdate;
 
@@ -236,11 +236,10 @@ classdef pldaps < handle
             dv.trial.prevFrame=dv.trial.iFrame;
         end
 
-        dv = dv.cleanUpandSave();
+        dv = cleanUpandSave(dv);
 
     end %runTrial
 
-    
     %%% get inputs and check behavior%%%
 %---------------------------------------------------------------------% 
     function frameUpdate(dv)   
@@ -248,9 +247,6 @@ classdef pldaps < handle
         
         %Keyboard    
         [dv.trial.keyboard.pressedQ,  dv.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
-%         if  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.rKey)       % R = cycled targets
-%             dv.trial.targUser = 0;
-%         else
         if  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.mKey)
             if dv.trial.datapixx.use
                 pdsDatapixxAnalogOut(dv.trial.stimulus.rewardTime)
@@ -286,15 +282,38 @@ classdef pldaps < handle
         %get eyeposition
         pdsGetEyePosition(dv, true);
     end %frameUpdate
-
+% 
     function framePrepareDrawing(dv)
     end %framePrepareDrawing
 
+    %% frameDraw
     function frameDraw(dv)
         %this could hold the code to draw some stuff to the overlay (using
         %switches, like the grid, the eye Position, etc
+        
+        %consider moving this stuff to an earlier timepoint, to allow GPU
+        %to crunch on this before the real stuff gets added.
+        if dv.trial.pldaps.draw.grid.use
+            Screen('DrawLines',dv.trial.display.overlayptr,dv.trial.pldaps.draw.grid.tick_line_matrix,1,5,dv.trial.display.ctr(1:2))
+        end
+        
+         %draw the eyepositon to the second srceen only
+         %move the color and size parameters to
+         %dv.trial.pldaps.draw.eyepos?
+         if dv.trial.pldaps.draw.eyepos.use
+            Screen('Drawdots',  dv.trial.display.overlayptr, [dv.trial.eyeX dv.trial.eyeY]', ...
+            dv.trial.stimulus.eyeW, dv.trial.stimulus.colorEyeDot*[1 1 1]', dv.trial.display.ctr(1:2),0)
+         end
+         
+         if dv.trial.pldaps.draw.photodiode.use && mod(dv.trial.iFrame, dv.trial.pldaps.draw.photodiode.everyXFrames) == 0
+            photodiodecolor = dv.trial.display.clut.window;
+            dv.trial.timing.photodiodeTimes(:,dv.trial.pldaps.draw.photodiode.dataEnd) = [dv.trial.ttime dv.trial.iFrame];
+            dv.trial.pldaps.draw.photodiode.dataEnd=dv.trial.pldaps.draw.photodiode.dataEnd+1;
+            Screen('FillRect',  dv.trial.display.overlayptr,photodiodecolor*ones(3,1), dv.trial.pldaps.draw.photodiode.rect')
+        end
     end %frameDraw
 
+    %% frameIdlePreLastDraw
     function frameIdlePreLastDraw(dv)
         %only execute once, since this is the only part atm, this is done at 0
         if dv.trial.framePreLastDrawIdleCount==0    
@@ -348,6 +367,11 @@ classdef pldaps < handle
         
         dv.trial.timing.flipTimes       = zeros(4,dv.trial.stimulus.nframes);
         dv.trial.timing.frameStateChangeTimes=nan(9,dv.trial.stimulus.nframes);
+        
+        if(dv.trial.pldaps.draw.photodiode.use)
+            dv.trial.timing.photodiodeTimes=nan(2,dv.trial.stimulus.nframes);
+            dv.trial.pldaps.draw.photodiode.dataEnd=1;
+        end
     end %trialSetup
     
     function trialPrepare(dv)     
@@ -421,8 +445,11 @@ classdef pldaps < handle
         end
         dv.trial.trialend = GetSecs- dv.trial.trstart;
 
-        [dv.trial.timing.flipTimes(3,dv.trial.iFrame) dv.trial.timing.flipTimes(4,dv.trial.iFrame) dv.trial.timing.flipTimes(1,dv.trial.iFrame) dv.trial.timing.flipTimes(2,dv.trial.iFrame)] = Screen('Flip', dv.trial.display.ptr); %#ok<ASGLU>
+        [dv.trial.timing.flipTimes(3,dv.trial.iFrame), dv.trial.timing.flipTimes(4,dv.trial.iFrame), dv.trial.timing.flipTimes(1,dv.trial.iFrame), dv.trial.timing.flipTimes(2,dv.trial.iFrame)] = Screen('Flip', dv.trial.display.ptr); %#ok<ASGLU>
 
+        if(dv.trial.pldaps.draw.photodiode.use)
+            dv.trial.timing.photodiodeTimes(:,dv.trial.pldaps.draw.photodiode.dataEnd:end)=[];
+        end
         % if isfield(dv, 'dp') % FIX ME
         %     dv.dp = pdsDatapixxAdcStop(dv.dp);
         % end

@@ -70,6 +70,23 @@ try
     % Setup PLDAPS experiment condition
     dv = feval(dv.defaultParameters.session.experimentSetupFile, dv);
     
+            %
+            % Setup Photodiode stimuli
+            %-------------------------------------------------------------------------%
+            if(dv.trial.pldaps.draw.photodiode.use)
+                makePhotodiodeRect(dv);
+            end
+    
+            % Tick Marks
+            %-------------------------------------------------------------------------%
+            if(dv.trial.pldaps.draw.grid.use)
+                dv = initTicks(dv);
+            end
+
+
+            %get and store changes of current code to the git repository
+            dv = pdsGitSetup(dv);
+            
             %things that were in the conditionFile
             dv = pdsEyelinkSetup(dv);
     

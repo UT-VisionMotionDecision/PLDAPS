@@ -169,6 +169,17 @@ dv.defaultParameters.display.ifi=Screen('GetFlipInterval', dv.defaultParameters.
 dv.defaultParameters.display.ctr = [dv.defaultParameters.display.winRect(3:4),dv.defaultParameters.display.winRect(3:4)]./2 - 0.5;          % Rect defining screen center
 dv.defaultParameters.display.info = Screen('GetWindowInfo', dv.defaultParameters.display.ptr);              % Record a bunch of general display settings
 
+%% some more
+dv.defaultParameters.display.pWidth=dv.defaultParameters.display.winRect(3)-dv.defaultParameters.display.winRect(1);
+dv.defaultParameters.display.pHeight=dv.defaultParameters.display.winRect(4)-dv.defaultParameters.display.winRect(2);      
+dv.defaultParameters.display.wWidth=dv.defaultParameters.display.widthcm;
+dv.defaultParameters.display.wHeight=dv.defaultParameters.display.heightcm;
+dv.defaultParameters.display.dWidth = atand(dv.defaultParameters.display.wWidth/2 / dv.defaultParameters.display.viewdist)*2;
+dv.defaultParameters.display.dHeight = atand(dv.defaultParameters.display.wHeight/2 / dv.defaultParameters.display.viewdist)*2;
+dv.defaultParameters.display.w2px=[dv.defaultParameters.display.pWidth/dv.defaultParameters.display.wWidth; dv.defaultParameters.display.pHeight/dv.defaultParameters.display.wHeight];
+dv.defaultParameters.display.px2w=[dv.defaultParameters.display.wWidth/dv.defaultParameters.display.pWidth; dv.defaultParameters.display.wHeight/dv.defaultParameters.display.pHeight];
+
+
 % Set screen rotation
 dv.defaultParameters.display.ltheta = 0.00*pi;                                    % Screen rotation to adjust for mirrors
 dv.defaultParameters.display.rtheta = -dv.defaultParameters.display.ltheta;

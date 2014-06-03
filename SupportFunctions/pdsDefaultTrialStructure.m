@@ -10,11 +10,6 @@ dv.defaultParameters.stimulus.photodiode.use = 1;
 dv.defaultParameters.stimulus.photodiode.location = 2;
 dv.defaultParameters.stimulus.photodiode.frames = 10;
 
-% Setup Photodiode stimuli
-%-------------------------------------------------------------------------%
-if(dv.defaultParameters.stimulus.photodiode.use)
-    dv.defaultParameters.stimulus.photodiode.rect = makePhotodiodeRect(dv);
-end
 
 if ~isfield(dv.defaultParameters,'pldaps.finish')
     dv.defaultParameters.pldaps.finish = inf;
@@ -45,10 +40,6 @@ dv.defaultParameters.stimulus.targDuration = [2 .2];
 % Colors
 %-------------------------------------------------------------------------%
 dv = defaultColors(dv);
-
-% Tick Marks
-%-------------------------------------------------------------------------%
-dv = initTicks(dv);
 
 % Bits
 %-------------------------------------------------------------------------%
