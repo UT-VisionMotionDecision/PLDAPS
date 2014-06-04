@@ -1,11 +1,24 @@
-function [PDS, dv] = pdsCombineTempFiles(TEMPdir, filename)
+function [PDS, dv, comboFilename] = pdsCombineTempFiles(TEMPdir, filename)
 %   function [PDS, dv] = pdsCombineTempFiles(TEMPdir, filename)
 %
-% The function loads temp PDS files that have been saved into the TEMP
-% folder and combines them into a single PDS structure as would be
-% expected, were it to be saved appropriately...
+% The function can be used in case a PDS session aborted unexpectedly and 
+% the PDS & dv were not saved.
+% The function loads temp PDS files that are saved into the TEMP folder 
+% after every PDS trial and combines them into a single PDS structure, as 
+% would be expected were it to be saved appropriately...
+% * YOU MUST SAVE THE COMBINED PDS/dv YOURSELF!
 %
-% YOU MUST SAVE THE COMBINED PDS/dv YOURSELF!
+% Input:
+%   TEMPdir     - the directory name for TEMP files (usually '/data/TEMP')
+%   filename    - filename for the temp files (e.g. pat20140422newsomedots1128)
+%
+% Output:
+%   PDS             - the combined PDS struct
+%   dv              - the combined dv struct
+%   comboFilename   - the combined filename ending with the str 'combined'
+%                     for quick n' easy saving.
+
+
 
 %% GET FILES:
 
@@ -50,7 +63,7 @@ for t = 1:length(sfiles)
                 if size(PDStemp.(flds{f}),1) > 1                % if it's in the form of colum per trial
                     PDS.(flds{f})(:,t)    = PDStemp.(flds{f});
                 elseif size(PDStemp.(flds{f}),2) > 1
-                    PDS.(flds{f})    = PDStemp.(flds{f});       % if there's 1 row full of data for all trials (e.g. PDS.dots.dur)
+                    PDS.(flds{f})(t,:)    = PDStemp.(flds{f});       % if there's 1 row per trial)
                 end
              end      
         % structures go here and go through the same process again:
@@ -80,8 +93,8 @@ for t = 1:length(sfiles)
             end 
         end
     end
-% update waitbar every 5 files:
-if mod(t,5)==0
+% update waitbar every 20 files:
+if mod(t,20)==0
     waitbar(t/length(sfiles), h)
 end
 
@@ -94,5 +107,6 @@ delete(h)
 fprintf(['\n\n' filename ' is alive! ALIIIIIVE! \n']);
 
 
+comboFilename = [filename 'combo.PDS'];
 
 
