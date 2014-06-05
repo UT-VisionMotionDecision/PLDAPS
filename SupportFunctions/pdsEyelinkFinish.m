@@ -14,14 +14,10 @@ if ~isfield(dv.disp, 'saveEDF')
 end
 
 if dv.useEyelink && Eyelink('IsConnected')
+    edfFile = dv.el.edfFile;
     Eyelink('StopRecording');
     Eyelink('CloseFile');
     if dv.disp.saveEDF
-        % edfFile = fullfile(dv.el.edfFileLocation, dv.el.edfFile);
-        edfFile = dv.el.edfFile;
-        %     Eyelink('StopRecording');
-        %     Eyelink('CloseFile');
-        % download data file
         try
             fprintf('Receiving data file ''%s''\n', edfFile);
             %     status=Eyelink('ReceiveFile', dv.el.edfFile, dv.el.edfFileLocation);
