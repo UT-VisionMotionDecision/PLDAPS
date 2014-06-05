@@ -250,7 +250,7 @@ classdef pldaps < handle
         if  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.mKey)
             if dv.trial.datapixx.use
                 pdsDatapixxAnalogOut(dv.trial.stimulus.rewardTime)
-                pdsDatapixxFlipBit(dv.trial.pldaps.events);
+                pdsDatapixxFlipBit(dv.trial.event.REWARD);
             end
             dv.trial.ttime = GetSecs - dv.trial.trstart;
             dv.trial.timeReward(dv.trial.iReward) = dv.trial.ttime;
@@ -288,7 +288,7 @@ classdef pldaps < handle
 
     %% frameDraw
     function frameDraw(dv)
-        %this could hold the code to draw some stuff to the overlay (using
+        %this holds the code to draw some stuff to the overlay (using
         %switches, like the grid, the eye Position, etc
         
         %consider moving this stuff to an earlier timepoint, to allow GPU
@@ -302,7 +302,7 @@ classdef pldaps < handle
          %dv.trial.pldaps.draw.eyepos?
          if dv.trial.pldaps.draw.eyepos.use
             Screen('Drawdots',  dv.trial.display.overlayptr, [dv.trial.eyeX dv.trial.eyeY]', ...
-            dv.trial.stimulus.eyeW, dv.trial.stimulus.colorEyeDot*[1 1 1]', dv.trial.display.ctr(1:2),0)
+            dv.trial.stimulus.eyeW, dv.trial.stimulus.colorEyeDot*[1 1 1]', [0 0],0)
          end
          
          if dv.trial.pldaps.draw.photodiode.use && mod(dv.trial.iFrame, dv.trial.pldaps.draw.photodiode.everyXFrames) == 0
