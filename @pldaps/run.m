@@ -195,7 +195,7 @@ try
             HideCursor;
             
             
-            pdsDatapixxRefresh(dv);
+%             pdsDatapixxRefresh(dv);
             
         end
         
