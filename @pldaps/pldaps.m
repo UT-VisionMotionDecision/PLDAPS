@@ -340,7 +340,7 @@ classdef pldaps < handle
     end %frameIdlePostDraw
 
     function frameFlip(dv)
-        [dv.trial.timing.flipTimes(3,dv.trial.iFrame), dv.trial.timing.flipTimes(4,dv.trial.iFrame), dv.trial.timing.flipTimes(1,dv.trial.iFrame), dv.trial.timing.flipTimes(2,dv.trial.iFrame)] = Screen('Flip', dv.trial.display.ptr,0); %#ok<ASGLU>
+        [dv.trial.timing.flipTimes(1,dv.trial.iFrame), dv.trial.timing.flipTimes(2,dv.trial.iFrame), dv.trial.timing.flipTimes(3,dv.trial.iFrame), dv.trial.timing.flipTimes(4,dv.trial.iFrame)] = Screen('Flip', dv.trial.display.ptr,0); %#ok<ASGLU>
     %     if dv.disp.photodiode && mod(dv.trial.iFrame, dv.disp.photodiodeFrames) == 0
     %             photodiodecolor = dv.disp.clut.window;
     %             photodiodeTimes(dv.trial.iPhotodiode,:) = [dv.trial.ttime dv.trial.iFrame+1];
@@ -485,7 +485,7 @@ classdef pldaps < handle
         dv.trial.trialnumber   = dv.trial.pldaps.iTrial;
 
         % system timing
-        dv.trial.timing.ptbFliptimes       = dv.trial.timing.flipTimes(:,1:dv.trial.iFrame);
+%         dv.trial.timing.ptbFliptimes       = dv.trial.timing.flipTimes(:,1:dv.trial.iFrame);
         dv.trial.timing.flipTimes      = dv.trial.timing.flipTimes(:,1:dv.trial.iFrame);
         dv.trial.timing.frameStateChangeTimes    = dv.trial.timing.frameStateChangeTimes(:,1:dv.trial.iFrame-1);
 
