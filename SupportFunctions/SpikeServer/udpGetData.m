@@ -1,8 +1,8 @@
 function [spikes, sock] = udpGetData(selfip,selfport,remoteip,remoteport,sock, t0)
-% spikes = udpGetData(selfip,selfport,remoteip,remoteport)
+% spikes = pds.spikeserver.udpGetData(selfip,selfport,remoteip,remoteport)
 %
 % SPIKESERVERGETSPIKES reads spikes from the udp connection opened by
-% pdsSpikeServerConnect.m
+% pds.spikeserver.connect.m
 spikes = [];
 
 initt0 = GetSecs;

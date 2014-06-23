@@ -1,5 +1,5 @@
-function [Q, rowId] = pdsEyelinkSaveQueue(dv)
-% [Q, rowId] = pdsEyelinkSaveQueue(dv)
+function [Q, rowId] = saveQueue(dv)
+% [Q, rowId] = pds.eyelink.saveQueue(dv)
 % Prunes unused samples from eyelinksamples and converts them into
 % relative time.
 % INPUTS:
@@ -12,7 +12,7 @@ function [Q, rowId] = pdsEyelinkSaveQueue(dv)
 
 if nargin < 1
     Eyelink('GetQueuedData?')
-    help pdsEyelinkSaveQueue
+    help pds.eyelink.saveQueue
     return
 end
     

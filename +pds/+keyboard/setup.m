@@ -1,5 +1,5 @@
-function kb = keyboardSetup(scan)
-% kb = pdsKeyboardSetup(scan)
+function kb = setup(scan)
+% kb = pds.keyboard.setup(scan)
 %
 % Setup universal Mac/PC keyboard and keynames
 % set scan to 1 if using button box in scanner, otherwise, leave empty.

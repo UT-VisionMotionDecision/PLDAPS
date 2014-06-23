@@ -1,5 +1,5 @@
-function dv = eyelinkGetQueue(dv)
-% dv = pdsEyelinkGetQueue(dv)
+function dv = getQueue(dv)
+% dv = pds.eyelink.getQueue(dv)
 % pdsEyelinkGetQueue pullse the values from the current Eyelink queue and
 % puts them into the dv.el struct
 % INPUTS

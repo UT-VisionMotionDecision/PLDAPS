@@ -1,5 +1,5 @@
-function dv =  datapixxInit(dv)
-% dv =  pdsDatapixxInit(dv)
+function dv =  init(dv)
+% dv =  pds.Datapixx.init(dv)
 % pdsDatapixxInit is a function that intializes the DATAPIXX, preparing it for
 % experiments. Critically, the PSYCHIMAGING calls sets up the dual CLUTS
 % (Color Look Up Table) for two screens.  These two CLUTS are in the
@@ -75,9 +75,7 @@ if dv.defaultParameters.datapixx.use
         % (posted on Psychtoolbox forum, 3/9/2010) 
         % 
         % We don't seem to have this problem - jake 12/04/13
-%         Screen('LoadNormalizedGammaTable', dv.defaultParameters.display.ptr, combinedClut, 2);
-        Screen('LoadNormalizedGammaTable', dv.defaultParameters.display.ptr, combinedClut, 1);        
-        Screen('LoadNormalizedGammaTable', dv.defaultParameters.display.ptr, combinedClut/2, 2);
+        Screen('LoadNormalizedGammaTable', dv.defaultParameters.display.ptr, combinedClut, 2);
     end
     
     dv.defaultParameters.datapixx.info.DatapixxFirmwareRevision = Datapixx('GetFirmwareRev'); 
@@ -99,15 +97,23 @@ else
         % 1: throw error unless some debug variable is set
         % 2: have switch to either to this or make overlaypointer a pointer
         % to an invisible window or a second one.
-        a1=Screen('ReadNormalizedGammaTable',1,1);
-        a2=Screen('ReadNormalizedGammaTable',2,1);
-        a2(:,3)=0;
-        
-        Screen('LoadNormalizedGammaTable', 1, a1, 0,1);
-        Screen('LoadNormalizedGammaTable', 2, a2, 0, 1);        
-        
-        b1=Screen('ReadNormalizedGammaTable',1,1);
-        b2=Screen('ReadNormalizedGammaTable',2,1);
+%         a1=Screen('ReadNormalizedGammaTable',1,1);
+%         a2=Screen('ReadNormalizedGammaTable',2,1);
+%         
+%         
+%         Screen('LoadNormalizedGammaTable', 1, a2,0);
+%         Screen('LoadNormalizedGammaTable', 2, a2,0);
+%        
+%         
+%         a1=Screen('ReadNormalizedGammaTable',1,1);
+%         a2=Screen('ReadNormalizedGammaTable',2,1);
+%         a2(:,3)=0;
+%         
+%         Screen('LoadNormalizedGammaTable', 1, a1, 0,1);
+%         Screen('LoadNormalizedGammaTable', 2, a2, 0, 1);        
+%         
+%         b1=Screen('ReadNormalizedGammaTable',1,1);
+%         b2=Screen('ReadNormalizedGammaTable',2,1);
         warning('pldaps:datapixxInit','Overlay requested, but not Datapixx disabled. Assuming debug scenario. Will assign ptr to overlayptr');
         dv.defaultParameters.display.overlayptr = dv.defaultParameters.display.ptr;
     end

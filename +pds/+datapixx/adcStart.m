@@ -1,5 +1,5 @@
-function dp = pdsDatapixxAdcStart(dp)
-% function [dp] = pdsDatapixxAdcStart(dp)
+function dp = adcStart(dp)
+% function [dp] = pds.datapixx.adcStart(dp)
 % 
 % The function starts a continuous schedule of ADC data acquisition, stored 
 % on the datapixx buffer. It will continue until a 

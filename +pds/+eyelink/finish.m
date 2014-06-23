@@ -1,12 +1,12 @@
-function dv = eyelinkFinish(dv)
-% dv = pdsEyelinkFinish(dv)
+function dv = finish(dv)
+% dv = pds.eyelink.Finish(dv)
 % EyelinkFinish stops recording and closes the currently open edf file.
 % dv [strut]
 
 
 
 if nargin < 1
-    help pdsEyelinkFinish
+    help pds.eyelink.finish
     return;
 end
 % if ~isfield(dv.disp, 'saveEDF')

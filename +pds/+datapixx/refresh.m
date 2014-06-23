@@ -1,5 +1,5 @@
-function result = pdsDatapixxRefresh(dv)
-% result = pdsDatapixxRefresh(dv)
+function result = refresh(dv)
+% result = pds.datapixx.Refresh(dv)
 % pdsDatapixxRefresh refreshes voltage outs
 % It's possible (and is the case right now using Leor's Analog data
 % aquisition code) that the datapixx will end up with voltages on

@@ -1,5 +1,5 @@
- function dp = pdsDatapixxAdcStop(dp)
-% [dp] = pdsDatapixxAdcStop(dp)
+ function dp = adcStop(dp)
+% [dp] = pds.datapixx.adcStop(dp)
 % 
 % The function should be called after AdcStart.
 % * AdcStart STARTS a continuous schedule of ADC data acquisition, stored 

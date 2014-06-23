@@ -1,5 +1,5 @@
-function dv = pdsGitSetup(dv)
-%
+function dv = setup(dv)
+% pds.git.setup
 % sets up the git information about the used code.
 % at the moment this hold all changes of the PLDAPS and huklabBasics repo
 % should probably change to something more specific.

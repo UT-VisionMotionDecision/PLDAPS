@@ -85,20 +85,20 @@ try
 
 
             %get and store changes of current code to the git repository
-            dv = pdsGitSetup(dv);
+            dv = pds.git.setup(dv);
             
             %things that were in the conditionFile
-            dv = pdsEyelinkSetup(dv);
+            dv = pds.eyelink.setup(dv);
     
             %things that where in the default Trial Structure
             
             % Audio
             %-------------------------------------------------------------------------%
-            dv = pdsAudioSetup(dv);
+            dv = pds.audio.setup(dv);
             
             % Audio
             %-------------------------------------------------------------------------%
-            dv = pdsSpikeserverConnect(dv);
+            dv = pds.spikeserver.connect(dv);
             
             % From help PsychDataPixx:
             % Timestamping is disabled by default (mode == 0), as it incurs a bit of
@@ -110,9 +110,9 @@ try
             
     
             % Initialize Datapixx for Dual CLUTS
-            dv = pdsDatapixxInit(dv);
+            dv = pds.datapixx.init(dv);
             
-            pdsKeyboardSetup();
+            pds.keyboard.setup();
     
 
     %% Last chance to check variables
@@ -150,7 +150,7 @@ try
         if dv.trial.pldaps.quit == 0
             
             % run trial
-            dv = feval(dv.trial.pldaps.trialFunction,  dv);
+            dv = feval(dv.trial.pldaps.trialFunction,  dv, dv.trialFunctionHandle);
             
             
            result = saveTempFile(dv); 
@@ -195,7 +195,7 @@ try
             HideCursor;
             
             
-%             pdsDatapixxRefresh(dv);
+%             pds.datapixx.refresh(dv);
             
         end
         
@@ -210,8 +210,8 @@ try
     ListenChar(0)
     Priority(0)
     
-    dv = pdsEyelinkFinish(dv);
-    dv = pdsSpikeserverDisconnect(dv);
+    dv = pds.eyelink.finish(dv);
+    dv = pds.spikeserver.disconnect(dv);
     if(dv.defaultParameters.datapixx.use)
         dv.defaultParameters.datapixx.timestamplog = PsychDataPixx('GetTimestampLog', 1);
     end

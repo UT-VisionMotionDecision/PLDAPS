@@ -1,5 +1,5 @@
-function dv = eyelinkStartTrial(dv)
-% [drained, samplesIn, eventsIn] = EyelinkClearBuffer(drained)    
+function dv = startTrial(dv)
+% [drained, samplesIn, eventsIn] = pds.eyelink.startTrial(dv)
 
 if dv.trial.eyelink.use
     dv.trial.eyelink.sampleNum     = 1;
@@ -22,7 +22,7 @@ if dv.trial.eyelink.use
     %read from the buffer instead of clearing, must be carefull for long
     %iti 
     dv.trial.eyelink.drained=false;
-%     eyelinkGetQueue(dv);
-    dv.trial.eyelink.drained = pdsEyelinkClearBuffer(dv.trial.eyelink.drained);
+%     pds.eyelink.getQueue(dv);
+    dv.trial.eyelink.drained = pds.eyelink.clearBuffer(dv,dv.trial.eyelink.drained);
 end
  

@@ -5,7 +5,7 @@ function dv = openScreen(dv)
 % 
 % required fields
 % dv.defaultParameters.display.
-%   stereoMode       [double] - 0 is no stereo
+%   stereoMode      [double] -  0 is no stereo
 %   normalizeColor  [boolean] - 1 normalized color range on PTB screen
 %   useOverlay      [boolean] - 1 opens datapixx overlay window
 %   stereoFlip      [string]  - 'left', 'right', or [] flips one stereo
