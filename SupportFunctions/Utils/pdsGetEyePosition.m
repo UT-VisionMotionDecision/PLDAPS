@@ -19,7 +19,7 @@ if dv.trial.mouse.use
 elseif dv.trial.eyelink.use
     
     if(nargin<2 || updateQueue || (isfield(dv.trial.eyelink, 'movav') && dv.trial.eyelink.movav>1))
-        pdsEyelinkGetQueue(dv);
+        pds.eyelink.getQueue(dv);
     end
     % Get Eyelink Queue data
     if isfield(dv.trial.eyelink, 'movav') && dv.trial.eyelink.movav>1
@@ -41,6 +41,6 @@ elseif dv.trial.eyelink.use
     end
     
 else
-    [dv.trial.eyeX, dv.trial.eyeY] = pdsDatapixxGetEyePosition(dv);
+    [dv.trial.eyeX, dv.trial.eyeY] = pds.datapixx.getEyePosition(dv);
 end
 

@@ -23,6 +23,6 @@ if dv.trial.eyelink.use
     %iti 
     dv.trial.eyelink.drained=false;
 %     pds.eyelink.getQueue(dv);
-    dv.trial.eyelink.drained = pds.eyelink.clearBuffer(dv,dv.trial.eyelink.drained);
+    dv.trial.eyelink.drained = pds.eyelink.clearBuffer(dv.trial.eyelink.drained);
 end
  
