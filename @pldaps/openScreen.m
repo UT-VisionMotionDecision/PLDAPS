@@ -39,8 +39,8 @@ function dv = openScreen(dv)
 % if ~isfield(ds, 'heightcm'),      ds.heightcm = 45;           end
 % if ~isfield(ds, 'viewdist'),      ds.viewdist = 57;           end
 
-% InitializeMatlabOpenGL
-AssertOpenGL;
+InitializeMatlabOpenGL(0,0); %second 0: debug level =0 for speed
+% AssertOpenGL;
 % prevent splash screen
 Screen('Preference','VisualDebugLevel',3);
 % Initiate Psych Imaging screen configs
