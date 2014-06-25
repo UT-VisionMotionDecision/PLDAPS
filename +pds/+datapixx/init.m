@@ -63,18 +63,18 @@ if dv.defaultParameters.datapixx.use
                 yr = interp1(x_full,dv.defaultParameters.display.gamma.table(:,1), x);
                 yg = interp1(x_full,dv.defaultParameters.display.gamma.table(:,2), x);
                 yb = interp1(x_full,dv.defaultParameters.display.gamma.table(:,3), x);
-                yrgb=[yr;yg;yb];
+                yrgb=[yr;yg;yb]';
             else
-                yrgb=[x_full;x_full;x_full];
+                yrgb=[x;x;x]';
             end
             % reshape the combined clut back to 512 x 3
 %             combinedClut = reshape(y, sc);
-            combinedClut=[yrgb yrgb yrgb repmat(o.defaultParameters.display.bgColor', [1 128])];
+            combinedClut=[yrgb; yrgb; yrgb ;repmat(dv.defaultParameters.display.bgColor, [128 1])];
             
-            dv.defaultParameters.display.overlay.experimentorOnlyOffset = 0.5;
+            dv.defaultParameters.display.overlay.experimentorOnlyOffset = 0.5*256;
             dv.defaultParameters.display.overlay.experimentorOnlyFactor = 0.5*256;
             
-            dv.defaultParameters.display.overlay.bothOffset = 0.0;
+            dv.defaultParameters.display.overlay.bothOffset = 0.0*256;
             dv.defaultParameters.display.overlay.bothFactor = 0.5*256;
         end
     

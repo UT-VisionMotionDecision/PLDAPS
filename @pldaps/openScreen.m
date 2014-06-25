@@ -69,7 +69,7 @@ if dv.defaultParameters.display.normalizeColor == 1
 end
 
 
-if dv.defaultParameters.display.useOverlay == 1 && dv.defaultParameters.datapixx.use
+if dv.defaultParameters.display.useOverlay && dv.defaultParameters.datapixx.use
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Using overlay pointer')
