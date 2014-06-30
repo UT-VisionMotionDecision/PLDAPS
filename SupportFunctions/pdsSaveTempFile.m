@@ -15,11 +15,11 @@ end
 % Sorry - this next part is hacky. Switch to if-else statements
 % instead of try catch - jly
 try
-    PDStemp.timing = structfun(@(x) ( x(end) ), PDS.timing, 'UniformOutput', false);
+    PDStemp.timing = structfun(@(x) ( x(end,:) ), PDS.timing, 'UniformOutput', false);
 catch result
 end
 try
-    PDStemp.data   = structfun(@(x) ( x(end) ), PDS.data, 'UniformOutput', false);
+    PDStemp.data   = structfun(@(x) ( x(end,:) ), PDS.data, 'UniformOutput', false);
 catch result
 end
 % save -- takes 40 ms

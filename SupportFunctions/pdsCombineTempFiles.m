@@ -1,5 +1,5 @@
 function [PDS, dv, comboFilename] = pdsCombineTempFiles(TEMPdir, filename)
-%   function [PDS, dv] = pdsCombineTempFiles(TEMPdir, filename)
+%   function [PDS, dv, comboFilename] = pdsCombineTempFiles(TEMPdir, filename)
 %
 % The function can be used in case a PDS session aborted unexpectedly and 
 % the PDS & dv were not saved.
