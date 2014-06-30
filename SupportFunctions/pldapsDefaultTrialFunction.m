@@ -40,7 +40,7 @@ end
                 pds.datapixx.flipBit(dv.trial.event.REWARD);
             end
             dv.trial.ttime = GetSecs - dv.trial.trstart;
-            dv.trial.timeReward(dv.trial.iReward) = dv.trial.ttime;
+            dv.trial.timeReward(:,dv.trial.iReward) = [dv.trial.ttime dv.trial.stimulus.rewardTime];
             dv.trial.iReward = dv.trial.iReward + 1;
             PsychPortAudio('Start', dv.pa.sound.reward);
 %         elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.uKey)   % U = user selected targets

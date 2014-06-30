@@ -1,4 +1,4 @@
-function datapixxAnalogOut(open_time, chan, TTLamp) 
+function analogOut(open_time, chan, TTLamp) 
 % DatapixxAnalogOut(open_time, chan, amp) 
 % Send a [amp] volt signal out the channel [chan], for [open_time] seconds
 % 
