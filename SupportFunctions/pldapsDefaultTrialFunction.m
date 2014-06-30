@@ -42,7 +42,7 @@ end
             dv.trial.ttime = GetSecs - dv.trial.trstart;
             dv.trial.timeReward(:,dv.trial.iReward) = [dv.trial.ttime dv.trial.stimulus.rewardTime];
             dv.trial.iReward = dv.trial.iReward + 1;
-            PsychPortAudio('Start', dv.pa.sound.reward);
+            PsychPortAudio('Start', dv.trial.sound.reward);
 %         elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.uKey)   % U = user selected targets
 %             dv.trial.targUser = 1;
         elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.pKey)   % P = pause

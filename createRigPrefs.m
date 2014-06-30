@@ -2,9 +2,9 @@ function outStruct=createRigPrefs()
 
     %to we already have current settings?
     a=getpref('pldaps');
-%     if ~isempty(a)
-%         warning('you already have a pldaps setting, be sure not no lose those seetings....');
-%     end
+    if ~isempty(a)
+        warning('you already have a pldaps setting, be sure not no lose those seetings....');
+    end
     
     %to we have and old PLDAPS Version setting?
     b=getpref('PLDAPS');
@@ -88,8 +88,9 @@ function outStruct=createRigPrefs()
     fn=fieldnames(outStruct);
     outStructc=struct2cell(outStruct);
     
-    
-    rmpref('pldaps'); %remove current
+    if ~isempty(a)
+        rmpref('pldaps'); %remove current
+    end
     setpref('pldaps',fn(:),outStructc); %set new
     
     warning('Done. saved the output of this function as new pldaps prefs');
