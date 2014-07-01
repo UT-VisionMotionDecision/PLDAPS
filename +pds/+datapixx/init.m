@@ -138,11 +138,12 @@ else
 %         
 %         b1=Screen('ReadNormalizedGammaTable',1,1);
 %         b2=Screen('ReadNormalizedGammaTable',2,1);
-            dv.defaultParameters.display.overlay.experimentorOnlyOffset = o.defaultParameters.display.bgColor(1); %TODO allow non gray bgColor
-            dv.defaultParameters.display.overlay.experimentorOnlyFactor = 0.0*256;
-            
-            dv.defaultParameters.display.overlay.bothOffset = 0.0;
-            dv.defaultParameters.display.overlay.bothFactor = 1*256;
+
+%             dv.defaultParameters.display.overlay.experimentorOnlyOffset = dv.defaultParameters.display.bgColor(1); %TODO allow non gray bgColor
+%             dv.defaultParameters.display.overlay.experimentorOnlyFactor = 0.0*256;
+%             
+%             dv.defaultParameters.display.overlay.bothOffset = 0.0;
+%             dv.defaultParameters.display.overlay.bothFactor = 1*256;
 
         warning('pldaps:datapixxInit','Overlay requested, but not Datapixx disabled. Assuming debug scenario. Will assign ptr to overlayptr');
         dv.defaultParameters.display.overlayptr = dv.defaultParameters.display.ptr;
