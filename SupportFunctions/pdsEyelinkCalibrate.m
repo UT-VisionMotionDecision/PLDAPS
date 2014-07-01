@@ -132,7 +132,7 @@ while stop==0 && bitand(Eyelink( 'CurrentMode'), dv.trial.eyelink.setup.IN_SETUP
 end % while IN_SETUP_MODE
 
 pdsEyelinkClearCalDisplay(dv);	% exit_cal_display()
-dv = pdsEyelinkSetup(dv);
+dv = pds.eyelink.setup(dv);
 ListenChar(0)
 ShowCursor
 return;

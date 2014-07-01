@@ -50,7 +50,7 @@ while stop==0 && bitand(Eyelink('CurrentMode'), dv.trial.eyelink.setup.IN_TARGET
             if dv.trial.eyelink.setup.allowlocaltrigger==1
 				Eyelink( 'AcceptTrigger');
             end
-            pdsDatapixxAnalogOut(.1)
+            pds.datapixx.analogOut(.1)
             
 			break;
 		case { 0,  dv.trial.eyelink.setup.JUNK_KEY	}	% No key

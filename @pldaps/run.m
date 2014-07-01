@@ -233,9 +233,10 @@ try
         PDS=struct;
         PDS.initialParameters=structs(levelsPreTrials);
         PDS.initialParameterNames=structNames(levelsPreTrials);
+        PDS.initialParametersMerged=mergeToSingleStruct(dv.defaultParameters); %too redundant?
         PDS.conditions=structs((max(levelsPreTrials)+1):end);
         PDS.conditionNames=structNames((max(levelsPreTrials)+1):end);
-        PDS.data=dv.data; %#ok<STRNU>
+        PDS.data=dv.data; 
         save(fullfile(dv.defaultParameters.session.dir, dv.defaultParameters.session.file),'PDS','-mat')
     end
     
