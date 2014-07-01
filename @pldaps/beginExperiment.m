@@ -12,6 +12,12 @@ function dv = beginExperiment(dv)
 %     PDS.timing = [];
 % end
 
+%% set version %make sure to also use the git version for finer control of subversions
+dv.defaultParameters.pldaps.version.number=4.1;
+dv.defaultParameters.pldaps.version.name='casual';
+dv.defaultParameters.pldaps.version.logo='http://www.digitalmomblog.com/wp-content/uploads/2012/06/baby-platypus.jpg';
+
+
  %multiple sessions not supported for now
 % if isfield(PDS.timing, 'startPTB')
 %     PDS.timing.experimentStartPTB(numel(PDS.timing.startPTB)+1) = GetSecs; 

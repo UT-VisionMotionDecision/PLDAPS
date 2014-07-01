@@ -129,6 +129,16 @@ try
     ListenChar(2)
     HideCursor
     
+    %save defaultParameters as trial 0
+    dv.trial.pldaps.iTrial=0;
+    dv.trial=mergeToSingleStruct(dv.defaultParameters);
+    result = saveTempFile(dv); 
+    if ~isempty(result)
+        disp(result.message)
+    end
+    
+    
+    %now setup everything for the first trial
     trialNr=1;
     
     %we'll have a trialNr counter that the trial function can tamper with?
@@ -140,7 +150,7 @@ try
     %levelsPreTrials, then we'll add the condition struct before each trial.
     dv.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr])
     dv.defaultParameters.pldaps.iTrial=trialNr;
-    dv.trial=dv.defaultParameters.mergeToSingleStruct();
+    dv.trial=mergeToSingleStruct(dv.defaultParameters);
     
     %only use dv.trial from here on!
     
@@ -161,7 +171,7 @@ try
            
            
            %get the difference of the trial struct:
-           dTrialStruct=dv.defaultParameters.getDifferenceFromStruct(dv.trial);
+           dTrialStruct=getDifferenceFromStruct(dv.defaultParameters,dv.trial);
            dv.data{trialNr}=dTrialStruct;
            
            %advance to next trial
@@ -170,7 +180,7 @@ try
                 %now we add this and the next Trials condition parameters
                 dv.defaultParameters.addLevels(dv.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']},[levelsPreTrials length(levelsPreTrials)+trialNr]);
                 dv.defaultParameters.pldaps.iTrial=trialNr;
-                dv.trial=dv.defaultParameters.mergeToSingleStruct();
+                dv.trial=mergeToSingleStruct(dv.defaultParameters);
            else
                 dv.trial.pldaps.iTrial=trialNr;
            end
