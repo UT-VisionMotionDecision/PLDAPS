@@ -97,5 +97,14 @@ classdef pldaps < handle
     
  end %methods
 
+ methods(Static)
+      xy = deg2px(dv,xy)
+      
+      xy = deg2world(dv,xy)
+      
+      xy = px2deg(dv,xy)
+      
+      xy = world2deg(dv,xy)
+ end
 
 end
