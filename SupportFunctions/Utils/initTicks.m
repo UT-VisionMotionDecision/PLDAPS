@@ -58,24 +58,24 @@ screen_size_v = floor(screen_size_v/big_grid_size)*big_grid_size;
 big_vert_degrees=-screen_size_v:big_grid_size:screen_size_v;
 big_horiz_degrees=-screen_size_h:big_grid_size:screen_size_h;
 
-small_horizontal_matrix=deg2px(dv,[reshape(repmat(small_horiz_degrees,[2,1]),1,2*length(small_horiz_degrees)); zeros(1,2*length(small_horiz_degrees))]);
+small_horizontal_matrix=pldaps.deg2px(dv,[reshape(repmat(small_horiz_degrees,[2,1]),1,2*length(small_horiz_degrees)); zeros(1,2*length(small_horiz_degrees))]);
 small_horizontal_matrix(2,:)= small_horizontal_matrix(2,:)+repmat([-small_tick_length small_tick_length],[1,length(small_horiz_degrees)]);
     
-small_vertical_matrix=deg2px(dv,[zeros(1,2*length(small_vert_degrees)); reshape(repmat(small_vert_degrees,[2,1]),1,2*length(small_vert_degrees))]);
+small_vertical_matrix=pldaps.deg2px(dv,[zeros(1,2*length(small_vert_degrees)); reshape(repmat(small_vert_degrees,[2,1]),1,2*length(small_vert_degrees))]);
 small_vertical_matrix(1,:)=small_vertical_matrix(1,:)+repmat([-small_tick_length small_tick_length],[1,length(small_vert_degrees)]);
 
-big_horizontal_matrix=deg2px(dv,[reshape(repmat(big_horiz_degrees,[2,1]),1,2*length(big_horiz_degrees)); zeros(1,2*length(big_horiz_degrees))]);
+big_horizontal_matrix=pldaps.deg2px(dv,[reshape(repmat(big_horiz_degrees,[2,1]),1,2*length(big_horiz_degrees)); zeros(1,2*length(big_horiz_degrees))]);
 big_horizontal_matrix(2,:)=big_horizontal_matrix(2,:)+repmat([-big_tick_length big_tick_length],[1,length(big_horiz_degrees)]);
 
-big_vertical_matrix=deg2px(dv,[zeros(1,2*length(big_vert_degrees));reshape(repmat(big_vert_degrees,[2,1]),1,2*length(big_vert_degrees))]);
+big_vertical_matrix=pldaps.deg2px(dv,[zeros(1,2*length(big_vert_degrees));reshape(repmat(big_vert_degrees,[2,1]),1,2*length(big_vert_degrees))]);
 big_vertical_matrix(1,:)=big_vertical_matrix(1,:)+repmat([-big_tick_length big_tick_length],[1,length(big_vert_degrees)]);
 
-big_vertical_grid_matrix=deg2px(dv,[reshape(repmat(big_horiz_degrees,[2*length(big_vert_degrees),1]),1,2*length(big_horiz_degrees)*length(big_vert_degrees)); ...
+big_vertical_grid_matrix=pldaps.deg2px(dv,[reshape(repmat(big_horiz_degrees,[2*length(big_vert_degrees),1]),1,2*length(big_horiz_degrees)*length(big_vert_degrees)); ...
 repmat(reshape([big_vert_degrees; big_vert_degrees],1,2*length(big_vert_degrees)), [1, length(big_horiz_degrees)])]);
 big_vertical_grid_matrix(2,:)=big_vertical_grid_matrix(2,:)+...
 repmat(reshape([-small_tick_length; small_tick_length],1,2), [1, length(big_horiz_degrees)*length(big_vert_degrees)]);
 
-big_horizontal_grid_matrix=deg2px(dv,[repmat(reshape([big_horiz_degrees; big_horiz_degrees],1,2*length(big_horiz_degrees)), [1, length(big_vert_degrees)]);...
+big_horizontal_grid_matrix=pldaps.deg2px(dv,[repmat(reshape([big_horiz_degrees; big_horiz_degrees],1,2*length(big_horiz_degrees)), [1, length(big_vert_degrees)]);...
     reshape(repmat(big_vert_degrees,[2*length(big_horiz_degrees),1]),1,2*length(big_vert_degrees)*length(big_horiz_degrees))]);
 big_horizontal_grid_matrix(1,:)=big_horizontal_grid_matrix(1,:)+...
     repmat(reshape([-small_tick_length;small_tick_length],1,2), [1, length(big_vert_degrees)*length(big_horiz_degrees)]);
