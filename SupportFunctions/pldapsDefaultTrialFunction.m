@@ -39,7 +39,7 @@ end
                 pds.datapixx.analogOut(dv.trial.stimulus.rewardTime)
                 pds.datapixx.flipBit(dv.trial.event.REWARD);
             end
-            dv.trial.ttime = GetSecs - dv.trial.trstart;
+%             dv.trial.ttime = GetSecs - dv.trial.trstart;
             dv.trial.stimulus.timeReward(:,dv.trial.iReward) = [dv.trial.ttime dv.trial.stimulus.rewardTime];
             dv.trial.stimulus.iReward = dv.trial.iReward + 1;
             PsychPortAudio('Start', dv.trial.sound.reward);
@@ -56,13 +56,13 @@ end
             dv.trial.pldaps.quit = 2;
             ShowCursor
         elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.dKey) % d=debug
-%             breakpoints=dbstatus('-completenames');
-            dbstop if warning opticflow:debugger_requested;
-            warning on opticflow:debugger_requested;
-            warning('opticflow:debugger_requested','At your service!');
-            warning off opticflow:debugger_requested;
-            dbclear if warning opticflow:debugger_requested;
-%             dbstop(breakpoints);
+                disp('stepped into debugger. Type return to start first trial...')
+                keyboard %#ok<MCKBD>
+%             dbstop if warning opticflow:debugger_requested;
+%             warning on opticflow:debugger_requested;
+%             warning('opticflow:debugger_requested','At your service!');
+%             warning off opticflow:debugger_requested;
+%             dbclear if warning opticflow:debugger_requested;
         end   
         % get mouse/eyetracker data
         [dv.trial.cursorX,dv.trial.cursorY,dv.trial.isMouseButtonDown] = GetMouse(); % ktz - added isMouseButtonDown, 28Mar2013
@@ -81,7 +81,7 @@ end
         %consider moving this stuff to an earlier timepoint, to allow GPU
         %to crunch on this before the real stuff gets added.
         if dv.trial.pldaps.draw.grid.use
-            Screen('DrawLines',dv.trial.display.overlayptr,dv.trial.pldaps.draw.grid.tick_line_matrix,1,5,dv.trial.display.ctr(1:2))
+            Screen('DrawLines',dv.trial.display.overlayptr,dv.trial.pldaps.draw.grid.tick_line_matrix,1,dv.trial.display.clut.window,dv.trial.display.ctr(1:2))
         end
         
          %draw the eyepositon to the second srceen only
@@ -89,14 +89,14 @@ end
          %dv.trial.pldaps.draw.eyepos?
          if dv.trial.pldaps.draw.eyepos.use
             Screen('Drawdots',  dv.trial.display.overlayptr, [dv.trial.eyeX dv.trial.eyeY]', ...
-            dv.trial.stimulus.eyeW, dv.trial.stimulus.colorEyeDot*[1 1 1]', [0 0],0)
+            dv.trial.stimulus.eyeW, dv.trial.stimulus.colorEyeDot, [0 0],0)
          end
          
          if dv.trial.pldaps.draw.photodiode.use && mod(dv.trial.iFrame, dv.trial.pldaps.draw.photodiode.everyXFrames) == 0
             photodiodecolor = dv.trial.display.clut.window;
             dv.trial.timing.photodiodeTimes(:,dv.trial.pldaps.draw.photodiode.dataEnd) = [dv.trial.ttime dv.trial.iFrame];
             dv.trial.pldaps.draw.photodiode.dataEnd=dv.trial.pldaps.draw.photodiode.dataEnd+1;
-            Screen('FillRect',  dv.trial.display.overlayptr,photodiodecolor*ones(3,1), dv.trial.pldaps.draw.photodiode.rect')
+            Screen('FillRect',  dv.trial.display.overlayptr,photodiodecolor, dv.trial.pldaps.draw.photodiode.rect')
         end
     end %frameDraw
 
@@ -143,10 +143,9 @@ end
             end
             %%% DATAPIXX BOOLEAN FLIP %%%
 
-            dv.trial.stimulus.timeLastFrame = dv.trial.timing.flipTimes(1,dv.trial.iFrame)-dv.trial.trstart;
+            dv.trial.stimulus.timeLastFrame = dv.trial.timing.flipTimes(3,dv.trial.iFrame)-dv.trial.trstart;
             dv.trial.framePreLastDrawIdleCount=0;
             dv.trial.framePostLastDrawIdleCount=0;
-            dv.trial.iFrame = dv.trial.iFrame + 1;  % update frame index
     %        dv.trial.timing.frameStateChangeTimesFlip1(2,dv.trial.iFrame)=toc;
     end %frameFlip
 
@@ -210,8 +209,9 @@ end
             end
         end
         dv.trial.unique_number = clocktime;    % trial identifier
-        [ig, ig, dv.trial.lastFrameTime] = Screen('Flip', dv.trial.display.ptr,0); %#ok<ASGLU>
+        [ig, ig, dv.trial.stimulus.timeLastFrame] = Screen('Flip', dv.trial.display.ptr,0); %#ok<ASGLU>
         dv.trial.trstart = GetSecs;
+        dv.trial.stimulus.timeLastFrame=dv.trial.stimulus.timeLastFrame-dv.trial.trstart;
 
         if dv.trial.datapixx.use
             dv.trial.timing.datapixxStartTime = Datapixx('Gettime');
@@ -232,7 +232,7 @@ end
         end
         dv.trial.trialend = GetSecs- dv.trial.trstart;
 
-        [dv.trial.timing.flipTimes(3,dv.trial.iFrame), dv.trial.timing.flipTimes(4,dv.trial.iFrame), dv.trial.timing.flipTimes(1,dv.trial.iFrame), dv.trial.timing.flipTimes(2,dv.trial.iFrame)] = Screen('Flip', dv.trial.display.ptr); %#ok<ASGLU>
+        [dv.trial.timing.flipTimes(1,dv.trial.iFrame), dv.trial.timing.flipTimes(2,dv.trial.iFrame), dv.trial.timing.flipTimes(3,dv.trial.iFrame), dv.trial.timing.flipTimes(4,dv.trial.iFrame)] = Screen('Flip', dv.trial.display.ptr); %#ok<ASGLU>
 
         if(dv.trial.pldaps.draw.photodiode.use)
             dv.trial.timing.photodiodeTimes(:,dv.trial.pldaps.draw.photodiode.dataEnd:end)=[];

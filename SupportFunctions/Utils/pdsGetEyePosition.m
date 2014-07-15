@@ -40,7 +40,7 @@ elseif dv.trial.eyelink.use
         dv.trial.eyeY = eye.gy(dv.trial.eyelink.eyeIdx);
     end
     
-else
+elseif dv.trial.datapixx.use
     [dv.trial.eyeX, dv.trial.eyeY] = pds.datapixx.getEyePosition(dv);
 end
 

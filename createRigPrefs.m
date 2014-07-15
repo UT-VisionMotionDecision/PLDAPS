@@ -60,6 +60,8 @@ function outStruct=createRigPrefs()
             end
             
         end
+    else
+        fromOldPrefs=struct;
     end
     
 

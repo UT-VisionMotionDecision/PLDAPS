@@ -156,6 +156,12 @@ classdef params < handle
                 %start again from scratch
                 p = flattenStructs(p);
             end
+%             
+%             if ~all(ismember(p.flatStructLevels,value)) || ~all(ismember(value,p.flatStructLevels))
+%                 p.flatStructLevels=sort(value); %ah, the flatStructs can be invalidated, as changes only occur to the flatStruct.
+%                 p = mergeFlatStructs(p); % =mergin them all, can reduce later
+%             end
+            
         end
         
         function l = getAllLevels(p)

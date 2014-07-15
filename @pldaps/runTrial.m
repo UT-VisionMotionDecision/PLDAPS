@@ -143,7 +143,8 @@ function dv = runTrial(dv, tfh)
 %             frameFlip(dv);
             %advance to next frame
             setTimeAndFrameState(dv,dv.trial.pldaps.trialStates.frameUpdate);
-
+            
+            dv.trial.iFrame = dv.trial.iFrame + 1;  % update frame index
         end %while Trial running
 
 %         dv.trial.ttime = GetSecs - dv.trial.trstart;

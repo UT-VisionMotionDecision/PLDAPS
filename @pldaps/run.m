@@ -116,10 +116,11 @@ try
     
 
     %% Last chance to check variables
-%     dv  %#ok<NOPRT>
-%     disp('Ready to begin trials. Type return to start first trial...')
-%     keyboard %#ok<MCKBD>
-    
+    if(dv.trial.pldaps.pause.type==1 && dv.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
+        dv  %#ok<NOPRT>
+        disp('Ready to begin trials. Type return to start first trial...')
+        keyboard %#ok<MCKBD>
+    end
  
     %%%%start recoding on all controlled components this in not currently done here
     % save timing info from all controlled components (datapixx, eyelink, this pc)
@@ -195,15 +196,18 @@ try
            end
             
         else %dbquit ==1 is meant to be pause. should we halt eyelink, datapixx, etc?
-            ListenChar(0);
-            ShowCursor;
-            dv  %#ok<NOPRT>
-            disp('Ready to begin trials. Type return to start first trial...')
-            keyboard %#ok<MCKBD>
-            dv.quit = 0;
-            ListenChar(2);
-            HideCursor;
-            
+            if dv.trial.pldaps.pause==1 %0=don't,1 is debugger, 2=pause loop
+                ListenChar(0);
+                ShowCursor;
+                dv  %#ok<NOPRT>
+                disp('Ready to begin trials. Type return to start first trial...')
+                keyboard %#ok<MCKBD>
+                dv.quit = 0;
+                ListenChar(2);
+                HideCursor;
+            elseif dv.trial.pldaps.pause==1
+                pauseLoop(dv);
+            end
             
 %             pds.datapixx.refresh(dv);
             
@@ -259,4 +263,77 @@ catch me
     end
     fprintf('\r\r')
     keyboard    
+end
+
+end
+%we are pausing, will create a new defaultParaneters Level where changes
+%would go.
+function pauseLoop(dv)
+        ShowCursor;
+        ListenChar(1);
+        while(true)
+            %the keyboard chechking we only capture ctrl+alt key presses.
+            [dv.trial.keyboard.pressedQ,  dv.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
+            if dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lctrl)&&dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lalt)
+                %D: Debugger
+                if  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.dKey) 
+                    disp('stepped into debugger. Type return to start first trial...')
+                    keyboard %#ok<MCKBD>
+
+                %E: Eyetracker Setup
+                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.eKey)
+                    try
+                       if(dv.trial.eyelink.use) 
+                           pds.eyelink.calibrate(dv);
+                       end
+                    catch ME
+                        display(ME);
+                    end
+
+                %M: Manual reward
+                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.mKey)
+                    if dv.trial.datapixx.use
+                        pds.datapixx.analogOut(dv.trial.stimulus.rewardTime)
+                        pds.datapixx.flipBit(dv.trial.event.REWARD);
+                    end
+                    dv.trial.ttime = GetSecs - dv.trial.trstart;
+                    dv.trial.stimulus.timeReward(:,dv.trial.iReward) = [dv.trial.ttime dv.trial.stimulus.rewardTime];
+                    dv.trial.stimulus.iReward = dv.trial.iReward + 1;
+                    PsychPortAudio('Start', dv.trial.sound.reward);
+
+                %P: PAUSE (end the pause) 
+                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.pKey)
+                    dv.trial.pldaps.quit = 0;
+                    ListenChar(2);
+                    HideCursor;
+                    break;
+
+                %Q: QUIT
+                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.qKey)
+                    dv.trial.pldaps.quit = 2;
+                    break;
+                
+                %X: Execute text selected in Matlab editor
+                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.xKey)
+                    activeEditor=matlab.desktop.editor.getActive; 
+                    if isempty(activeEditor)
+                        display('No Matlab editor open -> Nothing to execute');
+                    else
+                        if isempty(activeEditor.SelectedText)
+                            display('Nothing selected in the active editor Widnow -> Nothing to execute');
+                        else
+                            try
+                                eval(activeEditor.SelectedText)
+                            catch ME
+                                display(ME);
+                            end
+                        end
+                    end
+                    
+                    
+                end %IF CTRL+ALT PRESSED
+            end
+            pause(0.1);
+        end
+
 end

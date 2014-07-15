@@ -1,6 +1,6 @@
-function result=pdsEyelinkTargetModeDisplay(dv)
+function result=targetModeDisplay(dv)
 
-% USAGE: result=EyelinkTargetModeDisplay(el)
+% USAGE: result=pds.eyelink.targetModeDisplay(el)
 %
 %		el: Eyelink default values
 % History
@@ -24,7 +24,7 @@ ty=dv.trial.eyelink.setup.MISSING;
 otx=dv.trial.eyelink.setup.MISSING;    % current target position
 oty=dv.trial.eyelink.setup.MISSING;
 
-pdsEyelinkClearCalDisplay(dv);	% setup_cal_display()
+pds.eyelink.clearCalDisplay(dv);	% setup_cal_display()
 
 key=1;
 while key~= 0
@@ -43,7 +43,7 @@ while stop==0 && bitand(Eyelink('CurrentMode'), dv.trial.eyelink.setup.IN_TARGET
 
 	switch key 
 		case dv.trial.eyelink.setup.TERMINATE_KEY,       % breakout key code
-			pdsEyelinkClearCalDisplay(dv); % clear_cal_display();
+			pds.eyelink.clearCalDisplay(dv); % clear_cal_display();
 			result=dv.trial.eyelink.setup.TERMINATE_KEY;
 			return;
 		case dv.trial.eyelink.setup.SPACE_BAR,	         		% 32: accept fixation
@@ -105,7 +105,7 @@ end
 if targetvisible==1
 	pdsEyelinkEraseCalTarget(dv, tx,ty);   % erase target on exit, bit superfluous actually
 end
-pdsEyelinkClearCalDisplay(dv); % clear_cal_display();
+pds.eyelink.clearCalDisplay(dv); % clear_cal_display();
 
 result=0;
 return;

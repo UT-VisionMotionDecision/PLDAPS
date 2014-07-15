@@ -29,6 +29,10 @@ function dv =  init(dv)
 
 
 if dv.defaultParameters.datapixx.use
+    %the GPU needs an identity CLUT, at least on newer MACS, crashes
+    %otherwiese
+%     Screen('LoadNormalizedGammaTable',dv.defaultParameters.display.ptr,linspace(0,1,256)'*[1, 1, 1],0);
+    
     if dv.defaultParameters.display.useOverlay
         disp('****************************************************************')
         disp('****************************************************************')

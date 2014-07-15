@@ -71,16 +71,20 @@ classdef pldaps < handle
         end
         
         if nargin>4
-            error('pldaps:pldaps', 'Only four inputs allowed for now: subject, experimentSetupFile, a struct of parameters and a cell with a struct of parameters for each trial.');
+            error('pldaps:pldaps', 'Only four inputs allowed for now: subject, experimentSetupFile (String or function handle), a struct of parameters and a cell with a struct of parameters for each trial.');
         end
         subjectSet=false;
         for iArgin=1:nargin
             if ~isstruct(varargin{iArgin})
-                if ~subjectSet  %set experiment file
-                    constructorStruct.session.subject=varargin{iArgin};
-                    subjectSet=true;
+                if isa(varargin{iArgin}, 'function_handle') %fucntion handle will be the experimentSetupFunction
+                     constructorStruct.session.experimentSetupFile=func2str(varargin{iArgin});
                 else
-                    constructorStruct.session.experimentSetupFile=varargin{iArgin};
+                    if ~subjectSet  %set experiment file
+                        constructorStruct.session.subject=varargin{iArgin};
+                        subjectSet=true;
+                    else
+                        constructorStruct.session.experimentSetupFile=varargin{iArgin};
+                    end
                 end
             end
             
@@ -98,13 +102,13 @@ classdef pldaps < handle
  end %methods
 
  methods(Static)
-      xy = deg2px(dv,xy)
+      [xy,z] = deg2px(dv,xy,z,zIsR)
       
-      xy = deg2world(dv,xy)
+      [xy,z] = deg2world(dv,xy,z,zIsR)
       
-      xy = px2deg(dv,xy)
+      [xy,z] = px2deg(dv,xy,z)
       
-      xy = world2deg(dv,xy)
+      [xy,z] = world2deg(dv,xy,z)
  end
 
 end
