@@ -199,18 +199,16 @@ try
             if dv.trial.pldaps.pause==1 %0=don't,1 is debugger, 2=pause loop
                 ListenChar(0);
                 ShowCursor;
-                dv  %#ok<NOPRT>
+                dv.trial
                 disp('Ready to begin trials. Type return to start first trial...')
                 keyboard %#ok<MCKBD>
-                dv.quit = 0;
+                dv.trial.pldaps.quit = 0;
                 ListenChar(2);
                 HideCursor;
             elseif dv.trial.pldaps.pause==1
                 pauseLoop(dv);
-            end
-            
+            end           
 %             pds.datapixx.refresh(dv);
-            
         end
         
     end
