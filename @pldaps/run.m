@@ -197,10 +197,10 @@ try
         else %dbquit ==1 is meant to be pause. should we halt eyelink, datapixx, etc?
             ListenChar(0);
             ShowCursor;
-            dv  %#ok<NOPRT>
+            dv.trial
             disp('Ready to begin trials. Type return to start first trial...')
             keyboard %#ok<MCKBD>
-            dv.quit = 0;
+            dv.trial.pldaps.quit = 0;
             ListenChar(2);
             HideCursor;
             

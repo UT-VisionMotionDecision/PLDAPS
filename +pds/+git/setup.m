@@ -13,13 +13,13 @@ end
 pldapspath=which('pldaps');
 pldapspath=pldapspath(1:end-length('/@pldaps/pldaps.m'));
 
-dv.defaultParameters.git.pldaps.status = git.git(['- c ' pldapspath ' status']);
-dv.defaultParameters.git.pldaps.diff = git.git(['- c ' pldapspath ' diff']);
-dv.defaultParameters.git.pldaps.revision =git.git(['-C'  pldapspath ' rev-parse HEAD']);
+dv.defaultParameters.git.pldaps.status = pds.git.git(['- c ' pldapspath ' status']);
+dv.defaultParameters.git.pldaps.diff = pds.git.git(['- c ' pldapspath ' diff']);
+dv.defaultParameters.git.pldaps.revision =pds.git.git(['-C'  pldapspath ' rev-parse HEAD']);
 
 huklabpath=which('defaultTrialVariables');
 huklabpath=huklabpath(1:end-length('/defaultTrialVariables.m'));
 
-dv.defaultParameters.git.huklabBasics.status = git.git(['- c ' huklabpath ' status']);
-dv.defaultParameters.git.huklabBasics.diff = git.git(['- c ' huklabpath ' diff']);
-dv.defaultParameters.git.huklabBasics.revision =git.git(['-C'  huklabpath ' rev-parse HEAD']);
+dv.defaultParameters.git.huklabBasics.status = pds.git.git(['- c ' huklabpath ' status']);
+dv.defaultParameters.git.huklabBasics.diff = pds.git.git(['- c ' huklabpath ' diff']);
+dv.defaultParameters.git.huklabBasics.revision =pds.git.git(['-C'  huklabpath ' rev-parse HEAD']);
