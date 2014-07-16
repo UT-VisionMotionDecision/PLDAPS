@@ -114,7 +114,7 @@ end
 
     function frameDrawingFinished(dv)
         Screen('DrawingFinished', dv.trial.display.ptr);
-        Screen('DrawingFinished', dv.trial.display.overlayptr);
+%         Screen('DrawingFinished', dv.trial.display.overlayptr);
         %if we're going async, we'd probably do the flip call here, right? but
         %could also do it in the flip either way.
     end %frameDrawingFinished
@@ -127,26 +127,15 @@ end
 %     end %frameIdlePostDraw
 
     function frameFlip(dv)
-        [dv.trial.timing.flipTimes(1,dv.trial.iFrame), dv.trial.timing.flipTimes(2,dv.trial.iFrame), dv.trial.timing.flipTimes(3,dv.trial.iFrame), dv.trial.timing.flipTimes(4,dv.trial.iFrame)] = Screen('Flip', dv.trial.display.ptr,0); %#ok<ASGLU>
-    %     if dv.disp.photodiode && mod(dv.trial.iFrame, dv.disp.photodiodeFrames) == 0
-    %             photodiodecolor = dv.disp.clut.window;
-    %             photodiodeTimes(dv.trial.iPhotodiode,:) = [dv.trial.ttime dv.trial.iFrame+1];
-    %             dv.trial.iPhotodiode = dv.trial.iPhotodiode + 1;
-    %         else
-    %             photodiodecolor = dv.disp.clut.bg;
-    %         end
-    %         
-    %         Screen('FillRect', dv.trial.display.overlayptr,photodiodecolor*ones(3,1), dv.disp.photodiodeRect')
-        
-            if(dv.trial.datapixx.use)
-                Screen('FillRect', dv.trial.display.overlayptr,0);
-            end
-            %%% DATAPIXX BOOLEAN FLIP %%%
-
-            dv.trial.stimulus.timeLastFrame = dv.trial.timing.flipTimes(3,dv.trial.iFrame)-dv.trial.trstart;
-            dv.trial.framePreLastDrawIdleCount=0;
-            dv.trial.framePostLastDrawIdleCount=0;
-    %        dv.trial.timing.frameStateChangeTimesFlip1(2,dv.trial.iFrame)=toc;
+         dv.trial.timing.flipTimes(:,dv.trial.iFrame) = deal(Screen('Flip', dv.trial.display.ptr,0));
+               
+         if(dv.trial.datapixx.use)
+            Screen('FillRect', dv.trial.display.overlayptr,0);
+         end
+         
+         dv.trial.stimulus.timeLastFrame = dv.trial.timing.flipTimes(1,dv.trial.iFrame)-dv.trial.trstart;
+         dv.trial.framePreLastDrawIdleCount=0;
+         dv.trial.framePostLastDrawIdleCount=0;
     end %frameFlip
 
     function trialSetup(dv)
@@ -209,9 +198,9 @@ end
             end
         end
         dv.trial.unique_number = clocktime;    % trial identifier
-        [ig, ig, dv.trial.stimulus.timeLastFrame] = Screen('Flip', dv.trial.display.ptr,0); %#ok<ASGLU>
+        vblTime = Screen('Flip', dv.trial.display.ptr,0); 
         dv.trial.trstart = GetSecs;
-        dv.trial.stimulus.timeLastFrame=dv.trial.stimulus.timeLastFrame-dv.trial.trstart;
+        dv.trial.stimulus.timeLastFrame=vblTime-dv.trial.trstart;
 
         if dv.trial.datapixx.use
             dv.trial.timing.datapixxStartTime = Datapixx('Gettime');

@@ -6,18 +6,18 @@ function [xy,z] = deg2world(dv,xy,z,zIsR)
         z=dv.trial.display.viewdist;
     end
     
-    sinxy=sind(xy);
+    xy=sind(xy);
     
     if(nargin>3 && zIsR) %z argument is the radius/total distance
         sr=sqrt(z);
     else
-        sr=z./sqrt(1-sum(sinxy.^2));
+        sr=z./sqrt(1-sum(xy.^2));
     end
     
-    xy=[sr; sr].*sinxy;
+    xy=[sr; sr].*xy;
     
     if(nargout>1 && nargin<4 && zIsR)
-        z=sr.*sqrt(1-sum(sinxy.^2));
+        z=sr.*sqrt(1-sum(xy.^2));
     end
 
 %this code was wrong!

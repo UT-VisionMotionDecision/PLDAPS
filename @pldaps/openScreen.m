@@ -206,7 +206,7 @@ fprintf('Setting Blend Function to %s,%s\r', dv.defaultParameters.display.source
 disp('****************************************************************')
 Screen('BlendFunction', dv.defaultParameters.display.ptr, dv.defaultParameters.display.sourceFactorNew, dv.defaultParameters.display.destinationFactorNew);  % alpha blending for anti-aliased dots
 
-if dv.defaultParameters.datapixx.use %does;t really belong here, but need it before the first flip....
-    Screen('LoadNormalizedGammaTable',dv.defaultParameters.display.ptr,linspace(0,1,256)'*[1, 1, 1],0);
-end
+% if dv.defaultParameters.datapixx.use %does;t really belong here, but need it before the first flip....
+%     Screen('LoadNormalizedGammaTable',dv.defaultParameters.display.ptr,linspace(0,1,256)'*[1, 1, 1],0);
+% end
 dv.defaultParameters.display.t0 = Screen('Flip', dv.defaultParameters.display.ptr); 
