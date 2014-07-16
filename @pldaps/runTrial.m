@@ -43,7 +43,6 @@ function dv = runTrial(dv, tfh)
     dv.trial.currentFrameState=1;    
     
     tfh(dv, dv.trial.pldaps.trialStates.trialSetup);
-%     trialSetup(dv);
     
     timeNeeded(dv.trial.pldaps.trialStates.frameUpdate)=0.5;
     timeNeeded(dv.trial.pldaps.trialStates.framePrepareDrawing)=2;
@@ -58,17 +57,10 @@ function dv = runTrial(dv, tfh)
     %will be called just before the trial starts for time critical calls to
     %start data aquisition
     tfh(dv, dv.trial.pldaps.trialStates.trialPrepare);
-%     trialPrepare(dv);
-
-
 
     dv.trial.framePreLastDrawIdleCount=0;
     dv.trial.framePostLastDrawIdleCount=0;
 
-
-    dv.trial.prevFrameState=dv.trial.currentFrameState;
-    dv.trial.prevTimeLastFrame=dv.trial.stimulus.timeLastFrame;
-    dv.trial.prevFrame=dv.trial.iFrame;
 
     % pdsEyelinkGetQueue(dv);
     %%% MAIN WHILE LOOP %%%
@@ -79,90 +71,59 @@ function dv = runTrial(dv, tfh)
             %time of the estimated next flip
             dv.trial.nextFrameTime = dv.trial.stimulus.timeLastFrame+dv.trial.display.ifi;
 
-            % update trial time
-%             dv.trial.ttime = GetSecs - dv.trial.trstart;
-%             remainingTime=nextFrameTime-dv.trial.ttime;
-% 
-%             if(dv.trial.prevFrameState~=dv.trial.currentFrameState)
-%                     dv.trial.timing.frameStateChangeTimes(dv.trial.prevFrameState,dv.trial.prevFrame)=dv.trial.ttime-dv.trial.prevTimeLastFrame;
-%                     dv.trial.prevFrameState=dv.trial.currentFrameState;
-%                     dv.trial.prevTimeLastFrame=dv.trial.stimulus.timeLastFrame;
-%                     dv.trial.prevFrame=dv.trial.iFrame;
-%             end
-
             tfh(dv, dv.trial.pldaps.trialStates.frameUpdate);
-%             frameUpdate(dv);
             setTimeAndFrameState(dv,dv.trial.pldaps.trialStates.framePrepareDrawing)
 
             tfh(dv, dv.trial.pldaps.trialStates.framePrepareDrawing);
-%             framePrepareDrawing(dv);
             setTimeAndFrameState(dv,dv.trial.pldaps.trialStates.frameDraw);
 
             tfh(dv, dv.trial.pldaps.trialStates.frameDraw);
-%             frameDraw(dv);
             setTimeAndFrameState(dv,dv.trial.pldaps.trialStates.frameIdlePreLastDraw);
  
             tfh(dv, dv.trial.pldaps.trialStates.frameIdlePreLastDraw);
-%             frameIdlePreLastDraw(dv);
             dv.trial.framePreLastDrawIdleCount = dv.trial.framePreLastDrawIdleCount +1;
-            dv.trial.ttime = GetSecs - dv.trial.trstart;
-            dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-            while (dv.trial.remainingFrameTime>sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePreLastDraw+1:end)))
-                tfh(dv, dv.trial.pldaps.trialStates.frameIdlePreLastDraw);
-%                 frameIdlePreLastDraw(dv);
-                dv.trial.framePreLastDrawIdleCount = dv.trial.framePreLastDrawIdleCount +1;
-                dv.trial.ttime = GetSecs - dv.trial.trstart;
-                dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-            end
+%             dv.trial.ttime = GetSecs - dv.trial.trstart;
+%             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
+%             while (dv.trial.remainingFrameTime>sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePreLastDraw+1:end)))
+%                 tfh(dv, dv.trial.pldaps.trialStates.frameIdlePreLastDraw);
+%                 dv.trial.framePreLastDrawIdleCount = dv.trial.framePreLastDrawIdleCount +1;
+%                 dv.trial.ttime = GetSecs - dv.trial.trstart;
+%                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
+%             end
             setTimeAndFrameState(dv,dv.trial.pldaps.trialStates.frameDrawTimecritical);
 
             tfh(dv, dv.trial.pldaps.trialStates.frameIdlePreLastDraw);
-%             drawTimecritical(dv);
             setTimeAndFrameState(dv,dv.trial.pldaps.trialStates.frameDrawingFinished);
                   
             tfh(dv, dv.trial.pldaps.trialStates.frameDrawingFinished);
-%             frameDrawingFinished(dv);
             setTimeAndFrameState(dv,dv.trial.pldaps.trialStates.frameIdlePostDraw);
 
             tfh(dv, dv.trial.pldaps.trialStates.frameIdlePostDraw);
-%             frameIdlePostDraw(dv);
             dv.trial.framePostLastDrawIdleCount = dv.trial.framePostLastDrawIdleCount +1;
-            dv.trial.ttime = GetSecs - dv.trial.trstart;
-            dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-            while (dv.trial.remainingFrameTime>sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePostDraw+1:end)))
-                tfh(dv, dv.trial.pldaps.trialStates.frameIdlePostDraw);
-%                 frameIdlePostDraw(dv);
-                dv.trial.framePostLastDrawIdleCount = dv.trial.framePostLastDrawIdleCount +1;
-                dv.trial.ttime = GetSecs - dv.trial.trstart;
-                dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-            end
+%             dv.trial.ttime = GetSecs - dv.trial.trstart;
+%             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
+%             while (dv.trial.remainingFrameTime>sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePostDraw+1:end)))
+%                 tfh(dv, dv.trial.pldaps.trialStates.frameIdlePostDraw);
+%                 dv.trial.framePostLastDrawIdleCount = dv.trial.framePostLastDrawIdleCount +1;
+%                 dv.trial.ttime = GetSecs - dv.trial.trstart;
+%                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
+%             end
             setTimeAndFrameState(dv,dv.trial.pldaps.trialStates.frameFlip)
                    
 
             tfh(dv, dv.trial.pldaps.trialStates.frameFlip);
-%             frameFlip(dv);
             %advance to next frame
-            setTimeAndFrameState(dv,dv.trial.pldaps.trialStates.frameUpdate);
-            
+            setTimeAndFrameState(dv,dv.trial.pldaps.trialStates.frameUpdate);           
             dv.trial.iFrame = dv.trial.iFrame + 1;  % update frame index
         end %while Trial running
 
-%         dv.trial.ttime = GetSecs - dv.trial.trstart;
-%         if(dv.trial.prevFrameState~=dv.trial.currentFrameState)
-%             dv.trial.timing.frameStateChangeTimes(dv.trial.prevFrameState,dv.trial.prevFrame)=dv.trial.ttime-dv.trial.prevTimeLastFrame;
-%             dv.trial.prevFrameState=dv.trial.currentFrameState;
-%             dv.trial.prevTimeLastFrame=dv.trial.stimulus.timeLastFrame;
-%             dv.trial.prevFrame=dv.trial.iFrame;
-%         end
-
         tfh(dv, dv.trial.pldaps.trialStates.trialCleanUpandSave);
-%         dv = cleanUpandSave(dv);
 
     end %runTrial
     
     function setTimeAndFrameState(dv,state)
             dv.trial.ttime = GetSecs - dv.trial.trstart;
             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-            dv.trial.timing.frameStateChangeTimes(dv.trial.currentFrameState,dv.trial.iFrame)=dv.trial.ttime-dv.trial.prevTimeLastFrame;
+            dv.trial.timing.frameStateChangeTimes(dv.trial.currentFrameState,dv.trial.iFrame)=dv.trial.ttime-dv.trial.nextFrameTime+dv.trial.display.ifi;
             dv.trial.currentFrameState=state;        
     end
