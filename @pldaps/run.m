@@ -152,6 +152,7 @@ try
     dv.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr])
     dv.defaultParameters.pldaps.iTrial=trialNr;
     dv.trial=mergeToSingleStruct(dv.defaultParameters);
+    dv.defaultParameters.setReadLock(true);
     
     %only use dv.trial from here on!
     
@@ -160,9 +161,12 @@ try
         
         if dv.trial.pldaps.quit == 0
             
-            % run trial
-            dv = feval(dv.trial.pldaps.trialFunction,  dv, dv.trialFunctionHandle);
+           dv.defaultParameters.setReadLock(true);
             
+           % run trial
+           dv = feval(dv.trial.pldaps.trialFunction,  dv, dv.trialFunctionHandle);
+            
+           dv.defaultParameters.setReadLock(false); 
             
            result = saveTempFile(dv); 
            if ~isempty(result)

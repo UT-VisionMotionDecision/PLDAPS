@@ -9,6 +9,9 @@ classdef params < handle
         flatStructLevels
         flatStructIdMap
         
+        writeLockLevelList
+        readLock
+        
         MethodsList
         
         Snew1
@@ -20,7 +23,7 @@ classdef params < handle
 %             attributes=?params;
 %             propertyList=attributes
 %          
-            p.MethodsList={'view', 'setLevels','getAllLevels', 'mergeToSingleStruct','getDifferenceFromStruct','addLevels' 'getAllStructs'};
+            p.MethodsList={'view', 'setLevels','getAllLevels', 'mergeToSingleStruct','getDifferenceFromStruct','addLevels' 'getAllStructs','setReadLock','setWriteLocks'};
             p.structs=s;
             p.levels=1:length(s);
             p.flatStructLevels=p.levels;
@@ -32,6 +35,9 @@ classdef params < handle
             
             p = flattenStructs(p);
             
+            p.readLock=false;
+            p.writeLockLevelList=false(1,length(s));
+            
             %helper things
             p.Snew1= substruct('.','flatStruct','()', {NaN}, '.', 'hierarchyValues', '{}',{NaN});
             p.Snew2= substruct('.','flatStruct','()', {NaN}, '.', 'value');
@@ -40,6 +46,22 @@ classdef params < handle
         function view(p)
            p.structviewer(p);
         end
+        
+        function setReadLock(p,lock)
+           p.readLock = lock;
+        end
+%         
+%         function setWriteLocks(p,locks)
+%            if islogical(locks)
+%                if length(locks)==1 || length(locks)==length(p.levels)
+%                    p.writeLockLevelList(:)=locks;
+%                else
+%                    warning('params:setWriteLocks','Dimensions don''t match up');
+%                end
+%            else
+%                p.writeLockLevelList(locks)=~p.writeLockLevelList(locks);
+%            end
+%         end
         
         function varargout = subsref(p,S)
             switch S(1).type
@@ -52,6 +74,13 @@ classdef params < handle
                             [varargout{1:nargout}] = builtin('subsref',p,S);%p.(S.subs);  
                         end
                    else
+                        if(p.readLock) %reading not allowed
+                            warning('parmas:subsref','Tried to acces data from @params class while readLock is set. Call setreadLock(false) to disable the lock.');
+                            varargout{1} = S;
+                            return
+                        end
+                        display(S);
+                       
                         % get a value from the flatStruct
                         %how many .?
                         dotNr=find(diff(strcmp({S.type}, '.'))==-1);
