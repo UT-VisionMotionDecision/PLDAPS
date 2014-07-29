@@ -1,4 +1,4 @@
-function dv = runTrial(dv, tfh)
+function dv = runTrial(dv)
     % [PDS,dv] = runTrial(dv,PDS)
     % runs a single trial
     %
@@ -7,6 +7,9 @@ function dv = runTrial(dv, tfh)
     % the PLDAPS structure and frame it into a class
     % might change to ASYNC buffer flipping. but won't for now.
 
+    %the trialFunctionHandle
+    tfh=str2func(dv.trial.pldaps.trialFunction);
+    
     %trial states that are not in a frame are negative, just to allow both
     %to be more independent
     dv.trial.pldaps.trialStates.trialSetup=-1;

@@ -24,14 +24,17 @@ function dv = run(dv)
 % For more info visit:
 % https://github.com/Psychtoolbox-3/Psychtoolbox-3
 
-%TODO: change edit setupPLDAPSenv.m and  makeRigConfigFile.m before running. 
+%TODO: 
 % shoudl the outputfile uigetfile be optional?
 % one same system for modules, e.g. moduleSetup, moduleUpdate, moduleClose
 % make HideCursor optional
-% make wait for return optional?
 % TODO:reset class at end of experiment or mark as recorded, so I don't
 % run the same again by mistake
 % Todo save: defaultparameters beofre 1st trial
+%done
+% -change edit setupPLDAPSenv.m and  makeRigConfigFile.m before running.
+% it's now createRigPrefs
+% -make wait for return optional?: pldaps.pause.preExperiment=false
 
 try
     %% Setup and File management
@@ -131,6 +134,7 @@ try
     HideCursor
     
     %save defaultParameters as trial 0
+    trialNr=0;
     dv.trial.pldaps.iTrial=0;
     dv.trial=mergeToSingleStruct(dv.defaultParameters);
     result = saveTempFile(dv); 
@@ -140,67 +144,80 @@ try
     
     
     %now setup everything for the first trial
-    trialNr=1;
+   
+%     dv.defaultParameters.pldaps.iTrial=trialNr;
     
     %we'll have a trialNr counter that the trial function can tamper with?
     %do we need to lock the defaultParameters to prevent tampering there?
     levelsPreTrials=dv.defaultParameters.getAllLevels();
-    dv.defaultParameters.addLevels(dv.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
+%     dv.defaultParameters.addLevels(dv.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
     
     %for now all structs will be in the parameters class, first
     %levelsPreTrials, then we'll add the condition struct before each trial.
-    dv.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr])
-    dv.defaultParameters.pldaps.iTrial=trialNr;
-    dv.trial=mergeToSingleStruct(dv.defaultParameters);
-    dv.defaultParameters.setReadLock(true);
+%     dv.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr])
+%     dv.defaultParameters.pldaps.iTrial=trialNr;
+%     dv.trial=mergeToSingleStruct(dv.defaultParameters);
     
     %only use dv.trial from here on!
     
     %% main trial loop %%
-    while dv.trial.pldaps.iTrial <= dv.trial.pldaps.finish && dv.trial.pldaps.quit~=2
+    while dv.trial.pldaps.iTrial < dv.trial.pldaps.finish && dv.trial.pldaps.quit~=2
         
         if dv.trial.pldaps.quit == 0
             
-           dv.defaultParameters.setReadLock(true);
+           %load parameters for next trial and lock defaultsParameters
+           trialNr=trialNr+1;
+           dv.defaultParameters.addLevels(dv.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
+           dv.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr]);
+           dv.defaultParameters.pldaps.iTrial=trialNr;
+           dv.trial=mergeToSingleStruct(dv.defaultParameters);
+           dv.defaultParameters.setLock(true);
             
            % run trial
-           dv = feval(dv.trial.pldaps.trialFunction,  dv, dv.trialFunctionHandle);
+           dv = feval(dv.trial.pldaps.trialMasterFunction,  dv);
             
-           dv.defaultParameters.setReadLock(false); 
+           %unlock the defaultParameters
+           dv.defaultParameters.setLock(false); 
             
+           %save tmp data
            result = saveTempFile(dv); 
            if ~isempty(result)
                disp(result.message)
            end
-           
-           
-           
-           %get the difference of the trial struct:
+                      
+           %store the difference of the trial struct to .data
            dTrialStruct=getDifferenceFromStruct(dv.defaultParameters,dv.trial);
            dv.data{trialNr}=dTrialStruct;
            
            %advance to next trial
-           trialNr=trialNr+1;
-           if(dv.trial.pldaps.iTrial ~= dv.trial.pldaps.finish)
-                %now we add this and the next Trials condition parameters
-                dv.defaultParameters.addLevels(dv.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']},[levelsPreTrials length(levelsPreTrials)+trialNr]);
-                dv.defaultParameters.pldaps.iTrial=trialNr;
-                dv.trial=mergeToSingleStruct(dv.defaultParameters);
-           else
-                dv.trial.pldaps.iTrial=trialNr;
-           end
-           
-           if isfield(dTrialStruct,'pldaps')
-               if isfield(dTrialStruct.pldaps,'finish') 
-                    dv.trial.pldaps.finish=dTrialStruct.pldaps.finish;
-               end
-               if isfield(dTrialStruct.pldaps,'quit') 
-                    dv.trial.pldaps.quit=dTrialStruct.pldaps.quit;
-               end
-           end
+%            if(dv.trial.pldaps.iTrial ~= dv.trial.pldaps.finish)
+%                 %now we add this and the next Trials condition parameters
+%                 dv.defaultParameters.addLevels(dv.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']},[levelsPreTrials length(levelsPreTrials)+trialNr]);
+%                 dv.defaultParameters.pldaps.iTrial=trialNr;
+%                 dv.trial=mergeToSingleStruct(dv.defaultParameters);
+%            else
+%                 dv.trial.pldaps.iTrial=trialNr;
+%            end
+%            
+%            if isfield(dTrialStruct,'pldaps')
+%                if isfield(dTrialStruct.pldaps,'finish') 
+%                     dv.trial.pldaps.finish=dTrialStruct.pldaps.finish;
+%                end
+%                if isfield(dTrialStruct.pldaps,'quit') 
+%                     dv.trial.pldaps.quit=dTrialStruct.pldaps.quit;
+%                end
+%            end
             
         else %dbquit ==1 is meant to be pause. should we halt eyelink, datapixx, etc?
-            if dv.trial.pldaps.pause==1 %0=don't,1 is debugger, 2=pause loop
+            %create a new level to store all changes in, 
+            %load only non trial paraeters
+            pause=dv.trial.pldaps.pause.type;
+            dv.trial=dv.defaultParameters;
+            
+            dv.defaultParameters.addLevels({struct}, {['PauseAfterTrial' num2str(trialNr) 'Parameters']});
+            dv.defaultParameters.setLevels([levelsPreTrials length(dv.defaultParameters.getAllLevels())]);
+            
+            if pause==1 %0=don't,1 is debugger, 2=pause loop
                 ListenChar(0);
                 ShowCursor;
                 dv.trial
@@ -209,10 +226,18 @@ try
                 dv.trial.pldaps.quit = 0;
                 ListenChar(2);
                 HideCursor;
-            elseif dv.trial.pldaps.pause==1
+            elseif pause==2
                 pauseLoop(dv);
             end           
 %             pds.datapixx.refresh(dv);
+
+            %now I'm assuming that nobody created new levels,
+            %but I guess when you know how to do that
+            %you should also now how to not skrew things up
+            allStructs=dv.defaultParameters.getAllStructs();
+            if(~isequal(struct,allStructs{end}))
+                levelsPreTrials=[levelsPreTrials length(allStructs)]; %#ok<AGROW>
+            end
         end
         
     end
@@ -222,9 +247,9 @@ try
     dv.trial = dv.defaultParameters;
     
     % return cursor and command-line control
-    ShowCursor
-    ListenChar(0)
-    Priority(0)
+    ShowCursor;
+    ListenChar(0);
+    Priority(0);
     
     dv = pds.eyelink.finish(dv);
     dv = pds.spikeserver.disconnect(dv);
@@ -248,13 +273,13 @@ try
     
     
     Screen('CloseAll');
-    sca
+    sca;
     
     
 catch me
     sca
     
-    % return cursor and command-line cont[rol
+    % return cursor and command-line control
     ShowCursor
     ListenChar(0)
     disp(me.message)

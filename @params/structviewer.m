@@ -60,10 +60,13 @@ function structviewer_OpeningFcn(hObject, eventdata, handles, varargin)
     % copy structs from params
     % copy because we don't want to change the classes values only once we
     % click save
-    handles.flatStruct=handles.param.flatStruct;
-    handles.structInfo.levels=handles.param.flatStructLevels;
-    handles.structInfo.nLevels=length(handles.structInfo.levels);
-    handles.structInfo.levelNames=handles.param.structNames(handles.structInfo.levels);
+    [s, sN, active]=getAllStructs(handles.param);
+    handles.backup={s, sN, active};
+    
+%     handles.flatStruct=handles.param.flatStruct;
+%     handles.structInfo.levels=handles.param.flatStructLevels;
+%     handles.structInfo.nLevels=length(handles.structInfo.levels);
+%     handles.structInfo.levelNames=handles.param.structNames(handles.structInfo.levels);
     handles.robot_in_action=false;
     % setListboxes(handles,flatStruct)
 
@@ -74,41 +77,47 @@ function structviewer_OpeningFcn(hObject, eventdata, handles, varargin)
     setListboxes(handles);
 
 
-function setListboxes(handles,selectedID, selectedHierarchy_index)
+function setListboxes(handles,selectedID, selectedHierarchy)
     %they are merged. let's sort by identifier
-    flatStruct=handles.flatStruct;
-    levelNames=handles.structInfo.levelNames;
-    nLevels=handles.structInfo.nLevels;
+    flatStruct=handles.param.flatStruct;
+    
+    flatStruct(cellfun(@isempty,{flatStruct.parentLevels}))=[];
+    
+    levelNames=handles.param.structNames;
+%     nLevels=length(levelNames);
+    activeLevels=find(handles.param.activeLevels);
+    nActiveLevels=length(activeLevels);
 
     [~, sortIdsIdx]=sort({flatStruct.identifier});
     flatStruct=flatStruct(sortIdsIdx);
 
     if nargin<2
         field_index=1;
+        selectedID=flatStruct(1).identifier;
     else
         field_index=find(strcmp({flatStruct.identifier},selectedID));
     end
 
-    colors=distinguishable_colors(nLevels,{'w','k'});
+    colors=distinguishable_colors(nActiveLevels,{'w','k'});
     colorsTree=colors/2;
-    handles.structInfo.colors=colors;
-    handles.structInfo.colorsTree=colorsTree;
-    handles.structInfo.currentValues=cell(1,nLevels);
-    handles.structInfo.currentValueStrings=cell(1,nLevels);
+    structInfo.colors=colors;
+    structInfo.colorsTree=colorsTree;
+    structInfo.currentValues=cell(1,nActiveLevels);
+    structInfo.currentValueStrings=cell(1,nActiveLevels);
     
-    colorString=cell(1,nLevels);
-    colorTreeString=cell(1,nLevels);
-    for iLevel=1:nLevels
-        colorString{iLevel}=sprintf('%s',dec2hex(round(handles.structInfo.colors(iLevel,:)*255))');
-        colorTreeString{iLevel}=['000000'];%sprintf('%s',dec2hex(round(handles.structInfo.colorsTree(iLevel,:)*255))');
+    colorString=cell(1,nActiveLevels);
+    colorTreeString=cell(1,nActiveLevels);
+    for iLevel=1:nActiveLevels
+        colorString{iLevel}=sprintf('%s',dec2hex(round(structInfo.colors(iLevel,:)*255))');
+        colorTreeString{iLevel}='000000';%sprintf('%s',dec2hex(round(handles.structInfo.colorsTree(iLevel,:)*255))');
     end
-    handles.structInfo.colorString=colorString;
-    handles.structInfo.colorTreeString=colorTreeString;
+    structInfo.colorString=colorString;
+    structInfo.colorTreeString=colorTreeString;
 
     nFields=length(flatStruct);
     for iField=1:nFields
-        hierarchy_index=handles.structInfo.levels==flatStruct(iField).hierarchyTopLevel;
-        if(isstruct(flatStruct(iField).value))%branch
+        hierarchy_index=activeLevels==max(flatStruct(iField).hierarchyLevels);
+        if flatStruct(iField).isNode
             flatStruct(iField).string=sprintf(['<HTML><pre><FONT color=%s>' repmat(' ',[1 length(flatStruct(iField).parentLevels)-1]) '- ' '.%s</FONT></HTML>'],colorTreeString{hierarchy_index},flatStruct(iField).parentLevels{end});
         else
             flatStruct(iField).string=sprintf(['<HTML><pre><FONT color=%s>' repmat(' ',[1 length(flatStruct(iField).parentLevels)]) '  .%s</FONT></HTML>'],colorString{hierarchy_index},flatStruct(iField).parentLevels{end});
@@ -116,38 +125,43 @@ function setListboxes(handles,selectedID, selectedHierarchy_index)
     end
 
     for iField=1:nFields
-        if(isstruct(flatStruct(iField).value))%branch
+        if(flatStruct(iField).isNode)%branch
             flatStruct(iField).valueString='';
         else
-            flatStruct(iField).valueString=params.valueString(flatStruct(iField).value);%evalc('disp(flatStruct(iField).value)');
+            flatStruct(iField).valueString=params.valueString(getParameter(handles.param,flatStruct(iField).identifier));%evalc('disp(flatStruct(iField).value)');
         end
     end
-
-    for iLevel=1:nLevels
-        handles.structInfo.levelDisplayNames{iLevel}=sprintf('<HTML><pre><FONT color=%s>%s</FONT></HTML>',colorString{iLevel},levelNames{iLevel});
+    
+    
+    for iLevel=1:nActiveLevels
+        handles.structInfo.levelDisplayNames{iLevel}=sprintf('<HTML><pre><FONT color=%s>%s</FONT></HTML>',colorString{iLevel},levelNames{activeLevels(iLevel)});
     end
 
-    handles.flatStruct=flatStruct;
-    set(handles.listbox1,'String',{handles.flatStruct.string}',...
+%     handles.flatStruct=flatStruct;
+    set(handles.listbox1,'String',{flatStruct.string}',...
         'Value',1)
-    set(handles.listbox2,'String',{handles.flatStruct.valueString}',...
+    set(handles.listbox2,'String',{flatStruct.valueString}',...
         'Value',1)
-    set(handles.structListbox,'String',handles.structInfo.levelDisplayNames,...
+    set(handles.structListbox,'String',levelNames(activeLevels),...
         'Value',1)
-    set(handles.structValueListbox,'String',handles.structInfo.currentValueStrings,...
+    set(handles.structValueListbox,'String',structInfo.currentValueStrings,...
         'Value',1)
-    set(handles.structListbox,'Max',nLevels);
+    set(handles.structListbox,'Max',nActiveLevels);
 %     set(handles.structValueListbox,'Max',nLevels);
 
+
+    handles.idList={flatStruct.identifier};
+    handles.levelList=levelNames(activeLevels);
+    
     guidata(handles.figure1,handles)
 
     set(handles.listbox1,'Value', field_index);
     set(handles.listbox2,'Value', field_index);
 
     if nargin<3
-        setStructListbox(handles,field_index);%?
+        setStructListbox(handles,selectedID);%?
     else
-        setStructListbox(handles,field_index,selectedHierarchy_index);
+        setStructListbox(handles,selectedID,selectedHierarchy);
     end
 
 
@@ -221,7 +235,7 @@ function listbox1_Callback(hObject, eventdata, handles)
 
     index_selected = get(handles.listbox1,'Value');
     set(handles.listbox2,'Value', index_selected);
-    setStructListbox(handles,index_selected);    
+    setStructListbox(handles,handles.idList{index_selected});    
 
 
 % --- Executes during object creation, after setting all properties.
@@ -279,7 +293,7 @@ function listbox2_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from listbox2
     index_selected = get(handles.listbox2,'Value');
     set(handles.listbox1,'Value', index_selected);
-    setStructListbox(handles,index_selected);
+    setStructListbox(handles,handles.idList{index_selected});
 
 
 % --- Executes during object creation, after setting all properties.
@@ -336,15 +350,22 @@ function structValueListbox_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns structValueListbox contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from structValueListbox
-    index_selected = get(handles.structValueListbox,'Value');
+    selectedId=     handles.idList{get(handles.listbox1,'Value')};
+    level_selected = get(handles.structValueListbox,'Value');
     %setFieldEditor(handles,index_selected);
-    setStructListbox(handles,handles.structInfo.currentField,index_selected);
+    setStructListbox(handles,selectedId,handles.levelList{level_selected});
 
+    flatStruct=handles.param.flatStruct;
+    activeLevels=find(handles.param.activeLevels);
+    field_index=(strcmp(selectedId,{flatStruct.identifier}));
+    
+    field=flatStruct(field_index);
+    
     if strcmp(get(handles.figure1,'SelectionType'),'open')
-        %add right click mouse actions move along hierarchy, delete entry
+        %add right click mouse actions: move along hierarchy | delete entry
         hcmenu = uicontextmenu('Parent',handles.figure1);
-        if ~isstruct(handles.flatStruct(handles.structInfo.currentField).value) %it's not a tree branch
-            nLevels=handles.structInfo.nLevels;
+        if ~field.isNode %it's not a tree branch
+            nLevels=length(activeLevels);
             colorString=handles.structInfo.colorString;
 
             for iLevel=1:nLevels
@@ -388,48 +409,78 @@ function structValueListbox_CreateFcn(hObject, eventdata, handles)
     set(hObject,'Enable','on');
 
 
-function setStructListbox(handles,field_index,index)
+function setStructListbox(handles,selectedId,selectedHierarchy)
     %get current field:
-    field=handles.flatStruct(field_index);
+    flatStruct=handles.param.flatStruct;
+    activeLevels=find(handles.param.activeLevels);
+    
+    
+    field_index=(strcmp(selectedId,{flatStruct.identifier}));
+    
+    field=flatStruct(field_index);
     
     if(nargin<3)
-        index=find(handles.structInfo.levels==field.hierarchyTopLevel);
+        full_index=max(field.hierarchyLevels);
+        selectedHierarchy=handles.param.structNames{full_index};
+        index=find(activeLevels==full_index);
+    else
+        full_index=find(strcmp(selectedHierarchy,handles.param.structNames));
+        index=find(activeLevels==full_index);
     end
     
     %select the names of the structs that define this field:
-    set(handles.structListbox,'Value',find(ismember(handles.structInfo.levels,field.hierarchyLevels)));
+    set(handles.structListbox,'Value',find(ismember(activeLevels,field.hierarchyLevels)));
     %and display the values of these next to them
-    valueStrings=cell(1,handles.structInfo.nLevels);
-    values=cell(1,handles.structInfo.nLevels);
-    for iLevel=1:handles.structInfo.nLevels
-        iFieldLevel=find(field.hierarchyLevels==handles.structInfo.levels(iLevel));
-        if ~isempty(iFieldLevel) && ~isstruct(field.hierarchyValues{iFieldLevel})
-            values{iLevel}=field.hierarchyValues{iFieldLevel};
+    nLevels=length(activeLevels);
+    valueStrings=cell(1,nLevels);
+    values=cell(1,nLevels);
+    for iLevel=1:nLevels
+        isFieldLevel=any(field.hierarchyLevels==activeLevels(iLevel));
+        if isFieldLevel && ~field.isNode
+            values{iLevel}=getParameter(handles.param,selectedId,activeLevels(iLevel));
             valueStrings{iLevel}=params.valueString(values{iLevel});%evalc('disp(values{iLevel})');
         end
     end
     
     set(handles.structValueListbox,'String',valueStrings);
-    handles.structInfo.currentValueStrings=valueStrings;
-    handles.structInfo.currentField=field_index;
-    handles.structInfo.currentHierarchy=index;
-    handles.structInfo.currentLevel=handles.structInfo.levels(index);
-    handles.structInfo.currentValues = values;
+%     handles.structInfo.currentValueStrings=valueStrings;
+%     handles.structInfo.currentField=field_index;
+%     handles.structInfo.currentHierarchy=index;
+%     handles.structInfo.currentLevel=handles.structInfo.levels(index);
+%     handles.structInfo.currentValues = values;
     
     %select the value that is currenty used in the merged struct
     set(handles.structValueListbox,'Value', index);
     
     % set(handles.fieldEditor,'String',values{field.hierarchyTopLevel});
-    setFieldEditor(handles,index);
+    setFieldEditor(handles,selectedId,selectedHierarchy);
          
     guidata(handles.figure1,handles);
     
     
-function setFieldEditor(handles,index_selected)
-    if isstruct(handles.flatStruct(handles.structInfo.currentField).value)
+function setFieldEditor(handles,selectedId,selectedHierarchy)
+    flatStruct=handles.param.flatStruct;
+%     activeLevels=find(handles.param.activeLevels);
+    field_index=(strcmp(selectedId,{flatStruct.identifier}));
+    field=flatStruct(field_index);
+    if(nargin<3)
+        full_index=max(field.hierarchyLevels);
+%         selectedHierarchy=handles.param.structNames{full_index};
+%         index=find(activeLevels==full_index);
+    else
+        full_index=find(strcmp(selectedHierarchy,handles.param.structNames));
+%         index=find(activeLevels==full_index);
+    end
+    
+    if field.isNode
         set(handles.fieldEditor,'Enable','inactive');
     else
-        valueString=handles.structInfo.currentValueStrings{index_selected};
+        
+        if any(field.hierarchyLevels==full_index)
+            valueString=params.valueString(getParameter(handles.param,selectedId,full_index));
+        else
+            valueString='';
+        end
 
         set(handles.fieldEditor,'String',valueString);
    
@@ -447,40 +498,51 @@ function fieldEditor_Callback(hObject, eventdata, handles) %#ok<*INUSL>
 
 %pressed enter (I hope)
     if strcmp(get(handles.figure1,'SelectionType'),'normal');
-        field=handles.flatStruct(handles.structInfo.currentField);
-
+        selectedId=     handles.idList{get(handles.listbox1,'Value')};
+        level_selected = get(handles.structValueListbox,'Value');
+        flatStruct=handles.param.flatStruct;
+        activeLevels=find(handles.param.activeLevels);
+        full_index=activeLevels(level_selected);
+        
+        field_index=(strcmp(selectedId,{flatStruct.identifier}));
+        field=flatStruct(field_index);
+        
         try
-            value=handles.structInfo.currentValues{handles.structInfo.currentHierarchy};
+            if any(field.hierarchyLevels==full_index)
+                value=getParameter(handles.param, selectedId, activeLevels(level_selected));
+            end
             evalc(['value=' get(handles.fieldEditor,'String')]);
-            valueString=params.valueString(value);%evalc('disp(value)'); %a first kind of text that it might hve worked.
+%             valueString=params.valueString(value);%a first kind of text that it might hve worked.
 
-            if any(field.hierarchyLevels==handles.structInfo.currentLevel) %parameter changed
-                field.hierarchyValues{field.hierarchyLevels==handles.structInfo.currentLevel}=value;
-            else %parameter is new to that level
-                field.hierarchyValues{end+1}=value;
-                field.hierarchyLevels(end+1)=handles.structInfo.currentLevel;
-                [~,idx]=sort(field.hierarchyLevels);
-                field.hierarchyValues=field.hierarchyValues(idx);
-                field.hierarchyLevels=field.hierarchyLevels(idx);
-            end
+            addField(handles.param,selectedId,value,activeLevels(level_selected)); 
+%             if any(field.hierarchyLevels==activeLevels(level_selected)) %parameter changed
+%                 field.hierarchyValues{field.hierarchyLevels==handles.structInfo.currentLevel}=value;
+%             else %parameter is new to that level
+%                 field.hierarchyValues{end+1}=value;
+%                 field.hierarchyLevels(end+1)=handles.structInfo.currentLevel;
+%                 [~,idx]=sort(field.hierarchyLevels);
+%                 field.hierarchyValues=field.hierarchyValues(idx);
+%                 field.hierarchyLevels=field.hierarchyLevels(idx);
+%             end
+% 
+%             if activeLevels(level_selected)==max(field.hierarchyLevels) %it's at the top of the hierarchy
+%                 field.value=value;
+%                 field.valueString=valueString;
+%                 field.hierarchyTopLevel=handles.structInfo.currentLevel;
+%             end
+%             handles.flatStruct(handles.structInfo.currentField)=field;
+%             guidata(handles.figure1,handles);
 
-            if handles.structInfo.currentLevel==max(field.hierarchyLevels) %it's at the top of the hierarchy
-                field.value=value;
-                field.valueString=valueString;
-                field.hierarchyTopLevel=handles.structInfo.currentLevel;
-            end
-            handles.flatStruct(handles.structInfo.currentField)=field;
-            guidata(handles.figure1,handles);
-
-            if handles.structInfo.currentLevel==max(field.hierarchyLevels) %it's at the top of the hierarchy
+            if level_selected>=max(field.hierarchyLevels) %it's at the top of the hierarchy
                 %reload everything
-                setListboxes(handles,field.identifier, find(handles.structInfo.levels==handles.structInfo.currentLevel));
+                setListboxes(handles,selectedId, handles.levelList{activeLevels(level_selected)});
             else
-                setStructListbox(handles,handles.structInfo.currentField,handles.structInfo.currentLevel);
+                setStructListbox(handles,selectedId,handles.levelList{activeLevels(level_selected)});
             end      
 
 
-        catch
+        catch ME
+            display(ME);
         end
 
     end

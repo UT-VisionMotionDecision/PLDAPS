@@ -9,7 +9,7 @@ classdef pldaps < handle
           %actual eyeposition used for caculating the frame, etc.
     data
     
-    trialFunctionHandle
+    functionHandles %unused atm
  end
 
  methods
