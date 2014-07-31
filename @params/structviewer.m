@@ -111,9 +111,12 @@ function setListboxes(handles,selectedID, selectedHierarchy)
         colorString{iLevel}=sprintf('%s',dec2hex(round(structInfo.colors(iLevel,:)*255))');
         colorTreeString{iLevel}='000000';%sprintf('%s',dec2hex(round(handles.structInfo.colorsTree(iLevel,:)*255))');
     end
-    structInfo.colorString=colorString;
-    structInfo.colorTreeString=colorTreeString;
+%     structInfo.colorString=colorString;
+%     structInfo.colorTreeString=colorTreeString;
 
+    
+    flatStruct(cellfun(@(x) ~any(ismember(x,activeLevels)),{flatStruct.hierarchyLevels}))=[];
+    
     nFields=length(flatStruct);
     for iField=1:nFields
         hierarchy_index=activeLevels==max(flatStruct(iField).hierarchyLevels);
@@ -132,22 +135,26 @@ function setListboxes(handles,selectedID, selectedHierarchy)
         end
     end
     
-    
+    levelNamesColored=cell(1,nActiveLevels);
     for iLevel=1:nActiveLevels
-        handles.structInfo.levelDisplayNames{iLevel}=sprintf('<HTML><pre><FONT color=%s>%s</FONT></HTML>',colorString{iLevel},levelNames{activeLevels(iLevel)});
+        levelNamesColored{iLevel}=sprintf('<HTML><pre><FONT color=%s>%s</FONT></HTML>',colorString{iLevel},levelNames{activeLevels(iLevel)});
     end
+    handles.structInfo.levelDisplayNames=levelNames(activeLevels);
+    handles.structInfo.levelDisplayColors=colorString;
 
 %     handles.flatStruct=flatStruct;
     set(handles.listbox1,'String',{flatStruct.string}',...
         'Value',1)
     set(handles.listbox2,'String',{flatStruct.valueString}',...
         'Value',1)
-    set(handles.structListbox,'String',levelNames(activeLevels),...
+    set(handles.structListbox,'String',levelNamesColored,...
         'Value',1)
     set(handles.structValueListbox,'String',structInfo.currentValueStrings,...
         'Value',1)
     set(handles.structListbox,'Max',nActiveLevels);
 %     set(handles.structValueListbox,'Max',nLevels);
+
+
 
 
     handles.idList={flatStruct.identifier};
@@ -366,19 +373,19 @@ function structValueListbox_Callback(hObject, eventdata, handles)
         hcmenu = uicontextmenu('Parent',handles.figure1);
         if ~field.isNode %it's not a tree branch
             nLevels=length(activeLevels);
-            colorString=handles.structInfo.colorString;
+            colorString=handles.structInfo.levelDisplayColors;
 
             for iLevel=1:nLevels
-                if(iLevel==handles.structInfo.currentHierarchy)
+                if(iLevel==level_selected)
                     continue;
                 end
-                menuText=sprintf('<HTML>Assign from <FONT color=%s>%s</FONT> to <FONT color=%s>%s</FONT></HTML>',colorString{handles.structInfo.currentHierarchy}, handles.structInfo.levelNames{handles.structInfo.currentHierarchy}, colorString{iLevel}, handles.structInfo.levelNames{iLevel});
-                cb={@structValueListbox_Reassign,handles.structInfo.currentLevel, handles.structInfo.levels(iLevel)};
+                menuText=sprintf('<HTML>Assign from <FONT color=%s>%s</FONT> to <FONT color=%s>%s</FONT></HTML>',colorString{level_selected}, handles.structInfo.levelDisplayNames{level_selected}, colorString{iLevel}, handles.structInfo.levelDisplayNames{iLevel});
+                cb={@structValueListbox_Reassign,activeLevels(level_selected), activeLevels(iLevel)};
                 uimenu(hcmenu, 'Label', menuText, 'Callback', cb);
             end
 
-            menuText=sprintf('<HTML>Delete from <FONT color=%s>%s</FONT></HTML>',colorString{handles.structInfo.currentHierarchy}, handles.structInfo.levelNames{handles.structInfo.currentHierarchy});
-            cb={@structValueListbox_Reassign, handles.structInfo.currentLevel};
+            menuText=sprintf('<HTML>Delete from <FONT color=%s>%s</FONT></HTML>',colorString{level_selected}, handles.structInfo.levelDisplayNames{level_selected});
+            cb={@structValueListbox_Reassign, activeLevels(level_selected)};
             uimenu(hcmenu, 'Label', menuText, 'Callback', cb,'Separator','on');
         end
     %     set(handles.structValueListbox,'uicontextmenu',hcmenu)
@@ -570,52 +577,57 @@ function structValueListbox_ButtonDownFcn(hObject, eventdata, handles)
     
 function structValueListbox_Reassign(hObject,eventData,from,to)
     handles=guidata(hObject);
-    field=handles.flatStruct(handles.structInfo.currentField);
+%     field=handles.flatStruct(handles.structInfo.currentField);
+    
+     selectedId=     handles.idList{get(handles.listbox1,'Value')};
+     flatStruct=handles.param.flatStruct;
+     field_index=(strcmp(selectedId,{flatStruct.identifier}));
+     field=flatStruct(field_index);
+    
     if nargin>2 %move or delete a value
-        from_index=field.hierarchyLevels==from;
+%         from_index=field.hierarchyLevels==from;
         %was the hierarchyTopLevel involved?
-        top_involved= from==field.hierarchyTopLevel;
+        top_involved= from==max(field.hierarchyLevels);
         if nargin==3    
             to=from;
         end
 
-        if nargin>2 %move and delete
-            to_index=field.hierarchyLevels==to;
+        %move and delete
+%         to_index=field.hierarchyLevels==to;
+%         field.hierarchyLevels(from_index)=to;
 
-            field.hierarchyLevels(from_index)=to;
-
-            if any(to_index)
-                field.hierarchyValues(to_index)=[];
-                field.hierarchyLevels(to_index)=[];
-            end
-
-            top_involved=top_involved | to>=field.hierarchyTopLevel;
+        top_involved=top_involved | to>=max(field.hierarchyLevels);
+       
+        thisSubID=field.parentLevels;
+        Spartial=handles.param.Snew1(ones(1,length(thisSubID)));
+        [Spartial.subs]=deal(thisSubID{:});
+        Sfrom=[handles.param.Snew1 Spartial];
+        Sfrom(2).subs={from};        
+        Sto=Sfrom;
+        Sto(2).subs={to};
+                
+        [~]=builtin('subsasgn',handles.param,Sto,builtin('subsref',handles.param,Sfrom));   
+        
+        [~]=builtin('subsasgn',handles.param,Sfrom(1:end-1),rmfield(builtin('subsref',handles.param,Sfrom(1:end-1)),Sfrom(end).subs));   
+        
+        if ~any(field.hierarchyLevels==to)
+            field.hierarchyLevels(end+1)=to;
         end
+        field.hierarchyLevels=unique(field.hierarchyLevels);
 
-        [~,idx]=sort(field.hierarchyLevels);
-        field.hierarchyValues=field.hierarchyValues(idx);
-        field.hierarchyLevels=field.hierarchyLevels(idx);
-
-        if(top_involved)
-            field.hierarchyTopLevel=max(field.hierarchyLevels);
-            field.value=field.hierarchyValues{field.hierarchyLevels==field.hierarchyTopLevel};
-            field.valueString=params.valueString(field.value);% evalc('disp(field.value)');
-        end
-
-        handles.flatStruct(handles.structInfo.currentField)=field;
-        guidata(handles.figure1,handles);
-
+        field.hierarchyLevels(field.hierarchyLevels==from)=[];
+        handles.param.flatStruct(field_index)=field;
+        
         new_view_level=to;
         if(nargin==3) %if we deleted the value, well switch to the toplevel
-            new_view_level=field.hierarchyTopLevel;
+            new_view_level=max(field.hierarchyLevels);
         end
-
 
         if top_involved        
             %reload everything
-            setListboxes(handles,field.identifier, new_view_level);
+            setListboxes(handles,field.identifier, handles.param.structNames{new_view_level});
         else
-            setStructListbox(handles,handles.structInfo.currentField,new_view_level);
+            setStructListbox(handles,field.identifier,handles.param.structNames{new_view_level});
         end
 
     end
