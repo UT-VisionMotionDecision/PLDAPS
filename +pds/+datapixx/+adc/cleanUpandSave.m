@@ -39,8 +39,9 @@ maxDataSamplesPerTrial=p.trial.datapixx.adc.srate*60*60;
 
 %prune Data structs
 nMaps=length(p.trial.datapixx.adc.channelMappingChannels);
-inds=p.trial.datapixx.adc.DataSampleCount:maxDataSamplesPerTrial;
-if p.trial.datapixx.adc.DataSampleCount<maxDataSamplesPerTrial
+inds=p.trial.datapixx.adc.dataSampleCount:maxDataSamplesPerTrial;
+if p.trial.datapixx.adc.dataSampleCount<maxDataSamplesPerTrial
+    p.trial.datapixx.adc.dataSampleTimes(inds)=[];
     for imap=1:nMaps
     
         %     iChannels=p.trial.datapixx.adc.channelMappingChannels{imap};

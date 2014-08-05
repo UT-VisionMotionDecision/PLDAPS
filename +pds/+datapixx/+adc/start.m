@@ -85,9 +85,9 @@ for imap=1:length(maps)
     % who is responsible for creating the fields in the correct size?
     % if not existant, we'll create them I guess.
     % for now, we'll always create them
-    p=subsasgn(p,p.trial.datapixx.adc.channelMappingSubs{imap}(1:end-1),nan(length(p.trial.datapixx.adc.channelMappingChannels{imap}), maxDataSamplesPerTrial));
+%     p=subsasgn(p,p.trial.datapixx.adc.channelMappingSubs{imap}(1:end-1),nan(length(p.trial.datapixx.adc.channelMappingChannels{imap}), maxDataSamplesPerTrial));
 end
-p.trial.datapixx.adc.dataSampleTimes=nan(1,maxDataSamplesPerTrial);
+% p.trial.datapixx.adc.dataSampleTimes=nan(1,maxDataSamplesPerTrial);
 
 p.trial.datapixx.adc.dataSampleCount=0;
 

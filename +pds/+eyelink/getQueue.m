@@ -42,8 +42,13 @@ if p.trial.eyelink.use
    p.trial.eyelink.drained = false;
    
    if(p.trial.eyelink.useAsEyepos) 
-        eInds=(p.trial.eyelink.sampleNum-p.trial.pldaps.eyeposMovAv+1):p.trial.eyelink.sampleNum;
-        p.trial.eyeX = mean(p.trial.eyelink.samples(14,eInds));
-        p.trial.eyeY = mean(p.trial.eyelink.samples(16,eInds));
+       if p.trial.pldaps.eyeposMovAv > 1
+           eInds=(p.trial.eyelink.sampleNum-p.trial.pldaps.eyeposMovAv+1):p.trial.eyelink.sampleNum;
+           p.trial.eyeX = mean(p.trial.eyelink.samples(14,eInds));
+           p.trial.eyeY = mean(p.trial.eyelink.samples(16,eInds));
+       else
+           p.trial.eyeX = p.trial.eyelink.samples(14,p.trial.eyelink.sampleNum);
+           p.trial.eyeY = p.trial.eyelink.samples(16,p.trial.eyelink.sampleNum);
+       end
    end
 end

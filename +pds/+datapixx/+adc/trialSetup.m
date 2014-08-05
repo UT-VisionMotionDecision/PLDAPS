@@ -51,19 +51,12 @@ for imap=1:nMaps
     
     iStruct=subsref(p,iSub(1:end-2));
     
-    if ~isfield(iStruct,iSub(end-1).subs)   
-        reallocated(iMap)=true;
-    end
     %always reassign, because that's what happening at the first write
     %anyways.
     p=subsasgn(p,iSub(1:end-1),nan(length(p.trial.datapixx.adc.channelMappingChannels{imap}), maxDataSamplesPerTrial));
 
 end
 p.trial.datapixx.adc.dataSampleTimes=nan(1,maxDataSamplesPerTrial);
-
-if(~all(reallocated) && ~all(~reallocated))
-    warning('one some data fields had to be allocated, make sure no data is overwritten!')
-end
 
 %create a tmp buffer for the collected data
 p.trial.datapixx.adc.bufferData=nan(length(p.trial.datapixx.adc.channels),p.trial.datapixx.adc.numBufferFrames);
@@ -73,5 +66,5 @@ p.trial.datapixx.adc.bufferTimetags=nan(1,p.trial.datapixx.adc.numBufferFrames);
 p.trial.datapixx.adc.dataSampleCount=0;
 
 %debug
-adcStatus.time=GetSecs;
-p.trial.datapixx.adc.stat(1)=adcStatus;
+% adcStatus.time=GetSecs;
+% p.trial.datapixx.adc.stat(1)=adcStatus;
