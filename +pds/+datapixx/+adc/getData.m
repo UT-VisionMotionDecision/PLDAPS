@@ -30,8 +30,11 @@ if ~p.trial.datapixx.use || isempty(p.trial.datapixx.adc.channels)
     return;
 end
 
+%consifer having a preallocated bufferData and bufferTimeTags
 adcStatus = Datapixx('GetAdcStatus');
-[bufferData, bufferTimetags, underflow, overflow] = Datapixx('ReadAdcBuffer', adcStatus.newBufferFrames, p.trial.datapixx.adc.bufferAddress);
+adcStatus.time=GetSecs;
+p.trial.datapixx.adc.stat(end+1)=adcStatus;
+[bufferData, bufferTimetags, underflow, overflow] = Datapixx('ReadAdcBuffer', adcStatus.newBufferFrames);%, p.trial.datapixx.adc.bufferAddress
 if underflow
     warning('pds:datapixxadcgetData','underflow: getData is called to often');
 end
@@ -50,6 +53,7 @@ inds=starti:endi;
 p.trial.datapixx.adc.DataSampleCount=endi;
 
 p.trial.datapixx.adc.DataSampleTimes(inds)=bufferTimetags;
+p.trial.datapixx.adc.data(:,inds)=bufferData;
 
 nMaps=length(p.trial.datapixx.adc.channelMappingChannels);
 for imap=1:nMaps

@@ -77,7 +77,7 @@ while stop==0 && bitand(Eyelink( 'CurrentMode'), dv.trial.eyelink.setup.IN_SETUP
         
     end
     
-    [key, dv.trial.eyelink.setup]=pdsEyelinkGetKey(dv.trial.eyelink.setup);		% getkey() HANDLE LOCAL KEY PRESS
+    [key, dv.trial.eyelink.setup]=EyelinkGetKey(dv.trial.eyelink.setup);		% getkey() HANDLE LOCAL KEY PRESS
     if 1 && key~=0 && key~=dv.trial.eyelink.setup.JUNK_KEY    % print pressed key codes and chars
         fprintf('%d\t%s\n', key, char(key) );
     end

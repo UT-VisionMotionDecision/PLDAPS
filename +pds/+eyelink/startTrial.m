@@ -2,8 +2,8 @@ function dv = startTrial(dv)
 % [drained, samplesIn, eventsIn] = pds.eyelink.startTrial(dv)
 
 if dv.trial.eyelink.use
-    dv.trial.eyelink.sampleNum     = 1;
-    dv.trial.eyelink.eventNum      = 1;
+    dv.trial.eyelink.sampleNum     = 0;
+    dv.trial.eyelink.eventNum      = 0;
     dv.trial.eyelink.drained       =   false; % drained is a flag for pulling from the buffer
     if ischar(dv.trial.eyelink.srate), 
         dv.trial.eyelink.srate = str2double(dv.trial.eyelink.srate); 

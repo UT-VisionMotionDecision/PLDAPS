@@ -51,9 +51,12 @@ for imap=1:nMaps
     iStruct=subsref(p,iSub(1:end-2));
     
     if ~isfield(iStruct,iSub(end-1).subs)   
-        p=subsasgn(p,iSub(1:end-1),nan(length(p.trial.datapixx.adc.channelMappingChannels{imap}), maxDataSamplesPerTrial));
         reallocated(iMap)=true;
     end
+    %always reassign, because that's what happening at the first write
+    %anyways.
+    p=subsasgn(p,iSub(1:end-1),nan(length(p.trial.datapixx.adc.channelMappingChannels{imap}), maxDataSamplesPerTrial));
+
 end
 
 if(~all(reallocated) && ~all(~reallocated))
@@ -62,3 +65,7 @@ end
 
 % 3. reset the counter.
 p.trial.datapixx.adc.DataSampleCount=0;
+
+%debug
+adcStatus.time=GetSecs;
+p.trial.datapixx.adc.stat(1)=adcStatus;

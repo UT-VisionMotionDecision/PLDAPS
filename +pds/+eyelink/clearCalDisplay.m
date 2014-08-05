@@ -7,10 +7,10 @@ if nargin < 1
 end
 
 if dv.trial.display.useOverlay
-    Screen( 'FillRect',  dv.disp.overlayptr, 0);	% clear_cal_display()
-    Screen( 'Flip',  dv.disp.ptr);
+    Screen( 'FillRect',  dv.trial.display.overlayptr, 0);	% clear_cal_display()
+    Screen( 'Flip',  dv.trial.display.ptr);
 else
-    Screen( 'FillRect',  dv.disp.ptr, 0);	% clear_cal_display()
-    Screen( 'Flip',  dv.disp.ptr);
+    Screen( 'FillRect',  dv.trial.display.ptr, 0);	% clear_cal_display()
+    Screen( 'Flip',  dv.trial.display.ptr);
 end
 

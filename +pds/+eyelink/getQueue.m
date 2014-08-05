@@ -21,14 +21,14 @@ if p.trial.eyelink.use
 %         tic;
         % Get Eyelink samples
         if ~isempty(p.trial.eyelink.samplesIn)
-            p.trial.eyelink.samples(:,p.trial.eyelink.sampleNum:p.trial.eyelink.sampleNum+size(p.trial.eyelink.samplesIn,2)-1) = p.trial.eyelink.samplesIn;
+            p.trial.eyelink.samples(:,(p.trial.eyelink.sampleNum+1):p.trial.eyelink.sampleNum+size(p.trial.eyelink.samplesIn,2)) = p.trial.eyelink.samplesIn;
             p.trial.eyelink.sampleNum = p.trial.eyelink.sampleNum+size(p.trial.eyelink.samplesIn,2);
         end
 %         toc
         
         % Get Eyelink events
         if ~isempty(p.trial.eyelink.eventsIn)
-            p.trial.eyelink.events(:,p.trial.eyelink.eventNum:p.trial.eyelink.eventNum+size(p.trial.eyelink.eventsIn,2)-1) = p.trial.eyelink.eventsIn;
+            p.trial.eyelink.events(:,(p.trial.eyelink.eventNum+1):p.trial.eyelink.eventNum+size(p.trial.eyelink.eventsIn,2)) = p.trial.eyelink.eventsIn;
             p.trial.eyelink.eventNum = p.trial.eyelink.eventNum+size(p.trial.eyelink.eventsIn,2);
         end
         
@@ -43,7 +43,7 @@ if p.trial.eyelink.use
    
    if(p.trial.eyelink.useAsEyepos) 
         eInds=(p.trial.eyelink.sampleNum-p.trial.pldaps.eyeposMovAv+1):p.trial.eyelink.sampleNum;
-        p.trial.eyeX = mean(p.trial.eyelink.sampleBuffer(14,eInds));
-        p.trial.eyeY = mean(p.trial.eyelink.sampleBuffer(16,eInds));
+        p.trial.eyeX = mean(p.trial.eyelink.samples(14,eInds));
+        p.trial.eyeY = mean(p.trial.eyelink.samples(16,eInds));
    end
 end
