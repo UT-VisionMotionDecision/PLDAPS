@@ -1,5 +1,5 @@
- function dp = adcStop(dp)
-% [dp] = pds.datapixx.adcStop(dp)
+ function p = stop(p)
+% [dp] = pds.datapixx.adc.stop(dp)
 % 
 % The function should be called after AdcStart.
 % * AdcStart STARTS a continuous schedule of ADC data acquisition, stored 
@@ -19,22 +19,17 @@
 %according to the help, one should also use
 %Datapixx('GetAdcStatus').newBufferFrames to determine the actual number of
 %samples.
+if ~p.trial.datapixx.use || isempty(p.trial.datapixx.adc.channels)
+    return;
+end
+
+p = pds.datapixx.adc.getData(p);
 
 Datapixx RegWrRd;
-% timing:
-dp.adctend    = Datapixx('GetTime'); %GetSecs;
-dp.timewindow = dp.adctend-dp.adctstart; % (seconds)
-
-% number of buffer frames to be read:
-nBufferFrames = ceil(dp.timewindow * dp.srate);
-
 Datapixx('StopAdcSchedule')
-dp.bufferData = Datapixx('ReadAdcBuffer', nBufferFrames);
 
-
-% % % setting up the time axis to fit the num of elements in buffer data:
-% % if size(1:dp.sstep:dp.timewindow*1000, 2) == size(dp.bufferData, 2)
-% %     dp.timeaxis = 1:dp.sstep:dp.timewindow*1000;
-% % else
-% %     dp.timeaxis = 1:dp.sstep:dp.timewindow*1000+1;
-% % end
+% timing:
+p.trial.datapixx.adc.stopDatapixxTime = Datapixx('GetTime'); %GetSecs;
+p.trial.datapixx.adc.stopPldapsTime = GetSecs;
+[getsecs, boxsecs, confidence] = PsychDataPixx('GetPreciseTime');
+p.trial.datapixx.adc.stopDatapixxPreciseTime(1:3) = [getsecs, boxsecs, confidence];

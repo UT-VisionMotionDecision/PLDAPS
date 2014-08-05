@@ -1,9 +1,9 @@
 % convert from deg to world coordinates
 %---------------------------------------------------------------------%
-function [xy,z] = deg2world(dv,xy,z,zIsR)
+function [xy,z] = deg2world(p,xy,z,zIsR)
 
     if(nargin<3)
-        z=dv.trial.display.viewdist;
+        z=p.trial.display.viewdist;
     end
     
     xy=sind(xy);

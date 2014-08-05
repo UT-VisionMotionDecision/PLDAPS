@@ -1,4 +1,4 @@
-function dv = pdsGetEyePosition(dv, updateQueue)
+function p = pdsGetEyePosition(p)
 % dv = pdsGetEyePosition(dv)
 % Update eye position
 % Inputs: dv struct
@@ -13,34 +13,53 @@ function dv = pdsGetEyePosition(dv, updateQueue)
 %           .eyeY   [1 x 1] - vertical eye position (pixels)
 
 % quick sample current position of eye
-if dv.trial.mouse.use
-    dv.trial.eyeX = dv.trial.cursorX;
-    dv.trial.eyeY = dv.trial.cursorY;
-elseif dv.trial.eyelink.use
-    
-    if(nargin<2 || updateQueue || (isfield(dv.trial.eyelink, 'movav') && dv.trial.eyelink.movav>1))
-        pds.eyelink.getQueue(dv);
-    end
-    % Get Eyelink Queue data
-    if isfield(dv.trial.eyelink, 'movav') && dv.trial.eyelink.movav>1
-        try
-            
-            dv.trial.eyeX = mean(dv.trial.eyelink.sampleBuffer(14,(dv.trial.eyelink.sampleNum-dv.trial.eyelink.movav):dv.trial.eyelink.sampleNum-1));
-            dv.trial.eyeY = mean(dv.trial.eyelink.sampleBuffer(16,(dv.trial.eyelink.sampleNum-dv.trial.eyelink.movav):dv.trial.eyelink.sampleNum-1));
-        catch eyeGetError
-            %%% Eyelink toolbox way of sampling the eye position %%%
-            eye = Eyelink('getfloatdata', dv.trial.eyelink.setup.SAMPLE_TYPE);
-            dv.trial.eyeX = eye.gx(dv.trial.eyelink.eyeIdx);
-            dv.trial.eyeY = eye.gy(dv.trial.eyelink.eyeIdx);
-            dv.trial.eyelink.eyeGetError = eyeGetError;
-        end
-    else
-        eye = Eyelink('getfloatdata', dv.trial.eyelink.setup.SAMPLE_TYPE);
-        dv.trial.eyeX = eye.gx(dv.trial.eyelink.eyeIdx);
-        dv.trial.eyeY = eye.gy(dv.trial.eyelink.eyeIdx);
-    end
-    
-elseif dv.trial.datapixx.use
-    [dv.trial.eyeX, dv.trial.eyeY] = pds.datapixx.getEyePosition(dv);
-end
+XMaxSampleCount=subsref(p,p.trial.pldaps.eyepos.XSamplesCountSubs);
+YMaxSampleCount=subsref(p,p.trial.pldaps.eyepos.XSamplesCountSubs);
 
+movav=p.trial.pldaps.eyepos.movav;%;=1;
+
+XSampleInds=(XMaxSampleCount-movav:XMaxSampleCount);
+XSampleInds(XSampleInds<1)=[];
+
+YSampleInds=(YMaxSampleCount-movav:YMaxSampleCount);
+YSampleInds(YSampleInds<1)=[]; 
+
+XSub=p.trial.pldaps.eyepos.XSamplesFieldSubs;
+XSub(end).subs{end}=XSampleInds;
+
+YSub=p.trial.pldaps.eyepos.YSamplesFieldSubs;
+YSub(end).subs{end}=YSampleInds;
+
+p.trial.eyeX=mean(subsref(p,XSub));
+p.trial.eyeY=mean(subsref(p,YSub));
+% if p.trial.mouse.use
+%     p.trial.eyeX = p.trial.cursorX;
+%     p.trial.eyeY = p.trial.cursorY;
+% elseif p.trial.eyelink.use
+%     
+%     if(nargin<2 || updateQueue || (isfield(p.trial.eyelink, 'movav') && p.trial.eyelink.movav>1))
+%         pds.eyelink.getQueue(p);
+%     end
+%     % Get Eyelink Queue data
+%     if isfield(p.trial.eyelink, 'movav') && p.trial.eyelink.movav>1
+%         try
+%             
+%             p.trial.eyeX = mean(p.trial.eyelink.sampleBuffer(14,(p.trial.eyelink.sampleNum-p.trial.eyelink.movav):p.trial.eyelink.sampleNum-1));
+%             p.trial.eyeY = mean(p.trial.eyelink.sampleBuffer(16,(p.trial.eyelink.sampleNum-p.trial.eyelink.movav):p.trial.eyelink.sampleNum-1));
+%         catch eyeGetError
+%             %%% Eyelink toolbox way of sampling the eye position %%%
+%             eye = Eyelink('getfloatdata', p.trial.eyelink.setup.SAMPLE_TYPE);
+%             p.trial.eyeX = eye.gx(p.trial.eyelink.eyeIdx);
+%             p.trial.eyeY = eye.gy(p.trial.eyelink.eyeIdx);
+%             p.trial.eyelink.eyeGetError = eyeGetError;
+%         end
+%     else
+%         eye = Eyelink('getfloatdata', p.trial.eyelink.setup.SAMPLE_TYPE);
+%         p.trial.eyeX = eye.gx(p.trial.eyelink.eyeIdx);
+%         p.trial.eyeY = eye.gy(p.trial.eyelink.eyeIdx);
+%     end
+%     
+% elseif p.trial.datapixx.use
+%     [p.trial.eyeX, p.trial.eyeY] = pds.datapixx.getEyePosition(p);
+% end
+% 

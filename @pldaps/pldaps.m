@@ -13,7 +13,7 @@ classdef pldaps < handle
  end
 
  methods
-    function dv = pldaps(varargin)
+     function p = pldaps(varargin)
         %classdefaults: load from structure
         defaults{1}=load('pldaps/pldapsClassDefaultParameters');
         fn=fieldnames(defaults{1});
@@ -27,13 +27,13 @@ classdef pldaps < handle
         defaults{2}=getpref('pldaps');
         defaultsNames{2}='pldapsRigPrefs';
         
-        dv.defaultParameters=params(defaults,defaultsNames);
+        p.defaultParameters=params(defaults,defaultsNames);
         
         %unnecassary, but we'll allow to save parameters in a rig
         %struct, rather than the prefs, as that's a little more
         %conveniant
-        if isField(dv.defaultParameters,'pldaps.rigParameters')
-            defaults{3}=load(dv.defaultParameters.pldaps.rigParameters);
+        if isField(p.defaultParameters,'pldaps.rigParameters')
+            defaults{3}=load(p.defaultParameters.pldaps.rigParameters);
             fn=fieldnames(defaults{3});
             if length(fn)>1
                 error('pldaps:pldaps', 'The rig default parameter struct should only have one fieldname');
@@ -41,7 +41,7 @@ classdef pldaps < handle
             defaults{3}=defaults{3}.(fn{1});
             defaultsNames{3}=fn{1};
              
-            dv.defaultParameters.addLevels(defaults(3),defaultsNames(3));
+            p.defaultParameters.addLevels(defaults(3),defaultsNames(3));
         end
         
         
@@ -67,7 +67,7 @@ classdef pldaps < handle
             if sum(cellIndex)>1
                 error('pldaps:pldaps', 'Only one cell allowed as input.');
             end
-            dv.conditions=varargin{cellIndex};
+            p.conditions=varargin{cellIndex};
         end
         
         if nargin>4
@@ -89,26 +89,26 @@ classdef pldaps < handle
             end
             
         end       
-        dv.defaultParameters.addLevels({constructorStruct, struct},{'ConstructorInputDefaults', 'SessionParameters'});
+        p.defaultParameters.addLevels({constructorStruct, struct},{'ConstructorInputDefaults', 'SessionParameters'});
         
         
         %TODO: decice wheter this is a hack or feature. Allows to use
         %dv.trial before the first trial. But it's a Params class
         %until the first trial starts
-        dv.trial = dv.defaultParameters; 
+        p.trial = p.defaultParameters; 
     end 
      
     
  end %methods
 
  methods(Static)
-      [xy,z] = deg2px(dv,xy,z,zIsR)
+      [xy,z] = deg2px(p,xy,z,zIsR)
       
-      [xy,z] = deg2world(dv,xy,z,zIsR)
+      [xy,z] = deg2world(p,xy,z,zIsR)
       
-      [xy,z] = px2deg(dv,xy,z)
+      [xy,z] = px2deg(p,xy,z)
       
-      [xy,z] = world2deg(dv,xy,z)
+      [xy,z] = world2deg(p,xy,z)
  end
 
 end

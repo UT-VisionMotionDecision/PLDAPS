@@ -1,4 +1,4 @@
-function [x,y] = datapixxGetEyePosition(dv)
+function [x,y] = getEyePosition(p)
 %
 % [x,y,unsmoothedline,v] = DatapixxGetEyePosition(unsmoothed,i,dv)
 % DatapixxGetEyePosition computes X and Y pixel values from an analog
@@ -17,12 +17,12 @@ function [x,y] = datapixxGetEyePosition(dv)
 %change to a gain+offset system? maybe integrate into the adc and allow
 %to assign the latest sample to a specified variables (using evalc or feval)
 
-rangeVX = dv.trial.datapixx.calibration(2) - dv.trial.datapixx.calibration(1);
-rangeVY = dv.trial.datapixx.calibration(4) - dv.trial.datapixx.calibration(3);
-flipX = sign(dv.trial.datapixx.calibration(2));
-flipY = sign(dv.trial.datapixx.calibration(3)); % cluge jly
-sqPixelCalibrateX = 2*dv.trial.display.winRect(3)/rangeVX;
-sqPixelCalibrateY = 2*dv.trial.display.winRect(4)/rangeVY;
+rangeVX = p.trial.datapixx.calibration(2) - p.trial.datapixx.calibration(1);
+rangeVY = p.trial.datapixx.calibration(4) - p.trial.datapixx.calibration(3);
+flipX = sign(p.trial.datapixx.calibration(2));
+flipY = sign(p.trial.datapixx.calibration(3)); % cluge jly
+sqPixelCalibrateX = 2*p.trial.display.winRect(3)/rangeVX;
+sqPixelCalibrateY = 2*p.trial.display.winRect(4)/rangeVY;
 
 Datapixx RegWrRd;
 % get voltages from the datapixx
@@ -60,14 +60,14 @@ end
 
 
 % compute the voltages that reflect a neutral joystick or eyetracking position
-neutralJVX = (dv.trial.datapixx.calibration(1)+dv.trial.datapixx.calibration(2))./2;  % neutral joystick voltage X-direction
-neutralJVY = (dv.trial.datapixx.calibration(3)+dv.trial.datapixx.calibration(4))./2;  % neutral joystick voltage Y-direction
+neutralJVX = (p.trial.datapixx.calibration(1)+p.trial.datapixx.calibration(2))./2;  % neutral joystick voltage X-direction
+neutralJVY = (p.trial.datapixx.calibration(3)+p.trial.datapixx.calibration(4))./2;  % neutral joystick voltage Y-direction
 % xoffset = 0;
 % yoffset = 0;
 % convert voltages into pixels with a scaling factor from the middle of the
 % screen
-xtemp = sqPixelCalibrateX  * (neutralJVX - vnew(1))/rangeVX   + dv.trial.display.winRect(3)/2;
-ytemp = sqPixelCalibrateY * (neutralJVY - vnew(2))/rangeVY   + dv.trial.display.winRect(4)/2;
+xtemp = sqPixelCalibrateX  * (neutralJVX - vnew(1))/rangeVX   + p.trial.display.winRect(3)/2;
+ytemp = sqPixelCalibrateY * (neutralJVY - vnew(2))/rangeVY   + p.trial.display.winRect(4)/2;
 
 x = xtemp;
 y = ytemp;

@@ -1,4 +1,4 @@
-function dv =  init(dv)
+function p =  init(p)
 % dv =  pds.Datapixx.init(dv)
 % pdsDatapixxInit is a function that intializes the DATAPIXX, preparing it for
 % experiments. Critically, the PSYCHIMAGING calls sets up the dual CLUTS
@@ -28,12 +28,12 @@ function dv =  init(dv)
 % 12/03/2013 jly reboot for version 3
 
 
-if dv.defaultParameters.datapixx.use
+if p.defaultParameters.datapixx.use
     %the GPU needs an identity CLUT, at least on newer MACS, crashes
     %otherwiese
 %     Screen('LoadNormalizedGammaTable',dv.defaultParameters.display.ptr,linspace(0,1,256)'*[1, 1, 1],0);
     
-    if dv.defaultParameters.display.useOverlay
+    if p.defaultParameters.display.useOverlay
         disp('****************************************************************')
         disp('****************************************************************')
         disp('Adding Overlay Pointer')
@@ -41,10 +41,10 @@ if dv.defaultParameters.datapixx.use
         disp('dv.disp.humanCLUT and dv.disp.monkeyCLUT')
         disp('****************************************************************')
 
-        combinedClut = [dv.defaultParameters.display.humanCLUT ;dv.defaultParameters.display.monkeyCLUT];
+        combinedClut = [p.defaultParameters.display.humanCLUT ;p.defaultParameters.display.monkeyCLUT];
         %%% Gamma correction for dual CLUT %%%
         % check if gamma correction has been run on the window pointer
-        if isField(dv.defaultParameters, 'display.gamma.table')
+        if isField(p.defaultParameters, 'display.gamma.table')
             % get size of the combiend CLUT. It should be 512 x 3 (two 256 x 3 CLUTS
             % on top of eachother). 
             sc = size(combinedClut);
@@ -52,37 +52,37 @@ if dv.defaultParameters.datapixx.use
             % use sc to make a vector of 8-bit color steps from 0-1
             x = linspace(0,1,sc(1)/2);
             % use the gamma table to lookup what the values should be
-            y = interp1(x,dv.defaultParameters.display.gamma.table(:,1), combinedClut(:));
+            y = interp1(x,p.defaultParameters.display.gamma.table(:,1), combinedClut(:));
             % reshape the combined clut back to 512 x 3
             combinedClut = reshape(y, sc);
         end
         
-        if dv.defaultParameters.display.useOverlay==2 %debigging stuff
+        if p.defaultParameters.display.useOverlay==2 %debigging stuff
             % use sc to make a vector of 8-bit color steps from 0-1
             x = linspace(0,1,128);
             x_full = linspace(0,1,256);
             
-            if isField(dv.defaultParameters, 'display.gamma.table')
+            if isField(p.defaultParameters, 'display.gamma.table')
             	% use the gamma table to lookup what the values should be
-                yr = interp1(x_full,dv.defaultParameters.display.gamma.table(:,1), x);
-                yg = interp1(x_full,dv.defaultParameters.display.gamma.table(:,2), x);
-                yb = interp1(x_full,dv.defaultParameters.display.gamma.table(:,3), x);
+                yr = interp1(x_full,p.defaultParameters.display.gamma.table(:,1), x);
+                yg = interp1(x_full,p.defaultParameters.display.gamma.table(:,2), x);
+                yb = interp1(x_full,p.defaultParameters.display.gamma.table(:,3), x);
                 yrgb=[yr;yg;yb]';
             else
                 yrgb=[x;x;x]';
             end
             % reshape the combined clut back to 512 x 3
 %             combinedClut = reshape(y, sc);
-            combinedClut=[yrgb; yrgb; yrgb ;repmat(dv.defaultParameters.display.bgColor, [128 1])];
+            combinedClut=[yrgb; yrgb; yrgb ;repmat(p.defaultParameters.display.bgColor, [128 1])];
             
-            dv.defaultParameters.display.overlay.experimentorOnlyOffset = 0.5*256;
-            dv.defaultParameters.display.overlay.experimentorOnlyFactor = 0.5*256;
+            p.defaultParameters.display.overlay.experimentorOnlyOffset = 0.5*256;
+            p.defaultParameters.display.overlay.experimentorOnlyFactor = 0.5*256;
             
-            dv.defaultParameters.display.overlay.bothOffset = 0.0*256;
-            dv.defaultParameters.display.overlay.bothFactor = 0.5*256;
+            p.defaultParameters.display.overlay.bothOffset = 0.0*256;
+            p.defaultParameters.display.overlay.bothFactor = 0.5*256;
         end
     
-        dv.defaultParameters.display.overlayptr = PsychImaging('GetOverlayWindow', dv.defaultParameters.display.ptr); % , dv.params.bgColor);
+        p.defaultParameters.display.overlayptr = PsychImaging('GetOverlayWindow', p.defaultParameters.display.ptr); % , dv.params.bgColor);
         % WARNING about LoadNormalizedGammaTable from Mario Kleiner: 
         % "Not needed, possibly harmful:
         % The PsychImaging() setup code already calls LoadIdentityClut() 
@@ -103,11 +103,11 @@ if dv.defaultParameters.datapixx.use
         % (posted on Psychtoolbox forum, 3/9/2010) 
         % 
         % We don't seem to have this problem - jake 12/04/13
-        Screen('LoadNormalizedGammaTable', dv.defaultParameters.display.ptr, combinedClut, 2);
+        Screen('LoadNormalizedGammaTable', p.defaultParameters.display.ptr, combinedClut, 2);
     end
     
-    dv.defaultParameters.datapixx.info.DatapixxFirmwareRevision = Datapixx('GetFirmwareRev'); 
-    dv.defaultParameters.datapixx.info.DatapixxRamSize = Datapixx('GetRamSize');
+    p.defaultParameters.datapixx.info.DatapixxFirmwareRevision = Datapixx('GetFirmwareRev'); 
+    p.defaultParameters.datapixx.info.DatapixxRamSize = Datapixx('GetRamSize');
     
     
     %%% Open Datapixx and get ready for data aquisition %%%
@@ -119,8 +119,11 @@ if dv.defaultParameters.datapixx.use
     Datapixx('StartDinLog'); 
     Datapixx('SetDoutValues',0);
     Datapixx('RegWrRd');    
+    
+    %start adc data collection if requested
+    pds.datapixx.adc.start(p);
 else
-    if dv.defaultParameters.display.useOverlay
+    if p.defaultParameters.display.useOverlay
         %TODO: 
         % 1: throw error unless some debug variable is set
         % 2: have switch to either to this or make overlaypointer a pointer
@@ -150,7 +153,7 @@ else
 %             dv.defaultParameters.display.overlay.bothFactor = 1*256;
 
         warning('pldaps:datapixxInit','Overlay requested, but not Datapixx disabled. Assuming debug scenario. Will assign ptr to overlayptr');
-        dv.defaultParameters.display.overlayptr = dv.defaultParameters.display.ptr;
+        p.defaultParameters.display.overlayptr = p.defaultParameters.display.ptr;
     end
 
 end

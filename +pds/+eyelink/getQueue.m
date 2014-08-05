@@ -1,5 +1,5 @@
-function dv = getQueue(dv)
-% dv = pds.eyelink.getQueue(dv)
+function p = getQueue(p)
+% p = pds.eyelink.getQueue(p)
 % pdsEyelinkGetQueue pullse the values from the current Eyelink queue and
 % puts them into the dv.el struct
 % INPUTS
@@ -13,31 +13,37 @@ function dv = getQueue(dv)
 %                         emptied
 
 % 12/2013 jly   wrote it
-if dv.trial.eyelink.use
+if p.trial.eyelink.use
     % if time to pull samples, get them all
-    while ~dv.trial.eyelink.drained
-        [dv.trial.eyelink.samplesIn, dv.trial.eyelink.eventsIn, dv.trial.eyelink.drained] = Eyelink('GetQueuedData');
+    while ~p.trial.eyelink.drained
+        [p.trial.eyelink.samplesIn, p.trial.eyelink.eventsIn, p.trial.eyelink.drained] = Eyelink('GetQueuedData');
         
 %         tic;
         % Get Eyelink samples
-        if ~isempty(dv.trial.eyelink.samplesIn)
-            dv.trial.eyelink.samples(:,dv.trial.eyelink.sampleNum:dv.trial.eyelink.sampleNum+size(dv.trial.eyelink.samplesIn,2)-1) = dv.trial.eyelink.samplesIn;
-            dv.trial.eyelink.sampleNum = dv.trial.eyelink.sampleNum+size(dv.trial.eyelink.samplesIn,2);
+        if ~isempty(p.trial.eyelink.samplesIn)
+            p.trial.eyelink.samples(:,p.trial.eyelink.sampleNum:p.trial.eyelink.sampleNum+size(p.trial.eyelink.samplesIn,2)-1) = p.trial.eyelink.samplesIn;
+            p.trial.eyelink.sampleNum = p.trial.eyelink.sampleNum+size(p.trial.eyelink.samplesIn,2);
         end
 %         toc
         
         % Get Eyelink events
-        if ~isempty(dv.trial.eyelink.eventsIn)
-            dv.trial.eyelink.events(:,dv.trial.eyelink.eventNum:dv.trial.eyelink.eventNum+size(dv.trial.eyelink.eventsIn,2)-1) = dv.trial.eyelink.eventsIn;
-            dv.trial.eyelink.eventNum = dv.trial.eyelink.eventNum+size(dv.trial.eyelink.eventsIn,2);
+        if ~isempty(p.trial.eyelink.eventsIn)
+            p.trial.eyelink.events(:,p.trial.eyelink.eventNum:p.trial.eyelink.eventNum+size(p.trial.eyelink.eventsIn,2)-1) = p.trial.eyelink.eventsIn;
+            p.trial.eyelink.eventNum = p.trial.eyelink.eventNum+size(p.trial.eyelink.eventsIn,2);
         end
         
         % Workaround - only continue if samplesIn and eventsIn were
         % empty
-        if ~isempty(dv.trial.eyelink.samplesIn) || ~isempty(dv.trial.eyelink.eventsIn)
-            dv.trial.eyelink.drained = false;
+        if ~isempty(p.trial.eyelink.samplesIn) || ~isempty(p.trial.eyelink.eventsIn)
+            p.trial.eyelink.drained = false;
         end
         
     end
-   dv.trial.eyelink.drained = false;
+   p.trial.eyelink.drained = false;
+   
+   if(p.trial.eyelink.useAsEyepos) 
+        eInds=(p.trial.eyelink.sampleNum-p.trial.pldaps.eyeposMovAv+1):p.trial.eyelink.sampleNum;
+        p.trial.eyeX = mean(p.trial.eyelink.sampleBuffer(14,eInds));
+        p.trial.eyeY = mean(p.trial.eyelink.sampleBuffer(16,eInds));
+   end
 end

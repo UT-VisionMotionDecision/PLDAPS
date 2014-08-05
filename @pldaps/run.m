@@ -1,5 +1,5 @@
-function dv = run(dv)
-% [dv] = run()
+function p = run(p)
+% [p] = run()
 % PLDAPS (Plexon Datapixx PsychToolbox) version 4
 %       run is a wrapper for calling PLDAPS condition files
 %           It opens PsychImaging pipeline and initializes datapixx for
@@ -43,65 +43,65 @@ try
     
     % pick YOUR experiment's main CONDITION file-- this is where all
     % expt-specific stuff emerges from
-    if isempty(dv.defaultParameters.session.experimentSetupFile)
+    if isempty(p.defaultParameters.session.experimentSetupFile)
         [cfile, cpath] = uigetfile('*.m', 'choose condition file', [base '/CONDITION/debugcondition.m']); %#ok<NASGU>
         
         dotm = strfind(cfile, '.m');
         if ~isempty(dotm)
             cfile(dotm:end) = [];
         end
-        dv.defaultParameters.session.experimentSetupFile = cfile;
+        p.defaultParameters.session.experimentSetupFile = cfile;
     end
              
-    dv.defaultParameters.session.initTime=now;
+    p.defaultParameters.session.initTime=now;
         
         
-    if ~dv.defaultParameters.pldaps.nosave
-        dv.defaultParameters.session.file = fullfile(dv.defaultParameters.pldaps.dirs.data, [dv.defaultParameters.session.subject datestr(dv.defaultParameters.session.initTime, 'yyyymmdd') dv.defaultParameters.session.experimentSetupFile datestr(dv.defaultParameters.session.initTime, 'HHMM') '.PDS']);
-        [cfile, cdir] = uiputfile('.PDS', 'initialize experiment file', dv.defaultParameters.session.file);
-        dv.defaultParameters.session.dir = cdir;
-        dv.defaultParameters.session.file = cfile;
+    if ~p.defaultParameters.pldaps.nosave
+        p.defaultParameters.session.file = fullfile(p.defaultParameters.pldaps.dirs.data, [p.defaultParameters.session.subject datestr(p.defaultParameters.session.initTime, 'yyyymmdd') p.defaultParameters.session.experimentSetupFile datestr(p.defaultParameters.session.initTime, 'HHMM') '.PDS']);
+        [cfile, cdir] = uiputfile('.PDS', 'initialize experiment file', p.defaultParameters.session.file);
+        p.defaultParameters.session.dir = cdir;
+        p.defaultParameters.session.file = cfile;
     else
-        dv.defaultParameters.session.file='';
-        dv.defaultParameters.session.dir='';
+        p.defaultParameters.session.file='';
+        p.defaultParameters.session.dir='';
     end
         
     %% Open PLDAPS windows
     % Open PsychToolbox Screen
-    dv = openScreen(dv);
+    p = openScreen(p);
     
     % Setup PLDAPS experiment condition
-    dv = feval(dv.defaultParameters.session.experimentSetupFile, dv);
+    p = feval(p.defaultParameters.session.experimentSetupFile, p);
     
             %
             % Setup Photodiode stimuli
             %-------------------------------------------------------------------------%
-            if(dv.trial.pldaps.draw.photodiode.use)
-                makePhotodiodeRect(dv);
+            if(p.trial.pldaps.draw.photodiode.use)
+                makePhotodiodeRect(p);
             end
     
             % Tick Marks
             %-------------------------------------------------------------------------%
-            if(dv.trial.pldaps.draw.grid.use)
-                dv = initTicks(dv);
+            if(p.trial.pldaps.draw.grid.use)
+                p = initTicks(p);
             end
 
 
             %get and store changes of current code to the git repository
-            dv = pds.git.setup(dv);
+            p = pds.git.setup(p);
             
             %things that were in the conditionFile
-            dv = pds.eyelink.setup(dv);
+            p = pds.eyelink.setup(p);
     
             %things that where in the default Trial Structure
             
             % Audio
             %-------------------------------------------------------------------------%
-            dv = pds.audio.setup(dv);
+            p = pds.audio.setup(p);
             
             % Audio
             %-------------------------------------------------------------------------%
-            dv = pds.spikeserver.connect(dv);
+            p = pds.spikeserver.connect(p);
             
             % From help PsychDataPixx:
             % Timestamping is disabled by default (mode == 0), as it incurs a bit of
@@ -113,21 +113,21 @@ try
             
     
             % Initialize Datapixx for Dual CLUTS
-            dv = pds.datapixx.init(dv);
+            p = pds.datapixx.init(p);
             
             pds.keyboard.setup();
     
 
     %% Last chance to check variables
-    if(dv.trial.pldaps.pause.type==1 && dv.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
-        dv  %#ok<NOPRT>
+    if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
+        p  %#ok<NOPRT>
         disp('Ready to begin trials. Type return to start first trial...')
         keyboard %#ok<MCKBD>
     end
  
     %%%%start recoding on all controlled components this in not currently done here
     % save timing info from all controlled components (datapixx, eyelink, this pc)
-    dv = beginExperiment(dv);
+    p = beginExperiment(p);
 
     % disable keyboard
     ListenChar(2)
@@ -135,9 +135,9 @@ try
     
     %save defaultParameters as trial 0
     trialNr=0;
-    dv.trial.pldaps.iTrial=0;
-    dv.trial=mergeToSingleStruct(dv.defaultParameters);
-    result = saveTempFile(dv); 
+    p.trial.pldaps.iTrial=0;
+    p.trial=mergeToSingleStruct(p.defaultParameters);
+    result = saveTempFile(p); 
     if ~isempty(result)
         disp(result.message)
     end
@@ -149,7 +149,7 @@ try
     
     %we'll have a trialNr counter that the trial function can tamper with?
     %do we need to lock the defaultParameters to prevent tampering there?
-    levelsPreTrials=dv.defaultParameters.getAllLevels();
+    levelsPreTrials=p.defaultParameters.getAllLevels();
 %     dv.defaultParameters.addLevels(dv.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
     
     %for now all structs will be in the parameters class, first
@@ -161,33 +161,33 @@ try
     %only use dv.trial from here on!
     
     %% main trial loop %%
-    while dv.trial.pldaps.iTrial < dv.trial.pldaps.finish && dv.trial.pldaps.quit~=2
+    while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         
-        if dv.trial.pldaps.quit == 0
+        if p.trial.pldaps.quit == 0
             
            %load parameters for next trial and lock defaultsParameters
            trialNr=trialNr+1;
-           dv.defaultParameters.addLevels(dv.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
-           dv.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr]);
-           dv.defaultParameters.pldaps.iTrial=trialNr;
-           dv.trial=mergeToSingleStruct(dv.defaultParameters);
-           dv.defaultParameters.setLock(true);
+           p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
+           p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr]);
+           p.defaultParameters.pldaps.iTrial=trialNr;
+           p.trial=mergeToSingleStruct(p.defaultParameters);
+           p.defaultParameters.setLock(true);
             
            % run trial
-           dv = feval(dv.trial.pldaps.trialMasterFunction,  dv);
+           p = feval(p.trial.pldaps.trialMasterFunction,  p);
             
            %unlock the defaultParameters
-           dv.defaultParameters.setLock(false); 
+           p.defaultParameters.setLock(false); 
             
            %save tmp data
-           result = saveTempFile(dv); 
+           result = saveTempFile(p); 
            if ~isempty(result)
                disp(result.message)
            end
                       
            %store the difference of the trial struct to .data
-           dTrialStruct=getDifferenceFromStruct(dv.defaultParameters,dv.trial);
-           dv.data{trialNr}=dTrialStruct;
+           dTrialStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
+           p.data{trialNr}=dTrialStruct;
            
            %advance to next trial
 %            if(dv.trial.pldaps.iTrial ~= dv.trial.pldaps.finish)
@@ -211,30 +211,30 @@ try
         else %dbquit ==1 is meant to be pause. should we halt eyelink, datapixx, etc?
             %create a new level to store all changes in, 
             %load only non trial paraeters
-            pause=dv.trial.pldaps.pause.type;
-            dv.trial=dv.defaultParameters;
+            pause=p.trial.pldaps.pause.type;
+            p.trial=p.defaultParameters;
             
-            dv.defaultParameters.addLevels({struct}, {['PauseAfterTrial' num2str(trialNr) 'Parameters']});
-            dv.defaultParameters.setLevels([levelsPreTrials length(dv.defaultParameters.getAllLevels())]);
+            p.defaultParameters.addLevels({struct}, {['PauseAfterTrial' num2str(trialNr) 'Parameters']});
+            p.defaultParameters.setLevels([levelsPreTrials length(p.defaultParameters.getAllLevels())]);
             
             if pause==1 %0=don't,1 is debugger, 2=pause loop
                 ListenChar(0);
                 ShowCursor;
-                dv.trial
+                p.trial
                 disp('Ready to begin trials. Type return to start first trial...')
                 keyboard %#ok<MCKBD>
-                dv.trial.pldaps.quit = 0;
+                p.trial.pldaps.quit = 0;
                 ListenChar(2);
                 HideCursor;
             elseif pause==2
-                pauseLoop(dv);
+                pauseLoop(p);
             end           
 %             pds.datapixx.refresh(dv);
 
             %now I'm assuming that nobody created new levels,
             %but I guess when you know how to do that
             %you should also now how to not skrew things up
-            allStructs=dv.defaultParameters.getAllStructs();
+            allStructs=p.defaultParameters.getAllStructs();
             if(~isequal(struct,allStructs{end}))
                 levelsPreTrials=[levelsPreTrials length(allStructs)]; %#ok<AGROW>
             end
@@ -243,32 +243,34 @@ try
     end
     
     %make the session parameterStruct active
-    dv.defaultParameters.setLevels(levelsPreTrials);
-    dv.trial = dv.defaultParameters;
+    p.defaultParameters.setLevels(levelsPreTrials);
+    p.trial = p.defaultParameters;
     
     % return cursor and command-line control
     ShowCursor;
     ListenChar(0);
     Priority(0);
     
-    dv = pds.eyelink.finish(dv);
-    dv = pds.spikeserver.disconnect(dv);
-    if(dv.defaultParameters.datapixx.use)
-        dv.defaultParameters.datapixx.timestamplog = PsychDataPixx('GetTimestampLog', 1);
+    p = pds.eyelink.finish(p);
+    p = pds.spikeserver.disconnect(p);
+    if(p.defaultParameters.datapixx.use)
+        %start adc data collection if requested
+        pds.datapixx.adc.stop(p);
+        p.defaultParameters.datapixx.timestamplog = PsychDataPixx('GetTimestampLog', 1);
     end
     
     
-    if ~dv.defaultParameters.pldaps.nosave
-        [structs,structNames] = dv.defaultParameters.getAllStructs();
+    if ~p.defaultParameters.pldaps.nosave
+        [structs,structNames] = p.defaultParameters.getAllStructs();
         
         PDS=struct;
         PDS.initialParameters=structs(levelsPreTrials);
         PDS.initialParameterNames=structNames(levelsPreTrials);
-        PDS.initialParametersMerged=mergeToSingleStruct(dv.defaultParameters); %too redundant?
+        PDS.initialParametersMerged=mergeToSingleStruct(p.defaultParameters); %too redundant?
         PDS.conditions=structs((max(levelsPreTrials)+1):end);
         PDS.conditionNames=structNames((max(levelsPreTrials)+1):end);
-        PDS.data=dv.data; 
-        save(fullfile(dv.defaultParameters.session.dir, dv.defaultParameters.session.file),'PDS','-mat')
+        PDS.data=p.data; 
+        save(fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file),'PDS','-mat')
     end
     
     

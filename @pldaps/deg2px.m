@@ -1,8 +1,8 @@
 % convert from deg to pixel coordinates
 %---------------------------------------------------------------------%
-function [xy,z] = deg2px(dv,xy,z,zIsR)
+function [xy,z] = deg2px(p,xy,z,zIsR)
     if(nargin<3)
-        z=dv.trial.display.viewdist;
+        z=p.trial.display.viewdist;
     end
     
     xy=sind(xy);
@@ -13,10 +13,10 @@ function [xy,z] = deg2px(dv,xy,z,zIsR)
         sr=z./sqrt(1-sum(xy.^2));
     end
     
-    xy=[dv.trial.display.w2px(1)*sr; dv.trial.display.w2px(2)*sr].*xy;
+    xy=[p.trial.display.w2px(1)*sr; p.trial.display.w2px(2)*sr].*xy;
     
     if(nargout>1 && nargin<4 && zIsR)
-        z=mean(dv.trial.display.w2px)*sr.*sqrt(1-sum(xy.^2));
+        z=mean(p.trial.display.w2px)*sr.*sqrt(1-sum(xy.^2));
     end
     
         %this code ignored the dependence of the two angles!
