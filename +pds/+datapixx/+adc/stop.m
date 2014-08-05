@@ -25,8 +25,8 @@ end
 
 p = pds.datapixx.adc.getData(p);
 
-Datapixx RegWrRd;
 Datapixx('StopAdcSchedule')
+Datapixx RegWrRd;
 
 % timing:
 p.trial.datapixx.adc.stopDatapixxTime = Datapixx('GetTime'); %GetSecs;

@@ -87,13 +87,17 @@ for imap=1:length(maps)
     % for now, we'll always create them
     p=subsasgn(p,p.trial.datapixx.adc.channelMappingSubs{imap}(1:end-1),nan(length(p.trial.datapixx.adc.channelMappingChannels{imap}), maxDataSamplesPerTrial));
 end
+p.trial.datapixx.adc.dataSampleTimes=nan(1,maxDataSamplesPerTrial);
 
-p.trial.datapixx.adc.DataSampleCount=0;
+p.trial.datapixx.adc.dataSampleCount=0;
 
 Datapixx('StopAllSchedules')
+Datapixx('RegWrRd')
 
 % set the schedule:
 Datapixx('SetAdcSchedule', p.trial.datapixx.adc.startDelay, p.trial.datapixx.adc.srate, p.trial.datapixx.adc.maxSamples, AdcChListCode, p.trial.datapixx.adc.bufferAddress, p.trial.datapixx.adc.numBufferFrames);
+Datapixx('DisableDacAdcLoopback');           % Replace this with DisableDacAdcLoopback to collect real data
+Datapixx('DisableAdcFreeRunning');          % For microsecond-precise sample windows
 Datapixx('StartAdcSchedule')
 Datapixx('RegWrRd')
 

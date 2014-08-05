@@ -31,10 +31,12 @@ if ~p.trial.datapixx.use || isempty(p.trial.datapixx.adc.channels)
 end
 
 %consifer having a preallocated bufferData and bufferTimeTags
+Datapixx('RegWrRd');
 adcStatus = Datapixx('GetAdcStatus');
 adcStatus.time=GetSecs;
 p.trial.datapixx.adc.stat(end+1)=adcStatus;
-[bufferData, bufferTimetags, underflow, overflow] = Datapixx('ReadAdcBuffer', adcStatus.newBufferFrames);%, p.trial.datapixx.adc.bufferAddress
+[p.trial.datapixx.adc.bufferData(:,1:adcStatus.newBufferFrames), p.trial.datapixx.adc.bufferTimetags(:,1:adcStatus.newBufferFrames), underflow, overflow] = Datapixx('ReadAdcBuffer', adcStatus.newBufferFrames,-1);
+% [bufferData, bufferTimetags, underflow, overflow] = Datapixx('ReadAdcBuffer', adcStatus.newBufferFrames,-1);
 if underflow
     warning('pds:datapixxadcgetData','underflow: getData is called to often');
 end
@@ -43,17 +45,17 @@ if overflow
 end
 
 %transform data:
-bufferData=diag(p.trial.datapixx.adc.channelGains)*(bufferData+diag(p.trial.datapixx.adc.channelOffsets)*ones(size(bufferData)));
+p.trial.datapixx.adc.bufferData(:,1:adcStatus.newBufferFrames)=diag(p.trial.datapixx.adc.channelGains)*(p.trial.datapixx.adc.bufferData(:,1:adcStatus.newBufferFrames)+diag(p.trial.datapixx.adc.channelOffsets)*ones(size(p.trial.datapixx.adc.bufferData,1),adcStatus.newBufferFrames));
 
-% p.trial.datapixx.adc.DataSampleCount;
+% p.trial.datapixx.adc.dataSampleCount;
 %ohoh, this will be reset every trial.
-starti=p.trial.datapixx.adc.DataSampleCount+1;
-endi=p.trial.datapixx.adc.DataSampleCount+adcStatus.newBufferFrames;
+starti=p.trial.datapixx.adc.dataSampleCount+1;
+endi=p.trial.datapixx.adc.dataSampleCount+adcStatus.newBufferFrames;
 inds=starti:endi;
-p.trial.datapixx.adc.DataSampleCount=endi;
+p.trial.datapixx.adc.dataSampleCount=endi;
 
-p.trial.datapixx.adc.DataSampleTimes(inds)=bufferTimetags;
-p.trial.datapixx.adc.data(:,inds)=bufferData;
+p.trial.datapixx.adc.dataSampleTimes(inds)=p.trial.datapixx.adc.bufferTimetags(1:adcStatus.newBufferFrames);
+p.trial.datapixx.adc.data(:,inds)=p.trial.datapixx.adc.bufferData(:,1:adcStatus.newBufferFrames);
 
 nMaps=length(p.trial.datapixx.adc.channelMappingChannels);
 for imap=1:nMaps
@@ -61,19 +63,19 @@ for imap=1:nMaps
     iSub = p.trial.datapixx.adc.channelMappingSubs{imap};
     iSub(end).subs{2}=inds;
     
-    p=subsasgn(p,iSub,bufferData(p.trial.datapixx.adc.channelMappingChannelInds{imap},:));
+    p=subsasgn(p,iSub,p.trial.datapixx.adc.bufferData(p.trial.datapixx.adc.channelMappingChannelInds{imap},1:adcStatus.newBufferFrames));
     
     if p.trial.datapixx.useAsEyepos
         xChannel=p.trial.datapixx.adc.XEyeposChannel==p.trial.datapixx.adc.channelMappingChannels;
         yChannel=p.trial.datapixx.adc.YEyeposChannel==p.trial.datapixx.adc.channelMappingChannels;
         if any(xChannel)
-             dInds=(p.trial.datapixx.adc.DataSampleCount-p.trial.pldaps.eyeposMovAv+1):p.trial.datapixx.adc.DataSampleCount;
+             dInds=(p.trial.datapixx.adc.dataSampleCount-p.trial.pldaps.eyeposMovAv+1):p.trial.datapixx.adc.dataSampleCount;
              iSub(end).subs{2}=dInds;
              iSub(end).subs{1}=xChannel;
              p.trial.eyeX = mean(subsref(p,iSub));
              
         elseif any(yChannel)
-            dInds=(p.trial.datapixx.adc.DataSampleCount-p.trial.pldaps.eyeposMovAv+1):p.trial.datapixx.adc.DataSampleCount;
+            dInds=(p.trial.datapixx.adc.dataSampleCount-p.trial.pldaps.eyeposMovAv+1):p.trial.datapixx.adc.dataSampleCount;
             iSub(end).subs{2}=dInds;
             iSub(end).subs{1}=yChannel;
             p.trial.eyeX = mean(subsref(p,iSub));

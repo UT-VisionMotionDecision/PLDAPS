@@ -34,6 +34,7 @@ if ~p.trial.datapixx.use || isempty(p.trial.datapixx.adc.channels)
 end
 
 %1. check if ADC has been started, call start if not and assume trial by trial mode
+Datapixx('RegWrRd');
 adcStatus = Datapixx('GetAdcStatus');
 if ~adcStatus.scheduleRunning
     pds.datapixx.adc.start(p);
@@ -58,13 +59,18 @@ for imap=1:nMaps
     p=subsasgn(p,iSub(1:end-1),nan(length(p.trial.datapixx.adc.channelMappingChannels{imap}), maxDataSamplesPerTrial));
 
 end
+p.trial.datapixx.adc.dataSampleTimes=nan(1,maxDataSamplesPerTrial);
 
 if(~all(reallocated) && ~all(~reallocated))
     warning('one some data fields had to be allocated, make sure no data is overwritten!')
 end
 
+%create a tmp buffer for the collected data
+p.trial.datapixx.adc.bufferData=nan(length(p.trial.datapixx.adc.channels),p.trial.datapixx.adc.numBufferFrames);
+p.trial.datapixx.adc.bufferTimetags=nan(1,p.trial.datapixx.adc.numBufferFrames);
+
 % 3. reset the counter.
-p.trial.datapixx.adc.DataSampleCount=0;
+p.trial.datapixx.adc.dataSampleCount=0;
 
 %debug
 adcStatus.time=GetSecs;
