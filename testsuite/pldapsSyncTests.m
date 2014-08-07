@@ -1,3 +1,5 @@
+
+PsychDataPixx('open');
 dpx.syncmode=2; %1,2,3
 
 p=zeros(500,1);
