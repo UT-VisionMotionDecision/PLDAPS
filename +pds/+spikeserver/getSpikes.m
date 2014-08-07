@@ -1,4 +1,4 @@
-function [dv, spikes] = spikeserverGetSpikes(dv)
+function [dv, spikes] = getSpikes(dv)
 % [dv, spikes] = spikeServerGetSpikes(dv)
 %
 % SPIKESERVERGETSPIKES reads spikes from the udp connection opened by
