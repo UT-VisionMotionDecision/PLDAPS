@@ -248,10 +248,6 @@ end
             p.trial.timing.datapixxStartTime = Datapixx('Gettime');
             pds.datapixx.flipBit(p.trial.event.TRIALSTART);  % start of trial (Plexon)
         end
-        if p.trial.eyelink.use
-            p.trial.timing.eyelinkStartTime = Eyelink('TrackerTime');
-            Eyelink('message', 'TRIALSTART');
-        end
 
         p.trial.ttime  = GetSecs - p.trial.trstart;
         p.trial.timing.syncTimeDuration = p.trial.ttime;

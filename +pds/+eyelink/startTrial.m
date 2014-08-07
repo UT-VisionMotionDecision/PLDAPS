@@ -24,5 +24,8 @@ if dv.trial.eyelink.use
     dv.trial.eyelink.drained=false;
 %     pds.eyelink.getQueue(dv);
     dv.trial.eyelink.drained = pds.eyelink.clearBuffer(dv.trial.eyelink.drained);
+    
+    dv.trial.timing.eyelinkStartTime = pds.eyelink.getPreciseTime(6.5e-5,0.1,2);
+    Eyelink('message', 'TRIALSTART');
 end
  
