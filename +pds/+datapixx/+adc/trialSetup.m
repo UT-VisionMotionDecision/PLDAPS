@@ -56,8 +56,8 @@ end
 p.trial.datapixx.adc.dataSampleTimes=nan(1,maxDataSamplesPerTrial);
 
 %create a tmp buffer for the collected data
-p.trial.datapixx.adc.bufferData=nan(length(p.trial.datapixx.adc.channels),p.trial.datapixx.adc.numBufferFrames);
-p.trial.datapixx.adc.bufferTimetags=nan(1,p.trial.datapixx.adc.numBufferFrames);
+% p.trial.datapixx.adc.bufferData=nan(length(p.trial.datapixx.adc.channels),p.trial.datapixx.adc.numBufferFrames);
+% p.trial.datapixx.adc.bufferTimetags=nan(1,p.trial.datapixx.adc.numBufferFrames);
 
 % 3. reset the counter.
 p.trial.datapixx.adc.dataSampleCount=0;
