@@ -16,3 +16,12 @@ Datapixx('SetDoutValues',2^(bit-1))
 Datapixx('RegWrRd');
 Datapixx('SetDoutValues',0)
 Datapixx('RegWrRd');
+
+
+% Datapixx('SetDoutValues',2^(bit-1))
+% Datapixx('SetMarker')
+% Datapixx('RegWr');
+% Datapixx('SetDoutValues',0)
+% Datapixx('RegWrRd');
+% dpTime=Datapixx('GetMarker');
+
