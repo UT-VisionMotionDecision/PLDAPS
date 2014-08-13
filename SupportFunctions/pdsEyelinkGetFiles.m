@@ -22,15 +22,16 @@ for j=1:nfiles
     end
     load(fullfile(dirs,file), '-mat');
     
-    for k=1:length(PDS.session.time)
-       result=Eyelink('Receivefile', datestr(PDS.session.time{k}, 'mmddHHMM'), fullfile(dirs,[file(1:end-3) 'edf']));
+%     for k=1:length(PDS.session.time)
+%        result=Eyelink('Receivefile', datestr(PDS.session.time{k}, 'mmddHHMM'), fullfile(dirs,[file(1:end-3) 'edf']));
+       result=Eyelink('Receivefile', PDS.initialParameters{4}.eyelink.edfFile, fullfile(dirs,[file(1:end-3) 'edf']));
        if(result==-1)
-          warning('pds:EyelinkGetFiles', ['receiving ' datestr(PDS.session.time{k}) '.edf for pds file ' file ' failed!']) 
+          warning('pds:EyelinkGetFiles', ['receiving ' PDS.initialParameters{4}.eyelink.edfFile '.edf for pds file ' file ' failed!']) 
        else
-           display([num2str(j) ' out of ' num2str(nfiles) ' files received: ' datestr(PDS.session.time{k}, 'mmddHHMM') '.edf for pds file ' file '.'])
+           display([num2str(j) ' out of ' num2str(nfiles) ' files received: ' PDS.initialParameters{4}.eyelink.edfFile '.edf for pds file ' file '.'])
        end
         
-    end
+%     end
 end
 
 
