@@ -55,10 +55,20 @@ classdef params < handle
         
         % Overload fieldnames retrieval
         function names = fieldnames(p) 
-%             names = sort(obj.props.keys); 
-            % return in sorted order 
             names={p.flatStruct(cellfun(@length,{p.flatStruct.parentLevels})==1).identifier};
             names=cellfun(@(x) x(2:end),names,'UniformOutput',false);
+        end
+        
+        function disp(p)
+            builtin('disp',p);
+            
+            fprintf('    with public methods:\n')
+            fprintf('\t%s\n',p.MethodsList{:});
+            
+            fprintf('\n');
+            names=fieldnames(p);
+            fprintf('    with fieldnames:\n');
+            fprintf('\t%s\n',names{:});
         end
         
         function p=addStructs(p,s,sN,active)
