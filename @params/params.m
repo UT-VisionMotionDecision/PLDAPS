@@ -33,7 +33,7 @@ classdef params < handle
 % %             attributes=?params;
 % %             propertyList=attributes
 % %          
-            p.MethodsList={'view', 'setLevels','getAllLevels', 'mergeToSingleStruct','getDifferenceFromStruct','addLevels','addStructs','addNewStruct', 'getAllStructs','setLock','getParameter'};
+            p.MethodsList={'view', 'setLevels','getAllLevels', 'mergeToSingleStruct','getDifferenceFromStruct','addLevels','addStructs','addNewStruct', 'getAllStructs','setLock','getParameter','fieldnames'};
 %             p.structs=s;
 %             p.activeLevels=1:length(s);
 % %             p.flatStructLevels=p.levels;
@@ -52,6 +52,14 @@ classdef params < handle
                 p.Snew1= substruct('.','structs','{}', {NaN});
 % %             p.Snew2= substruct('.','flatStruct','()', {NaN}, '.', 'value');
         end %params(s,sN)
+        
+        % Overload fieldnames retrieval
+        function names = fieldnames(p) 
+%             names = sort(obj.props.keys); 
+            % return in sorted order 
+            names={p.flatStruct(cellfun(@length,{p.flatStruct.parentLevels})==1).identifier};
+            names=cellfun(@(x) x(2:end),names,'UniformOutput',false);
+        end
         
         function p=addStructs(p,s,sN,active)
             if nargin<3
@@ -307,7 +315,7 @@ classdef params < handle
                                 Spartial=S(ones(1,length(thisSubID)));
                                 [Spartial.subs]=deal(thisSubID{:});
                                 
-                                Snew(2).subs={level_index(level_index(iPart))};
+                                Snew(2).subs={level_index(iPart)};
                                 tmp=builtin('subsasgn',tmp,Spartial,builtin('subsref',p,[Snew Spartial]));
                             end
                             varargout{1}=tmp;

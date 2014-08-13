@@ -44,13 +44,10 @@ end
 % 2. check if the structs for the data exist, create if not (is that possible)
 maxDataSamplesPerTrial=p.trial.datapixx.adc.srate*60*60;
 nMaps=length(p.trial.datapixx.adc.channelMappingChannels);
-reallocated=false(1,nMaps);
 for imap=1:nMaps
 %     iChannels=p.trial.datapixx.adc.channelMappingChannels{imap};
     iSub = p.trial.datapixx.adc.channelMappingSubs{imap};
-    
-    iStruct=subsref(p,iSub(1:end-2));
-    
+       
     %always reassign, because that's what happening at the first write
     %anyways.
     p=subsasgn(p,iSub(1:end-1),nan(length(p.trial.datapixx.adc.channelMappingChannels{imap}), maxDataSamplesPerTrial));

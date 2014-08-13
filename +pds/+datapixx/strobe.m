@@ -1,4 +1,4 @@
-function datapixxStrobe(word)
+function strobe(word)
 % DataPixxStrobe(word)
 % strobes a single 8-bit word (255) from the datapixx
 % INPUTS
