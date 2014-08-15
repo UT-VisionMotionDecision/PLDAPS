@@ -170,8 +170,10 @@ end
         
         %call PsychDataPixx('GetPreciseTime') to make sure the clock stay
         %synced
-        [getsecs, boxsecs, confidence] = PsychDataPixx('GetPreciseTime');
-        p.trial.timing.datapixxPreciseTime(1:3) = [getsecs, boxsecs, confidence];
+        if p.trial.datapixx.use
+            [getsecs, boxsecs, confidence] = PsychDataPixx('GetPreciseTime');
+            p.trial.timing.datapixxPreciseTime(1:3) = [getsecs, boxsecs, confidence];
+        end
         
         %setup a fields for the mouse data
         [~,~,isMouseButtonDown] = GetMouse(); 
@@ -246,7 +248,7 @@ end
 
         if p.trial.datapixx.use
             p.trial.timing.datapixxStartTime = Datapixx('Gettime');
-            pds.datapixx.flipBit(p.trial.event.TRIALSTART);  % start of trial (Plexon)
+            p.trial.timing.datapixxTRIALSTART = pds.datapixx.flipBit(p.trial.event.TRIALSTART);  % start of trial (Plexon)
         end
 
         p.trial.ttime  = GetSecs - p.trial.trstart;

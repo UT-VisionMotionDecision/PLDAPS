@@ -15,7 +15,7 @@ function [xy,z] = deg2world(p,xy,z,zIsR)
     end
     
     xy=[sr; sr].*xy;
-    
+
     if(nargout>1 && nargin<4 && zIsR)
         z=sr.*sqrt(1-sum(xy.^2));
     end

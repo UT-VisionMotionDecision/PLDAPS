@@ -23,6 +23,8 @@ ylabel('Eyelink time reconstruction error / ms')
 nrframes=cellfun(@(x) size(x.timing.frameStateChangeTimes,2), PDS.data);
 idmaxframes=find(nrframes==max(nrframes));
 
+for idmaxframes=1:length(nrframes)
+
 % idmaxframes=84
 thisdata=PDS.data{idmaxframes};
 
@@ -50,6 +52,7 @@ tdDPData=thisdata.datapixx.adc.data(1,:);
 %slow
 % dpDownSapleTime=tdELTime;
 % dpDownSapleData=tdELData;
+try
 minidx=1;
 idx=tdELData*0+1;
 [~,idx(1)]=min(abs(tdDPTime(1:end)-tdELTime(1)));
@@ -62,10 +65,10 @@ dpDownSapleData=tdDPData(idx);
    
 maxlag=1000;
 [x,l]=xcorr(tdELData,dpDownSapleData,maxlag);
-figure;
-plot(l,x)
-xlabel('Lag in Eyelink Samples');
-ylabel('x-correlation');
+% figure;
+% plot(l,x)
+% xlabel('Lag in Eyelink Samples');
+% ylabel('x-correlation');
 
 lag=l(x==max(x));
 estimated_dp_el_lag=tdELTime(abs(lag)+1)-tdELTime(1);
@@ -77,16 +80,22 @@ else
     fprintf('Datapixx data is behind of Eyelink data\n');
 end
 
+allags(idmaxframes)=lag;
+catch
+    allags(idmaxframes)=NaN;
+end
+
+end
 
 %alternative: use all data
-tdELTime=cellfun(@(x) x.eyelink.samples(1,:)/1000, PDS.data, 'UniformOutput',false);
-tdELTime=el2c(horzcat(tdELTime{:}));
-
-tdELData=cellfun(@(x) x.eyelink.samples(5,:), PDS.data, 'UniformOutput',false);
-tdELData=horzcat(tdELData{:});
-
-tdDPTime=cellfun(@(x) x.datapixx.adc.dataSampleTimes, PDS.data, 'UniformOutput',false);
-tdDPTime=dp2c(horzcat(tdDPTime{:}));
-
-tdDPData=cellfun(@(x) x.datapixx.adc.data(1,:), PDS.data, 'UniformOutput',false);
-tdDPData=horzcat(tdDPData{:});
+% tdELTime=cellfun(@(x) x.eyelink.samples(1,:)/1000, PDS.data, 'UniformOutput',false);
+% tdELTime=el2c(horzcat(tdELTime{:}));
+% 
+% tdELData=cellfun(@(x) x.eyelink.samples(5,:), PDS.data, 'UniformOutput',false);
+% tdELData=horzcat(tdELData{:});
+% 
+% tdDPTime=cellfun(@(x) x.datapixx.adc.dataSampleTimes, PDS.data, 'UniformOutput',false);
+% tdDPTime=dp2c(horzcat(tdDPTime{:}));
+% 
+% tdDPData=cellfun(@(x) x.datapixx.adc.data(1,:), PDS.data, 'UniformOutput',false);
+% tdDPData=horzcat(tdDPData{:});

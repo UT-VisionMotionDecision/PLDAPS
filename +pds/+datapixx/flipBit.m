@@ -1,4 +1,4 @@
-function flipBit(bit)
+function timings=flipBit(bit)
 % pds.datapixx.flipBit(bit)
 %
 % DatapixxFlipBit flips a bit on the digital out values of the Datapixx
@@ -11,17 +11,33 @@ function flipBit(bit)
 %
 % (c) kme 2011
 
+if nargout==0
 
-Datapixx('SetDoutValues',2^(bit-1))
-Datapixx('RegWrRd');
-Datapixx('SetDoutValues',0)
-Datapixx('RegWrRd');
+    Datapixx('SetDoutValues',2^(bit-1))
+    Datapixx('RegWrRd');
+    Datapixx('SetDoutValues',0)
+    Datapixx('RegWrRd');
+else
+    t=nan(2,1);
+    oldPriority=Priority;
+    if oldPriority < MaxPriority('GetSecs')
+            Priority(MaxPriority('GetSecs'));
+    end
 
+    Datapixx('SetDoutValues',2^(bit-1))
+    Datapixx('SetMarker');
+    
+    t(1)=GetSecs;
+    Datapixx('RegWr');
+    t(2)=GetSecs;
+    
+    Datapixx('SetDoutValues',0)
+    Datapixx('RegWrRd');
+    dpTime=Datapixx('GetMarker');
 
-% Datapixx('SetDoutValues',2^(bit-1))
-% Datapixx('SetMarker')
-% Datapixx('RegWr');
-% Datapixx('SetDoutValues',0)
-% Datapixx('RegWrRd');
-% dpTime=Datapixx('GetMarker');
-
+    if Priority ~= oldPriority
+            Priority(oldPriority);
+    end
+    
+    timings=[mean(t) dpTime diff(t)];
+end
