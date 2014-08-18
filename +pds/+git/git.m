@@ -56,11 +56,16 @@ function result = git(varargin)
 %               (TH) Timothy Hansell
 %               (TN) Tassos Natsakis
 
+gitlocation='git ';
 
 % Test to see if git is installed
-[status,~] = system('git --version');
+[status,~] = system([gitlocation '--version']);
 % if git is in the path this will return a status of 0
 % it will return a 1 only if the command is not found
+if status
+    gitlocation = [GetGitPath gitlocation];
+    [status,~] = system([gitlocation '--version']);
+end
 
     if status
         % Checking if git exists in the default installation folders (for
@@ -90,7 +95,7 @@ function result = git(varargin)
         else
           prog = ' | cat';
         end
-        [~,result] = system(['git ',arguments,prog]);
+        [~,result] = system([gitlocation,arguments,prog]);
     end
 end
 
