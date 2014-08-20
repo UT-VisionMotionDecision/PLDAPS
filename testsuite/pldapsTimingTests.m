@@ -2,8 +2,12 @@
 %% datapixx
 dptime=cellfun(@(x) x.timing.datapixxPreciseTime, PDS.data, 'UniformOutput', false);
 dptime=vertcat(dptime{:})';
-dpfit=polyfit(dptime(2,:),dptime(1,:),1);
-dp2c=@(x) x*dpfit(1) + dpfit(2);
+dpfit2=polyfit(dptime(2,:),dptime(1,:),1);
+dp2c=@(x) x*dpfit2(1) + dpfit2(2);
+
+% [dpfit dpfitS dpfitMU]=polyfit(dptime(2,:),dptime(1,:),1)
+% g=dpfit(1)/dpfitMU(2);
+% h;
 
 figure;
 plot(dptime(1,:), 1000*( dp2c(dptime(2,:)) - dptime(1,:)) )
@@ -23,7 +27,7 @@ ylabel('Eyelink time reconstruction error / ms')
 nrframes=cellfun(@(x) size(x.timing.frameStateChangeTimes,2), PDS.data);
 idmaxframes=find(nrframes==max(nrframes));
 
-for idmaxframes=1:length(nrframes)
+% for idmaxframes=1:length(nrframes)
 
 % idmaxframes=84
 thisdata=PDS.data{idmaxframes};
@@ -36,39 +40,52 @@ tdDPTime=dp2c(thisdata.datapixx.adc.dataSampleTimes);
 tdDPData=thisdata.datapixx.adc.data(1,:);
 
 
-% elq=quantile(tdELData, [.25 .50 .75]);
-% dpq=quantile(tdDPData, [.25 .50 .75]);
-% dpelf=(elq(2)-elq(1))/(dpq(2)-dpq(1));
-% dpqf=quantile(tdDPData*dpelf, [.25 .50 .75]);
-% dpelo=-dpqf(2)+elq(2);
-% 
-% plot(tdDPTime,tdDPData*dpelf + dpelo)
-% hold on;
-% plot(tdELTime,tdELData,'g')
-% plot(tdELTime+4/1000,tdELData,'m')
-
-%dp data is ->4ms delayed. why?
-
-%slow
-% dpDownSapleTime=tdELTime;
-% dpDownSapleData=tdELData;
 try
+% minidx=1;
+% idx=tdELData*0+1;
+% [~,idx(1)]=min(abs(tdDPTime(1:end)-tdELTime(1)));
+% for j=2:length(tdELTime)
+%    [~,id]=min(abs(tdDPTime(idx(j-1):end)-tdELTime(j)));
+%    idx(j)=id+idx(j-1)-1;
+% end
 minidx=1;
 idx=tdELData*0+1;
 [~,idx(1)]=min(abs(tdDPTime(1:end)-tdELTime(1)));
-for j=2:length(tdELTime)
-   [~,id]=min(abs(tdDPTime(idx(j-1):end)-tdELTime(j)));
-   idx(j)=id+idx(j-1)-1;
+[~,idx(2)]=min(abs(tdDPTime(1:end)-tdELTime(2)));
+est_diff_rate=idx(2)-idx(1);
+nSamplesEL=length(tdELTime);
+nSamplesDP=length(tdDPTime);
+for j=3:nSamplesEL
+   newidx=min(idx(j-1)+est_diff_rate,nSamplesDP);
+   mindiff=min(abs(tdDPTime(newidx)-tdELTime(j)));
+   
+   if newidx<nSamplesDP
+       mindiff2=min(abs(tdDPTime(newidx+1)-tdELTime(j)));
+       while mindiff2 < mindiff
+           newidx=newidx+1;
+           mindiff=mindiff2;
+           mindiff2=min(abs(tdDPTime(newidx+1)-tdELTime(j)));
+       end
+   end
+   
+   mindiff2=min(abs(tdDPTime(newidx-1)-tdELTime(j)));
+   while mindiff2 < mindiff
+       newidx=newidx-1;
+       mindiff=mindiff2;
+       mindiff2=min(abs(tdDPTime(newidx-1)-tdELTime(j)));
+   end
+       
+   idx(j)=newidx;
 end
 dpDownSapleTime=tdDPTime(idx);
 dpDownSapleData=tdDPData(idx); 
    
 maxlag=1000;
 [x,l]=xcorr(tdELData,dpDownSapleData,maxlag);
-% figure;
-% plot(l,x)
-% xlabel('Lag in Eyelink Samples');
-% ylabel('x-correlation');
+figure;
+plot(l,x)
+xlabel('Lag in Eyelink Samples');
+ylabel('x-correlation');
 
 lag=l(x==max(x));
 estimated_dp_el_lag=tdELTime(abs(lag)+1)-tdELTime(1);
@@ -85,17 +102,61 @@ catch
     allags(idmaxframes)=NaN;
 end
 
+% end
+% 
+% minidx=1;
+% idx=tdELData*0+1;
+% [~,idx(1)]=min(abs(tdDPTime(1:end)-tdELTime(1)+lag/1000));
+% [~,idx(2)]=min(abs(tdDPTime(1:end)-tdELTime(2)+lag/1000));
+% for j=2:length(tdELTime)
+%    [~,id]=min(abs(tdDPTime(idx(j-1):end)-tdELTime(j)+lag/1000));
+%    idx(j)=id+idx(j-1)-1;
+% end
+% dpDownSapleTime=tdDPTime(idx)+lag/1000;
+% dpDownSapleData=tdDPData(idx); 
+%    
+lagseconds=median(diff(tdELTime))*lag;
+minidx=1;
+idx=tdELData*0+1;
+[~,idx(1)]=min(abs(tdDPTime(1:end)-tdELTime(1)+lagseconds));
+[~,idx(2)]=min(abs(tdDPTime(1:end)-tdELTime(2)+lagseconds));
+est_diff_rate=idx(2)-idx(1);
+nSamplesEL=length(tdELTime);
+nSamplesDP=length(tdDPTime);
+for j=3:nSamplesEL
+   newidx=min(idx(j-1)+est_diff_rate,nSamplesDP);
+   mindiff=min(abs(tdDPTime(newidx)-tdELTime(j)+lagseconds));
+   
+   if newidx<nSamplesDP
+       mindiff2=min(abs(tdDPTime(newidx+1)-tdELTime(j)+lagseconds));
+       while mindiff2 < mindiff
+           newidx=newidx+1;
+           mindiff=mindiff2;
+           mindiff2=min(abs(tdDPTime(newidx+1)-tdELTime(j)+lagseconds));
+       end
+   end
+   
+   mindiff2=min(abs(tdDPTime(newidx-1)-tdELTime(j)+lagseconds));
+   while mindiff2 < mindiff
+       newidx=newidx-1;
+       mindiff=mindiff2;
+       mindiff2=min(abs(tdDPTime(newidx-1)-tdELTime(j)+lagseconds));
+   end
+       
+   idx(j)=newidx;
 end
+dpDownSapleTime=tdDPTime(idx)+lagseconds;
+dpDownSapleData=tdDPData(idx); 
+   
 
-%alternative: use all data
-% tdELTime=cellfun(@(x) x.eyelink.samples(1,:)/1000, PDS.data, 'UniformOutput',false);
-% tdELTime=el2c(horzcat(tdELTime{:}));
-% 
-% tdELData=cellfun(@(x) x.eyelink.samples(5,:), PDS.data, 'UniformOutput',false);
-% tdELData=horzcat(tdELData{:});
-% 
-% tdDPTime=cellfun(@(x) x.datapixx.adc.dataSampleTimes, PDS.data, 'UniformOutput',false);
-% tdDPTime=dp2c(horzcat(tdDPTime{:}));
-% 
-% tdDPData=cellfun(@(x) x.datapixx.adc.data(1,:), PDS.data, 'UniformOutput',false);
-% tdDPData=horzcat(tdDPData{:});
+
+n=tdELData>-3000;
+
+scaling=polyfit(dpDownSapleData(n),tdELData(n),1)
+figure;
+plot(tdELTime,tdELData);
+hold on;
+plot(dpDownSapleTime,scaling(1)*dpDownSapleData+scaling(2),'g')
+
+
+

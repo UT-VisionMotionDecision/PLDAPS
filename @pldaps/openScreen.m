@@ -145,7 +145,9 @@ if isField(p.defaultParameters, 'display.gamma')
     else
         PsychColorCorrection('SetEncodingGamma', p.defaultParameters.display.ptr, p.defaultParameters.display.gamma, 'FinalFormatting');
     end
-
+else
+    %set a linear gamma
+    PsychColorCorrection('SetLookupTable', ptr, linspace(0,1,256)'*[1, 1, 1], 'FinalFormatting');
 end
 
 

@@ -4,53 +4,29 @@ classdef params < handle
         structNames
         activeLevels
         topLevel
-%         flatStructs %not a good name
                       
         flatStruct
-%         flatStructLevels
-%         flatStructIdMap
-        
-%         writeLockLevelList
         locked
         
         MethodsList
         
         Snew1
-%         Snew2
     end
     
     methods 
 
         %% start new functions for new approach
         function p=params(s,sN,active)
-                if nargin<2
-                    sN=cellfun(@(x) sprintf('level%i',x),num2cell(1:length(s)),'UniformOutput',false);
-                end
-                if nargin<3
-                    active=true(1,length(s));
-                end
-                p=addStructs(p,s,sN,active);
-% %             attributes=?params;
-% %             propertyList=attributes
-% %          
+            if nargin<2
+            	sN=cellfun(@(x) sprintf('level%i',x),num2cell(1:length(s)),'UniformOutput',false);
+            end
+            if nargin<3
+            	active=true(1,length(s));
+            end
+            p=addStructs(p,s,sN,active);
+ 
             p.MethodsList={'view', 'setLevels','getAllLevels', 'mergeToSingleStruct','getDifferenceFromStruct','addLevels','addStructs','addNewStruct', 'getAllStructs','setLock','getParameter','fieldnames'};
-%             p.structs=s;
-%             p.activeLevels=1:length(s);
-% %             p.flatStructLevels=p.levels;
-%             if nargin>1
-%                 p.structNames=sN;
-%             else
-%                 p.structNames=cellfun(@(x) sprintf('level%i',x),num2cell(1:length(s)),'UniformOutput',false);
-%             end
-%             
-%             p = flattenStructs(p);
-            
-% %             p.readLock=false;
-% %             p.writeLockLevelList=false(1,length(s));
-% %             
-% %             %helper things
-                p.Snew1= substruct('.','structs','{}', {NaN});
-% %             p.Snew2= substruct('.','flatStruct','()', {NaN}, '.', 'value');
+            p.Snew1= substruct('.','structs','{}', {NaN});
         end %params(s,sN)
         
         % Overload fieldnames retrieval
@@ -155,7 +131,6 @@ classdef params < handle
         end
         
         function [s, sN, active] = getAllStructs(p)
-%         	p = consolidateToStructs(p);
             s=p.structs;
             sN=p.structNames;
             active=p.activeLevels;
@@ -172,7 +147,6 @@ classdef params < handle
             parentLevels=parentLevels{1}(2:end);
             %assign the value, could probably use subsref of struct
             %instead.
-%             evalc(['p.structs{levelNr)}' id '=value;']);
             Spartial=p.Snew1(ones(1,length(parentLevels)));
             [Spartial.subs]=deal(parentLevels{:});
             S=[p.Snew1 Spartial];
@@ -237,22 +211,10 @@ classdef params < handle
         function view(p)
            p.structviewer(p);
         end
-%         
+
         function setLock(p,lock)
            p.locked = lock;
         end
-%         
-%         function setWriteLocks(p,locks)
-%            if islogical(locks)
-%                if length(locks)==1 || length(locks)==length(p.levels)
-%                    p.writeLockLevelList(:)=locks;
-%                else
-%                    warning('params:setWriteLocks','Dimensions don''t match up');
-%                end
-%            else
-%                p.writeLockLevelList(locks)=~p.writeLockLevelList(locks);
-%            end
-%         end
         
         function varargout = subsref(p,S)
             if(p.locked)
@@ -271,13 +233,6 @@ classdef params < handle
                             [varargout{1:nargout}] = builtin('subsref',p,S);%p.(S.subs);  
                         end
                    else
-%                         if(p.readLock) %reading not allowed
-%                             warning('parmas:subsref','Tried to acces data from @params class while readLock is set. Call setreadLock(false) to disable the lock.');
-%                             varargout{1} = S;
-%                             return
-%                         end
-%                         display(S);
-                       
                         dotNr=find(diff(strcmp({S.type}, '.'))==-1);
                         if isempty(dotNr) % no -1, means only '.' in there
                             dotNr=length(S);
@@ -307,7 +262,7 @@ classdef params < handle
                             %now if it's a struct, we at least know that
                             %only one output argument is requested, but we
                             %need to mix the struct from all levels
-%                             tmp=struct;
+
                             %first assign the whole substruct from the
                             %lowest
                             %level that defined it?
@@ -431,119 +386,6 @@ classdef params < handle
                     
         end
             
-%         function p = setLevels(p,value)
-%             %are the new levels different?
-%             if ~all(ismember(p.flatStructLevels,value)) || ~all(ismember(value,p.flatStructLevels))
-%                 %make sure all changes are in the structs
-%                 p = consolidateToStructs(p);
-%                 %
-%                 p.flatStructLevels=sort(value);
-%                 %start again from scratch
-%                 p = flattenStructs(p);
-%             end
-% %             
-% %             if ~all(ismember(p.flatStructLevels,value)) || ~all(ismember(value,p.flatStructLevels))
-% %                 p.flatStructLevels=sort(value); %ah, the flatStructs can be invalidated, as changes only occur to the flatStruct.
-% %                 p = mergeFlatStructs(p); % =mergin them all, can reduce later
-% %             end
-%             
-%         end
-        
-
-        
-        
-%         
-%         function p=flattenStructs(p)
-%             nStructs=length(p.structs);
-%             for iStruct=1:nStructs
-%                 flatStructs{iStruct}=p.getNextStructLevel(p.structs{iStruct},{},[]);
-% %                 p.flatStructs{iStruct}(1)=[];
-%                 flatStructs{iStruct}(1).parentLevels={''};
-%                 flatStructs{iStruct}(1).value=struct;
-%                 id=cellfun(@(x) sprintf('.%s',x{:}), {flatStructs{iStruct}.parentLevels}, 'UniformOutput', false);   
-% %                 id=cellfun(@(x) x(1:end-1), id,'UniformOutput', false);
-%                 [flatStructs{iStruct}.identifier]=deal(id{:});
-%             end
-% 
-%             %assign some values about the hierarchy
-%             for iStruct=1:nStructs
-%                 [flatStructs{iStruct}.hierarchyTopLevel]=deal(iStruct);
-%                 [flatStructs{iStruct}.hierarchyLevels]=deal(iStruct);
-%                 %this is silly, how to to this in one line?
-%                 nFields=length(p.flatStructs{iStruct});
-%                 for(iField=1:nFields)
-%                    flatStructs{iStruct}(iField).hierarchyValues={p.flatStructs{iStruct}(iField).value};
-%                 end
-%             end
-%             
-%             p = mergeFlatStructs(p); % =mergin them all, can reduce later
-%         end %flattenStructs(p)
-%         
-%         function p = mergeFlatStructs(p)
-%             %p.flatStructLevels=sort(levels); %for now I will now allow changing the hierarchy
-%             
-%             p.flatStruct=p.flatStructs{p.flatStructLevels(1)};
-%             %next, merge them into one
-%             for iStruct=p.flatStructLevels(2:end)
-%                 %1: find the ones that are overruled (and newly defined (overruled==0
-%                 %&overrluledPos==0
-%                 [overruled, overruledPos]=ismember({p.flatStructs{iStruct}.identifier},{p.flatStruct.identifier});
-% 
-%                 [p.flatStruct(overruledPos(overruled)).hierarchyTopLevel]  =deal(iStruct);
-%                 [p.flatStruct(overruledPos(overruled)).value]  = deal(p.flatStructs{iStruct}(overruled).value);
-% 
-%                 nFields=length(p.flatStructs{iStruct});
-%                 for(iField=1:nFields)
-%                     if(overruled(iField))
-%                         p.flatStruct(overruledPos(iField)).hierarchyLevels(end+1) = iStruct;
-%                         p.flatStruct(overruledPos(iField)).hierarchyValues{end+1} = p.flatStructs{iStruct}(iField).value;
-%                     else
-%                         p.flatStruct(end+1)=p.flatStructs{iStruct}(iField);
-%                     end            
-%                 end
-%             end 
-%             
-%             p.flatStructIdMap=containers.Map({p.flatStruct.identifier},1:length(p.flatStruct));
-%         end %mergeFlatStructs(p, levels)
-%         
-%         %ok now generate the output
-%         %merged struct: the struct as it's shown in the hierarical vie
-%         %structs: the structs that lead to the merged struct
-%         function p=consolidateToStructs(p)  
-%             nFields=length(p.flatStruct);
-% 
-%             for iStruct=p.flatStructLevels
-%                  p.structs{iStruct}=struct;
-%             end
-%             
-%             
-%             for iField=1:nFields
-%                 if isstruct(p.flatStruct(iField).value) && length(p.flatStruct(iField).value)<2 %branch
-%                     continue;
-%                 end
-%                 for level_index=1:length(p.flatStruct(iField).hierarchyLevels)
-%                     iStruct=p.flatStruct(iField).hierarchyLevels(level_index); %#ok<NASGU>
-%                     %does a value exist at this level?
-%                     evalc(['p.structs{iStruct}' p.flatStruct(iField).identifier '=p.flatStruct(iField).hierarchyValues{level_index};']);
-%                 end
-%             end
-%             
-% %             %the code above is at least a little faster.
-% %             for iStruct=p.flatStructLevels %only touch the ones that were
-% %                 tmp=struct;
-% % 
-% %                 for iField=1:nFields
-% %                     %does a value exist at this level?
-% %                     level_index=(p.flatStruct(iField).hierarchyLevels==iStruct);
-% %                     if any(level_index) && ~isstruct(p.flatStruct(iField).hierarchyValues{level_index}) 
-% %                         evalc(['tmp' p.flatStruct(iField).identifier '=p.flatStruct(iField).hierarchyValues{level_index};']);
-% %                     end
-% %                 end
-% % 
-% %                 p.structs{iStruct}=tmp;
-% %             end
-%         end %consolidateToStructs
-%         
         %ok now generate the output
         %merged struct: the struct as it's shown in the hierarical viewer
         function mergedStruct=mergeToSingleStruct(p)  
@@ -556,8 +398,7 @@ classdef params < handle
                 if isempty(level_index) ||  p.flatStruct(iField).isNode %not defined in any _active_ levels
                     continue;
                 end
-                
-                
+
                 thisSubID=p.flatStruct(iField).parentLevels;
                 Spartial=p.Snew1(ones(1,length(thisSubID)));
                 [Spartial.subs]=deal(thisSubID{:});
@@ -565,17 +406,6 @@ classdef params < handle
                 S(2).subs={level_index};
                 
                 mergedStruct=builtin('subsasgn',mergedStruct,Spartial,builtin('subsref',p,S));
-                
-%                 
-%                 %%could all be subrefed instead. check how much speed
-%                 %%improvement that would bring
-%                 evalc(['tmp=p.structs{level_index}' p.flatStruct(iField).identifier ';']);
-%                 
-%                 if ~isstruct(tmp) 
-%                     evalc(['mergedStruct' p.flatStruct(iField).identifier '=tmp;']);
-%                 end
-
-%                   evalc(['mergedStruct' p.flatStruct(iField).identifier '=p.structs{level_index}' p.flatStruct(iField).identifier ';']);
             end
             
         end %mergedStruct=mergeToSingleStruct(p)  
@@ -583,7 +413,6 @@ classdef params < handle
         %return the differerence of a struct to this classes active version
         function dStruct = getDifferenceFromStruct(p,newStruct)
             newFlatStruct=p.getNextStructLevel(newStruct,{},[]);
-%             newFlatStruct(1)=[];
             newFlatStruct(1).parentLevels={''};
             id=cellfun(@(x) sprintf('.%s',x{:}), {newFlatStruct.parentLevels}, 'UniformOutput', false);   
             [newFlatStruct.identifier]=deal(id{:});
@@ -624,9 +453,7 @@ classdef params < handle
                     
                     newValue=builtin('subsref',newStruct,Spartial);
                     oldValue=builtin('subsref',p,S);
-%                     evalc(['newValue=newStruct' newFlatStruct(iField).identifier ';']);
-%                     evalc(['oldValue=p.structs{level_index}' p.flatStruct(fS_index).identifier ';']);
-                
+
                     newFields(iField) = ~(strcmp(class(newValue),class(oldValue)) && isequal(newValue,oldValue));
                 end
             end
@@ -642,7 +469,6 @@ classdef params < handle
                     end
                     
                     dStruct=builtin('subsasgn',dStruct,subs{iField},builtin('subsref',newStruct,subs{iField}));
-%                     evalc(['dStruct' newFlatStruct(iField).identifier '=newStruct' newFlatStruct(iField).identifier ';']);
                  end
             end
             
@@ -677,7 +503,6 @@ classdef params < handle
             if isstruct(s) && length(s)<2
                 r.parentLevels=parentLevels;
                 r.isNode=true;
-%                 r.value=struct;
                 result(end+1)=r;
 
                 fn=fieldnames(s);
@@ -686,12 +511,10 @@ classdef params < handle
                     lev=parentLevels;
                     lev(end+1)=fn(iField); %#ok<AGROW>
                     result=params.getNextStructLevel(s.(fn{iField}),lev,result);
-        %             result=[result r];
                 end
             else %leaf
                 r.parentLevels=parentLevels;
                 r.isNode=false;
-%                 r.value=s;
                 result(end+1)=r;
             end
         end %result=getNextStructLevel(s,parentLevels,result)
