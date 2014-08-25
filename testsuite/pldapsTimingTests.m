@@ -64,7 +64,11 @@ for j=3:nSamplesEL
        while mindiff2 < mindiff
            newidx=newidx+1;
            mindiff=mindiff2;
-           mindiff2=min(abs(tdDPTime(newidx+1)-tdELTime(j)));
+           if newidx<nSamplesDP
+            mindiff2=min(abs(tdDPTime(newidx+1)-tdELTime(j)));
+           else
+               break
+           end
        end
    end
    
@@ -95,6 +99,62 @@ if lag>0
     fprintf('Datapixx data is ahead of Eyelink data\n');
 else
     fprintf('Datapixx data is behind of Eyelink data\n');
+end
+
+%%other way araound
+minidx=1;
+idx=tdDPData*0+1;
+[~,idx(1)]=min(abs(tdELTime(1:end)-tdDPTime(1)));
+[~,idx(2)]=min(abs(tdELTime(1:end)-tdDPTime(2)));
+est_diff_rate=idx(2)-idx(1);
+nSamplesEL=length(tdELTime);
+nSamplesDP=length(tdDPTime);
+for j=3:nSamplesDP
+   newidx=min(idx(j-1)+est_diff_rate,nSamplesEL);
+   mindiff=min(abs(tdELTime(newidx)-tdDPTime(j)));
+   
+   if newidx<nSamplesEL
+       mindiff2=min(abs(tdELTime(newidx+1)-tdDPTime(j)));
+       while mindiff2 < mindiff
+           newidx=newidx+1;
+           mindiff=mindiff2;
+           if newidx<nSamplesEL
+            mindiff2=min(abs(tdELTime(newidx+1)-tdDPTime(j)));
+           else
+               break
+           end
+       end
+   end
+   
+   if newidx>1
+       mindiff2=min(abs(tdELTime(newidx-1)-tdDPTime(j)));
+       while mindiff2 < mindiff
+           newidx=newidx-1;
+           mindiff=mindiff2;
+           mindiff2=min(abs(tdELTime(newidx-1)-tdDPTime(j)));
+       end
+   end
+       
+   idx(j)=newidx;
+end
+elDownSapleTime=tdELTime(idx);
+elDownSapleData=tdELData(idx); 
+   
+maxlag=1000;
+[x,l]=xcorr(tdDPData,elDownSapleData,maxlag);
+figure;
+plot(l,x)
+xlabel('Lag in Datapixx Samples');
+ylabel('x-correlation');
+
+lag=l(x==max(x));
+estimated_el_DP_lag=tdDPTime(abs(lag)+1)-tdDPTime(1);
+
+fprintf('estimated lag between Eyelink and Datapixx is %i ms\n', sign(lag)*round(estimated_el_DP_lag*1000));
+if lag>0
+    fprintf('Datapixx data is behind of Eyelink data\n');
+else
+    fprintf('Datapixx data is ahead of Eyelink data\n');
 end
 
 allags(idmaxframes)=lag;
@@ -132,7 +192,12 @@ for j=3:nSamplesEL
        while mindiff2 < mindiff
            newidx=newidx+1;
            mindiff=mindiff2;
-           mindiff2=min(abs(tdDPTime(newidx+1)-tdELTime(j)+lagseconds));
+           if newidx<nSamplesDP
+            mindiff2=min(abs(tdDPTime(newidx+1)-tdELTime(j)+lagseconds));
+           else
+               break;
+           end
+               
        end
    end
    
