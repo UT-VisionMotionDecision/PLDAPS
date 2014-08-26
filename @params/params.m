@@ -249,6 +249,11 @@ classdef params < handle
                         parts_inds=parts_inds(length_ids);
                         
                         levels={p.flatStruct(parts_inds).hierarchyLevels};
+                        alevels=cellfun(@(x) any(x(p.activeLevels(x))),levels);
+                        
+                        levels=levels(alevels);
+                        parts_inds=parts_inds(alevels);
+                        
                         level_index=cellfun(@(x) max(x(p.activeLevels(x))),levels);
                         nodes=[p.flatStruct(parts_inds).isNode];
                         
