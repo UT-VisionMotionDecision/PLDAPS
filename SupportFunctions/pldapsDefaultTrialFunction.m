@@ -153,11 +153,11 @@ end
 
     function trialSetup(p)
         
-        p.trial.timing.flipTimes       = zeros(4,p.trial.stimulus.nframes);
-        p.trial.timing.frameStateChangeTimes=nan(9,p.trial.stimulus.nframes);
+        p.trial.timing.flipTimes       = zeros(4,p.trial.pldaps.maxFrames);
+        p.trial.timing.frameStateChangeTimes=nan(9,p.trial.pldaps.maxFrames);
         
         if(p.trial.pldaps.draw.photodiode.use)
-            p.trial.timing.photodiodeTimes=nan(2,p.trial.stimulus.nframes);
+            p.trial.timing.photodiodeTimes=nan(2,p.trial.pldaps.maxFrames);
             p.trial.pldaps.draw.photodiode.dataEnd=1;
         end
         
@@ -177,9 +177,9 @@ end
         
         %setup a fields for the mouse data
         [~,~,isMouseButtonDown] = GetMouse(); 
-        p.trial.mouse.cursorSamples = zeros(2,p.trial.stimulus.nframes);
-        p.trial.mouse.buttonPressSamples = zeros(length(isMouseButtonDown),p.trial.stimulus.nframes);
-        p.trial.mouse.samplesTimes=zeros(1,p.trial.stimulus.nframes);
+        p.trial.mouse.cursorSamples = zeros(2,p.trial.pldaps.maxFrames);
+        p.trial.mouse.buttonPressSamples = zeros(length(isMouseButtonDown),p.trial.pldaps.maxFrames);
+        p.trial.mouse.samplesTimes=zeros(1,p.trial.pldaps.maxFrames);
         p.trial.mouse.samples = 0;
         
         %setup assignemnt of eyeposition data to eyeX and eyeY
@@ -242,9 +242,9 @@ end
             end
         end
         p.trial.unique_number = clocktime;    % trial identifier
-        vblTime = Screen('Flip', p.trial.display.ptr,0); 
+%         vblTime = Screen('Flip', p.trial.display.ptr,0); 
         p.trial.trstart = GetSecs;
-        p.trial.stimulus.timeLastFrame=vblTime-p.trial.trstart;
+%         p.trial.stimulus.timeLastFrame=vblTime-p.trial.trstart;
 
         if p.trial.datapixx.use
             p.trial.timing.datapixxStartTime = Datapixx('Gettime');

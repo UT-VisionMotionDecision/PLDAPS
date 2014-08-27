@@ -30,11 +30,6 @@ function p = run(p)
 % make HideCursor optional
 % TODO:reset class at end of experiment or mark as recorded, so I don't
 % run the same again by mistake
-% Todo save: defaultparameters beofre 1st trial
-%done
-% -change edit setupPLDAPSenv.m and  makeRigConfigFile.m before running.
-% it's now createRigPrefs
-% -make wait for return optional?: pldaps.pause.preExperiment=false
 
 try
     %% Setup and File management
@@ -55,7 +50,6 @@ try
              
     p.defaultParameters.session.initTime=now;
         
-        
     if ~p.defaultParameters.pldaps.nosave
         p.defaultParameters.session.file = fullfile(p.defaultParameters.pldaps.dirs.data, [p.defaultParameters.session.subject datestr(p.defaultParameters.session.initTime, 'yyyymmdd') p.defaultParameters.session.experimentSetupFile datestr(p.defaultParameters.session.initTime, 'HHMM') '.PDS']);
         [cfile, cdir] = uiputfile('.PDS', 'initialize experiment file', p.defaultParameters.session.file);
@@ -71,6 +65,7 @@ try
     p = openScreen(p);
     
     % Setup PLDAPS experiment condition
+    p.defaultParameters.pldaps.maxFrames=p.defaultParameters.pldaps.maxTrialLength*p.defaultParameters.display.frate;
     p = feval(p.defaultParameters.session.experimentSetupFile, p);
     
             %

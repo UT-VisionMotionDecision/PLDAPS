@@ -8,7 +8,7 @@ if dv.trial.eyelink.use
     if ischar(dv.trial.eyelink.srate), 
         dv.trial.eyelink.srate = str2double(dv.trial.eyelink.srate); 
     end
-    bufferSize = dv.trial.eyelink.srate*dv.trial.eyelink.maxTrialLength;
+    bufferSize = dv.trial.eyelink.srate*dv.trial.pldaps.maxTrialLength;
     dv.trial.eyelink.samples  = nan(dv.trial.eyelink.buffersamplelength,bufferSize);
     dv.trial.eyelink.events   = nan(dv.trial.eyelink.buffereventlength,bufferSize);
     dv.trial.eyelink.hasSamples    = true;

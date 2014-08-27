@@ -170,12 +170,6 @@ else
     
     
     pause(.05)
-
-    %moved to pldsClassDefaultParameters
-%     dv.defaultParameters.eyelink.maxTrialLength = 9; % in seconds
-%     dv.defaultParameters.eyelink.buffersamplelength = 31;  % I'm not sure where to put this variable - I think it may be rig specific
-%     dv.defaultParameters.eyelink.buffereventlength = 30;
-    
     
     [result, dv.defaultParameters.eyelink.EYE_USED] = Eyelink('ReadFromTracker', 'active_eye');
     
