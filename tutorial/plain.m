@@ -1,10 +1,10 @@
-function dv=plain(dv,state)
+function p=plain(p,state)
 
     if(nargin>1) 
         %if you don't want all the pldapsDefaultTrialFucntions states to be used,
         %just call them in the states you want to use it.
         %otherwise just leave it here
-        pldapsDefaultTrialFunction(dv,state);
+        pldapsDefaultTrialFunction(p,state);
         switch state
 %             case dv.trial.pldaps.trialStates.trialSetup
 %             case dv.trial.pldaps.trialStates.trialPrepare
@@ -16,21 +16,26 @@ function dv=plain(dv,state)
 %             case dv.trial.pldaps.trialStates.frameDrawTimecritical;
 %             case dv.trial.pldaps.trialStates.frameDrawingFinished;
 %             case dv.trial.pldaps.trialStates.frameIdlePostDraw;
-%             case dv.trial.pldaps.trialStates.frameFlip;   
+            case p.trial.pldaps.trialStates.frameFlip;   
+                if p.trial.iFrame == p.trial.pldaps.maxFrames
+                    p.trial.flagNextTrial=true;
+                end
         end
     else%initial call to setup conditions
 
-        dv = pdsDefaultTrialStructure(dv); 
+        p = pdsDefaultTrialStructure(p); 
 
 %         dv.defaultParameters.pldaps.trialMasterFunction='runTrial';
-        dv.defaultParameters.pldaps.trialFunction='plain';
-        dv.trial.stimulus.nframes = 600;
+        p.defaultParameters.pldaps.trialFunction='plain';
+        %thirty seconds per trial.
+        p.trial.pldaps.maxTrialLength = 5;
+        p.trial.pldaps.maxFrames = p.trial.pldaps.maxTrialLength*p.trial.display.frate;
         
         c.Nr=1; %one condition;
-        dv.conditions=repmat({c},1,200);
+        p.conditions=repmat({c},1,200);
 
-        dv.defaultParameters.pldaps.finish = length(dv.conditions); 
+        p.defaultParameters.pldaps.finish = length(p.conditions); 
 
-        defaultTrialVariables(dv);
+        defaultTrialVariables(p);
     end
 end

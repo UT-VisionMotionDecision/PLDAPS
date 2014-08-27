@@ -99,7 +99,43 @@ got into the folder tutorial or have in in your path
     %next creat a pldaps object and specify to use plain.m as the experiment file
     %set the subject to 'test'  and pass the struct we just loaded
     p=pldaps(@plain,'test',settingsStruct)
-    %
+    %now you have a pldaps object, to start the experiment, call
+    p.run
+    %shoud should now see a gray screen with a white grid in degrees of visual angle
+    %when you move the cursor of the mouse, it will be drawn at a corresponding position in cyan on that screen
+    %the screen is full gay for a short time every 5 seconds
+    
+now lets step back and understand why we see what we see:
+first load a new, fresh version of the object
+    p=pldaps(@plain,'test',settingsStruct)
+
+    now type in
+    p.trial or
+    p.defaultParameters
+    this has all settings loaded, and as long as we are not in a trial p.trial points to p.defaultParameters
+    
+    you will see a list of fieldnames
+    
+    I'll list them here
+        spikeserver  <- setting for communicating with plexon omniplex system
+        display     <- all display parameters
+        datapixx    <-parameters for datapixx, including options to record analog data (datapixx.adc)
+        keyboard    <-keybord codes for the keys
+        mouse       <-parameters for the mouse, curently only whether to use is as an eyeposition
+        eyelink     <- all parameters to control eyelink
+        pldaps      <- 'internal' parameters, including what drawing pldaps does itself
+        session     <- subject and file name, etc
+        sound       <- play sounds?
+        git         <- control whether git should be used to store revisions and changes from the used PLDAPS repository
+
+    ok, now first look as
+    p.trial.pldaps.draw, you will noctice that
+    p.trial.pldaps.draw.grid.use==true and
+    p.trial.pldaps.draw.eyepos.use==true
+
+    
+
+
 
 
 
