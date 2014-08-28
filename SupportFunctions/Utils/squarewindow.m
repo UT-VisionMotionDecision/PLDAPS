@@ -1,4 +1,5 @@
 function out = squarewindow(pass,a,w,h)
+% out = squarewindow(pass,a,w,h)
 % SQUAREWINDOW is a boolean that is true if 1 coordinates a(x,y) within a 
 % square window given by W (width) and H (height). "a" is specified from
 % the center of the window. 

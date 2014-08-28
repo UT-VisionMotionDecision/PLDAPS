@@ -5,17 +5,22 @@ function result = pdsSaveTempFile(dv,PDS)
 result = [];
 
 % extract end of PDS -- takes less than 1ms
-PDStemp = structfun(@(x) ( x(end) ), PDS, 'UniformOutput', false);
+if PDS.trialnumber(end) == 1
+    PDStemp = structfun(@(x)  x(end,:), PDS, 'UniformOutput', false);
+else
+    PDStemp = structfun(@(x)  getPDSval(x), PDS, 'UniformOutput', false);
+%     PDStemp = structfun(@(x)  x(end,:), PDS, 'UniformOutput', false);
+end
 % if data and timing variables are stored (extract end of those
 % too) -- takes less than 1 ms
 % Sorry - this next part is hacky. Switch to if-else statements
 % instead of try catch - jly
 try
-    PDStemp.timing = structfun(@(x) ( x(end) ), PDS.timing, 'UniformOutput', false);
+    PDStemp.timing = structfun(@(x) (getPDSval(x) ), PDS.timing, 'UniformOutput', false);
 catch result
 end
 try
-    PDStemp.data   = structfun(@(x) ( x(end) ), PDS.data, 'UniformOutput', false);
+    PDStemp.data   = structfun(@(x) ( getPDSval(x) ), PDS.data, 'UniformOutput', false);
 catch result
 end
 % save -- takes 40 ms
@@ -27,3 +32,18 @@ if ~isfield(dv, 'nosave')
         save(fullfile(dv.pref.datadir,'TEMP',[dv.pref.sfile num2str(dv.j)]),'PDStemp','dv');
     end
 end
+
+
+end
+
+%%
+
+function val = getPDSval(x)
+    if any(size(x) == 1)  && ~ischar(x) % ie vecotr and not a string
+        val = x(end);
+    else                               % ie matrix or string
+        val = x(end,:);     
+    end
+end
+
+
