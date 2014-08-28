@@ -1,4 +1,4 @@
-function dv = pdsGetEyePosition(dv)
+function dv = pdsGetEyePosition(dv, updateQueue)
 % dv = pdsGetEyePosition(dv)
 % Update eye position
 % Inputs: dv struct
@@ -22,7 +22,9 @@ elseif dv.useEyelink
     dv.trial.eyeX = eye.gx(dv.el.eyeIdx);
     dv.trial.eyeY = eye.gy(dv.el.eyeIdx);
     % Get Eyelink Queue data
-    dv = pdsEyelinkGetQueue(dv);
+    if(nargin<2 || updateQueue)
+        dv = pdsEyelinkGetQueue(dv);
+    end
 else
     [dv.trial.eyeX, dv.trial.eyeY] = pdsDatapixxGetEyePosition(dv);
 end

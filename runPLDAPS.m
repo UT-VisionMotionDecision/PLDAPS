@@ -191,6 +191,7 @@ try
     ShowCursor
     ListenChar(0)
     Priority(0)
+    dv = pdsEyelinkFinish(dv);
     
     if ~isfield(dv, 'nosave')
         save(fullfile(datadir, sfile),'PDS','dv','-mat')
