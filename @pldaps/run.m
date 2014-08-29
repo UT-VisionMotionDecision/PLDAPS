@@ -262,8 +262,11 @@ try
         PDS.initialParameters=structs(levelsPreTrials);
         PDS.initialParameterNames=structNames(levelsPreTrials);
         PDS.initialParametersMerged=mergeToSingleStruct(p.defaultParameters); %too redundant?
-        PDS.conditions=structs((max(levelsPreTrials)+1):end);
-        PDS.conditionNames=structNames((max(levelsPreTrials)+1):end);
+        
+        levelsCondition=1:length(structs);
+        levelsCondition(ismember(levelsCondition,levelsPreTrials))=[];
+        PDS.conditions=structs(levelsCondition);
+        PDS.conditionNames=structNames(levelsCondition);
         PDS.data=p.data; 
         save(fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file),'PDS','-mat')
     end

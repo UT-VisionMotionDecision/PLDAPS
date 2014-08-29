@@ -1,6 +1,6 @@
 classdef pldaps < handle
  properties
-    defaultParameters
+    defaultParameters@params
 
     conditions %cell array with a struct like defaultParameters that only hold condition specific changes or additions
 
