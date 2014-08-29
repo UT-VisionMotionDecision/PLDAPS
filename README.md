@@ -181,8 +181,11 @@ now open up the file we provided to setup the experiemnt
      %ok, now work with the debugger a bit to get a first idea of what's going on.
 
 %% setting up rig specifig default settings
-that you know the basics set up a pldaps system on your machine and run an experiment. 
-Then 
+Now you know the basics of the pldaps system. Let's set it up so it can start easily on your machine to run experiments. 
+For this, we will store parameters that are specifcig to the rig (e.g. framerate, whether to sue eyelink) as a matlab preference.
+call
+    createRigPrefs
+and follow the instructions.
 
 
 %% Understanding all parameters
