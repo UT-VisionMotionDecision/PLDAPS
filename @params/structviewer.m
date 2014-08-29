@@ -200,10 +200,11 @@ function varargout = structviewer_OutputFcn(hObject, eventdata, handles)
 %    
     [jScrollBar]=findjobj(handles.listbox1,'class','com.mathworks.hg.peer.utils.UIScrollPane');
     set(handle(jScrollBar,'CallbackProperties'),'AdjustmentValueChangedCallback',{@listbox1_ScrollCallback, handles.listbox1 });
-
+    set(jScrollBar,'VerticalScrollBarPolicy',22); 
+    
     [jScrollBar]=findjobj(handles.listbox2,'class','com.mathworks.hg.peer.utils.UIScrollPane');
     set(handle(jScrollBar,'CallbackProperties'),'AdjustmentValueChangedCallback',{@listbox2_ScrollCallback, handles.listbox1 });
-
+    set(jScrollBar,'VerticalScrollBarPolicy',22); 
     
     varargout{1} = handles.output;
     

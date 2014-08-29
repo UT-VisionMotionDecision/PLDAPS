@@ -1,5 +1,4 @@
-function outStruct=createRigPrefs()
-
+function outStruct=createRigPrefs(additionalSettings)
     %to we already have current settings?
     a=getpref('pldaps');
     if ~isempty(a)
@@ -61,13 +60,20 @@ function outStruct=createRigPrefs()
             
         end
     else
-        fromOldPrefs=struct;
+        fromOldPrefs=[];
     end
     
-
-    warning('Loading default values, any previous prefs and also prefs from the old PLDAPS (dv struct). Move things you want as a rig default to the pldapsRifPrefs (doule click in the right value list on the value you want to move and select to move it to pldapsRigPrefs) when done, click done. Then type return on the command line.');
-    p=pldaps('test','nothing',fromOldPrefs)
+    p=pldaps('test','nothing');
+    if isstruct(fromOldPrefs)
+        p.defaultParameters.addLevels({fromOldPrefs}, {'PLDAPS 3 Prefs'})
+    end
+    if nargin>0
+        p.defaultParameters.addLevels({additionalSettings}, {'additional Settings'})
+    end
+    
+    p.defaultParameters
     p.defaultParameters.view
+    warning('Loading default values, any previous prefs and also prefs from the PLDAPS3. Move things you want as a rig default to the pldapsRigPrefs (doule click in the right value list on the value you want to move and select to move it to pldapsRigPrefs) when done, click done. You can define the values yourself by clicking on the value field of pldapsRigPrefs of the parameter you want to change. Now enter the new value in the box below and press enter. Once everything is set up, type return on the command line.');
     keyboard
     
     %save old prefs

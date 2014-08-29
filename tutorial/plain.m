@@ -1,6 +1,22 @@
 function p=plain(p,state)
 
-    if(nargin>1) 
+    if nargin==1 %initial call to setup conditions
+        
+        p = pdsDefaultTrialStructure(p); 
+
+%         dv.defaultParameters.pldaps.trialMasterFunction='runTrial';
+        p.defaultParameters.pldaps.trialFunction='plain';
+        %five seconds per trial.
+        p.trial.pldaps.maxTrialLength = 5;
+        p.trial.pldaps.maxFrames = p.trial.pldaps.maxTrialLength*p.trial.display.frate;
+        
+        c.Nr=1; %one condition;
+        p.conditions=repmat({c},1,200);
+
+        p.defaultParameters.pldaps.finish = length(p.conditions); 
+
+        defaultTrialVariables(p);
+    else
         %if you don't want all the pldapsDefaultTrialFucntions states to be used,
         %just call them in the states you want to use it.
         %otherwise just leave it here
@@ -21,21 +37,4 @@ function p=plain(p,state)
                     p.trial.flagNextTrial=true;
                 end
         end
-    else%initial call to setup conditions
-
-        p = pdsDefaultTrialStructure(p); 
-
-%         dv.defaultParameters.pldaps.trialMasterFunction='runTrial';
-        p.defaultParameters.pldaps.trialFunction='plain';
-        %thirty seconds per trial.
-        p.trial.pldaps.maxTrialLength = 5;
-        p.trial.pldaps.maxFrames = p.trial.pldaps.maxTrialLength*p.trial.display.frate;
-        
-        c.Nr=1; %one condition;
-        p.conditions=repmat({c},1,200);
-
-        p.defaultParameters.pldaps.finish = length(p.conditions); 
-
-        defaultTrialVariables(p);
     end
-end

@@ -19,12 +19,4 @@ function [xy,z] = deg2world(p,xy,z,zIsR)
     if(nargout>1 && nargin<4 && zIsR)
         z=sr.*sqrt(1-sum(xy.^2));
     end
-
-%this code was wrong!
-% 	xy=tand(xy).*dv.trial.display.viewdist.*secd(flipud(xy));
-        
-        %this code is a little slower
-%         xy=tand(xy);
-%         xy=xy*dv.trial.display.viewdist.*sqrt(1+flipud(xy).^2);
-
 end

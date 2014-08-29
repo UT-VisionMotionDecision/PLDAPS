@@ -19,8 +19,4 @@ function [xy,z] = deg2px(p,xy,z,zIsR)
         z=mean(p.trial.display.w2px)*sr.*sqrt(1-sum(xy.^2));
     end
     
-        %this code ignored the dependence of the two angles!
-% xy=(diag(dv.trial.display.w2px).*dv.trial.display.viewdist)*tand(xy);
-%         xy(1,:)=dv.trial.display.w2px(1) *dv.trial.display.viewdist*tand(xy(1,:));
-%         xy(2,:)=dv.trial.display.w2px(2) *dv.trial.display.viewdist*tand(xy(2,:));
 end
