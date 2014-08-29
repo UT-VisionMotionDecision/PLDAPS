@@ -12,6 +12,9 @@ It also reduced the required knowledge to start the first experiemnts as a new u
 Of course over time, any user should be familiar with all code, but learning may be easier if
 a new experiment can be setup without this knowledge.
 
+To start, copy the function loadPLDAPS to a place in your path and edit the 'dirs' to include at least the 
+path to PLDAPS. Next call loadPLDAPS, so that it is included in your path.
+
 Framework:
 %% pldaps
 The core is a class called pldaps.
@@ -93,7 +96,9 @@ To make use of these, this function must simply be called by your trialFunction.
 ok, now you will run your first experiment and work your way back from the trialFunction
 to the core of pldaps.
 
-got into the folder tutorial or have in in your path
+    %to start, copy the function loadPLDAPS to a place in your path and edit the 'dirs' to include at least the 
+    %path to PLDAPS. Next call loadPLDAPS, so that it is included in your path.
+
     %now load some settings that should allow to run pldaps in a small screen for now
     > load settingsStruct;
     %next creat a pldaps object and specify to use plain.m as the experiment file
