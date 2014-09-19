@@ -2,9 +2,9 @@
 % open PsychImaging pipeline and test all PLDAPS features
 % (c) jly 9.18.2012 heavily based on code from Peter April of VPixx
 sca; clear all
-skipPdsOpenScreen    = 0;
-skipPdsDatapixxInit  = 0;
-skipMakeGaborTexture = 0;
+skipPdsOpenScreen    = 1;
+skipPdsDatapixxInit  = 1;
+skipMakeGaborTexture = 1;
 
 %% Initial setup
 
@@ -53,7 +53,7 @@ if skipPdsOpenScreen
     
     % Open window using PsychImaging pipeline
     
-    [dv.disp.ptr, dv.disp.winRect] = PsychImaging('OpenWindow', dv.disp.scrnNum, dv.disp.bgColor, [], [], [], 0, 0, [],'kPsychNeedFastBackingStore');
+    [dv.disp.ptr, dv.disp.winRect] = PsychImaging('OpenWindow', dv.disp.scrnNum, dv.disp.bgColor);%, [], [], [], 0, 0, [],'kPsychNeedFastBackingStore');
     
     %% Gamma Correction
     % make a linear gamma table to test gamma corection
