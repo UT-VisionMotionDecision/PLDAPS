@@ -51,10 +51,18 @@ try
     p.defaultParameters.session.initTime=now;
         
     if ~p.defaultParameters.pldaps.nosave
-        p.defaultParameters.session.file = fullfile(p.defaultParameters.pldaps.dirs.data, [p.defaultParameters.session.subject datestr(p.defaultParameters.session.initTime, 'yyyymmdd') p.defaultParameters.session.experimentSetupFile datestr(p.defaultParameters.session.initTime, 'HHMM') '.PDS']);
-        [cfile, cdir] = uiputfile('.PDS', 'initialize experiment file', p.defaultParameters.session.file);
-        p.defaultParameters.session.dir = cdir;
-        p.defaultParameters.session.file = cfile;
+        p.defaultParameters.session.dir = p.defaultParameters.pldaps.dirs.data;
+        p.defaultParameters.session.file = [p.defaultParameters.session.subject datestr(p.defaultParameters.session.initTime, 'yyyymmdd') p.defaultParameters.session.experimentSetupFile datestr(p.defaultParameters.session.initTime, 'HHMM') '.PDS'];
+%         p.defaultParameters.session.file = fullfile(p.defaultParameters.pldaps.dirs.data, [p.defaultParameters.session.subject datestr(p.defaultParameters.session.initTime, 'yyyymmdd') p.defaultParameters.session.experimentSetupFile datestr(p.defaultParameters.session.initTime, 'HHMM') '.PDS']);
+        
+        if p.defaultParameters.pldaps.useFileGUI
+            [cfile, cdir] = uiputfile('.PDS', 'specify data storage file', fullfile( p.defaultParameters.session.dir,  p.defaultParameters.session.file));
+            if(isnumeric(cfile)) %got canceled
+                error('pldaps:run','file selection canceled. Not sure what the correct default bevaior would be, so stopping the experiment.')
+            end
+            p.defaultParameters.session.dir = cdir;
+            p.defaultParameters.session.file = cfile;
+        end
     else
         p.defaultParameters.session.file='';
         p.defaultParameters.session.dir='';
