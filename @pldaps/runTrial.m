@@ -81,35 +81,35 @@ function p = runTrial(p)
             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDraw);
 
             tfh(p, p.trial.pldaps.trialStates.frameDraw);
-            setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePreLastDraw);
+%             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePreLastDraw);
  
-            tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
-            p.trial.framePreLastDrawIdleCount = p.trial.framePreLastDrawIdleCount +1;
-%             dv.trial.ttime = GetSecs - dv.trial.trstart;
-%             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-%             while (dv.trial.remainingFrameTime>sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePreLastDraw+1:end)))
-%                 tfh(dv, dv.trial.pldaps.trialStates.frameIdlePreLastDraw);
-%                 dv.trial.framePreLastDrawIdleCount = dv.trial.framePreLastDrawIdleCount +1;
-%                 dv.trial.ttime = GetSecs - dv.trial.trstart;
-%                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-%             end
-            setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawTimecritical);
-
-            tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
+%             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
+%             p.trial.framePreLastDrawIdleCount = p.trial.framePreLastDrawIdleCount +1;
+% %             dv.trial.ttime = GetSecs - dv.trial.trstart;
+% %             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
+% %             while (dv.trial.remainingFrameTime>sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePreLastDraw+1:end)))
+% %                 tfh(dv, dv.trial.pldaps.trialStates.frameIdlePreLastDraw);
+% %                 dv.trial.framePreLastDrawIdleCount = dv.trial.framePreLastDrawIdleCount +1;
+% %                 dv.trial.ttime = GetSecs - dv.trial.trstart;
+% %                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
+% %             end
+%             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawTimecritical);
+% 
+%             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawingFinished);
                   
             tfh(p, p.trial.pldaps.trialStates.frameDrawingFinished);
-            setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePostDraw);
-
-            tfh(p, p.trial.pldaps.trialStates.frameIdlePostDraw);
-            p.trial.framePostLastDrawIdleCount = p.trial.framePostLastDrawIdleCount +1;
-%             dv.trial.ttime = GetSecs - dv.trial.trstart;
-%             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-%             while (dv.trial.remainingFrameTime>sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePostDraw+1:end)))
-%                 tfh(dv, dv.trial.pldaps.trialStates.frameIdlePostDraw);
-%                 dv.trial.framePostLastDrawIdleCount = dv.trial.framePostLastDrawIdleCount +1;
-%                 dv.trial.ttime = GetSecs - dv.trial.trstart;
-%                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
+%             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePostDraw);
+% 
+%             tfh(p, p.trial.pldaps.trialStates.frameIdlePostDraw);
+%             p.trial.framePostLastDrawIdleCount = p.trial.framePostLastDrawIdleCount +1;
+% %             dv.trial.ttime = GetSecs - dv.trial.trstart;
+% %             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
+% %             while (dv.trial.remainingFrameTime>sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePostDraw+1:end)))
+% %                 tfh(dv, dv.trial.pldaps.trialStates.frameIdlePostDraw);
+% %                 dv.trial.framePostLastDrawIdleCount = dv.trial.framePostLastDrawIdleCount +1;
+% %                 dv.trial.ttime = GetSecs - dv.trial.trstart;
+% %                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
 %             end
             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameFlip)
                    

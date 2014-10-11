@@ -126,7 +126,7 @@ end
 %     end %drawTimecritical
 
     function frameDrawingFinished(p)
-        Screen('DrawingFinished', p.trial.display.ptr);
+        Screen('DrawingFinished', p.trial.display.ptr,0,0);
 %         Screen('DrawingFinished', p.trial.display.overlayptr);
         %if we're going async, we'd probably do the flip call here, right? but
         %could also do it in the flip either way.

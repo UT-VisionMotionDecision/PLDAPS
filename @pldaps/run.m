@@ -111,7 +111,7 @@ try
             % computational overhead to acquire and log timestamps, typically up to 2-3
             % msecs of extra time per 'Flip' command.
             % Buffer is collected at the end of the expeiment!
-            PsychDataPixx('LogOnsetTimestamps', 2);%2
+            PsychDataPixx('LogOnsetTimestamps',p.trial.datapixx.LogOnsetTimestampLevel);%2
             PsychDataPixx('ClearTimestampLog');
             
     
@@ -259,7 +259,11 @@ try
     if(p.defaultParameters.datapixx.use)
         %start adc data collection if requested
         pds.datapixx.adc.stop(p);
-        p.defaultParameters.datapixx.timestamplog = PsychDataPixx('GetTimestampLog', 1);
+        
+        status = PsychDataPixx('GetStatus');
+        if status.timestampLogCount
+            p.defaultParameters.datapixx.timestamplog = PsychDataPixx('GetTimestampLog', 1);
+        end
     end
     
     
@@ -276,6 +280,7 @@ try
         PDS.conditions=structs(levelsCondition);
         PDS.conditionNames=structNames(levelsCondition);
         PDS.data=p.data; 
+        PDS.functionHandles=p.functionHandles;
         save(fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file),'PDS','-mat')
     end
     
