@@ -1,5 +1,6 @@
  function p = stop(p)
-% [dp] = pds.datapixx.adc.stop(dp)
+% stops datapixx data aquisition
+% [p] = PDS.DATAPIXX.ADC.STOP(p)
 % 
 % The function should be called after AdcStart.
 % * AdcStart STARTS a continuous schedule of ADC data acquisition, stored 
@@ -13,6 +14,11 @@
 %
 % ??/2012    lnk    Wrote it
 % 12/12/2013 jly    Renamed to pdsDatapixxAdcStop 
+%   See also PDS.DATAPIXX.ADC.START, STD, MIN, MAX, VAR, COV, MODE.
+% Typically called during cleanUpandSave
+%       pldapsDefaultTrialFunction(p, p.trial.pldaps.trialStates.trialCleanUpandSave)
+%
+%   See also PDS.DATAPIXX.ADC.START, STD, MIN, MAX, VAR, COV, MODE.
 
 %TODO: why are the buffertimetags (second output of 'ReadAdcbuffer' not
 %saved??

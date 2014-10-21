@@ -10,7 +10,8 @@ function strobe(word)
 % jly 2013
 
 
-Datapixx('SetDoutValues',bin2dec(['1' dec2bin(word,8) '00000000']))
+% Datapixx('SetDoutValues',bin2dec(['1' dec2bin(word,8) '00000000']))
+Datapixx('SetDoutValues',(2^8+word)*2^8);
 Datapixx('RegWr');
 Datapixx('SetDoutValues',0)
 Datapixx('RegWr');

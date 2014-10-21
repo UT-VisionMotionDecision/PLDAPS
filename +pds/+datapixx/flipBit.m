@@ -12,7 +12,6 @@ function timings=flipBit(bit)
 % (c) kme 2011
 
 if nargout==0
-
     Datapixx('SetDoutValues',2^(bit-1))
     Datapixx('RegWrRd');
     Datapixx('SetDoutValues',0)

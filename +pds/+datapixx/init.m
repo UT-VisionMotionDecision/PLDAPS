@@ -29,6 +29,23 @@ function p =  init(p)
 
 
 if p.defaultParameters.datapixx.use
+    
+    if ~Datapixx('IsReady')
+         Datapixx('Open');
+    end
+    
+    p.defaultParameters.datapixx.info.DatapixxFirmwareRevision = Datapixx('GetFirmwareRev'); 
+    p.defaultParameters.datapixx.info.DatapixxRamSize = Datapixx('GetRamSize');
+    
+    %check if transparant color is availiable. but how? firmware versions
+    %differ between all machines...
+    
+    %now set the transparancy color to the background color. Could set it
+    %to anything, but we'll use this to maximize backward compatibility
+    Datapixx('SetVideoClutTransparencyColor', p.trial.display.bgColor);
+    Datapixx('EnableVideoClutTransparencyColorMode');
+    Datapixx('RegWr');
+    
     %the GPU needs an identity CLUT, at least on newer MACS, crashes
     %otherwiese
 %     Screen('LoadNormalizedGammaTable',dv.defaultParameters.display.ptr,linspace(0,1,256)'*[1, 1, 1],0);
@@ -56,31 +73,6 @@ if p.defaultParameters.datapixx.use
             % reshape the combined clut back to 512 x 3
             combinedClut = reshape(y, sc);
         end
-        
-        if p.defaultParameters.display.useOverlay==2 %debigging stuff
-            % use sc to make a vector of 8-bit color steps from 0-1
-            x = linspace(0,1,128);
-            x_full = linspace(0,1,256);
-            
-            if isField(p.defaultParameters, 'display.gamma.table')
-            	% use the gamma table to lookup what the values should be
-                yr = interp1(x_full,p.defaultParameters.display.gamma.table(:,1), x);
-                yg = interp1(x_full,p.defaultParameters.display.gamma.table(:,2), x);
-                yb = interp1(x_full,p.defaultParameters.display.gamma.table(:,3), x);
-                yrgb=[yr;yg;yb]';
-            else
-                yrgb=[x;x;x]';
-            end
-            % reshape the combined clut back to 512 x 3
-%             combinedClut = reshape(y, sc);
-            combinedClut=[yrgb; yrgb; yrgb ;repmat(p.defaultParameters.display.bgColor, [128 1])];
-            
-            p.defaultParameters.display.overlay.experimentorOnlyOffset = 0.5*256;
-            p.defaultParameters.display.overlay.experimentorOnlyFactor = 0.5*256;
-            
-            p.defaultParameters.display.overlay.bothOffset = 0.0*256;
-            p.defaultParameters.display.overlay.bothFactor = 0.5*256;
-        end
     
         p.defaultParameters.display.overlayptr = PsychImaging('GetOverlayWindow', p.defaultParameters.display.ptr); % , dv.params.bgColor);
         % WARNING about LoadNormalizedGammaTable from Mario Kleiner: 
@@ -106,12 +98,8 @@ if p.defaultParameters.datapixx.use
         Screen('LoadNormalizedGammaTable', p.defaultParameters.display.ptr, combinedClut, 2);
     end
     
-    p.defaultParameters.datapixx.info.DatapixxFirmwareRevision = Datapixx('GetFirmwareRev'); 
-    p.defaultParameters.datapixx.info.DatapixxRamSize = Datapixx('GetRamSize');
-    
     
     %%% Open Datapixx and get ready for data aquisition %%%
-    Datapixx('Open');
     Datapixx('StopAllSchedules');
     Datapixx('DisableDinDebounce');  
     Datapixx('EnableAdcFreeRunning');
