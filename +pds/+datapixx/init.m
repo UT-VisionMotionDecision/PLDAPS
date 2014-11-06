@@ -43,8 +43,11 @@ if p.defaultParameters.datapixx.use
     %now set the transparancy color to the background color. Could set it
     %to anything, but we'll use this to maximize backward compatibility
     Datapixx('SetVideoClutTransparencyColor', p.trial.display.bgColor);
+%     Datapixx('SetVideoClutTransparencyColor', [0.1 0 0]);
     Datapixx('EnableVideoClutTransparencyColorMode');
     Datapixx('RegWr');
+%       Datapixx('DisableVideoClutTransparencyColorMode');
+%           Datapixx('RegWr');
     
     %the GPU needs an identity CLUT, at least on newer MACS, crashes
     %otherwiese
