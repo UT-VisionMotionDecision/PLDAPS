@@ -263,6 +263,9 @@ end
 
         [p.trial.timing.flipTimes(1,p.trial.iFrame), p.trial.timing.flipTimes(2,p.trial.iFrame), p.trial.timing.flipTimes(3,p.trial.iFrame), p.trial.timing.flipTimes(4,p.trial.iFrame)] = Screen('Flip', p.trial.display.ptr); %#ok<ASGLU>
 
+        %do a last frameUpdate
+        frameUpdate(p)
+        
         %clean up analogData collection from Datapixx
         pds.datapixx.adc.cleanUpandSave(p);
         
