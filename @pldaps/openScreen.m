@@ -128,7 +128,6 @@ disp('****************************************************************')
 p.defaultParameters.display.ptr=ptr;
 p.defaultParameters.display.winRect=winRect;
 
-
 % % Set gamma lookup table
 if isField(p.defaultParameters, 'display.gamma')
     disp('****************************************************************')
@@ -192,6 +191,23 @@ p.defaultParameters.display.scr_rot = 0;                                        
 Screen('TextFont',p.defaultParameters.display.ptr,'Helvetica'); 
 Screen('TextSize',p.defaultParameters.display.ptr,16);
 Screen('TextStyle',p.defaultParameters.display.ptr,1);
+
+%%setup movie creation if desired
+if p.defaultParameters.display.movie.create
+    movie=p.defaultParameters.display.movie;
+    if isempty(movie.file)
+        movie.file=p.defaultParameters.session.file(1:end-4);
+    end
+    if isempty(movie.dir)
+        movie.dir=p.defaultParameters.session.dir;
+    end
+    if isempty(movie.frameRate)
+        movie.frameRate = p.defaultParameters.display.frate;
+    end
+    movie.ptr = Screen('CreateMovie', ptr, [movie.dir filesep movie.file '.avi'], movie.width,movie.height,movie.frameRate,movie.options);
+    p.defaultParameters.display.movie=movie;
+end
+
 
 %moved to class defaults
 % if ~isfield(ds, 'sourceFactorNew')

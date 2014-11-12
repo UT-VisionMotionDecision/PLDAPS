@@ -152,7 +152,24 @@ end
 
     function frameFlip(p)
          p.trial.timing.flipTimes(:,p.trial.iFrame) = deal(Screen('Flip', p.trial.display.ptr,0));
-               
+            
+         if p.trial.display.movie.create
+             %we should skip every nth frame depending on the ration of
+             %frame rates, or increase every nth frameduration by 1 every
+             %nth frame
+%              if p.trial.display.frate > p.trial.display.movie.frameRate
+%                  mod(p.trial.iFrame, p.trial.display.frate/p.trial.display.movie.frameRate)>1
+%              else
+%                  
+%              end
+%              
+%              p.defaultParameters.display.movie.moviePtr
+%              p.defaultParameters.display.movie.frameRate
+%              frameDuration
+             frameDuration=1;
+             Screen('AddFrameToMovie', p.trial.display.ptr,[],[],p.trial.display.movie.ptr, frameDuration);
+         end
+         
          if(p.trial.datapixx.use)
             Screen('FillRect', p.trial.display.overlayptr,0);
          end

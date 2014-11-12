@@ -284,10 +284,13 @@ try
         save(fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file),'PDS','-mat')
     end
     
-    
+
+    if p.trial.display.movie.create
+        Screen('FinalizeMovie', p.trial.display.movie.ptr);
+    end
     Screen('CloseAll');
+
     sca;
-    
     
 catch me
     sca
