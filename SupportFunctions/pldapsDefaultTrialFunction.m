@@ -33,7 +33,18 @@ end
         %%TODO: add buffer for Keyboard presses, nouse position and clicks.
         
         %Keyboard    
-        [p.trial.keyboard.pressedQ,  p.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
+        [p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ, firstRelease, lastPress, lastRelease]=KbQueueCheck(); % fast
+        
+%         [p.trial.keyboard.pressedQ,  p.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
+        p.trial.keyboard.samples = p.trial.keyboard.samples+1;
+        p.trial.keyboard.samplesTimes(p.trial.keyboard.samples)=GetSecs;
+        p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples)=p.trial.keyboard.pressedQ;
+        p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples)=p.trial.keyboard.firstPressQ;
+        p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples)=firstRelease;
+        p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples)=lastPress;
+        p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples)=lastRelease;
+        
+        
         if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.mKey)
             if p.trial.datapixx.use
                 pds.datapixx.analogOut(p.trial.stimulus.rewardTime)
@@ -177,10 +188,12 @@ end
         
         %setup a fields for the mouse data
         [~,~,isMouseButtonDown] = GetMouse(); 
-        p.trial.mouse.cursorSamples = zeros(2,p.trial.pldaps.maxFrames);
-        p.trial.mouse.buttonPressSamples = zeros(length(isMouseButtonDown),p.trial.pldaps.maxFrames);
-        p.trial.mouse.samplesTimes=zeros(1,p.trial.pldaps.maxFrames);
+        p.trial.mouse.cursorSamples = zeros(2,p.trial.pldaps.maxFrames*1.1);
+        p.trial.mouse.buttonPressSamples = zeros(length(isMouseButtonDown),p.trial.pldaps.maxFrames*1.1);
+        p.trial.mouse.samplesTimes=zeros(1,p.trial.pldaps.maxFrames*1.1);
         p.trial.mouse.samples = 0;
+        
+        
         
         %setup assignemnt of eyeposition data to eyeX and eyeY
         %first create the S structs for subsref.
@@ -213,7 +226,17 @@ end
         %%% Initalize Keyboard %%%
         %-------------------------------------------------------------------------%
         pds.keyboard.clearBuffer(p);
-
+        %setup a fields for the keyboard data
+        [~, firstPress]=KbQueueCheck();
+        p.trial.keyboard.samples = 0;
+        p.trial.keyboard.samplesTimes=zeros(1,p.trial.pldaps.maxFrames*1.1);
+%         p.trial.keyboard.keyPressSamples = zeros(length(firstPressQ),p.trial.pldaps.maxFrames*1.1);
+        p.trial.keyboard.pressedSamples=false(1,p.trial.pldaps.maxFrames*1.1);
+        p.trial.keyboard.firstPressSamples = zeros(length(firstPress),p.trial.pldaps.maxFrames*1.1);
+        p.trial.keyboard.firstReleaseSamples = zeros(length(firstPress),p.trial.pldaps.maxFrames*1.1);
+        p.trial.keyboard.lastPressSamples = zeros(length(firstPress),p.trial.pldaps.maxFrames*1.1);
+        p.trial.keyboard.lastReleaseSamples = zeros(length(firstPress),p.trial.pldaps.maxFrames*1.1);
+        
         %%% Spike server
         %-------------------------------------------------------------------------%
         [p,spikes] = pds.spikeserver.getSpikes(p); %what are we dowing with the spikes???
@@ -280,10 +303,20 @@ end
         KbQueueStop();
         KbQueueFlush();
 
+        %will this crash when more samples where created than preallocated?
         % mouse input
-        p.trial.mouse.cursorSamples(:,p.trial.mouse.samples:end) = [];
-        p.trial.mouse.buttonPressSamples(:,p.trial.mouse.samples:end) = [];
-        p.trial.mouse.samplesTimes(:,p.trial.mouse.samples:end) = [];
+        p.trial.mouse.cursorSamples(:,p.trial.mouse.samples+1:end) = [];
+        p.trial.mouse.buttonPressSamples(:,p.trial.mouse.samples+1:end) = [];
+        p.trial.mouse.samplesTimes(:,p.trial.mouse.samples+1:end) = [];
+        
+        % mouse input
+%         p.trial.keyboard.keyPressSamples(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.samplesTimes(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples+1:end) = [];
 
         % Get spike server spikes
         %---------------------------------------------------------------------%
