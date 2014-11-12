@@ -42,7 +42,11 @@ if p.defaultParameters.datapixx.use
     
     %now set the transparancy color to the background color. Could set it
     %to anything, but we'll use this to maximize backward compatibility
-    Datapixx('SetVideoClutTransparencyColor', p.trial.display.bgColor);
+    bgColor=p.trial.display.bgColor;
+    if isField(p.defaultParameters, 'display.gamma.table')
+        bgColor = interp1(linspace(0,1,256),p.defaultParameters.display.gamma.table(:,1), p.defaultParameters.display.bgColor);
+    end
+    Datapixx('SetVideoClutTransparencyColor', bgColor);
 %     Datapixx('SetVideoClutTransparencyColor', [0.1 0 0]);
     Datapixx('EnableVideoClutTransparencyColorMode');
     Datapixx('RegWr');
