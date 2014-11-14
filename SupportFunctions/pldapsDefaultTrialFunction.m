@@ -35,15 +35,16 @@ end
         %Keyboard    
         [p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ, firstRelease, lastPress, lastRelease]=KbQueueCheck(); % fast
         
-%         [p.trial.keyboard.pressedQ,  p.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
-        p.trial.keyboard.samples = p.trial.keyboard.samples+1;
-        p.trial.keyboard.samplesTimes(p.trial.keyboard.samples)=GetSecs;
-        p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples)=p.trial.keyboard.pressedQ;
-        p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples)=p.trial.keyboard.firstPressQ;
-        p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples)=firstRelease;
-        p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples)=lastPress;
-        p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples)=lastRelease;
-        
+        if p.trial.keyboard.pressedQ
+    %         [p.trial.keyboard.pressedQ,  p.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
+            p.trial.keyboard.samples = p.trial.keyboard.samples+1;
+            p.trial.keyboard.samplesTimes(p.trial.keyboard.samples)=GetSecs;
+            p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples)=p.trial.keyboard.pressedQ;
+            p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples)=p.trial.keyboard.firstPressQ;
+            p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples)=firstRelease;
+            p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples)=lastPress;
+            p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples)=lastRelease;
+        end        
         
         if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.mKey)
             if p.trial.datapixx.use
