@@ -31,6 +31,8 @@ afterPauseTrials=[afterpauseparms{isafterpauseparm}];
 
 %this will override all parameters before. probabbly not a good longterm
 %idea.
+newDisplay=p.trial.display;
+
 p.defaultParameters=params([initialParameters PDS.conditions],[initialParameterNames PDS.conditionNames]);
 p.trial=p.defaultParameters;
 
@@ -44,6 +46,8 @@ if p.defaultParameters.datapixx.use
     end
 end
 
+%     p.trial.display=oldDisplay;
+
     p.defaultParameters.pldaps.trialFunction='opticflow.replay';
     p.defaultParameters.pldaps.trialMasterFunction = 'runAnalysis';
     p.defaultParameters.datapixx.use=false;
@@ -56,7 +60,23 @@ end
     
 p.data=PDS.data;
 p.functionHandles=PDS.functionHandles;
+p.trial.postanalysis=PDS.postanalysis;
 
+%%todo Aspectratio
+% p.trial.display.widthcm=PDS.initialParametersMerged.display.widthcm;
+% p.trial.display.heightcm=PDS.initialParametersMerged.display.heightcm;
+% p.trial.display.viewdist=PDS.initialParametersMerged.display.viewdist;
+p.trial.display.screenSize=newDisplay.screenSize;
+p.trial.display.scrnNum=newDisplay.scrnNum;
+p.trial.display.useOverlay=newDisplay.useOverlay;
+p.trial.display.colorclamp=newDisplay.colorclamp;
+p.trial.display.forceLinearGamma=newDisplay.forceLinearGamma;
+if isfield(newDisplay,'gamma')
+    p.trial.display.gamma=newDisplay.gamma;
+end
+p.trial.display.bgColor=newDisplay.bgColor;
+
+KbQueueReserve(1, 2,[])
 
 try
     %% Setup and File management
@@ -98,6 +118,10 @@ try
     %% Open PLDAPS windows
     % Open PsychToolbox Screen
     p = openScreen(p);
+    
+    %% rescale dot drawing
+    p.trial.replay.xfactor= p.trial.display.pWidth/PDS.initialParametersMerged.display.pWidth;
+    p.trial.replay.yfactor= p.trial.display.pHeight/PDS.initialParametersMerged.display.pHeight;
     
     % Setup PLDAPS experiment condition
 %     p.defaultParameters.pldaps.maxFrames=p.defaultParameters.pldaps.maxTrialLength*p.defaultParameters.display.frate;
@@ -226,10 +250,10 @@ try
 %            p.data{trialNr}=dTrialStruct;
            
             if all(all(p.trial.stimulus.dots.XYd==PDS.data{trialNr}.stimulus.dots))
-                display(sprintf('trial %i analyzed',trialNr));
+                display(sprintf('trial %i replayed',trialNr));
 %                 good(iTrial)=true;
             else
-                display(sprintf('trial %i analyzed, but there seems to be a reconstruction error',trialNr));
+                display(sprintf('trial %i replayed, but there seems to be a reconstruction error',trialNr));
 %                 good(iTrial)=false;
             end
 
