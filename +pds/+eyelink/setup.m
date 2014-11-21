@@ -145,7 +145,7 @@ else
         %calibration scale??
     else
         disp('using default calibration points')
-        Eyelink('command', 'calibration_type = HV5');
+        Eyelink('command', 'calibration_type = HV9');
         % you must send this command with value NO for custom calibration
         % you must also reset it to YES for subsequent experiments
         Eyelink('command', 'generate_default_targets = YES');
