@@ -6,9 +6,9 @@ function p = pdsDefaultTrialStructure(p)
 % 12/2013 jly   Wrote it
 p.defaultParameters.good = 1;
 
-p.defaultParameters.stimulus.photodiode.use = 1;
-p.defaultParameters.stimulus.photodiode.location = 2;
-p.defaultParameters.stimulus.photodiode.frames = 10;
+% p.defaultParameters.stimulus.photodiode.use = 1;
+% p.defaultParameters.stimulus.photodiode.location = 2;
+% p.defaultParameters.stimulus.photodiode.frames = 10;
 
 
 if ~isfield(p.defaultParameters,'pldaps.finish')
