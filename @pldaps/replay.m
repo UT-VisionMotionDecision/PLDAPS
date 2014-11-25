@@ -60,7 +60,7 @@ end
     
 p.data=PDS.data;
 p.functionHandles=PDS.functionHandles;
-p.trial.postanalysis=PDS.postanalysis;
+% p.trial.postanalysis=PDS.postanalysis;
 
 %%todo Aspectratio
 % p.trial.display.widthcm=PDS.initialParametersMerged.display.widthcm;
