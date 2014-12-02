@@ -32,6 +32,7 @@ afterPauseTrials=[afterpauseparms{isafterpauseparm}];
 %this will override all parameters before. probabbly not a good longterm
 %idea.
 newDisplay=p.trial.display;
+newparams=p.trial;
 
 p.defaultParameters=params([initialParameters PDS.conditions],[initialParameterNames PDS.conditionNames]);
 p.trial=p.defaultParameters;
@@ -52,11 +53,12 @@ end
     p.defaultParameters.pldaps.trialMasterFunction = 'runAnalysis';
     p.defaultParameters.datapixx.use=false;
     p.defaultParameters.sound.flagBuzzer=0;
-    p.defaultParameters.sound.use=0;
+    p.defaultParameters.sound.use=1;
     p.defaultParameters.spikeserver.use = 0;
     p.defaultParameters.eyelink.use = 0;
 
     
+p.trial.pldaps.pause=newparams.pldaps.pause;
     
 p.data=PDS.data;
 p.functionHandles=PDS.functionHandles;
@@ -75,6 +77,8 @@ if isfield(newDisplay,'gamma')
     p.trial.display.gamma=newDisplay.gamma;
 end
 p.trial.display.bgColor=newDisplay.bgColor;
+
+p.defaultParameters.pldaps.dirs.wavfiles=newparams.pldaps.dirs.wavfiles;
 
 KbQueueReserve(1, 2,[])
 
@@ -213,6 +217,7 @@ try
 % %     p.trial=mergeToSingleStruct(p.defaultParameters);
     
     %only use p.trial from here on!
+    p.defaultParameters.pldaps.finish=length(conditionTrials);
     
     %% main trial loop %%
     while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
@@ -225,10 +230,13 @@ try
 %            p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr]);
 %            p.defaultParameters.pldaps.iTrial=trialNr;
 %            p.trial=mergeToSingleStruct(p.defaultParameters);
+            
            
             %set previous values for that trial.
            functionLevels=[preLevels afterPauseLevels(trialNr>afterPauseTrials) preOffset+find(conditionTrials==trialNr)];
            p.defaultParameters.setLevels(functionLevels);
+           p.defaultParameters.pldaps.iTrial=trialNr;
+%             p.defaultParameters.pldaps.finish=length(conditionTrials)+1;
            p.trial=p.defaultParameters.mergeToSingleStruct();
            
            p.defaultParameters.setLock(true);
