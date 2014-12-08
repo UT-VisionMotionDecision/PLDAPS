@@ -97,6 +97,7 @@ try
         end
         
         dv.subj = opts.subj; 
+        dv.init = now;
         dv.pref = Prefs; 
         
         % pick YOUR experiment's main CONDITION file-- this is where all

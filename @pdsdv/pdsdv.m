@@ -1,6 +1,7 @@
 classdef pdsdv < handle
  properties
     pass
+    init
     movav
     useDatapixxbool
     useEyelink
