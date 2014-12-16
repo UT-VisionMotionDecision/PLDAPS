@@ -18,7 +18,11 @@ if dv.useEyelink
     if Eyelink('CheckRecording')~=0
         Eyelink('StartRecording')
     end
-
+    
+    % pull from buffer to get ITI
+    dv = pdsEyelinkGetQueue(dv);
+        
+    % If we don't clear the buffer, can we keep data from during the trial
     dv.el.drained = pdsEyelinkClearBuffer(dv.el.drained);
 end
  

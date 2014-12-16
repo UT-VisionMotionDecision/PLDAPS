@@ -24,7 +24,8 @@ else
     % dv.el.edfFile = [dv.subj(1:3) dtstr]; %[dv.pref.sfile(1:end-4) '.edf'];
     % dv.el.edfFileLocation = dv.pref.datadir;
     
-    dv.el.edfFile = 'pds.edf'; %[dv.subj(1:3) dtstr]; %[dv.pref.sfile(1:end-4) '.edf'];
+    dv.el.edfFile=datestr(dv.init, 'mmddHHMM');
+    
     dv.el.edfFileLocation = pwd; %dv.pref.datadir;
     fprintf('EDFFile: %s\n', dv.el.edfFile );
     
@@ -176,9 +177,9 @@ else
     
     pause(.05)
     
-    dv.el.maxTrialLength = 9; % in seconds
+    dv.el.maxTrialLength = 66; % in seconds
     dv.el.buffersamplelength = 31;  % I'm not sure where to put this variable - I think it may be rig specific
-    dv.el.buffereventlength = 30;
+    dv.el.buffereventlength = 30; % think these are hard coded
     
     dv.useEyelink = 1;
     
