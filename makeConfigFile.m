@@ -125,7 +125,7 @@ if isfield(tmp, 'gamma')
     dv.disp.gamma = tmp.gamma; 
 end
 if isfield(tmp, 'G_table') && all(size(tmp.G_table)==[1 256])
-    dv.disp.gamma = repmat(tmp.G_table(:), [1 3]);
+    dv.disp.gamma.table = repmat(tmp.G_table(:), [1 3]);
 end
     
 
