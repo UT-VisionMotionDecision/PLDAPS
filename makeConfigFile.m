@@ -86,9 +86,9 @@ dv.disp.bgColor    = [.5 .5 .5];
 dv.disp.stereoMode = 0;
 % Screen Measurements
 % measurements for pixel to degree calculations are in centimeters
-dv.disp.viewdist = 118; % view distance in centimeters
-dv.disp.widthcm  = 121; % width of the screen (in centimeters)
-dv.disp.heightcm = 69;  % height of the screen (in centimeters)
+dv.disp.viewdist = 57; % view distance in centimeters
+dv.disp.widthcm  = 101; % width of the screen (in centimeters)
+dv.disp.heightcm = 57;  % height of the screen (in centimeters)
 % which screen to open. Probably should be 1 if you have two monitors
 dv.disp.scrnNum     = 1; 
 dv.disp.useOverlay  = 1; % use overlay for dual color look up tables
@@ -113,10 +113,21 @@ dv.disp.destinationFactorNew = 'GL_ONE_MINUS_SRC_ALPHA';
 % example is [256 x 3] 
 
 % Example using file create by the photometer
-dv.disp.gamma.file = 'lg55ATIradeonHD4870Oct2012_GAMMA.mat';
+% dv.disp.gamma.file = 'lg55ATIradeonHD4870Oct2012_GAMMA.mat';   % old as of 20141216
+dv.disp.gamma.file = 'samsungCave121614a_GAMMA_1.mat';           % new as of 20141216
 dv.disp.gamma.location = '/Volumes/LKCLAB/MLtoolbox/Calib/G_tables/';
 tmp = load(fullfile(dv.disp.gamma.location, dv.disp.gamma.file));
-dv.disp.gamma = tmp.gamma; 
+
+% there have been some discrepencies with the format of the gamma table,
+% given the gamma-generating function one uses. Here are but two out of
+% potentially many formats: (lnk)
+if isfield(tmp, 'gamma')
+    dv.disp.gamma = tmp.gamma; 
+end
+if isfield(tmp, 'G_table') && all(size(tmp.G_table)==[1 256])
+    dv.disp.gamma = repmat(tmp.G_table(:), [1 3]);
+end
+    
 
 
 % Example using gamma power to correct  (uncomment below)
@@ -124,7 +135,12 @@ dv.disp.gamma = tmp.gamma;
 % dv.disp.gamma.table = linspace(0,1,256).^(1/gamma)'*[1 1 1];
 
 
+saveFile = false;
 
+if saveFile
+    fname = ['samsungCave' datestr(date,'yyyymmdd')];
+    save(fullfile('~/PLDAPS/RigConfigFiles', fname), 'dv');
+end
 
 
 
