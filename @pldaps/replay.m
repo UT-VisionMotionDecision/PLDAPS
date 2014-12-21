@@ -54,6 +54,7 @@ end
     p.defaultParameters.datapixx.use=false;
     p.defaultParameters.sound.flagBuzzer=0;
     p.defaultParameters.sound.use=1;
+   
     p.defaultParameters.spikeserver.use = 0;
     p.defaultParameters.eyelink.use = 0;
 
@@ -256,12 +257,18 @@ try
 %            %store the difference of the trial struct to .data
 %            dTrialStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
 %            p.data{trialNr}=dTrialStruct;
+
+            if isfield(p.trial,'replay')
+                p.data{trialNr}.replay=p.trial.replay;
+            end
            
             if all(all(p.trial.stimulus.dots.XYd==PDS.data{trialNr}.stimulus.dots))
                 display(sprintf('trial %i replayed',trialNr));
+                p.data{trialNr}.replay.success=true;
 %                 good(iTrial)=true;
             else
                 display(sprintf('trial %i replayed, but there seems to be a reconstruction error',trialNr));
+                p.data{trialNr}.replay.success=false;
 %                 good(iTrial)=false;
             end
 

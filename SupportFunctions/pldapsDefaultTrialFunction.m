@@ -39,6 +39,7 @@ end
     %         [p.trial.keyboard.pressedQ,  p.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
             p.trial.keyboard.samples = p.trial.keyboard.samples+1;
             p.trial.keyboard.samplesTimes(p.trial.keyboard.samples)=GetSecs;
+            p.trial.keyboard.samplesFrames(p.trial.keyboard.samples)=p.trial.iFrame;
             p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples)=p.trial.keyboard.pressedQ;
             p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples)=p.trial.keyboard.firstPressQ;
             p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples)=firstRelease;
@@ -152,8 +153,9 @@ end
 %     end %frameIdlePostDraw
 
     function frameFlip(p)
+%       if mod(p.trial.iFrame,3)==1
          p.trial.timing.flipTimes(:,p.trial.iFrame) = deal(Screen('Flip', p.trial.display.ptr,0));
-            
+%       end
          if p.trial.display.movie.create
              %we should skip every nth frame depending on the ration of
              %frame rates, or increase every nth frameduration by 1 every
@@ -248,6 +250,7 @@ end
         [~, firstPress]=KbQueueCheck();
         p.trial.keyboard.samples = 0;
         p.trial.keyboard.samplesTimes=zeros(1,p.trial.pldaps.maxFrames*1.1);
+        p.trial.keyboard.samplesFrames=zeros(1,p.trial.pldaps.maxFrames*1.1);
 %         p.trial.keyboard.keyPressSamples = zeros(length(firstPressQ),p.trial.pldaps.maxFrames*1.1);
         p.trial.keyboard.pressedSamples=false(1,p.trial.pldaps.maxFrames*1.1);
         p.trial.keyboard.firstPressSamples = zeros(length(firstPress),p.trial.pldaps.maxFrames*1.1);
@@ -330,6 +333,7 @@ end
         % mouse input
 %         p.trial.keyboard.keyPressSamples(:,p.trial.keyboard.samples+1:end) = [];
         p.trial.keyboard.samplesTimes(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.samplesFrames(:,p.trial.keyboard.samples+1:end) = [];
         p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples+1:end) = [];
         p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples+1:end) = [];
         p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples+1:end) = [];
