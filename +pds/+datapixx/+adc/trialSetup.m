@@ -42,7 +42,7 @@ end
 
 
 % 2. check if the structs for the data exist, create if not (is that possible)
-maxDataSamplesPerTrial=p.trial.datapixx.adc.srate*60*60;
+maxDataSamplesPerTrial=p.trial.datapixx.adc.srate*60*10;
 nMaps=length(p.trial.datapixx.adc.channelMappingChannels);
 for imap=1:nMaps
 %     iChannels=p.trial.datapixx.adc.channelMappingChannels{imap};

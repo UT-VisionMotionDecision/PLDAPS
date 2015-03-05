@@ -59,8 +59,6 @@ if length(p.trial.datapixx.adc.channelMapping)==1
 end
 maps=unique(p.trial.datapixx.adc.channelMapping);
 
-maxDataSamplesPerTrial=p.trial.datapixx.adc.srate*60*60;
-
 p.trial.datapixx.adc.channelMappingSubs=cell(size(maps));
 p.trial.datapixx.adc.channelMappingChannels=cell(size(maps));
 p.trial.datapixx.adc.channelMappingChannelInds=cell(size(maps));

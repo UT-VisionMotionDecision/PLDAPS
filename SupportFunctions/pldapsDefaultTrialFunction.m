@@ -208,9 +208,9 @@ end
         
         %setup a fields for the mouse data
         [~,~,isMouseButtonDown] = GetMouse(); 
-        p.trial.mouse.cursorSamples = zeros(2,p.trial.pldaps.maxFrames*1.1);
-        p.trial.mouse.buttonPressSamples = zeros(length(isMouseButtonDown),p.trial.pldaps.maxFrames*1.1);
-        p.trial.mouse.samplesTimes=zeros(1,p.trial.pldaps.maxFrames*1.1);
+        p.trial.mouse.cursorSamples = zeros(2,round(round(p.trial.pldaps.maxFrames*1.1)));
+        p.trial.mouse.buttonPressSamples = zeros(length(isMouseButtonDown),round(round(p.trial.pldaps.maxFrames*1.1)));
+        p.trial.mouse.samplesTimes=zeros(1,round(round(p.trial.pldaps.maxFrames*1.1)));
         p.trial.mouse.samples = 0;
         
         
@@ -249,14 +249,14 @@ end
         %setup a fields for the keyboard data
         [~, firstPress]=KbQueueCheck();
         p.trial.keyboard.samples = 0;
-        p.trial.keyboard.samplesTimes=zeros(1,p.trial.pldaps.maxFrames*1.1);
-        p.trial.keyboard.samplesFrames=zeros(1,p.trial.pldaps.maxFrames*1.1);
-%         p.trial.keyboard.keyPressSamples = zeros(length(firstPressQ),p.trial.pldaps.maxFrames*1.1);
-        p.trial.keyboard.pressedSamples=false(1,p.trial.pldaps.maxFrames*1.1);
-        p.trial.keyboard.firstPressSamples = zeros(length(firstPress),p.trial.pldaps.maxFrames*1.1);
-        p.trial.keyboard.firstReleaseSamples = zeros(length(firstPress),p.trial.pldaps.maxFrames*1.1);
-        p.trial.keyboard.lastPressSamples = zeros(length(firstPress),p.trial.pldaps.maxFrames*1.1);
-        p.trial.keyboard.lastReleaseSamples = zeros(length(firstPress),p.trial.pldaps.maxFrames*1.1);
+        p.trial.keyboard.samplesTimes=zeros(1,round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.samplesFrames=zeros(1,round(p.trial.pldaps.maxFrames*1.1));
+%         p.trial.keyboard.keyPressSamples = zeros(length(firstPressQ),round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.pressedSamples=false(1,round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.firstPressSamples = zeros(length(firstPress),round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.firstReleaseSamples = zeros(length(firstPress),round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.lastPressSamples = zeros(length(firstPress),round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.lastReleaseSamples = zeros(length(firstPress),round(p.trial.pldaps.maxFrames*1.1));
         
         %%% Spike server
         %-------------------------------------------------------------------------%

@@ -33,23 +33,35 @@ if ~p.trial.datapixx.use || isempty(p.trial.datapixx.adc.channels)
     return;
 end
 
-maxDataSamplesPerTrial=p.trial.datapixx.adc.srate*60*60;
+maxDataSamplesPerTrial=size(p.trial.datapixx.adc.dataSampleTimes,2);
 
 %1. stop recording if during trial only requested.
 
 %prune Data structs
 nMaps=length(p.trial.datapixx.adc.channelMappingChannels);
-inds=p.trial.datapixx.adc.dataSampleCount:maxDataSamplesPerTrial;
-if p.trial.datapixx.adc.dataSampleCount<maxDataSamplesPerTrial
-    p.trial.datapixx.adc.dataSampleTimes(inds)=[];
-    for imap=1:nMaps
-    
-        %     iChannels=p.trial.datapixx.adc.channelMappingChannels{imap};
-        iSub = p.trial.datapixx.adc.channelMappingSubs{imap};
-        iSub(end).subs{2}=inds;
-        iSub(end).subs{1}=':';
-    
-        p=subsasgn(p,iSub,[]);
-    end
+if p.trial.datapixx.adc.dataSampleCount < maxDataSamplesPerTrial/2 
+    inds=1:p.trial.datapixx.adc.dataSampleCount;
+        p.trial.datapixx.adc.dataSampleTimes=p.trial.datapixx.adc.dataSampleTimes(inds);
+        for imap=1:nMaps
+
+            %     iChannels=p.trial.datapixx.adc.channelMappingChannels{imap};
+            iSub = p.trial.datapixx.adc.channelMappingSubs{imap};
+            iSub(end).subs{2}=inds;
+            iSub(end).subs{1}=':';
+
+            p=subsasgn(p,iSub(1:end-1),subsref(p,iSub));
+        end
+elseif p.trial.datapixx.adc.dataSampleCount < maxDataSamplesPerTrial
+    inds=p.trial.datapixx.adc.dataSampleCount+1:maxDataSamplesPerTrial;
+        p.trial.datapixx.adc.dataSampleTimes(inds)=[];
+        for imap=1:nMaps
+
+            %     iChannels=p.trial.datapixx.adc.channelMappingChannels{imap};
+            iSub = p.trial.datapixx.adc.channelMappingSubs{imap};
+            iSub(end).subs{2}=inds;
+            iSub(end).subs{1}=':';
+
+            p=subsasgn(p,iSub,[]);
+        end
 end
  
