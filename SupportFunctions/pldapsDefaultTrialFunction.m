@@ -260,7 +260,7 @@ end
         
         %%% Spike server
         %-------------------------------------------------------------------------%
-        [p,spikes] = pds.spikeserver.getSpikes(p); %what are we dowing with the spikes???
+        [p,spikes] = pds.plexon.spikeserver.getSpikes(p); %what are we dowing with the spikes???
 
         %%% Eyelink Toolbox Setup %%%
         %-------------------------------------------------------------------------%
@@ -342,14 +342,14 @@ end
 
         % Get spike server spikes
         %---------------------------------------------------------------------%
-        if isfield(p.trial, 'spikeserver') && p.trial.spikeserver.use
+        if p.trial.plexon.spikeserver.use
             try
-                [p, p.trial.spikeserver.spikes] = pds.spikeserver.getSpikes(p);
+                [p, p.trial.plexon.spikeserver.spikes] = pds.plexon.spikeserver.getSpikes(p);
 
                 if ~isempty(p.trial.spikeserver.spikes)
                     plbit = p.trial.event.TRIALSTART + 2;
                     t0 = find(p.trial.spikeserver.spikes(:,1) == 4 & p.trial.spikeserver.spikes(:,2) == plbit, 1, 'first');
-                    p.trial.spikeserver.spikes(:,4) = p.trial.spikeserver.spikes(:,4) - p.trial.spikeserver.spikes(t0,4);
+                    p.trial.plexon.spikeserver.spikes(:,4) = p.trial.plexon.spikeserver.spikes(:,4) - p.trial.plexon.spikeserver.spikes(t0,4);
 %                     PDS.spikes{p.j} = spikes;
                 else
 %                     PDS.spikes{p.j} = []; % zeros size of spike matrix
