@@ -65,7 +65,7 @@ if p.defaultParameters.datapixx.use
         disp('dv.disp.humanCLUT and dv.disp.monkeyCLUT')
         disp('****************************************************************')
 
-        combinedClut = [p.defaultParameters.display.humanCLUT ;p.defaultParameters.display.monkeyCLUT];
+        combinedClut = [p.defaultParameters.display.monkeyCLUT; p.defaultParameters.display.humanCLUT];
         %%% Gamma correction for dual CLUT %%%
         % check if gamma correction has been run on the window pointer
         if isField(p.defaultParameters, 'display.gamma.table')
