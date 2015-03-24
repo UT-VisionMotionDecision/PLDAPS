@@ -26,6 +26,18 @@ else
         p.trial.plexon.spikeserver.isConnected=isConnected;
         p.trial.plexon.spikeserver.t0=t0;
         p.trial.plexon.spikeserver.localt0 = localt0;
+        
+        %set settings:
+        pnet(sock,'printf',['SETTINGS' char(10) selfip char(10)]);
+        pnet(sock,'printf',['EVENTSONLY' char(10)]);
+        pnet(sock,'write',uint8(p.trial.plexon.spikeserver.eventsonly));
+        pnet(sock,'writepacket',remoteip,remoteport);
+        
+        pnet(sock,'printf',['SETTINGS' char(10) selfip char(10)]);
+        pnet(sock,'printf',['CONTINUOUS' char(10)]);
+        pnet(sock,'write',uint8(p.trial.plexon.spikeserver.continuous));
+        pnet(sock,'writepacket',remoteip,remoteport);
+        
         if p.trial.plexon.spikeserver.isConnected ==0
             disp('***********************************************************')
             disp('SPIKE SERVER FAILURE TO CONNECT')

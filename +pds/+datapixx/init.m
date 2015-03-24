@@ -34,6 +34,24 @@ if p.defaultParameters.datapixx.use
          Datapixx('Open');
     end
     
+    if Datapixx('IsPropixx') 
+        if ~Datapixx('IsPropixxAwake')
+            Datapixx('SetPropixxAwake');
+        end
+        
+        if p.trial.datapixx.enablePropixxRearProjection
+            Datapixx('EnablePropixxRearProjection');
+        else
+            Datapixx('DisablePropixxRearProjection');
+        end
+    
+        if p.trial.datapixx.enablePropixxCeilingMount
+            Datapixx('EnablePropixxCeilingMount');
+        else
+            Datapixx('DisablePropixxCeilingMount');
+        end
+    end
+    
     p.defaultParameters.datapixx.info.DatapixxFirmwareRevision = Datapixx('GetFirmwareRev'); 
     p.defaultParameters.datapixx.info.DatapixxRamSize = Datapixx('GetRamSize');
     
@@ -50,12 +68,6 @@ if p.defaultParameters.datapixx.use
 %     Datapixx('SetVideoClutTransparencyColor', [0.1 0 0]);
     Datapixx('EnableVideoClutTransparencyColorMode');
     Datapixx('RegWr');
-%       Datapixx('DisableVideoClutTransparencyColorMode');
-%           Datapixx('RegWr');
-    
-    %the GPU needs an identity CLUT, at least on newer MACS, crashes
-    %otherwiese
-%     Screen('LoadNormalizedGammaTable',dv.defaultParameters.display.ptr,linspace(0,1,256)'*[1, 1, 1],0);
     
     if p.defaultParameters.display.useOverlay
         disp('****************************************************************')
