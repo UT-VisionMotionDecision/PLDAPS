@@ -160,7 +160,7 @@ try
             
             % Audio
             %-------------------------------------------------------------------------%
-            p = pds.spikeserver.connect(p);
+            p = pds.plexon.spikeserver.connect(p);
             
             % From help PsychDataPixx:
             % Timestamping is disabled by default (mode == 0), as it incurs a bit of
@@ -317,7 +317,7 @@ try
     Priority(0);
     
     p = pds.eyelink.finish(p);
-    p = pds.spikeserver.disconnect(p);
+    p = pds.plexon.spikeserver.disconnect(p);
     if(p.defaultParameters.datapixx.use)
         %start adc data collection if requested
         pds.datapixx.adc.stop(p);

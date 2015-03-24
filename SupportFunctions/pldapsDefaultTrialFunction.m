@@ -1,12 +1,5 @@
 function pldapsDefaultTrialFunction(p,state)
     switch state
-        %trialStates
-        case p.trial.pldaps.trialStates.trialSetup
-            trialSetup(p);
-        case p.trial.pldaps.trialStates.trialPrepare
-            trialPrepare(p);
-        case p.trial.pldaps.trialStates.trialCleanUpandSave
-            cleanUpandSave(p);
         %frameStates
         case p.trial.pldaps.trialStates.frameUpdate
             frameUpdate(p);
@@ -24,8 +17,15 @@ function pldapsDefaultTrialFunction(p,state)
         %    frameIdlePostDraw(p);
         case p.trial.pldaps.trialStates.frameFlip; 
             frameFlip(p);
+            
+        %trialStates
+        case p.trial.pldaps.trialStates.trialSetup
+            trialSetup(p);
+        case p.trial.pldaps.trialStates.trialPrepare
+            trialPrepare(p);
+        case p.trial.pldaps.trialStates.trialCleanUpandSave
+            cleanUpandSave(p);
     end
-        
 end
 %%% get inputs and check behavior%%%
 %---------------------------------------------------------------------% 
@@ -47,53 +47,62 @@ end
             p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples)=lastRelease;
         end        
         
-        if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.mKey)
-            if p.trial.datapixx.use
-                pds.datapixx.analogOut(p.trial.stimulus.rewardTime)
-                pds.datapixx.flipBit(p.trial.event.REWARD);
-            end
-%             p.trial.ttime = GetSecs - p.trial.trstart;
-            p.trial.stimulus.timeReward(:,p.trial.stimulus.iReward) = [p.trial.ttime p.trial.stimulus.rewardTime];
-            p.trial.stimulus.iReward = p.trial.stimulus.iReward + 1;
-            PsychPortAudio('Start', p.trial.sound.reward);
-%         elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.uKey)   % U = user selected targets
-%             p.trial.targUser = 1;
-        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.pKey)   % P = pause
-            p.trial.pldaps.quit = 1;
-            ShowCursor;
-%             Screen('Flip', p.trial.display.ptr);
-        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.qKey) % Q = quit
-%             Screen('Flip', p.trial.display.ptr);
-%             p = pdsEyelinkFinish(p);
-%             PDS.timing.timestamplog = PsychDataPixx('GetTimestampLog', 1);
-            p.trial.pldaps.quit = 2;
-            ShowCursor
-        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) % d=debug
-                disp('stepped into debugger. Type return to start first trial...')
-                keyboard %#ok<MCKBD>
-%             dbstop if warning opticflow:debugger_requested;
-%             warning on opticflow:debugger_requested;
-%             warning('opticflow:debugger_requested','At your service!');
-%             warning off opticflow:debugger_requested;
-%             dbclear if warning opticflow:debugger_requested;
-        end   
+        if any(p.trial.keyboard.firstPressQ)
+            if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.mKey)
+                if p.trial.datapixx.use
+                    pds.datapixx.analogOut(p.trial.stimulus.rewardTime)
+                    pds.datapixx.flipBit(p.trial.event.REWARD);
+                end
+    %             p.trial.ttime = GetSecs - p.trial.trstart;
+                p.trial.stimulus.timeReward(:,p.trial.stimulus.iReward) = [p.trial.ttime p.trial.stimulus.rewardTime];
+                p.trial.stimulus.iReward = p.trial.stimulus.iReward + 1;
+                PsychPortAudio('Start', p.trial.sound.reward);
+    %         elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.uKey)   % U = user selected targets
+    %             p.trial.targUser = 1;
+            elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.pKey)   % P = pause
+                p.trial.pldaps.quit = 1;
+                ShowCursor;
+    %             Screen('Flip', p.trial.display.ptr);
+            elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.qKey) % Q = quit
+    %             Screen('Flip', p.trial.display.ptr);
+    %             p = pdsEyelinkFinish(p);
+    %             PDS.timing.timestamplog = PsychDataPixx('GetTimestampLog', 1);
+                p.trial.pldaps.quit = 2;
+                ShowCursor
+            elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) % d=debug
+                    disp('stepped into debugger. Type return to start first trial...')
+                    keyboard %#ok<MCKBD>
+    %             dbstop if warning opticflow:debugger_requested;
+    %             warning on opticflow:debugger_requested;
+    %             warning('opticflow:debugger_requested','At your service!');
+    %             warning off opticflow:debugger_requested;
+    %             dbclear if warning opticflow:debugger_requested;
+            end   
+        end
         % get mouse/eyetracker data
-        [cursorX,cursorY,isMouseButtonDown] = GetMouse(); % ktz - added isMouseButtonDown, 28Mar2013
-        p.trial.mouse.samples = p.trial.mouse.samples+1;
-        p.trial.mouse.samplesTimes(p.trial.mouse.samples)=GetSecs;
-        p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples) = [cursorX;cursorY];
-        p.trial.mouse.buttonPressSamples(:,p.trial.mouse.samples) = isMouseButtonDown';
-        if(p.trial.mouse.useAsEyepos) 
-                mInds=(p.trial.mouse.samples-p.trial.pldaps.eyeposMovAv+1):p.trial.mouse.samples;
-                p.trial.eyeX = mean(p.trial.mouse.cursorSamples(1,mInds));
-                p.trial.eyeY = mean(p.trial.mouse.cursorSamples(2,mInds));
+        if p.trial.mouse.use
+            [cursorX,cursorY,isMouseButtonDown] = GetMouse(); % ktz - added isMouseButtonDown, 28Mar2013
+            p.trial.mouse.samples = p.trial.mouse.samples+1;
+            p.trial.mouse.samplesTimes(p.trial.mouse.samples)=GetSecs;
+            p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples) = [cursorX;cursorY];
+            p.trial.mouse.buttonPressSamples(:,p.trial.mouse.samples) = isMouseButtonDown';
+            if(p.trial.mouse.useAsEyepos) 
+                if p.trial.pldaps.eyeposMovAv==1
+                    p.trial.eyeX = p.trial.mouse.cursorSamples(1,p.trial.mouse.samples);
+                    p.trial.eyeY = p.trial.mouse.cursorSamples(2,p.trial.mouse.samples);
+                else
+                    mInds=(p.trial.mouse.samples-p.trial.pldaps.eyeposMovAv+1):p.trial.mouse.samples;
+                    p.trial.eyeX = mean(p.trial.mouse.cursorSamples(1,mInds));
+                    p.trial.eyeY = mean(p.trial.mouse.cursorSamples(2,mInds));
+                end
+            end
         end
         %get analogData from Datapixx
         pds.datapixx.adc.getData(p);
         %get eyelink data
         pds.eyelink.getQueue(p); 
-        %get eyeposition 
-%         pdsGetEyePosition(p);
+        %get plexon spikes
+        pds.plexon.spikeserver.getSpikes(p);
     end %frameUpdate
 % 
 %     function framePrepareDrawing(p)
@@ -199,7 +208,7 @@ end
         %setup analogData collection from Datapixx
         pds.datapixx.adc.trialSetup(p);
         
-        %call PsychDataPixx('GetPreciseTime') to make sure the clock stay
+        %call PsychDataPixx('GetPreciseTime') to make sure the clocks stay
         %synced
         if p.trial.datapixx.use
             [getsecs, boxsecs, confidence] = PsychDataPixx('GetPreciseTime');
@@ -207,13 +216,20 @@ end
         end
         
         %setup a fields for the mouse data
-        [~,~,isMouseButtonDown] = GetMouse(); 
-        p.trial.mouse.cursorSamples = zeros(2,round(round(p.trial.pldaps.maxFrames*1.1)));
-        p.trial.mouse.buttonPressSamples = zeros(length(isMouseButtonDown),round(round(p.trial.pldaps.maxFrames*1.1)));
-        p.trial.mouse.samplesTimes=zeros(1,round(round(p.trial.pldaps.maxFrames*1.1)));
-        p.trial.mouse.samples = 0;
+        if p.trial.mouse.use
+            [~,~,isMouseButtonDown] = GetMouse(); 
+            p.trial.mouse.cursorSamples = zeros(2,round(round(p.trial.pldaps.maxFrames*1.1)));
+            p.trial.mouse.buttonPressSamples = zeros(length(isMouseButtonDown),round(round(p.trial.pldaps.maxFrames*1.1)));
+            p.trial.mouse.samplesTimes=zeros(1,round(round(p.trial.pldaps.maxFrames*1.1)));
+            p.trial.mouse.samples = 0;
+        end
         
-        
+        %%% Spike server
+        %-------------------------------------------------------------------------%
+%         [p,spikes] = pds.plexon.spikeserver.getSpikes(p); %what are we dowing with the spikes???
+        p.trial.plexon.spikeserver.spikeCount=0;
+        pds.plexon.spikeserver.getSpikes(p); %save all spikes that arrives in the inter trial interval
+
         
         %setup assignemnt of eyeposition data to eyeX and eyeY
         %first create the S structs for subsref.
@@ -237,6 +253,7 @@ end
         pds.audio.clearBuffer(p)
 
 
+%TODO        %do we need this?
         if p.trial.datapixx.use
             Datapixx RegWrRd;
         end
@@ -258,10 +275,6 @@ end
         p.trial.keyboard.lastPressSamples = zeros(length(firstPress),round(p.trial.pldaps.maxFrames*1.1));
         p.trial.keyboard.lastReleaseSamples = zeros(length(firstPress),round(p.trial.pldaps.maxFrames*1.1));
         
-        %%% Spike server
-        %-------------------------------------------------------------------------%
-        [p,spikes] = pds.plexon.spikeserver.getSpikes(p); %what are we dowing with the spikes???
-
         %%% Eyelink Toolbox Setup %%%
         %-------------------------------------------------------------------------%
         % preallocate for all eye samples and event data from the eyelink
@@ -279,6 +292,7 @@ end
         % the plexon rig sync up its first trial with whatever trial number is on
         % for stimulus display.
         % SYNC clocks
+%TODO move into a pds.plexon.startTrial(p) file. Also just sent the data along the trialStart flax, or a  least after?        
         clocktime = fix(clock);
         if p.trial.datapixx.use
             for ii = 1:6
@@ -286,30 +300,39 @@ end
             end
         end
         p.trial.unique_number = clocktime;    % trial identifier
-%         vblTime = Screen('Flip', p.trial.display.ptr,0); 
-        p.trial.trstart = GetSecs;
-%         p.trial.stimulus.timeLastFrame=vblTime-p.trial.trstart;
-
+        
+        %TODO move into a pds.plexon.startTrial(p) file? Or is this a generic
+%datapixx thing? not really....
         if p.trial.datapixx.use
             p.trial.timing.datapixxStartTime = Datapixx('Gettime');
             p.trial.timing.datapixxTRIALSTART = pds.datapixx.flipBit(p.trial.event.TRIALSTART);  % start of trial (Plexon)
         end
+        
+%%check reconstruction
+        %old
+%                 p.trial.trstart = GetSecs;
+        %new
+        vblTime = Screen('Flip', p.trial.display.ptr,0); 
+        p.trial.trstart = vblTime;
+        p.trial.stimulus.timeLastFrame=vblTime-p.trial.trstart;
 
         p.trial.ttime  = GetSecs - p.trial.trstart;
         p.trial.timing.syncTimeDuration = p.trial.ttime;
     end %trialPrepare
 
     function p = cleanUpandSave(p)
+%TODO move to pds.datapixx.cleanUpandSave
         if p.trial.datapixx.use
             p.trial.datapixx.datapixxstoptime = Datapixx('GetTime');
         end
         p.trial.trialend = GetSecs- p.trial.trstart;
 
-        [p.trial.timing.flipTimes(1,p.trial.iFrame), p.trial.timing.flipTimes(2,p.trial.iFrame), p.trial.timing.flipTimes(3,p.trial.iFrame), p.trial.timing.flipTimes(4,p.trial.iFrame)] = Screen('Flip', p.trial.display.ptr); %#ok<ASGLU>
+        [p.trial.timing.flipTimes(:,p.trial.iFrame)] = deal(Screen('Flip', p.trial.display.ptr));
 
         %do a last frameUpdate
         frameUpdate(p)
         
+%TODO move to pds.datapixx.cleanUpandSave
         %clean up analogData collection from Datapixx
         pds.datapixx.adc.cleanUpandSave(p);
         
@@ -326,11 +349,12 @@ end
 
         %will this crash when more samples where created than preallocated?
         % mouse input
-        p.trial.mouse.cursorSamples(:,p.trial.mouse.samples+1:end) = [];
-        p.trial.mouse.buttonPressSamples(:,p.trial.mouse.samples+1:end) = [];
-        p.trial.mouse.samplesTimes(:,p.trial.mouse.samples+1:end) = [];
+        if p.trial.mouse.use
+            p.trial.mouse.cursorSamples(:,p.trial.mouse.samples+1:end) = [];
+            p.trial.mouse.buttonPressSamples(:,p.trial.mouse.samples+1:end) = [];
+            p.trial.mouse.samplesTimes(:,p.trial.mouse.samples+1:end) = [];
+        end
         
-        % mouse input
 %         p.trial.keyboard.keyPressSamples(:,p.trial.keyboard.samples+1:end) = [];
         p.trial.keyboard.samplesTimes(:,p.trial.keyboard.samples+1:end) = [];
         p.trial.keyboard.samplesFrames(:,p.trial.keyboard.samples+1:end) = [];
@@ -340,41 +364,43 @@ end
         p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples+1:end) = [];
         p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples+1:end) = [];
 
+%TODO move to pds.plexon.cleanUpandSave
         % Get spike server spikes
         %---------------------------------------------------------------------%
         if p.trial.plexon.spikeserver.use
             try
-                [p, p.trial.plexon.spikeserver.spikes] = pds.plexon.spikeserver.getSpikes(p);
-
-                if ~isempty(p.trial.spikeserver.spikes)
-                    plbit = p.trial.event.TRIALSTART + 2;
-                    t0 = find(p.trial.spikeserver.spikes(:,1) == 4 & p.trial.spikeserver.spikes(:,2) == plbit, 1, 'first');
-                    p.trial.plexon.spikeserver.spikes(:,4) = p.trial.plexon.spikeserver.spikes(:,4) - p.trial.plexon.spikeserver.spikes(t0,4);
-%                     PDS.spikes{p.j} = spikes;
-                else
-%                     PDS.spikes{p.j} = []; % zeros size of spike matrix
-                    fprintf('No spikes. Check if server is running\r')
-                end
-
+                pds.plexon.spikeserver.getSpikes(p);
             catch me
                 disp(me.message)
             end
         end
+%             end
+%             try
+%                 [p, p.trial.plexon.spikeserver.spikes] = pds.plexon.spikeserver.getSpikes(p);
+% 
+%                 if ~isempty(p.trial.spikeserver.spikes)
+%                     plbit = p.trial.event.TRIALSTART + 2;
+%                     t0 = find(p.trial.spikeserver.spikes(:,1) == 4 & p.trial.spikeserver.spikes(:,2) == plbit, 1, 'first');
+%                     p.trial.plexon.spikeserver.spikes(:,4) = p.trial.plexon.spikeserver.spikes(:,4) - p.trial.plexon.spikeserver.spikes(t0,4);
+% %                     PDS.spikes{p.j} = spikes;
+%                 else
+% %                     PDS.spikes{p.j} = []; % zeros size of spike matrix
+%                     fprintf('No spikes. Check if server is running\r')
+%                 end
+% 
+%             catch me
+%                 disp(me.message)
+%             end
+%         end
         %---------------------------------------------------------------------%
 
-        %% Build PDS STRUCT %%
         p.trial.trialnumber   = p.trial.pldaps.iTrial;
 
         % system timing
-%         p.trial.timing.ptbFliptimes       = p.trial.timing.flipTimes(:,1:p.trial.iFrame);
         p.trial.timing.flipTimes      = p.trial.timing.flipTimes(:,1:p.trial.iFrame);
         p.trial.timing.frameStateChangeTimes    = p.trial.timing.frameStateChangeTimes(:,1:p.trial.iFrame-1);
-
-        % if isfield(p, 'dp') % FIX ME
-        %     analogTime = linspace(p.dp.adctstart, p.dp.adctend, size(p.dp.bufferData,2));
-        %     PDS.data.datapixxAnalog{p.j} = [analogTime(:) p.dp.bufferData'];
-        % end
-      
+     
+%TODO move to pds.eyelink.cleanUpandSave
         if p.trial.eyelink.use
             [Q, rowId] = pds.eyelink.saveQueue(p);
             p.trial.eyelink.samples = Q;

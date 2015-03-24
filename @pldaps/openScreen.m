@@ -225,6 +225,7 @@ disp('****************************************************************')
 Screen('BlendFunction', p.defaultParameters.display.ptr, p.defaultParameters.display.sourceFactorNew, p.defaultParameters.display.destinationFactorNew);  % alpha blending for anti-aliased dots
 
 if p.trial.display.forceLinearGamma %does't really belong here, but need it before the first flip....
-    Screen('LoadNormalizedGammaTable',p.defaultParameters.display.ptr,linspace(0,1,256)'*[1, 1, 1],0);
+%     Screen('LoadNormalizedGammaTable',p.defaultParameters.display.ptr,linspace(0,1,256)'*[1, 1, 1],0);
+    LoadIdentityClut(p.defaultParameters.display.ptr);
 end
 p.defaultParameters.display.t0 = Screen('Flip', p.defaultParameters.display.ptr); 

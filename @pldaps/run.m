@@ -173,7 +173,20 @@ try
            p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
            p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr]);
            p.defaultParameters.pldaps.iTrial=trialNr;
-           p.trial=mergeToSingleStruct(p.defaultParameters);
+           tmpts=mergeToSingleStruct(p.defaultParameters);
+
+           %it looks like the trial struct gets really partitioned in
+           %memory and this appears to make some get calls slow (!). 
+           %We thus need a deep copy. The supercalss matlab.mixin.Copyable
+           %is supposed to do that, but that is ver very slow, so we create 
+           %a manual deep opy by saving the struct to a file and loading it 
+           %back in.
+           save([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct'], 'tmpts');
+           clear tmpts
+           load([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct']);
+           p.trial=tmpts;
+           clear tmpts;
+
            p.defaultParameters.setLock(true);
             
            % run trial

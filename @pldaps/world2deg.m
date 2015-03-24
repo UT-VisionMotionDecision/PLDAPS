@@ -8,7 +8,7 @@ function [xy,z] = world2deg(dv,xy,z)
    
     %% caculate radius to tmp variable if requested
     if(nargout>1) %radius output requested
-        r=sum(xy.^2 + z.^2);      %calculate radius/distance from viewer
+        r=sum(xy.^2 + 0.5*z.^2);      %calculate radius/distance from viewer
     end
     
     %% do the actual conversion

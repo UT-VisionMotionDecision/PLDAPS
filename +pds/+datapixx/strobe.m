@@ -1,4 +1,4 @@
-function timings=strobe(word)
+function timings=strobe(word, addOffset)
 % DataPixxStrobe(word)
 % strobes a single 8-bit word (255) from the datapixx
 % INPUTS
@@ -9,11 +9,25 @@ function timings=strobe(word)
 % (c) kme 2011
 % jly 2013
 
+if nargin < 2 || ~addOffset
+    word=mod(word*2^8, 2^16);
+end
 
-% Datapixx('SetDoutValues',bin2dec(['1' dec2bin(word,8) '00000000']))
 if nargout==0
-    Datapixx('SetDoutValues',(2^8+word)*2^8);
+    %first we set the bits without the strobe, to ensure they are all
+    %settled when we flip the strobe bit (plexon need all bits to be set
+    %100ns before the strobe)
+    Datapixx('SetDoutValues',word);
     Datapixx('RegWrRd');
+    
+    %now add the strobe signal. We could just set the strobe with a bitmask,
+    %but computational requirements are the same (due to impememntation on
+    %the Datapixx side)
+    Datapixx('SetDoutValues',2^16 + word);
+    Datapixx('RegWrRd');
+    
+    %Not required for plexon communication, but good practice: set to zero
+    %again
     Datapixx('SetDoutValues',0)
     Datapixx('RegWrRd');
 else
@@ -22,8 +36,10 @@ else
     if oldPriority < MaxPriority('GetSecs')
             Priority(MaxPriority('GetSecs'));
     end
+    Datapixx('SetDoutValues',word);
+    Datapixx('RegWrRd');
 
-    Datapixx('SetDoutValues',(2^8+word)*2^8);
+    Datapixx('SetDoutValues',2^16 + word);
     Datapixx('SetMarker');
     
     t(1)=GetSecs;

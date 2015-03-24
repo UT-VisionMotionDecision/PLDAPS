@@ -21,7 +21,11 @@ if ~p.trial.plexon.spikeserver.use
     fprintf('spike server is turned off. If you intend it to be on, update your rig file to include dv.useSpikeserver = 1\r')
 else
     try
-        [p.trial.plexon.spikeserver.sock,p.trial.plexon.spikeserver.isConnected, p.trial.plexon.spikeserver.t0, p.trial.plexon.spikeserver.localt0] = udpConnect(p.trial.plexon.spikeserver.selfip,p.trial.plexon.spikeserver.selfport,p.trial.plexon.spikeserver.remoteip,p.trial.plexon.spikeserver.remoteport);
+        [sock,isConnected,t0,localt0]=udpConnect(p.trial.plexon.spikeserver.selfip,p.trial.plexon.spikeserver.selfport,p.trial.plexon.spikeserver.remoteip,p.trial.plexon.spikeserver.remoteport);
+        p.trial.plexon.spikeserver.sock=sock;
+        p.trial.plexon.spikeserver.isConnected=isConnected;
+        p.trial.plexon.spikeserver.t0=t0;
+        p.trial.plexon.spikeserver.localt0 = localt0;
         if p.trial.plexon.spikeserver.isConnected ==0
             disp('***********************************************************')
             disp('SPIKE SERVER FAILURE TO CONNECT')

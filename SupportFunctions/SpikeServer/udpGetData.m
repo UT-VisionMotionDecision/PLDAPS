@@ -15,7 +15,7 @@ pnet(sock,'writepacket',remoteip,remoteport);
 remotet0 = pnet(sock,'read',[1,1],'double');
 
 %Receive messages
-sze = pnet(sock,'readpacket', 2000, 'noblock');
+sze = pnet(sock,'readpacket', 2000000, 'noblock');
 localt0 = GetSecs - initt0;
 
 if sze > 0

@@ -1,4 +1,4 @@
-function datapixxFlipBitVideoSync(bit)
+function flipBitVideoSync(bit)
 % DatapixxFlipBitVideoSync(bit)
 %
 % DatapixxFlipBit flips a bit on the digital out values of the Datapixx
@@ -12,7 +12,7 @@ function datapixxFlipBitVideoSync(bit)
 % (c) kme 2011
 
 
-Datapixx('SetDoutValues',2^(bit-1))
+Datapixx('SetDoutValues',2^16 + 2^(bit-1))
 Datapixx('RegWrRdVideoSync');
 
 % I don't think we need these... -jake
