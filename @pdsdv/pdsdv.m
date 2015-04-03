@@ -25,6 +25,7 @@ classdef pdsdv < handle
     sound
     custom_calibration
     el 
+    test
  end
  
  methods
