@@ -102,9 +102,13 @@ try
             %-------------------------------------------------------------------------%
             p = pds.audio.setup(p);
             
-            % Audio
+            % PLEXON
             %-------------------------------------------------------------------------%
             p = pds.plexon.spikeserver.connect(p);
+            
+            % REWARD
+            %-------------------------------------------------------------------------%
+            p = pds.behavior.reward.setup(p);
             
             % From help PsychDataPixx:
             % Timestamping is disabled by default (mode == 0), as it incurs a bit of
@@ -173,7 +177,7 @@ try
            p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
            p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr]);
            p.defaultParameters.pldaps.iTrial=trialNr;
-           tmpts=mergeToSingleStruct(p.defaultParameters);
+           
 
            %it looks like the trial struct gets really partitioned in
            %memory and this appears to make some get calls slow (!). 
@@ -181,11 +185,14 @@ try
            %is supposed to do that, but that is ver very slow, so we create 
            %a manual deep opy by saving the struct to a file and loading it 
            %back in.
-           save([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct'], 'tmpts');
-           clear tmpts
-           load([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct']);
-           p.trial=tmpts;
-           clear tmpts;
+%            tmpts=mergeToSingleStruct(p.defaultParameters);
+%            save([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct'], 'tmpts');
+%            clear tmpts
+%            load([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct']);
+%            p.trial=tmpts;
+%            clear tmpts;
+            p.trial=mergeToSingleStruct(p.defaultParameters);
+            
 
            p.defaultParameters.setLock(true);
             
@@ -348,14 +355,15 @@ function pauseLoop(dv)
 
                 %M: Manual reward
                 elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.mKey)
-                    if dv.trial.datapixx.use
-                        pds.datapixx.analogOut(dv.trial.stimulus.rewardTime)
-                        pds.datapixx.flipBit(dv.trial.event.REWARD);
-                    end
-                    dv.trial.ttime = GetSecs - dv.trial.trstart;
-                    dv.trial.stimulus.timeReward(:,dv.trial.iReward) = [dv.trial.ttime dv.trial.stimulus.rewardTime];
-                    dv.trial.stimulus.iReward = dv.trial.iReward + 1;
-                    PsychPortAudio('Start', dv.trial.sound.reward);
+                    pds.behavior.reward.give(p);
+%                     if dv.trial.datapixx.use
+%                         pds.datapixx.analogOut(dv.trial.stimulus.rewardTime)
+%                         pds.datapixx.flipBit(dv.trial.event.REWARD);
+%                     end
+%                     dv.trial.ttime = GetSecs - dv.trial.trstart;
+%                     dv.trial.stimulus.timeReward(:,dv.trial.iReward) = [dv.trial.ttime dv.trial.stimulus.rewardTime];
+%                     dv.trial.stimulus.iReward = dv.trial.iReward + 1;
+%                     PsychPortAudio('Start', dv.trial.sound.reward);
 
                 %P: PAUSE (end the pause) 
                 elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.pKey)

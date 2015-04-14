@@ -1,4 +1,4 @@
-function timings=flipBit(bit)
+function timings=flipBit(bit,trial)
 % pds.datapixx.flipBit(bit)
 %
 % DatapixxFlipBit flips a bit on the digital out values of the Datapixx
@@ -12,7 +12,7 @@ function timings=flipBit(bit)
 % (c) jk 2015
 
 if nargout==0
-    pds.datapixx.strobe(2^(bit-1),false);
+    pds.datapixx.strobe(trial,2^(bit-1));
 else
-    timings=pds.datapixx.strobe(2^(bit-1),false);
+    timings=pds.datapixx.strobe(trial,2^(bit-1));
 end

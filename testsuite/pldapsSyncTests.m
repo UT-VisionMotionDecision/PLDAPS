@@ -20,10 +20,10 @@ xlabel('time / s');
 ylabel('precision / s');
 drawnow;
 
-dpx.maxDuration=0.5;
-t=zeros(21,100);
+dpx.maxDuration=0.1;
+t=zeros(41,100);
 
-steps=min(p):(max(p)-min(p))/20:max(p);
+steps=min(p):(max(p)-min(p))/40:max(p);
 
 for n=1:21
 
@@ -43,6 +43,14 @@ ylabel('time / s');
 xlabel('precision / s');
 
 keyboard;
+
+    t=zeros(1,1000);
+    for j=1:1000
+        tic;[getsecs, boxsecs, confidence] = PsychDataPixx('GetPreciseTime');t(j)=toc*1000;
+    end
+    
+    hist(t)
+    
 %%choose a threshold. I'd got for a precision threshold not a time one, but
 %%it probbbaly dosn't matter.
 
@@ -58,8 +66,8 @@ a.datapixx.syncing.optMinwinThreshold=[];
 
 %this is what I would choose
 a.datapixx.syncing.syncmode=2; %1,2,3
-a.datapixx.syncing.maxDuration=100;%or take a time form figure 1 where the result seems very stable, e.g. 0.1s in my case
-a.datapixx.syncing.optMinwinThreshold=6e-5;%choose a threshold that seems relatively sufficient, i.e. look at figure 2
+a.datapixx.syncing.maxDuration=0.01;%or take a time form figure 1 where the result seems very stable, e.g. 0.1s in my case
+a.datapixx.syncing.optMinwinThreshold=6.5e-5;%choose a threshold that seems relatively sufficient, i.e. look at figure 2
 %on my test rig 5e-5 takes 500ns, 5.5e-5 90ms, 6e-5 7.5ms, 6.5e-5 7ms, 7e-6
 %3.6ms
 %I'd choose 6 as it's suffitiently short and robust, yet close the the

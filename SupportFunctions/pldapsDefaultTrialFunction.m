@@ -49,14 +49,15 @@ end
         
         if any(p.trial.keyboard.firstPressQ)
             if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.mKey)
-                if p.trial.datapixx.use
-                    pds.datapixx.analogOut(p.trial.stimulus.rewardTime)
-                    pds.datapixx.flipBit(p.trial.event.REWARD);
-                end
-    %             p.trial.ttime = GetSecs - p.trial.trstart;
-                p.trial.stimulus.timeReward(:,p.trial.stimulus.iReward) = [p.trial.ttime p.trial.stimulus.rewardTime];
-                p.trial.stimulus.iReward = p.trial.stimulus.iReward + 1;
-                PsychPortAudio('Start', p.trial.sound.reward);
+                  pds.behavior.reward.give(p);
+%                 if p.trial.datapixx.use
+%                     pds.datapixx.analogOut(p.trial.stimulus.rewardTime)
+%                     pds.datapixx.flipBit(p.trial.event.REWARD,p.trial.pldaps.iTrial);
+%                 end
+%     %             p.trial.ttime = GetSecs - p.trial.trstart;
+%                 p.trial.stimulus.timeReward(:,p.trial.stimulus.iReward) = [p.trial.ttime p.trial.stimulus.rewardTime];
+%                 p.trial.stimulus.iReward = p.trial.stimulus.iReward + 1;
+%                 PsychPortAudio('Start', p.trial.sound.reward);
     %         elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.uKey)   % U = user selected targets
     %             p.trial.targUser = 1;
             elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.pKey)   % P = pause
@@ -102,7 +103,7 @@ end
         %get eyelink data
         pds.eyelink.getQueue(p); 
         %get plexon spikes
-        pds.plexon.spikeserver.getSpikes(p);
+%         pds.plexon.spikeserver.getSpikes(p);
     end %frameUpdate
 % 
 %     function framePrepareDrawing(p)
@@ -128,10 +129,11 @@ end
          end
          
          if p.trial.pldaps.draw.photodiode.use && mod(p.trial.iFrame, p.trial.pldaps.draw.photodiode.everyXFrames) == 0
-            photodiodecolor = p.trial.display.clut.window;
+%             photodiodecolor = p.trial.display.clut.window;
+            photodiodecolor = [1 1 1];
             p.trial.timing.photodiodeTimes(:,p.trial.pldaps.draw.photodiode.dataEnd) = [p.trial.ttime p.trial.iFrame];
             p.trial.pldaps.draw.photodiode.dataEnd=p.trial.pldaps.draw.photodiode.dataEnd+1;
-            Screen('FillRect',  p.trial.display.overlayptr,photodiodecolor, p.trial.pldaps.draw.photodiode.rect')
+            Screen('FillRect',  p.trial.display.ptr,photodiodecolor, p.trial.pldaps.draw.photodiode.rect')
         end
     end %frameDraw
 
@@ -231,6 +233,9 @@ end
         pds.plexon.spikeserver.getSpikes(p); %save all spikes that arrives in the inter trial interval
 
         
+        %%% prepare reward system
+        pds.behavior.reward.trialSetup(p);
+        
         %setup assignemnt of eyeposition data to eyeX and eyeY
         %first create the S structs for subsref.
         % Got a big WTF on your face? read up on subsref, subsasgn and substruct
@@ -305,7 +310,7 @@ end
 %datapixx thing? not really....
         if p.trial.datapixx.use
             p.trial.timing.datapixxStartTime = Datapixx('Gettime');
-            p.trial.timing.datapixxTRIALSTART = pds.datapixx.flipBit(p.trial.event.TRIALSTART);  % start of trial (Plexon)
+            p.trial.timing.datapixxTRIALSTART = pds.datapixx.flipBit(p.trial.event.TRIALSTART,p.trial.pldaps.iTrial);  % start of trial (Plexon)
         end
         
 %%check reconstruction
@@ -335,6 +340,9 @@ end
 %TODO move to pds.datapixx.cleanUpandSave
         %clean up analogData collection from Datapixx
         pds.datapixx.adc.cleanUpandSave(p);
+         if p.trial.datapixx.use
+            p.trial.timing.datapixxTRIALEND = pds.datapixx.flipBit(p.trial.event.TRIALEND,p.trial.pldaps.iTrial);  % start of trial (Plexon)
+        end
         
         if(p.trial.pldaps.draw.photodiode.use)
             p.trial.timing.photodiodeTimes(:,p.trial.pldaps.draw.photodiode.dataEnd:end)=[];
@@ -408,6 +416,10 @@ end
             p.trial.eyelink.events   = p.trial.eyelink.events(:,~isnan(p.trial.eyelink.events(1,:)));
         end
 
+        
+       %reward system
+       pds.behavior.reward.cleanUpandSave(p);
+       
         % Update Scope
     %     try
     %         pdsScopeUpdate(PDS,p.j)

@@ -19,7 +19,7 @@ if p.defaultParameters.sound.use && isField(p.defaultParameters, 'pldaps.dirs.wa
        name= soundDirFiles{iFile};
        p.defaultParameters.sound.wavfiles.(name(1:end-4))=fullfile(soundsDir,name);
        
-       [y, freq, ~] = wavread(p.defaultParameters.sound.wavfiles.(name(1:end-4)));
+       [y, freq] = audioread(p.defaultParameters.sound.wavfiles.(name(1:end-4)));
        wav1 = y';
        nChannels1 = size(wav1, 1);
        p.defaultParameters.sound.(name(1:end-4)) = PsychPortAudio('Open', [], [], 1, freq, nChannels1);

@@ -35,6 +35,10 @@ classdef params < handle
             names=cellfun(@(x) x(2:end),names,'UniformOutput',false);
         end
         
+        function names = properties(p) 
+            names = fieldnames(p);
+        end
+            
         function disp(p)
             builtin('disp',p);
             
@@ -422,8 +426,10 @@ classdef params < handle
             id=cellfun(@(x) sprintf('.%s',x{:}), {newFlatStruct.parentLevels}, 'UniformOutput', false);   
             [newFlatStruct.identifier]=deal(id{:});
             
+            
+            activeFields=cellfun(@(x) any(ismember(x,find(p.activeLevels))),{p.flatStruct.hierarchyLevels});
             %we will not handle the possibility newStruct is missing a fieled
-            removedFields=~ismember({p.flatStruct.identifier},id);
+            removedFields=~ismember({p.flatStruct(activeFields).identifier},id);
             if any(removedFields)
                 warning('params:getDifferenceFromStruct','The newStruct is missing fields the class has.');
             end

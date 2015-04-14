@@ -34,10 +34,24 @@ if p.defaultParameters.datapixx.use
          Datapixx('Open');
     end
     
+    %set getPreciseTime options
+    global dpx;
+    if ~isempty(p.trial.datapixx.GetPreciseTime.syncmode)
+        dpx.syncmode=2; %1,2,3
+    end
+    if ~isempty(p.trial.datapixx.GetPreciseTime.maxDuration)
+        dpx.maxDuration=0.02;
+    end
+    if ~isempty(p.trial.datapixx.GetPreciseTime.optMinwinThreshold)
+        dpx.optMinwinThreshold=6.5e-5;
+    end
+    clear dpx;
+    
     if Datapixx('IsPropixx') 
         if ~Datapixx('IsPropixxAwake')
             Datapixx('SetPropixxAwake');
         end
+        Datapixx('EnablePropixxLampLed');
         
         if p.trial.datapixx.enablePropixxRearProjection
             Datapixx('EnablePropixxRearProjection');

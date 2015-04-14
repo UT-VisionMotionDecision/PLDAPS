@@ -18,18 +18,24 @@ if nargin <3
     if nargin<2
         eventsonly = 0; 
         if nargin < 1
-            port = 3333;
+            port = 4333;
         end
     end
 end
 
 % addpath('tcp_udp_ip');
-port_pause=0.010;
+port_q=0.010;
 splice_pause=0.010;
 %totalSpikesSent=0; for debugging, compare with totalSpikesReceived in
 %spikeclient.m
 maxpacketsize = 2e3;
-timeout = 2;
+timeout = 500;
+
+
+KbQueueCreate(-1);
+KbQueueStart();
+KbQueueFlush();
+qKey = KbName('q');
 
     pnet('closeall');
 
@@ -55,6 +61,13 @@ timeout = 2;
         connecttime = clock + 1;
         
         while 1
+            
+            %check keyboard
+            [pressedQ,  firstPressQ]=KbQueueCheck(); % fast
+            if firstPressQ(qKey)
+                pnet('closeall');
+                break;
+            end
             
             msglen = pnet(sock,'readpacket');
             %Received a message
@@ -128,14 +141,34 @@ timeout = 2;
                             case 'CONTINUOUS'
                                 continuous = pnet(sock,'read',[1,1],'uint8');
                         end
+                    case 'GETFILENAME'
+                        baseDir='D:\PlexonData\';
+                        a=dir([baseDir '*.plx']);
+                        %N=datenum({a.date});
+                        [~,ii]=max([a.datenum]);
+                        %a(ii).name
                         
+                        filename=[strrep(baseDir,'\','/') a(ii).name];
+                        WaitSecs(0.5);
+                        a2=dir(filename);
+                        %if the file hasn't been update in the last five
+                        %second we assume we are not recording
+                        %if etime(datevec(now),datevec(a(ii).datenum)) > 5 
+                        if a(ii).bytes==a2.bytes
+                            filename='NOTRECORDING';
+                        end
+                        
+                        pnet(sock,'printf',['FILENAME' char(10)]);
+                        pnet(sock,'printf',[filename char(10)]);
+                        pnet(sock,'writepacket',clientip,double(clientport));
+
                     case 'DISCONNECT'
                         clientisconnected = 0;
                         connecttime = clock + 1;
 
                         %close port and reopen
-                        pnet('closeall')
-                        break
+                        %pnet('closeall')
+                        %break
 
                 end
             end
@@ -149,16 +182,19 @@ timeout = 2;
                 %close port and reopen
                 pnet(sock,'close');
                 sock=pnet('udpsocket',port);
-            elseif continuous
+            elseif continuous && clientisconnected
                 packetnum=sentSpikes(plx,sock,clientip,clientport,maxpacketsize,splice_pause,eventsonly,packetnum);
             end
-            
+            WaitSecs(splice_pause*2);
         end % while loop
     end
 end
 
 function packetnum=sentSpikes(plx,sock,clientip,clientport,maxpacketsize,splice_pause,eventsonly,packetnum)
 	[nspks,ts] = PL_GetTS(plx);
+    remove=all(ts==0);
+    ts(remove,:)=[];
+    nspks=nspks-sum(remove);
     if eventsonly
         ts(ts(:,1) == 1,:)=[];
         nspks=size(ts,1);
@@ -166,16 +202,12 @@ function packetnum=sentSpikes(plx,sock,clientip,clientport,maxpacketsize,splice_
 
 	if nspks > 0 %Received spikes
         fprintf('Sending %d spikes\n', nspks);
-        display(ts(:,1));
-        display(ts(:,2));
-        display(ts(:,3));
-        display(ts(:,4));
                                                      
         %Send spikes in batches of 1000*96
         for ii = 1:ceil(size(ts,1)/maxpacketsize)
             if ii >1 %DEBUGGING
                 disp('packet splicing ... if message is constant decrease port_pause and/or splice_pause in spikeserver.m')
-                pause(splice_pause)
+                WaitSecs(splice_pause)
             end
             %Write the spikes to the port
             rg = (ii-1)*maxpacketsize+1:min(size(ts,1),ii*maxpacketsize);

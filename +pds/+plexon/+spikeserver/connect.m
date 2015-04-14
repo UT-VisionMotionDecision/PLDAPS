@@ -21,6 +21,11 @@ if ~p.trial.plexon.spikeserver.use
     fprintf('spike server is turned off. If you intend it to be on, update your rig file to include dv.useSpikeserver = 1\r')
 else
     try
+        if isempty(p.trial.plexon.spikeserver.selfip)
+            address = java.net.InetAddress.getLocalHost;
+            p.trial.plexon.spikeserver.selfip = char(address.getHostAddress);
+        end
+        
         [sock,isConnected,t0,localt0]=udpConnect(p.trial.plexon.spikeserver.selfip,p.trial.plexon.spikeserver.selfport,p.trial.plexon.spikeserver.remoteip,p.trial.plexon.spikeserver.remoteport);
         p.trial.plexon.spikeserver.sock=sock;
         p.trial.plexon.spikeserver.isConnected=isConnected;
@@ -28,15 +33,19 @@ else
         p.trial.plexon.spikeserver.localt0 = localt0;
         
         %set settings:
-        pnet(sock,'printf',['SETTINGS' char(10) selfip char(10)]);
+        pnet(sock,'printf',['SETTINGS' char(10)]);% p.trial.plexon.spikeserver.selfip char(10)]);
         pnet(sock,'printf',['EVENTSONLY' char(10)]);
         pnet(sock,'write',uint8(p.trial.plexon.spikeserver.eventsonly));
-        pnet(sock,'writepacket',remoteip,remoteport);
+        pnet(sock,'writepacket',p.trial.plexon.spikeserver.remoteip,p.trial.plexon.spikeserver.remoteport);
         
-        pnet(sock,'printf',['SETTINGS' char(10) selfip char(10)]);
+        pnet(sock,'printf',['SETTINGS' char(10)]);% p.trial.plexon.spikeserver.selfip char(10)]);
         pnet(sock,'printf',['CONTINUOUS' char(10)]);
         pnet(sock,'write',uint8(p.trial.plexon.spikeserver.continuous));
-        pnet(sock,'writepacket',remoteip,remoteport);
+        pnet(sock,'writepacket',p.trial.plexon.spikeserver.remoteip,p.trial.plexon.spikeserver.remoteport);
+        
+        %get filename
+        pnet(sock,'printf',['GETFILENAME' char(10)]);
+        pnet(sock,'writepacket',p.trial.plexon.spikeserver.remoteip,p.trial.plexon.spikeserver.remoteport);
         
         if p.trial.plexon.spikeserver.isConnected ==0
             disp('***********************************************************')

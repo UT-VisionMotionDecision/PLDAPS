@@ -1,10 +1,10 @@
-function [spikes, sock] = udpGetData(selfip,selfport,remoteip,remoteport,sock, t0)
+function [spikes, sock, filename] = udpGetData(selfip,selfport,remoteip,remoteport,sock, t0)
 % spikes = pds.spikeserver.udpGetData(selfip,selfport,remoteip,remoteport)
 %
 % SPIKESERVERGETSPIKES reads spikes from the udp connection opened by
 % pds.spikeserver.connect.m
 spikes = [];
-
+filename=[];
 initt0 = GetSecs;
 
 pnet(sock,'printf',['GET' char(10) selfip char(10)]);
@@ -22,7 +22,7 @@ if sze > 0
     msg = pnet(sock,'readline');
     if strcmp(msg,'SPIKES')
         %Read spikes
-        pnet(sock,'read',[1,1],'double');
+        packetNr=pnet(sock,'read',[1,1],'double');
         sze = sze - 7 - 8;
         nspks = sze/(8*4);
         if nspks ~= 0 %No spikes in this one
@@ -32,8 +32,11 @@ if sze > 0
                 return
             end
             data(:,4) = data(:,4); % - remotet0 + localt0;
+            data(:,5)=packetNr;
             spikes = [spikes;data];
         end
+    elseif strcmp(msg,'FILENAME')
+        filename=pnet(sock,'readline');
     else
         fprintf('Invalid message type received: %s\n',msg);
         return
