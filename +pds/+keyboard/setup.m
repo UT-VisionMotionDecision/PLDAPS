@@ -1,5 +1,5 @@
-function kb = setup(scan)
-% kb = pds.keyboard.setup(scan)
+function p = setup(p,scan)
+% kb = pds.keyboard.setup(p,scan)
 %
 % Setup universal Mac/PC keyboard and keynames
 % set scan to 1 if using button box in scanner, otherwise, leave empty.
@@ -11,7 +11,7 @@ function kb = setup(scan)
 %the config?
 
 
-if nargin < 1
+if nargin < 2
     scan = 0;
 end
 
@@ -119,7 +119,8 @@ if scan && isMac
         
     end
 end
+p.trial.keyboard.codes=kb;
 
-[kb.keyIsDown, kt, kb.keyCode] = KbCheck(-1);
+[kb.keyIsDown, ~, kb.keyCode] = KbCheck(-1);
 
 end

@@ -122,7 +122,7 @@ try
             % Initialize Datapixx for Dual CLUTS
             p = pds.datapixx.init(p);
             
-            pds.keyboard.setup();
+            pds.keyboard.setup(p);
     
 
     %% Last chance to check variables
