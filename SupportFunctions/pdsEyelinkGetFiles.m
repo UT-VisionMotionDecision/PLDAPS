@@ -1,6 +1,7 @@
 prevDir=cd;
 
-datadir = getpref('PLDAPS','datadir');
+p=pldaps;
+datadir = p.trial.pldaps.dirs.data;
 
 cd(datadir)
 
