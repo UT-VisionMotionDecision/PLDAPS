@@ -185,13 +185,13 @@ try
            %is supposed to do that, but that is ver very slow, so we create 
            %a manual deep opy by saving the struct to a file and loading it 
            %back in.
-%            tmpts=mergeToSingleStruct(p.defaultParameters);
-%            save([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct'], 'tmpts');
-%            clear tmpts
-%            load([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct']);
-%            p.trial=tmpts;
-%            clear tmpts;
-            p.trial=mergeToSingleStruct(p.defaultParameters);
+           tmpts=mergeToSingleStruct(p.defaultParameters);
+           save([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct'], 'tmpts');
+           clear tmpts
+           load([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct']);
+           p.trial=tmpts;
+           clear tmpts;
+%             p.trial=mergeToSingleStruct(p.defaultParameters);
             
 
            p.defaultParameters.setLock(true);

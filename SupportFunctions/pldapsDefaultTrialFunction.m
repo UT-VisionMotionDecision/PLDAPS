@@ -127,6 +127,10 @@ end
             Screen('Drawdots',  p.trial.display.overlayptr, [p.trial.eyeX p.trial.eyeY]', ...
             p.trial.stimulus.eyeW, p.trial.stimulus.colorEyeDot, [0 0],0)
          end
+         if p.trial.mouse.use && p.trial.pldaps.draw.cursor.use
+            Screen('Drawdots',  p.trial.display.overlayptr,  p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples), ...
+            p.trial.stimulus.eyeW, p.trial.display.clut.cursor, [0 0],0)
+         end
          
          if p.trial.pldaps.draw.photodiode.use && mod(p.trial.iFrame, p.trial.pldaps.draw.photodiode.everyXFrames) == 0
 %             photodiodecolor = p.trial.display.clut.window;
@@ -217,6 +221,18 @@ end
             p.trial.timing.datapixxPreciseTime(1:3) = [getsecs, boxsecs, confidence];
         end
         
+        %setup a fields for the keyboard data
+%         [~, firstPress]=KbQueueCheck();
+        p.trial.keyboard.samples = 0;
+        p.trial.keyboard.samplesTimes=zeros(1,round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.samplesFrames=zeros(1,round(p.trial.pldaps.maxFrames*1.1));
+%         p.trial.keyboard.keyPressSamples = zeros(length(firstPressQ),round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.pressedSamples=false(1,round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.firstPressSamples = zeros(p.trial.keyboard.nCodes,round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.firstReleaseSamples = zeros(p.trial.keyboard.nCodes,round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.lastPressSamples = zeros(p.trial.keyboard.nCodes,round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.lastReleaseSamples = zeros(p.trial.keyboard.nCodes,round(p.trial.pldaps.maxFrames*1.1));
+        
         %setup a fields for the mouse data
         if p.trial.mouse.use
             [~,~,isMouseButtonDown] = GetMouse(); 
@@ -268,17 +284,6 @@ end
         %%% Initalize Keyboard %%%
         %-------------------------------------------------------------------------%
         pds.keyboard.clearBuffer(p);
-        %setup a fields for the keyboard data
-        [~, firstPress]=KbQueueCheck();
-        p.trial.keyboard.samples = 0;
-        p.trial.keyboard.samplesTimes=zeros(1,round(p.trial.pldaps.maxFrames*1.1));
-        p.trial.keyboard.samplesFrames=zeros(1,round(p.trial.pldaps.maxFrames*1.1));
-%         p.trial.keyboard.keyPressSamples = zeros(length(firstPressQ),round(p.trial.pldaps.maxFrames*1.1));
-        p.trial.keyboard.pressedSamples=false(1,round(p.trial.pldaps.maxFrames*1.1));
-        p.trial.keyboard.firstPressSamples = zeros(length(firstPress),round(p.trial.pldaps.maxFrames*1.1));
-        p.trial.keyboard.firstReleaseSamples = zeros(length(firstPress),round(p.trial.pldaps.maxFrames*1.1));
-        p.trial.keyboard.lastPressSamples = zeros(length(firstPress),round(p.trial.pldaps.maxFrames*1.1));
-        p.trial.keyboard.lastReleaseSamples = zeros(length(firstPress),round(p.trial.pldaps.maxFrames*1.1));
         
         %%% Eyelink Toolbox Setup %%%
         %-------------------------------------------------------------------------%
