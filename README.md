@@ -22,7 +22,7 @@ The core is a class called pldaps.
 When a pldaps is created, it will load default parameters from different sources 
 into a field called defaultParameters. This is again a class (named @params) 
 that can handle a hierarchy of parameters.
-Importantly, pldaps is a handle class, which allows reduction of some memory allocation. (HINT TO DOWNSIDES DESCRIBED LATER)
+Importantly, pldaps is a handle class, which allows reduction of some memory allocation. There are a couple of downsides to using handle classes (for one, it appears that storing function handles in a handle class reduces the performance.), but this appears to be the fastest easy way to be able to add data to a struct from inside a subfunction. It might be possible to go via a mex file to get real pointer behavior without the downsides of a handle class
 
     %Specifically, assume you have an object p of type pldaps
     p=pldaps;
@@ -69,7 +69,7 @@ This function
 - and should add a cell of structs to p.conditions that that holds the changes in parameters from therse defaults for _each_trial_
 
 note: in later versions, p.conditions might actually only hold information about certain conditions and another field the info of what conditions to use in each trial.
-note: since the screen is already created basic screen parameters like the backgound color must be defined before the p.run is called.
+note: since the screen is already created, basic screen parameters like the backgound color must be defined before the p.run is called.
 
 %% pldaps.runTrial
 unless another function is specified in the parameters as the 
@@ -109,15 +109,19 @@ to the core of pldaps.
     %shoud should now see a gray screen with a white grid in degrees of visual angle
     %when you move the cursor of the mouse, it will be drawn at a corresponding position in cyan on that screen
     %the screen is full gray for a short time every 5 seconds
+    %hit 'd' to step into the debugger. Look around, you are now in the frameUpdate function of if the pldapsDefaultTrialFunction
+    %here you can see, that 'q' will quit , 'm' would give a manual reward
+    %'p' would end the trial give you a console to change defaultParameters for the next trials. To change paramers that are defined in the conditions, you would have to manually change the cells in p.conditions{} coordingly
     
-now lets step back and understand why we see what we see:
+now lets step back up and understand why we see what we see:
 first load a new, fresh version of the object
     p=pldaps(@plain,'test',settingsStruct)
 
     now type in
     p.trial or
     p.defaultParameters
-    this has all settings loaded, and as long as we are not in a trial p.trial points to p.defaultParameters
+    this has all settings loaded, and as long as we are not in a trial, p.trial points to p.defaultParameters
+    During a trial p.trial will be a struct that holds the merged parameters from p.defaultParameters for that trial
     
     you will see a list of fieldnames
     
@@ -189,13 +193,16 @@ call
     createRigPrefs
 and follow the instructions.
 createRigPrefs also opens a gui, to help view and move data in the defaultParameters hierarchy, but you can also change this in the command line using
-ADD THIS CODE HERE
+    p.defaultParameters.setLevels([1 2]);
+to ensure that you are adding the values at the correct hierarchy level
 
 
 %% Understanding all parameters
 Here all parameters should get explained, along with where they are being used
 
 %% Saving data
+Currently, you simply add data during trials to p.trial and change whatever parameters you want to change. After the trial, the struct is compared to the struct that existed at the beginning of the trial and the difference is stored in p.data{iTrial}
+This cell array is saved along with the initial parameters, parameters that where changed during the experiment (when you pressed 'p') and the condition cell array.
 
 %% start using pldaps
 ok, now you now the basic structure of a pldaps and of the stimuli. All you need is to write your own trial stimulus function

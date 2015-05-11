@@ -125,7 +125,7 @@ end
          %p.trial.pldaps.draw.eyepos?
          if p.trial.pldaps.draw.eyepos.use
             Screen('Drawdots',  p.trial.display.overlayptr, [p.trial.eyeX p.trial.eyeY]', ...
-            p.trial.stimulus.eyeW, p.trial.stimulus.colorEyeDot, [0 0],0)
+            p.trial.stimulus.eyeW, p.trial.display.clut.eyepos, [0 0],0)
          end
          if p.trial.mouse.use && p.trial.pldaps.draw.cursor.use
             Screen('Drawdots',  p.trial.display.overlayptr,  p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples), ...

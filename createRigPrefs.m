@@ -83,7 +83,6 @@ function outStruct=createRigPrefs(additionalSettings)
     p.defaultParameters
     p.defaultParameters.view
     warning('Loading default values, any previous prefs and also prefs from the PLDAPS3. Move things you want as a rig default to the pldapsRigPrefs (doule click in the right value list on the value you want to move and select to move it to pldapsRigPrefs) when done, click done. You can define the values yourself by clicking on the value field of pldapsRigPrefs of the parameter you want to change. Now enter the new value in the box below and press enter. Once everything is set up, type return on the command line.');
-    keyboard
     
     %save old prefs
     if ~isempty(a)
@@ -92,11 +91,17 @@ function outStruct=createRigPrefs(additionalSettings)
         save(sfn, 'a');
     end
      
+    keyboard
     %make changes in the viewer and press done. move things you want in the
     %pldapsRifPrefs to there (doule click in the right value list on the value you want to move and select to move it to pldapsRigPrefs)
     %when done, click 'done'
     %you can skip this or in addition to this, change parameters by editing
-    %p.defaultParameters, this is noy a struct, but behaved similarly...
+    %p.defaultParameters, this is not a struct, but behaves similarly...
+    %if you do not want to use the viewer but want to add parameters
+    %manually, you should call 
+    %p.defaultParameters.setLevels([1 2]);
+    %now, to ensure that you are adding the values at the correct hierarchy
+    %level
     
     %once all is set, call
     p.defaultParameters.setLevels(2);

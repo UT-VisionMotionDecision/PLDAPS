@@ -124,6 +124,9 @@ try
     ListenChar(2)
     HideCursor
     
+    p.trial.flagNextTrial  = 0; % flag for ending the trial
+    p.trial.iFrame     = 1;  % frame index
+    
     %save defaultParameters as trial 0
     trialNr=0;
     p.trial.pldaps.iTrial=0;
@@ -132,6 +135,7 @@ try
     if ~isempty(result)
         disp(result.message)
     end
+        
     
     
     %now setup everything for the first trial

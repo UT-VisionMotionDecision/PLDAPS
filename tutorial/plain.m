@@ -19,8 +19,6 @@ function p=plain(p,state)
         p.conditions=repmat({c},1,200);
 
         p.defaultParameters.pldaps.finish = length(p.conditions); 
-
-        defaultTrialVariables(p);
     else
         %if you don't want all the pldapsDefaultTrialFucntions states to be used,
         %just call them in the states you want to use it.
