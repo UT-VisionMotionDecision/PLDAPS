@@ -4,7 +4,7 @@ PLDAPS 4.1
 PLexon DAtapixx PSychtoolbox - Neurophysiology experiment toolbox for MATLAB
 
 Version 4.1 incorporates some larger changes that will break previous code. 
-The new concept attempts to preserve the flexibility of PLDAPS while allowing 
+The new concept attempts to preserve and extend the flexibility of PLDAPS while allowing 
 to reduce code multiplication when desired. 
 It is still possible to copy code, but it provides a framework that makes it unneccessary. 
 This has the advantage that bugs do not have to be fixed in many many files but just once.

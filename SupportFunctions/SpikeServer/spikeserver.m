@@ -143,7 +143,7 @@ qKey = KbName('q');
                         end
                     case 'GETFILENAME'
                         baseDir='D:\PlexonData\';
-                        a=dir([baseDir '*.plx']);
+                        a=dir([baseDir '*.pl*']);
                         %N=datenum({a.date});
                         [~,ii]=max([a.datenum]);
                         %a(ii).name
@@ -151,15 +151,45 @@ qKey = KbName('q');
                         filename=[strrep(baseDir,'\','/') a(ii).name];
                         WaitSecs(0.5);
                         a2=dir(filename);
-                        %if the file hasn't been update in the last five
-                        %second we assume we are not recording
-                        %if etime(datevec(now),datevec(a(ii).datenum)) > 5 
-                        if a(ii).bytes==a2.bytes
-                            filename='NOTRECORDING';
-                        end
-                        
+                        %doesn't work with asd
+%                         %if the file hasn't been update in the last five
+%                         %second we assume we are not recording
+%                         %if etime(datevec(now),datevec(a(ii).datenum)) > 5 
+%                         if a(ii).bytes==a2.bytes
+%                             filename='NOTRECORDING';
+%                         end
+%                         
                         pnet(sock,'printf',['FILENAME' char(10)]);
                         pnet(sock,'printf',[filename char(10)]);
+                        pnet(sock,'writepacket',clientip,double(clientport));
+                    case 'GETNANPOSITIONS'
+                        baseDir='C:\nan\dce\toolswin\winkmi\';
+                        a=dir([baseDir '*.txt']);
+                        %N=datenum({a.date});
+                        [~,ii]=max([a.datenum]);
+                        %a(ii).name
+                        
+                        filename=[strrep(baseDir,'\','/') a(ii).name];
+%                         filename='C:\nan\dce\toolswin\winkmi\03_November_2009_3.txt';
+                        [dat, pos]= nanread(filename);
+                        
+                        
+                        
+                        nantime=datenum([dat.day '-' dat.month '-' dat.year ' ' dat.hour ':' dat.minute ':' dat.second]);
+                        
+                       
+                        drives={pos.driveNr};
+                        drives=strrep(drives,'R_','1');
+                        drives=strrep(drives,'S_','2');
+                        drives=strrep(drives,'T_','3');
+                        drives=strrep(drives,'Z_','4');
+                        drives=str2double(drives);
+                        
+                        pnet(sock,'printf',['NANPOSITIONS' char(10)]);
+                        pnet(sock,'write',nantime);
+                        pnet(sock,'printf',char(10));
+                        pnet(sock,'write',[drives'  str2double({pos.drivePos})']);
+                        pnet(sock,'printf',char(10));
                         pnet(sock,'writepacket',clientip,double(clientport));
 
                     case 'DISCONNECT'
@@ -192,7 +222,7 @@ end
 
 function packetnum=sentSpikes(plx,sock,clientip,clientport,maxpacketsize,splice_pause,eventsonly,packetnum)
 	[nspks,ts] = PL_GetTS(plx);
-    remove=all(ts==0);
+    remove=all(ts'==0);
     ts(remove,:)=[];
     nspks=nspks-sum(remove);
     if eventsonly
