@@ -1,42 +1,42 @@
-function [Q, rowId] = saveQueue(dv)
-% [Q, rowId] = pds.eyelink.saveQueue(dv)
-% Prunes unused samples from eyelinksamples and converts them into
-% relative time.
-% INPUTS:
-%       dv.eyelink.samples [31 x nSamples] - from Eyelink('GetQueuedData')
-%       dv.eyelink.trackerMode         [string] - remote or headfixed
-%       dv.eyelink.EYE_USED            [string] - 'RIGHT', 'LEFT', 'BOTH'
+function [Q, rowId] = saveQueue(p)
+%pds.eyelink.saveQueue    prunes unused samples and unneeded fields
+%
+% [Q, rowId] = pds.eyelink.saveQueue(p)
+% Prunes unused samples from eyelinksamples
+%
 % OUTPUT
 %   Q   [double] - n datatypes x n samples
 %   rowId [cell] - cell array of strings, name of each row in Q
-
+%
+% 01/2014 jly   wrote it
+% 2014    jk    adapted for use with version 4.1
 if nargin < 1
     Eyelink('GetQueuedData?')
     help pds.eyelink.saveQueue
     return
 end
     
-% 01/2014 jly   wrote it
-goodSampleIdx = ~isnan(dv.trial.eyelink.samples(1,:));
+
+goodSampleIdx = ~isnan(p.trial.eyelink.samples(1,:));
 
 % these numbers are hard coded from Eyelink('GetQueuedData')
-tmp.time            = dv.trial.eyelink.samples(1,goodSampleIdx);
-tmp.sampleType      = dv.trial.eyelink.samples(2,goodSampleIdx);
-tmp.LeftPupilSize   = dv.trial.eyelink.samples(12,goodSampleIdx);
-tmp.RightPupilSize  = dv.trial.eyelink.samples(13,goodSampleIdx);
-tmp.LeftEyeX        = dv.trial.eyelink.samples(14,goodSampleIdx);
-tmp.LeftEyeY        = dv.trial.eyelink.samples(16,goodSampleIdx);
-tmp.RightEyeX       = dv.trial.eyelink.samples(15,goodSampleIdx);
-tmp.RightEyeY       = dv.trial.eyelink.samples(17,goodSampleIdx);
+tmp.time            = p.trial.eyelink.samples(1,goodSampleIdx);
+tmp.sampleType      = p.trial.eyelink.samples(2,goodSampleIdx);
+tmp.LeftPupilSize   = p.trial.eyelink.samples(12,goodSampleIdx);
+tmp.RightPupilSize  = p.trial.eyelink.samples(13,goodSampleIdx);
+tmp.LeftEyeX        = p.trial.eyelink.samples(14,goodSampleIdx);
+tmp.LeftEyeY        = p.trial.eyelink.samples(16,goodSampleIdx);
+tmp.RightEyeX       = p.trial.eyelink.samples(15,goodSampleIdx);
+tmp.RightEyeY       = p.trial.eyelink.samples(17,goodSampleIdx);
 
-if strcmp(dv.trial.eyelink.trackermode, 'RTABLER')
+if strcmp(p.trial.eyelink.trackermode, 'RTABLER')
     for ii = 1:8
         tmpfield = sprintf('HeadTracking%02.0f', ii);
-        tmp.(tmpfield) = dv.trial.eyelink.samples(22+ii,goodSampleIdx);
+        tmp.(tmpfield) = p.trial.eyelink.samples(22+ii,goodSampleIdx);
     end
 end
 
-switch dv.trial.eyelink.EYE_USED
+switch p.trial.eyelink.EYE_USED
     case 'RIGHT'
         tmp = rmfield(tmp, 'LeftEyeX');
         tmp = rmfield(tmp, 'LeftEyeY');

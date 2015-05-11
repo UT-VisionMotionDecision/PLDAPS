@@ -1,9 +1,8 @@
-function dv = finish(dv)
-% dv = pds.eyelink.Finish(dv)
-% EyelinkFinish stops recording and closes the currently open edf file.
-% dv [strut]
-
-
+function p = finish(p)
+%pds.eyelink.finish    stop recording on eyelink
+%
+% p = pds.eyelink.Finish(p)
+% pds.eyelink.finish stops recording and closes the currently open edf file.
 
 if nargin < 1
     help pds.eyelink.finish
@@ -13,13 +12,13 @@ end
 %     dv.disp.saveEDF = 0;
 % end
 
-if dv.defaultParameters.eyelink.use && Eyelink('IsConnected')
+if p.defaultParameters.eyelink.use && Eyelink('IsConnected')
     % edfFile = fullfile(dv.el.edfFileLocation, dv.el.edfFile);
-    edfFile = dv.defaultParameters.eyelink.edfFile;
+    edfFile = p.defaultParameters.eyelink.edfFile;
     Eyelink('StopRecording');
     Eyelink('CloseFile');
     % download data file
-    if dv.defaultParameters.eyelink.saveEDF
+    if p.defaultParameters.eyelink.saveEDF
         try
             fprintf('Receiving data file ''%s''\n', edfFile);
             %     status=Eyelink('ReceiveFile', dv.el.edfFile, dv.el.edfFileLocation);
@@ -30,7 +29,7 @@ if dv.defaultParameters.eyelink.use && Eyelink('IsConnected')
             if 2==exist(edfFile, 'file')
                 fprintf('Data file ''%s'' can be found in ''%s''\n', edfFile);
             end
-            dv.defaultParameters.eyelink.edfData = mglEyelinkEDFRead(edfFile, 1);
+            p.defaultParameters.eyelink.edfData = mglEyelinkEDFRead(edfFile, 1);
 
         catch rdf
             fprintf('Problem receiving data file ''%s''\n', edfFile );

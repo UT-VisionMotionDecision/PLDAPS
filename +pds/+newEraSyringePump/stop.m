@@ -1,4 +1,9 @@
 function p = stop(p)
+%pds.newEraSyringePump.stop   stop dispensing
+%
+% p = pds.newEraSyringePump.stop(p)
+%
+% jk wrote it 2015
 
     if p.trial.newEraSyringePump.use
         %get current given volume and store

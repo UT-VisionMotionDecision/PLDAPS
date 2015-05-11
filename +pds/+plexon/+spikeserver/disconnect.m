@@ -1,7 +1,8 @@
 function p = disconnect(p)
-% pds.plexon.spikederver.disconnect(p)
+%pds.plexon.spikeserver.disconnect   disconnects the remote plexon spikeserver
 %
-% SPIKESERVERDISCONNECT disconnects spike server 
+% p = pds.plexon.spikeserver.disconnect(p)
+%
 
 
 if p.trial.plexon.spikeserver.use && isfield(p.trial.plexon.spikeserver, 'sock')

@@ -1,8 +1,12 @@
 function p = setup(p)
+%pds.newEraSyringePump.getVolume   sets up connection to a New Era syringe pump
+%
+% p = pds.newEraSyringePump.setup(p)
 % sets up the connection to a New Era syringe pump (syringepump.com) via
 % USB. Currently only modes that run a by defined volume per reward are implemented
 %
-% (c) jk 2015
+% jk wrote it 2015
+
 if p.trial.newEraSyringePump.use
     cs='BaudRate=19200 DTR=1 RTS=1 ReceiveTimeout=1';
     IOPort('closeAll'); %risky. for now....

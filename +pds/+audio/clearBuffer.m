@@ -1,8 +1,9 @@
-function clearBuffer(dv)
-% pdsAudioClearBuffer(dv)
-if dv.trial.sound.use
-    PsychPortAudio('Stop', dv.trial.sound.breakfix);
-    PsychPortAudio('Stop', dv.trial.sound.reward);
-    PsychPortAudio('Stop', dv.trial.sound.incorrect);
-    PsychPortAudio('Stop', dv.trial.sound.cue);
+function clearBuffer(p)
+%pds.audio.clearBuffer(p)    stops audio output of files setup with pds.audio.setup(p)
+
+if p.trial.sound.use && isfield(p.trial.sound, 'wavfiles')
+    fn=fieldnames(p.defaultParameters.sound.wavfiles);
+    for iFile = 1:length(fn)
+        PsychPortAudio('Stop', p.trial.sound.(fn{iFile}));
+    end
 end

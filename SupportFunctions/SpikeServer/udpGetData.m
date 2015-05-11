@@ -1,22 +1,26 @@
-function [spikes, sock, filename] = udpGetData(selfip,selfport,remoteip,remoteport,sock, t0)
+function [spikes, sock, other] = udpGetData(selfip,selfport,remoteip,remoteport,sock, t0)
 % spikes = pds.spikeserver.udpGetData(selfip,selfport,remoteip,remoteport)
 %
 % SPIKESERVERGETSPIKES reads spikes from the udp connection opened by
 % pds.spikeserver.connect.m
 spikes = [];
-filename=[];
-initt0 = GetSecs;
+other.filename=[];
+other.nanpositions=[];
+% initt0 = GetSecs;
 
 pnet(sock,'printf',['GET' char(10) selfip char(10)]);
 pnet(sock,'write',uint16(selfport));
 pnet(sock,'writepacket',remoteip,remoteport);
 
+% pnet(sock,'printf',['GETNANPOSITIONS' char(10) selfip char(10)]);
+% pnet(sock,'write',uint16(selfport));
+% pnet(sock,'writepacket',remoteip,remoteport);
 
-remotet0 = pnet(sock,'read',[1,1],'double');
+% remotet0 = pnet(sock,'read',[1,1],'double');
 
 %Receive messages
 sze = pnet(sock,'readpacket', 2000000, 'noblock');
-localt0 = GetSecs - initt0;
+% localt0 = GetSecs - initt0;
 
 if sze > 0
     msg = pnet(sock,'readline');
@@ -36,7 +40,17 @@ if sze > 0
             spikes = [spikes;data];
         end
     elseif strcmp(msg,'FILENAME')
-        filename=pnet(sock,'readline');
+        other.filename=pnet(sock,'readline');
+    elseif strcmp(msg,'NANPOSITIONS')
+        nantime=pnet(sock,'read',[1,1],'double');
+        
+        currentlength= size(other.nanpositions,1);
+        %other.nan.positions=zeros(0,2);
+        data=pnet(sock,'read',[1,2],'double');
+        while data
+            other.nanpositions(end+1,2:3)=data;
+        end
+        other.nanpositions(currentlength+1:end,1)=nantime;
     else
         fprintf('Invalid message type received: %s\n',msg);
         return

@@ -1,11 +1,20 @@
 function outStruct=createRigPrefs(additionalSettings)
+%CreateRigPrefspdsBeginExperimentcreate preferences stored as matlab preferences
+% outStruct=createRigPrefs(additionalSettings) allows to create and change
+% existing rig parameters stored iin the matlab preference 'pldaps'.
+% These setting override the default parameters of the pldaps class.
+% The optional additionalSettings will be loeaded into a a higher hierarchy
+% level from where it can be copied over in the parameters viwer.
+% outStruct is the final struct of settings that were also stored in the
+% matlab preference system.
+
     %to we already have current settings?
     a=getpref('pldaps');
     if ~isempty(a)
         warning('you already have a pldaps setting, be sure not no lose those seetings....');
     end
     
-    %to we have and old PLDAPS Version setting?
+    %do we have and old PLDAPS Version setting?
     b=getpref('PLDAPS');
     %yes? ok, let's try to copy some info over
     if ~isempty(b)
@@ -17,8 +26,8 @@ function outStruct=createRigPrefs(additionalSettings)
             fromOldPrefs.pldaps.wavfiles.data=b.wavfiles;
         end
         if isfield(b,'spikeserver')
-            fromOldPrefs.spikeserver=b.spikeserver;
-            fromOldPrefs.spikeserver.use=true;
+            fromOldPrefs.plexon.spikeserver=b.spikeserver;
+            fromOldPrefs.plexon.spikeserver.use=true;
         end
         if isfield(b,'rig') %this has the old dv struct
             odv=load(b.rig);
@@ -53,10 +62,10 @@ function outStruct=createRigPrefs(additionalSettings)
                 end
             end
             
-            %keyboard codes
-            if isfield(odv,'kb')
-                fromOldPrefs.keyboard.codes=odv.kb;
-            end
+%             %keyboard codes
+%             if isfield(odv,'kb')
+%                 fromOldPrefs.keyboard.codes=odv.kb;
+%             end
             
         end
     else

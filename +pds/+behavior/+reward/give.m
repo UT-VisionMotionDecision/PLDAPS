@@ -1,5 +1,10 @@
 function p = give(p, amount)
-
+%pds.behavior.reward.give(p, amount)    give a certaim amount of reward
+% handles reward for newEraSyringePumps and via TTL over datapixx. Also
+% send a reward bit via datapixx (if datapixx is used).
+% stores the time and amount in p.trial.behavior.reward.timeReward
+% If no amount is specified, the value set in
+% p.trial.behavior.reward.defaultAmount will be used
     if nargin < 2
         amount = p.trial.behavior.reward.defaultAmount;
     end

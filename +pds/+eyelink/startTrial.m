@@ -1,18 +1,22 @@
-function dv = startTrial(dv)
-% [drained, samplesIn, eventsIn] = pds.eyelink.startTrial(dv)
+function p = startTrial(p)
+%pds.eyelink.startTrial    allocate and clear buffer for the next trial
+%
+% allocates the data structs and also clears the buffer
+%
+% p = startTrial(p)
 
-if dv.trial.eyelink.use
-    dv.trial.eyelink.sampleNum     = 0;
-    dv.trial.eyelink.eventNum      = 0;
-    dv.trial.eyelink.drained       =   false; % drained is a flag for pulling from the buffer
-    if ischar(dv.trial.eyelink.srate), 
-        dv.trial.eyelink.srate = str2double(dv.trial.eyelink.srate); 
+if p.trial.eyelink.use
+    p.trial.eyelink.sampleNum     = 0;
+    p.trial.eyelink.eventNum      = 0;
+    p.trial.eyelink.drained       =   false; % drained is a flag for pulling from the buffer
+    if ischar(p.trial.eyelink.srate), 
+        p.trial.eyelink.srate = str2double(p.trial.eyelink.srate); 
     end
-    bufferSize = dv.trial.eyelink.srate*dv.trial.pldaps.maxTrialLength;
-    dv.trial.eyelink.samples  = nan(dv.trial.eyelink.buffersamplelength,bufferSize);
-    dv.trial.eyelink.events   = nan(dv.trial.eyelink.buffereventlength,bufferSize);
-    dv.trial.eyelink.hasSamples    = true;
-    dv.trial.eyelink.hasEvents     = true;
+    bufferSize = p.trial.eyelink.srate*p.trial.pldaps.maxTrialLength;
+    p.trial.eyelink.samples  = nan(p.trial.eyelink.buffersamplelength,bufferSize);
+    p.trial.eyelink.events   = nan(p.trial.eyelink.buffereventlength,bufferSize);
+    p.trial.eyelink.hasSamples    = true;
+    p.trial.eyelink.hasEvents     = true;
     
     % Pre clear buffer
     if Eyelink('CheckRecording')~=0
@@ -21,11 +25,8 @@ if dv.trial.eyelink.use
 
     %read from the buffer instead of clearing, must be carefull for long
     %iti 
-    dv.trial.eyelink.drained=false;
+    p.trial.eyelink.drained=false;
 %     pds.eyelink.getQueue(dv);
-    dv.trial.eyelink.drained = pds.eyelink.clearBuffer(dv.trial.eyelink.drained);
-    
-    dv.trial.timing.eyelinkStartTime = pds.eyelink.getPreciseTime(6.5e-5,0.1,2);
-    Eyelink('message', 'TRIALSTART');
+    p.trial.eyelink.drained = pds.eyelink.clearBuffer(p.trial.eyelink.drained);
 end
  

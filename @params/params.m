@@ -1,4 +1,19 @@
 classdef params < handle
+%PARAMS    A hierarchical parameter handling class
+% PARAMS takes a cell array of strucs and a cell array of names and
+% organized it so that you can access a parameter that is defined in any of
+% those structs. If a parameter is defined in more than one struct, the
+% value of the struct with the higher index is used.
+% The hierarchy levels can be limited by calling PARAMS.setLevels.
+% New levels can be added using PARAMS.addLevels
+% Since performance is not sufficient for high demand scenarios as many
+% psychphysical experiments, the paraneters often have to be merged to a
+% single struct for use during a trial with PARAMS.mergeToSingleStruct
+% Use PARAMS.getDifferenceFromStruct to get a struct that only hold changes
+% made to a perviously obtained merged single struct.
+% PARAMS.view opens a gui for visualization and editing of the parameters
+
+ 
     properties
         structs
         structNames

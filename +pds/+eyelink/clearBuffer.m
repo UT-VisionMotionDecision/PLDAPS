@@ -1,5 +1,7 @@
 function [drained, samplesIn, eventsIn] = clearBuffer(drained)
-% [drained, samplesIn, eventsIn] = pds.eyelink.clearBuffer(drained)    
+%pds.eyelink.clearBuffer    clear the eyelink buffer
+%
+% [drained, samplesIn, eventsIn] = pds.eyelink.clearBuffer(drained)
 
 while ~drained
     [samplesIn, eventsIn, drained] = Eyelink('GetQueuedData');

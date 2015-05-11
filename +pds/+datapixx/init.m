@@ -1,32 +1,34 @@
 function p =  init(p)
-% dv =  pds.Datapixx.init(dv)
-% pdsDatapixxInit is a function that intializes the DATAPIXX, preparing it for
+%pds.datapixx.init    initialize Datapixx at the beginning of an experiment.
+% p =  pds.datapixx.init(p)
+%
+% pds.datapixx.init is a function that intializes the DATAPIXX, preparing it for
 % experiments. Critically, the PSYCHIMAGING calls sets up the dual CLUTS
 % (Color Look Up Table) for two screens.  These two CLUTS are in the
-% dv.disp struct
+% p.trial.display substruct
 % INPUTS
-%       dv [struct] - main pldaps display variables structure
-%           .disp [struct] - required display 
+%       p.trial [struct] - main pldaps display variables structure
+%           .dispplay [struct] - required display 
 %               .ptr         - pointer to open PTB window
 %               .useOverlay  - boolean for whether to use CLUT overlay
 %               .gamma.table - required ( can be a linear gamma table )
 %               .humanCLUT   [256 x 3] human color look up table
 %               .monkeyCLUT  [256 x 3] monkey color look up table
 % OUTPUTS
-%       dv [modified]
-%           .disp.overlayptr - pointer to overlay window added
+%       p [modified]
+%           .trial.display.overlayptr - pointer to overlay window added
 %
-%           if dv.useOverlay == 1, pdsDatapixxInit opens an overlay pointer
-%           with dv.disp.monkeyCLUT as the color look up table for one
-%           datapixx monitor and dv.disp.humanCLUT for the other monitor. 
+%           if useOverlay == 1, pds.datapixx.init opens an overlay pointer
+%           with p.trial.display.monkeyCLUT as the color look up table for one
+%           datapixx monitor and p.trial.display.humanCLUT for the other monitor. 
 %       
-%       dv.disp.info - datapixx fields updated
 % Datapixx is Opened and set to default settings for PLDAPS
 
 
 % 2011       kme wrote it
 % 12/03/2013 jly reboot for version 3
-
+% 2014       adapt to version 4.1
+global dpx;
 
 if p.defaultParameters.datapixx.use
     
@@ -34,8 +36,8 @@ if p.defaultParameters.datapixx.use
          Datapixx('Open');
     end
     
-    %set getPreciseTime options
-    global dpx;
+    %set getPreciseTime options, see testsuite/pldapsTimingTests for
+    %details
     if ~isempty(p.trial.datapixx.GetPreciseTime.syncmode)
         dpx.syncmode=2; %1,2,3
     end
@@ -45,9 +47,9 @@ if p.defaultParameters.datapixx.use
     if ~isempty(p.trial.datapixx.GetPreciseTime.optMinwinThreshold)
         dpx.optMinwinThreshold=6.5e-5;
     end
-    clear dpx;
     
     if Datapixx('IsPropixx') 
+        %this might not work reliably
         if ~Datapixx('IsPropixxAwake')
             Datapixx('SetPropixxAwake');
         end
@@ -69,17 +71,15 @@ if p.defaultParameters.datapixx.use
     p.defaultParameters.datapixx.info.DatapixxFirmwareRevision = Datapixx('GetFirmwareRev'); 
     p.defaultParameters.datapixx.info.DatapixxRamSize = Datapixx('GetRamSize');
     
-    %check if transparant color is availiable. but how? firmware versions
-    %differ between all machines...
-    
-    %now set the transparancy color to the background color. Could set it
+    %check if transparant color is availiable? but how? firmware versions
+    %differ between all machines...hmm, instead:
+    %Set the transparancy color to the background color. Could set it
     %to anything, but we'll use this to maximize backward compatibility
     bgColor=p.trial.display.bgColor;
     if isField(p.defaultParameters, 'display.gamma.table')
         bgColor = interp1(linspace(0,1,256),p.defaultParameters.display.gamma.table(:,1), p.defaultParameters.display.bgColor);
     end
     Datapixx('SetVideoClutTransparencyColor', bgColor);
-%     Datapixx('SetVideoClutTransparencyColor', [0.1 0 0]);
     Datapixx('EnableVideoClutTransparencyColorMode');
     Datapixx('RegWr');
     
@@ -145,6 +145,12 @@ if p.defaultParameters.datapixx.use
     pds.datapixx.adc.start(p);
 else
     if p.defaultParameters.display.useOverlay
+        % this is abandoned test code to show how to create a dual clut
+        % system without datapixx, by assigning different clut to two
+        % screens in mirror modes.  However OsX cannot mix mirror and
+        % extendet mode (well it can, but uses software mirroring in that
+        % case). As we typically want a controller screen for the matlab
+        % session window, I did not pursue this
         %TODO: 
         % 1: throw error unless some debug variable is set
         % 2: have switch to either to this or make overlaypointer a pointer

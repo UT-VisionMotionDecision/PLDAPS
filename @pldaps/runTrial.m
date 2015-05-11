@@ -1,11 +1,10 @@
 function p = runTrial(p)
-    % [PDS,dv] = runTrial(dv,PDS)
-    % runs a single trial
-    %
-    % 03/2013 jly   Wrote hyperflow
-    % 03/2014 jk    removed the hyper, added awesome. Used jly's code to get
-    % the PLDAPS structure and frame it into a class
-    % might change to ASYNC buffer flipping. but won't for now.
+%runTrial    runs a single Trial by calling the function defined in 
+%            p.trial.pldaps.trialFunction through different states
+%
+% 03/2013 jly   Wrote hyperflow
+% 03/2014 jk    Used jly's code to get the PLDAPS structure and frame it into a class
+%               might change to ASYNC buffer flipping. but won't for now.
 
     %the trialFunctionHandle
     tfh=str2func(p.trial.pldaps.trialFunction);
@@ -47,15 +46,15 @@ function p = runTrial(p)
     
     tfh(p, p.trial.pldaps.trialStates.trialSetup);
     
-    timeNeeded(p.trial.pldaps.trialStates.frameUpdate)=0.5;
-    timeNeeded(p.trial.pldaps.trialStates.framePrepareDrawing)=2;
-    timeNeeded(p.trial.pldaps.trialStates.frameDraw)=2;
-    timeNeeded(p.trial.pldaps.trialStates.frameIdlePreLastDraw)=2;
-    timeNeeded(p.trial.pldaps.trialStates.frameDrawTimecritical)=0.5;
-    timeNeeded(p.trial.pldaps.trialStates.frameDrawingFinished)=2;
-    timeNeeded(p.trial.pldaps.trialStates.frameIdlePostDraw)=0.5;
-    timeNeeded(p.trial.pldaps.trialStates.frameFlip)=5;
-    timeNeeded=timeNeeded/1000;%convert to seconds
+%     timeNeeded(p.trial.pldaps.trialStates.frameUpdate)=0.5;
+%     timeNeeded(p.trial.pldaps.trialStates.framePrepareDrawing)=2;
+%     timeNeeded(p.trial.pldaps.trialStates.frameDraw)=2;
+%     timeNeeded(p.trial.pldaps.trialStates.frameIdlePreLastDraw)=2;
+%     timeNeeded(p.trial.pldaps.trialStates.frameDrawTimecritical)=0.5;
+%     timeNeeded(p.trial.pldaps.trialStates.frameDrawingFinished)=2;
+%     timeNeeded(p.trial.pldaps.trialStates.frameIdlePostDraw)=0.5;
+%     timeNeeded(p.trial.pldaps.trialStates.frameFlip)=5;
+%     timeNeeded=timeNeeded/1000;%convert to seconds
 
     %will be called just before the trial starts for time critical calls to
     %start data aquisition
@@ -65,11 +64,11 @@ function p = runTrial(p)
     p.trial.framePostLastDrawIdleCount=0;
 
 
-    % pdsEyelinkGetQueue(dv);
     %%% MAIN WHILE LOOP %%%
     %-------------------------------------------------------------------------%
         while ~p.trial.flagNextTrial && p.trial.pldaps.quit == 0
-            %go through one frame
+            %go through one frame by calling tfh with the different states.
+            %Save the times each state is finished.
             
             %time of the estimated next flip
             p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame+p.trial.display.ifi;

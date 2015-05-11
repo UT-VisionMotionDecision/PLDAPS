@@ -1,4 +1,4 @@
-function pldapsDefaultTrialFunction(p,state)
+function p = pldapsDefaultTrialFunction(p,state)
     switch state
         %frameStates
         case p.trial.pldaps.trialStates.frameUpdate
@@ -242,6 +242,11 @@ end
             p.trial.mouse.samples = 0;
         end
         
+        %%% Eyelink Toolbox Setup %%%
+        %-------------------------------------------------------------------------%
+        % preallocate for all eye samples and event data from the eyelink
+        pds.eyelink.startTrial(p);
+        
         %%% Spike server
         %-------------------------------------------------------------------------%
 %         [p,spikes] = pds.plexon.spikeserver.getSpikes(p); %what are we dowing with the spikes???
@@ -288,7 +293,7 @@ end
         %%% Eyelink Toolbox Setup %%%
         %-------------------------------------------------------------------------%
         % preallocate for all eye samples and event data from the eyelink
-        pds.eyelink.startTrial(p);
+        pds.eyelink.startTrialPrepare(p);
 
 
         %%% START OF TRIAL TIMING %%

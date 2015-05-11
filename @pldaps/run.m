@@ -1,32 +1,16 @@
 function p = run(p)
-% [p] = run()
-% PLDAPS (Plexon Datapixx PsychToolbox) version 4
-%       run is a wrapper for calling PLDAPS condition files
-%           It opens PsychImaging pipeline and initializes datapixx for
-%           dual color lookup tables. Everything else must be in the
-%           condition file and trial function. See PLDAPScheck.m for
-%           explanation.  IMPORTANT: edit setupPLDAPSenv.m and
-%           makeRigConfigFile.m before running. 
-% INPUTS:
-%       subj [string]       - initials for subject
-%       condition [string]  - name of matlab function that runs trials
-%                           - you must have the condition file in your path 
-%       newsession [0 or 1] - if 1, start new PDS. 0 load old PDS (defaults
-%       to 1)
-%       [brackets] indicate optional variables and their default values
-
+%run    run a new experiment for a previuously created pldaps class
+% p = run(p)
+% PLDAPS (Plexon Datapixx PsychToolbox) version 4.1
+%       run is a wrapper for calling PLDAPS package files
+%           It opens the PsychImaging pipeline and initializes datapixx for
+%           dual color lookup tables. 
 % 10/2011 jly wrote it (modified from letsgorun.m)
 % 12/2013 jly reboot. updated to version 3 format.
-% 04/2014 jk  movied into a pldaps classed; adapated to new class structure
-
-% Tested to run with Psychtoolbox
-% 3.0.11 - Flavor: beta - Corresponds to SVN Revision 4331
-% For more info visit:
-% https://github.com/Psychtoolbox-3/Psychtoolbox-3
+% 04/2014 jk  moved into a pldaps class; adapated to new class structure
 
 %TODO: 
-% shoudl the outputfile uigetfile be optional?
-% one same system for modules, e.g. moduleSetup, moduleUpdate, moduleClose
+% one unified system for modules, e.g. moduleSetup, moduleUpdate, moduleClose
 % make HideCursor optional
 % TODO:reset class at end of experiment or mark as recorded, so I don't
 % run the same again by mistake
@@ -74,7 +58,7 @@ try
     
     % Setup PLDAPS experiment condition
     p.defaultParameters.pldaps.maxFrames=p.defaultParameters.pldaps.maxTrialLength*p.defaultParameters.display.frate;
-    p = feval(p.defaultParameters.session.experimentSetupFile, p);
+    feval(p.defaultParameters.session.experimentSetupFile, p);
     
             %
             % Setup Photodiode stimuli
@@ -180,10 +164,10 @@ try
            
 
            %it looks like the trial struct gets really partitioned in
-           %memory and this appears to make some get calls slow (!). 
-           %We thus need a deep copy. The supercalss matlab.mixin.Copyable
+           %memory and this appears to make some get (!) calls slow. 
+           %We thus need a deep copy. The superclass matlab.mixin.Copyable
            %is supposed to do that, but that is ver very slow, so we create 
-           %a manual deep opy by saving the struct to a file and loading it 
+           %a manual deep copy by saving the struct to a file and loading it 
            %back in.
            tmpts=mergeToSingleStruct(p.defaultParameters);
            save([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct'], 'tmpts');

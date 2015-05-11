@@ -1,5 +1,10 @@
 function p=plain(p,state)
-
+%plain    a plain stimulus file for use with a pldaps class. This file
+%         serves both as the expriment setup file and the trial state function
+% example:
+% load settingsStruct
+% p=pldaps(@plain,'demo', settingsStruct);
+% p.run
     if nargin==1 %initial call to setup conditions
         
         p = pdsDefaultTrialStructure(p); 
@@ -22,16 +27,18 @@ function p=plain(p,state)
         %otherwise just leave it here
         pldapsDefaultTrialFunction(p,state);
         switch state
-%             case dv.trial.pldaps.trialStates.trialSetup
-%             case dv.trial.pldaps.trialStates.trialPrepare
-%             case dv.trial.pldaps.trialStates.trialCleanUpandSave
 %             case dv.trial.pldaps.trialStates.frameUpdate
 %             case dv.trial.pldaps.trialStates.framePrepareDrawing; 
 %             case dv.trial.pldaps.trialStates.frameDraw;
-%             case dv.trial.pldaps.trialStates.frameIdlePreLastDraw;
-%             case dv.trial.pldaps.trialStates.frameDrawTimecritical;
+% %             case dv.trial.pldaps.trialStates.frameIdlePreLastDraw;
+% %             case dv.trial.pldaps.trialStates.frameDrawTimecritical;
 %             case dv.trial.pldaps.trialStates.frameDrawingFinished;
-%             case dv.trial.pldaps.trialStates.frameIdlePostDraw;
+% %             case dv.trial.pldaps.trialStates.frameIdlePostDraw;
+%
+%             case dv.trial.pldaps.trialStates.trialSetup
+%             case dv.trial.pldaps.trialStates.trialPrepare
+%             case dv.trial.pldaps.trialStates.trialCleanUpandSave
+
             case p.trial.pldaps.trialStates.frameFlip;   
                 if p.trial.iFrame == p.trial.pldaps.maxFrames
                     p.trial.flagNextTrial=true;

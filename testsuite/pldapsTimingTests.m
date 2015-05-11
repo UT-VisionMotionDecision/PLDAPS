@@ -1,3 +1,5 @@
+%outdated, use one of the other functions
+
 %very rough firt draft, need something pretty and well documented
 %% datapixx
 dptime=cellfun(@(x) x.timing.datapixxPreciseTime, PDS.data, 'UniformOutput', false);

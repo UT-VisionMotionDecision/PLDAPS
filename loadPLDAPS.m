@@ -1,4 +1,5 @@
 function loadPLDAPS()
+%loadPLDAPS   load the pldaps folders into the matlab path
 
     %add the path to you PLDAPS code and other Dirs you want to have added
     %(your stimuli

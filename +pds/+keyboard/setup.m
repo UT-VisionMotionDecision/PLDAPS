@@ -1,15 +1,15 @@
 function p = setup(p,scan)
-% kb = pds.keyboard.setup(p,scan)
+%pds.git.setup   setup the keyboard queue
 %
 % Setup universal Mac/PC keyboard and keynames
 % set scan to 1 if using button box in scanner, otherwise, leave empty.
 % output: kb. a struct with all keys (e.g. kb.pKey = 'p')
 %
+% p = pds.keyboard.setup(p)
+%
 % T.Czuba 6-4-2008
 % ktz updated the function description Apr2013
-%TODO: should this be called each experiment or is it enough to have it in
-%the config?
-
+% jk 2014 adapted to work with version 4.1
 
 if nargin < 2
     scan = 0;

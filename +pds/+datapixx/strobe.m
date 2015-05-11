@@ -1,22 +1,26 @@
 function timings=strobe(lowWord,highWord)
-% DataPixxStrobe(word)
-% strobes a single 8-bit word (255) from the datapixx
+%pds.datapixx.strobe    strobes a 16 Bit word from the datapixx
+%
+% pds.datapixx.strobe(lowWord,highWord) 
+%
+% strobes two 8-bit words (255) from the datapixx
 % INPUTS
-%   useDataPixxBool - logical 
-%   word            - 8-bit word to strobe from Datapixx
-% This function takes approximately 2ms to run
+%   lowWord            - bits 0-7 to strobe from Datapixx
+%   highWord           - bits 8-15 to strobe from Datapixx
+% OUTPUTS
+%   timings            - precise timing estimates of the time of the strobe
+%
+% requesting timings the output changes the methods of sending the stobe
+% and can negatively impact performance
 %
 % (c) kme 2011
 % jly 2013
+% jk 2015 changed to work with the plexon omiplex system
 
 if nargin < 2 
     highWord=0;
 end
 word=mod(lowWord, 2^8) + mod(highWord,2^8)*2^8;
-if mod(word, 2^16)~=word
-    stop=1;
-end
-
 
 if nargout==0
     %first we set the bits without the strobe, to ensure they are all

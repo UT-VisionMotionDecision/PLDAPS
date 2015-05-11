@@ -1,15 +1,25 @@
 classdef pldaps < handle
+%pldaps    main class for PLDAPS (Plexon Datapixx PsychToolbox) version 4.1
+% The pldaps contructor accepts the following inputs, all are optional, but may be required later for experiments to run:
+%     1. a subject identifier (string)
+%     2. a function name or handle that sets up all experiement parameters
+%     3. a struct with changes to the defaultParameters, this is usefull for debugging, but could also be used to replace the function.
+% As long as the inputs are uniquely identifiable, the order is not important, otherwise 
+% for the remaining unclassified inputs the above order is assumed.
+% Read README.md for a more detailed explanation of the default usage
+
+
  properties
     defaultParameters@params
 
-    conditions %cell array with a struct like defaultParameters that only hold condition specific changes or additions
+    conditions@cell %cell array with a struct like defaultParameters that only hold condition specific changes or additions
 
     trial %will get all variables from defaultParameters + correct conditions cell merged. This will get saved automatically. 
           %You can add calculated paraneters to this struct, e.g. the
           %actual eyeposition used for caculating the frame, etc.
-    data
+    data@cell
     
-    functionHandles %unused atm
+    functionHandles@cell %mostly unused atm
  end
 
  methods

@@ -1,6 +1,5 @@
 function clearCalDisplay(dv)
-% pds.eyelink.clearCalDisplay(dv)
-% subroutine called by pdsEyelinkCalibrate
+%pds.eyelink.clearCalDisplay    clears the display
 
 if nargin < 1
     help pds.eyelink.calibrate

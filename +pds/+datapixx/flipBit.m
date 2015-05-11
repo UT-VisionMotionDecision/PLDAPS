@@ -1,11 +1,10 @@
 function timings=flipBit(bit,trial)
-% pds.datapixx.flipBit(bit)
+%pds.datapixx.flipBit    flip a bit on the digital out of the Datapixx
 %
-% DatapixxFlipBit flips a bit on the digital out values of the Datapixx
-% box.  The bit flipped is specified ordinally, so if "bit" = 3, 
-% the third bit is set to 1, and quickly set back to zero. 
+% pds.datapixx.flipBit flips a bit on the digital out of the Datapixx
+% box and back.  
 %
-% NOTE: This code if to use with the Plexon omniplex system. 
+% NOTE: This code is optimized to use with the Plexon omniplex system. 
 % We are using it it stobe only mode and thus simply forward the command to 
 % pds.datapixx.stobe
 %

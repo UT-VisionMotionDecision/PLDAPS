@@ -1,7 +1,6 @@
 function p = openScreen(p)
-% ds = pdsOpenScreen(ds)
-% Opens PsychImaging Window with preferences set for use with Datapixx 
-% ds is the dv.disp struct in PLDAPS
+%openScreen    opens PsychImaging Window with preferences set for special
+%              decives like datapixx.
 % 
 % required fields
 % dv.defaultParameters.display.
@@ -26,18 +25,10 @@ function p = openScreen(p)
 % 01/20/2014 jly update     Updated help text and added default arguments.
 %                           Created a distinct variable to separate 
 %                           colorclamp and normalize color.
+% 05/2015    jk  update     changed for use with version 4.1
+%                           moved default parameters to the
+%                           pldapsClassDefaultParameters
 
-
-%moves these to the class defaults
-% if ~isfield(ds, 'screenSize'),    ds.screenSize = [];         end
-% if ~isfield(ds, 'stereoMode'),    ds.stereoMode = 0;          end
-% if ~isfield(ds, 'bgColor'),       ds.bgColor    = [.5 .5 .5]; end
-% if ~isfield(ds, 'normalizeColor'),ds.normalizeColor = 0;      end
-% if ~isfield(ds, 'stereoFlip'),    ds.stereoFlip = [];         end
-% if ~isfield(ds, 'colorclamp'),    ds.colorclamp = 0;          end
-% if ~isfield(ds, 'widthcm'),       ds.widthcm = 63;            end
-% if ~isfield(ds, 'heightcm'),      ds.heightcm = 45;           end
-% if ~isfield(ds, 'viewdist'),      ds.viewdist = 57;           end
 
 InitializeMatlabOpenGL(0,0); %second 0: debug level =0 for speed
 % AssertOpenGL;
@@ -56,7 +47,6 @@ else
     p.defaultParameters.display.width = 2*atand((p.defaultParameters.display.widthcm/4)/p.defaultParameters.display.viewdist);
 end
 
-
 if p.defaultParameters.display.normalizeColor == 1
     disp('****************************************************************')
     disp('****************************************************************')
@@ -67,7 +57,6 @@ if p.defaultParameters.display.normalizeColor == 1
     disp('****************************************************************')
 	PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange');
 end
-
 
 if p.defaultParameters.display.useOverlay && p.defaultParameters.datapixx.use
     disp('****************************************************************')
@@ -80,7 +69,6 @@ if p.defaultParameters.display.useOverlay && p.defaultParameters.datapixx.use
     PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
     % Turn on the overlay
     PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
-%     PsychImaging('AddTask', 'General', 'UseDataPixx');
 else
     disp('****************************************************************')
     disp('****************************************************************')
@@ -88,7 +76,6 @@ else
     disp('****************************************************************')
     PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');   
 end
-
 
 if strcmp(p.defaultParameters.display.stereoFlip,'right');
     disp('****************************************************************')
@@ -116,8 +103,6 @@ disp('****************************************************************')
 disp('Adding DisplayColorCorrection LookUpTable to FinalFormatting')
 disp('****************************************************************')
 PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTable');
-
-
 
 %% Open double-buffered onscreen window with the requested stereo mode
 disp('****************************************************************')
@@ -149,7 +134,6 @@ else
     PsychColorCorrection('SetLookupTable', ptr, linspace(0,1,256)'*[1, 1, 1], 'FinalFormatting');
 end
 
-
 % % This seems redundant. Is it necessary?
 if p.defaultParameters.display.colorclamp == 1
     disp('****************************************************************')
@@ -159,10 +143,6 @@ if p.defaultParameters.display.colorclamp == 1
     Screen('ColorRange', p.defaultParameters.display.ptr, 1, 0);
 end
  
-
-
-
-
 %% Set some basic variables about the display
 p.defaultParameters.display.ppd = p.defaultParameters.display.winRect(3)/p.defaultParameters.display.width; % calculate pixels per degree
 p.defaultParameters.display.frate = round(1/Screen('GetFlipInterval',p.defaultParameters.display.ptr));   % frame rate (in Hz)
@@ -180,12 +160,10 @@ p.defaultParameters.display.dHeight = atand(p.defaultParameters.display.wHeight/
 p.defaultParameters.display.w2px=[p.defaultParameters.display.pWidth/p.defaultParameters.display.wWidth; p.defaultParameters.display.pHeight/p.defaultParameters.display.wHeight];
 p.defaultParameters.display.px2w=[p.defaultParameters.display.wWidth/p.defaultParameters.display.pWidth; p.defaultParameters.display.wHeight/p.defaultParameters.display.pHeight];
 
-
 % Set screen rotation
 p.defaultParameters.display.ltheta = 0.00*pi;                                    % Screen rotation to adjust for mirrors
 p.defaultParameters.display.rtheta = -p.defaultParameters.display.ltheta;
 p.defaultParameters.display.scr_rot = 0;                                         % Screen Rotation for opponency conditions
-
 
 % Make text clean
 Screen('TextFont',p.defaultParameters.display.ptr,'Helvetica'); 
@@ -208,15 +186,6 @@ if p.defaultParameters.display.movie.create
     p.defaultParameters.display.movie=movie;
 end
 
-
-%moved to class defaults
-% if ~isfield(ds, 'sourceFactorNew')
-%     ds.sourceFactorNew = GL_SRC_ALPHA;
-% end
-% if ~isfield(ds, 'destinationFactorNew')
-%     ds.destinationFactorNew = GL_ONE_MINUS_SRC_ALPHA;
-% end
-
 % Set up alpha-blending for smooth (anti-aliased) drawing 
 disp('****************************************************************')
 disp('****************************************************************')
@@ -225,7 +194,6 @@ disp('****************************************************************')
 Screen('BlendFunction', p.defaultParameters.display.ptr, p.defaultParameters.display.sourceFactorNew, p.defaultParameters.display.destinationFactorNew);  % alpha blending for anti-aliased dots
 
 if p.trial.display.forceLinearGamma %does't really belong here, but need it before the first flip....
-%     Screen('LoadNormalizedGammaTable',p.defaultParameters.display.ptr,linspace(0,1,256)'*[1, 1, 1],0);
     LoadIdentityClut(p.defaultParameters.display.ptr);
 end
 p.defaultParameters.display.t0 = Screen('Flip', p.defaultParameters.display.ptr); 

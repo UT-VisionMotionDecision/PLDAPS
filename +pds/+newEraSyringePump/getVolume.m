@@ -1,4 +1,9 @@
 function [volumeGiven,volumeWithdrawn] = getVolume(p)
+%pds.newEraSyringePump.getVolume   retrieves the current volume dispensed by the pump
+%
+% p = pds.newEraSyringePump.getVolume(p)
+%
+% jk wrote it 2015
 
     if p.trial.newEraSyringePump.use
         %get current given volume and store

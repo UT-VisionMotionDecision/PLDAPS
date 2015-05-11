@@ -1,6 +1,7 @@
-function dv=calibrate(dv)
+function p=calibrate(p)
+%pds.eyelink.calibrate    start eyelink calibration routines
 % dv = pds.eyelink.calibrate(dv)
-
+%
 % USAGE: result=EyelinkDoTrackerSetup(el [, sendkey])
 %
 %		dv.el: Eyelink default values
@@ -53,53 +54,53 @@ ListenChar(2)
 
 Eyelink('Command', 'heuristic_filter = ON');
 Eyelink( 'StartSetup' );		% start setup mode
-Eyelink( 'WaitForModeReady', dv.trial.eyelink.setup.waitformodereadytime );  % time for mode change
+Eyelink( 'WaitForModeReady', p.trial.eyelink.setup.waitformodereadytime );  % time for mode change
 
 
 key=1;
 while key~= 0
-    key=EyelinkGetKey(dv.trial.eyelink.setup);		% dump old keys
+    key=EyelinkGetKey(p.trial.eyelink.setup);		% dump old keys
 end
 
 stop=0;
-while stop==0 && bitand(Eyelink( 'CurrentMode'), dv.trial.eyelink.setup.IN_SETUP_MODE)
+while stop==0 && bitand(Eyelink( 'CurrentMode'), p.trial.eyelink.setup.IN_SETUP_MODE)
     
     i=Eyelink( 'CurrentMode');
     
     if ~Eyelink( 'IsConnected' ), stop=1; end;
     
-    if bitand(i, dv.trial.eyelink.setup.IN_TARGET_MODE)			% calibrate, validate, etc: show targets
+    if bitand(i, p.trial.eyelink.setup.IN_TARGET_MODE)			% calibrate, validate, etc: show targets
         fprintf ('%s\n', 'dotrackersetup: in targetmodedisplay' );
-        pds.eyelink.targetModeDisplay(dv);
-    elseif bitand(i, dv.trial.eyelink.setup.IN_IMAGE_MODE)		% display image until we're back
+        pds.eyelink.targetModeDisplay(p);
+    elseif bitand(i, p.trial.eyelink.setup.IN_IMAGE_MODE)		% display image until we're back
         fprintf ('%s\n', 'EyelinkDoTrackerSetup: in ''ImageModeDisplay''' );
-        pds.eyelink.clearCalDisplay(dv);	% setup_cal_display()
+        pds.eyelink.clearCalDisplay(p);	% setup_cal_display()
         
     end
     
-    [key, dv.trial.eyelink.setup]=EyelinkGetKey(dv.trial.eyelink.setup);		% getkey() HANDLE LOCAL KEY PRESS
-    if 1 && key~=0 && key~=dv.trial.eyelink.setup.JUNK_KEY    % print pressed key codes and chars
+    [key, p.trial.eyelink.setup]=EyelinkGetKey(p.trial.eyelink.setup);		% getkey() HANDLE LOCAL KEY PRESS
+    if 1 && key~=0 && key~=p.trial.eyelink.setup.JUNK_KEY    % print pressed key codes and chars
         fprintf('%d\t%s\n', key, char(key) );
     end
     
     switch key
-        case dv.trial.eyelink.setup.TERMINATE_KEY,				% breakout key code
+        case p.trial.eyelink.setup.TERMINATE_KEY,				% breakout key code
             return;
-        case { 0, dv.trial.eyelink.setup.JUNK_KEY }          % No or uninterpretable key
-        case dv.trial.eyelink.setup.ESC_KEY,
+        case { 0, p.trial.eyelink.setup.JUNK_KEY }          % No or uninterpretable key
+        case p.trial.eyelink.setup.ESC_KEY,
             stop = 1;
             % add reward somehow
         otherwise, 		% Echo to tracker for remote control
-            if dv.trial.eyelink.setup.allowlocalcontrol==1
-                Eyelink('SendKeyButton', double(key), 0, dv.trial.eyelink.setup.KB_PRESS );
+            if p.trial.eyelink.setup.allowlocalcontrol==1
+                Eyelink('SendKeyButton', double(key), 0, p.trial.eyelink.setup.KB_PRESS );
             end
     end
 end % while IN_SETUP_MODE
 
-pds.eyelink.clearCalDisplay(dv);	% exit_cal_display()
+pds.eyelink.clearCalDisplay(p);	% exit_cal_display()
 % dv = pds.eyelink.setup(dv);
 Eyelink('StartRecording');
-Eyelink( 'WaitForModeReady', dv.trial.eyelink.setup.waitformodereadytime );  % time for mode change
+Eyelink( 'WaitForModeReady', p.trial.eyelink.setup.waitformodereadytime );  % time for mode change
     
 ListenChar(0)
 ShowCursor

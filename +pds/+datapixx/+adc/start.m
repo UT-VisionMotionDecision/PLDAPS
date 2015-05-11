@@ -1,17 +1,19 @@
 function p = start(p)
-% function [p] = pds.datapixx.adc.start(p)
-% 
+%pds.datapixx.adc.prepareTrial    start continuous datapixx data aquisition
+%
+% p = pds.datapixx.adc.start(p) 
+%
 % The function starts a continuous schedule of ADC data acquisition, stored 
-% on the datapixx buffer. It will continue until a 
-% Data will be read in by repeatedly (one per frame or trial) calling
+% on the datapixx buffer.
+% Data will be read in by repeatedly (once per frame or trial) calling
 % pds.datapixx.adc.getData (using Datapixx('ReadAdcBuffer')) and when
 % pds.datapixx.adc.stop is called, which will also stop adc data aquesition (Datapixx('StopAdcSchedule'))
 % parameters that are required by Datapixx are in the '.datapixx.adc.' fields.
-%
 % 
 % INPUTS
 %	p   - pldaps class
-% with parameters set:      
+% with parameters set: 
+% p.trial
 %       .datapixx.useAsEyepos = false % in seconds
 %       .datapixx.adc.startDelay = 0 % in seconds
 %       .datapixx.adc.srate = %1000;
@@ -30,7 +32,7 @@ function p = start(p)
 %       struct where this should get mapped to
 % (c) lnk 2012
 %     jly modified 2013
-%     jk  modified to use new parameter structure
+%     jk  modified 2014 new parameter structure, add flexibility, sample timing
 
 %% build the AdcChListCode
 if ~p.trial.datapixx.use || isempty(p.trial.datapixx.adc.channels)
@@ -78,14 +80,7 @@ for imap=1:length(maps)
     S2.subs={1:length(p.trial.datapixx.adc.channelMappingChannelInds{imap}), 1};
     
     p.trial.datapixx.adc.channelMappingSubs{imap}=[S Snew S2];
-    
-    
-    % who is responsible for creating the fields in the correct size?
-    % if not existant, we'll create them I guess.
-    % for now, we'll always create them
-%     p=subsasgn(p,p.trial.datapixx.adc.channelMappingSubs{imap}(1:end-1),nan(length(p.trial.datapixx.adc.channelMappingChannels{imap}), maxDataSamplesPerTrial));
 end
-% p.trial.datapixx.adc.dataSampleTimes=nan(1,maxDataSamplesPerTrial);
 
 p.trial.datapixx.adc.dataSampleCount=0;
 
@@ -104,24 +99,4 @@ p.trial.datapixx.adc.startDatapixxTime = Datapixx('GetTime'); %GetSecs;
 p.trial.datapixx.adc.startPldapsTime = GetSecs;
 [getsecs, boxsecs, confidence] = PsychDataPixx('GetPreciseTime');
 p.trial.datapixx.adc.startDatapixxPreciseTime(1:3) = [getsecs, boxsecs, confidence]; 
-
-
-%% appendix - Datapixx ADC commands:
-% 
-% ADC (Analog to Digital Converter) subsystem:
-%
-% adcNumChannels = Datapixx('GetAdcNumChannels');
-% adcRanges      = Datapixx('GetAdcRanges');
-% adcVoltages    = Datapixx('GetAdcVoltages');
-% Datapixx('EnableDacAdcLoopback');
-% Datapixx('DisableDacAdcLoopback');
-% Datapixx('EnableAdcFreeRunning');
-% Datapixx('DisableAdcFreeRunning');
-% Datapixx('SetAdcSchedule', scheduleOnset, scheduleRate, maxScheduleFrames [, channelList=0] [, bufferBaseAddress=4e6] [, numBufferFrames=maxScheduleFrames]);
-% Datapixx('StartAdcSchedule');
-% Datapixx('StopAdcSchedule');
-% [bufferData, bufferTimetags, underflow, overflow] = Datapixx('ReadAdcBuffer', numFrames [, bufferAddress]);
-% status = Datapixx('GetAdcStatus');
-% 
-
  
