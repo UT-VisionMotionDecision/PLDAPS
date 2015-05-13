@@ -48,7 +48,6 @@ function p=screenTimingTest(p,state)
 % settingsStruct.stimulus.online.analysis = true;
 %
 % putting it all together:
-% PsychDataPixx('open');global dpx;dpx.maxDuration=0.01;clear dpx;
 % settingsStruct.datapixx.adc.channels=0;
 % settingsStruct.datapixx.adc.channelModes=2;
 % settingsStruct.datapixx.adc.srate=10000; 
@@ -58,6 +57,7 @@ function p=screenTimingTest(p,state)
 % settingsStruct.stimulus.online.analysis = true;
 % settingsStruct.eyelink.use=false;
 % settingsStruct.mouse.useAsEyepos=true;
+% settingsStruct.mouse.use=true;
 % settingsStruct.display.bgColor=[0 0 0];
 % settingsStruct.pldaps.pause.preExperiment=false;
 % name = 'RigAndScreenName';

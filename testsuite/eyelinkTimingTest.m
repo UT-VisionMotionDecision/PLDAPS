@@ -31,7 +31,6 @@ function p=eyelinkTimingTest(p,state)
 % settingsStruct.stimulus.online.analysis = true;
 %
 % putting it all together:
-% PsychDataPixx('open');global dpx;dpx.maxDuration=0.01;clear dpx;
 % settingsStruct.datapixx.adc.channels=[0 1];
 % settingsStruct.datapixx.adc.channelModes=2;
 % settingsStruct.datapixx.adc.srate=10781; 
@@ -43,7 +42,7 @@ function p=eyelinkTimingTest(p,state)
 % p=pldaps(@eyelinkTimingTest, settingsStruct, 'RigAndScreenNameAndEyelinkFrequency');
 % p.run
 
-	if nargin==1  %initial call to setup conditions
+    if nargin==1  %initial call to setup conditions
         
         if ~isField(p.trial,'stimulus.nTrials')
             p.trial.stimulus.nTrials = 5;
@@ -137,6 +136,7 @@ function p=eyelinkTimingTest(p,state)
 
                 ii=1;
                 offsetRange=(-10:0.05:10)/1000;
+                rpe=nan(1,length(offsetRange));
                 for offset=offsetRange
                     dpDataXInt=interp1(dpSampleTimePTB,dpDataX,elSampleTimePTB(51:end-51)+offset,'linear','extrap');
                     dpDataYInt=interp1(dpSampleTimePTB,dpDataY,elSampleTimePTB(51:end-51)+offset,'linear','extrap');
