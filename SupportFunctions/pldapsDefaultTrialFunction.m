@@ -1,9 +1,9 @@
-function p = pldapsDefaultTrialFunction(p,state)
+function pldapsDefaultTrialFunction(p,state)
     switch state
         %frameStates
         case p.trial.pldaps.trialStates.frameUpdate
             frameUpdate(p);
-        %case p.trial.pldaps.trialStates.framePrepareDrawing 
+        case p.trial.pldaps.trialStates.framePrepareDrawing 
         %    framePrepareDrawing(p);
         case p.trial.pldaps.trialStates.frameDraw
             frameDraw(p);
@@ -192,6 +192,7 @@ end
             Screen('FillRect', p.trial.display.overlayptr,0);
          end
          
+         
          p.trial.stimulus.timeLastFrame = p.trial.timing.flipTimes(1,p.trial.iFrame)-p.trial.trstart;
          p.trial.framePreLastDrawIdleCount=0;
          p.trial.framePostLastDrawIdleCount=0;
@@ -337,12 +338,13 @@ end
 
     function p = cleanUpandSave(p)
 %TODO move to pds.datapixx.cleanUpandSave
+        [p.trial.timing.flipTimes(:,p.trial.iFrame)] = deal(Screen('Flip', p.trial.display.ptr));
         if p.trial.datapixx.use
             p.trial.datapixx.datapixxstoptime = Datapixx('GetTime');
         end
         p.trial.trialend = GetSecs- p.trial.trstart;
 
-        [p.trial.timing.flipTimes(:,p.trial.iFrame)] = deal(Screen('Flip', p.trial.display.ptr));
+%         [p.trial.timing.flipTimes(:,p.trial.iFrame)] = deal(Screen('Flip', p.trial.display.ptr));
 
         %do a last frameUpdate
         frameUpdate(p)

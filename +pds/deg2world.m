@@ -1,11 +1,10 @@
-function [xy,z] = deg2world(p,xy,z,zIsR)
+function [xy,z] = deg2world(xy,z,zIsR)
 %deg2world    convert from degrees of visual angle to world coordinates
 % calculates the world coordinates for an array of degress of visul angle
 % taking the depence of x and y degrees into account (i.e. that the
 % distance of the position e.g. y increases when x is large
 %
-% [xy,z] = deg2world(p,xy,z,zIsR)
-% p is a pldaps class or a struct with the field p.trial.display.viewdist p.trial.display.w2px
+% [xy,z] = deg2world(xy,z,zIsR)
 % xy is a [2 x N] array of x and y degress of visual angle
 % z (optional) is the viewing distance, which is assumed to be the orthogonal
 %               distance of the observer to the screen unless
@@ -20,15 +19,10 @@ function [xy,z] = deg2world(p,xy,z,zIsR)
 % the world coordinates for indipendent angles, i.e. where the results of x
 % is indepent of y. This is not correct, but may be ok, for small screens
 % or mainly cardinal coordinates.
-    warning('pldaps:deg2px','consider switching to the faster pds.deg2px');
-    
-    if(nargin<3)
-        z=p.trial.display.viewdist;
-    end
-    
+
     xy=sind(xy);
     
-    if(nargin>3 && zIsR) %z argument is the radius/total distance
+    if(nargin>2 && zIsR) %z argument is the radius/total distance
         sr=sqrt(z);
     else
         sr=z./sqrt(1-sum(xy.^2));
@@ -36,7 +30,7 @@ function [xy,z] = deg2world(p,xy,z,zIsR)
     
     xy=[sr; sr].*xy;
 
-    if(nargout>1 && nargin<4 && zIsR)
+    if(nargout>1 && nargin<3 && zIsR) 
         z=sr.*sqrt(1-sum(xy.^2));
     end
 end

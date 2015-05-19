@@ -1,4 +1,4 @@
-function p = runTrial(p)
+function p = runTrialRelaxedUpdate(p)
 %runTrial    runs a single Trial by calling the function defined in 
 %            p.trial.pldaps.trialFunction through different states
 %
@@ -72,6 +72,12 @@ function p = runTrial(p)
     p.trial.framePreLastDrawIdleCount=0;
     p.trial.framePostLastDrawIdleCount=0;
 
+    %update and prepare for frame 1.
+    p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame+p.trial.display.ifi;
+    tfh(p, p.trial.pldaps.trialStates.frameUpdate);    
+    setTimeAndFrameState(p,p.trial.pldaps.trialStates.framePrepareDrawing)
+    tfh(p, p.trial.pldaps.trialStates.framePrepareDrawing);
+    setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDraw);  
 
     %%% MAIN WHILE LOOP %%%
     %-------------------------------------------------------------------------%
@@ -79,52 +85,31 @@ function p = runTrial(p)
         %go through one frame by calling tfh with the different states.
         %Save the times each state is finished.
 
-        %time of the estimated next flip
         p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame+p.trial.display.ifi;
-
+        
+        %time of the estimated next flip
+%         setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDraw);
+        tfh(p, p.trial.pldaps.trialStates.frameDraw);
+        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawingFinished);
+        
+        tfh(p, p.trial.pldaps.trialStates.frameDrawingFinished);
+        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameUpdate)
+        
+        %this is very suboptimal, as the updating of data is not in the iFrame
+        %as the drawing using the data
+        
+        p.trial.iFrame = p.trial.iFrame + 1;  % calculate for next frame here
         tfh(p, p.trial.pldaps.trialStates.frameUpdate);
         setTimeAndFrameState(p,p.trial.pldaps.trialStates.framePrepareDrawing)
-
+        
         tfh(p, p.trial.pldaps.trialStates.framePrepareDrawing);
-        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDraw);
-
-        tfh(p, p.trial.pldaps.trialStates.frameDraw);
-%             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePreLastDraw);
-
-%             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
-%             p.trial.framePreLastDrawIdleCount = p.trial.framePreLastDrawIdleCount +1;
-% %             dv.trial.ttime = GetSecs - dv.trial.trstart;
-% %             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-% %             while (dv.trial.remainingFrameTime>sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePreLastDraw+1:end)))
-% %                 tfh(dv, dv.trial.pldaps.trialStates.frameIdlePreLastDraw);
-% %                 dv.trial.framePreLastDrawIdleCount = dv.trial.framePreLastDrawIdleCount +1;
-% %                 dv.trial.ttime = GetSecs - dv.trial.trstart;
-% %                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-% %             end
-%             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawTimecritical);
-% 
-%             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
-        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawingFinished);
-
-        tfh(p, p.trial.pldaps.trialStates.frameDrawingFinished);
-%             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePostDraw);
-% 
-%             tfh(p, p.trial.pldaps.trialStates.frameIdlePostDraw);
-%             p.trial.framePostLastDrawIdleCount = p.trial.framePostLastDrawIdleCount +1;
-% %             dv.trial.ttime = GetSecs - dv.trial.trstart;
-% %             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-% %             while (dv.trial.remainingFrameTime>sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePostDraw+1:end)))
-% %                 tfh(dv, dv.trial.pldaps.trialStates.frameIdlePostDraw);
-% %                 dv.trial.framePostLastDrawIdleCount = dv.trial.framePostLastDrawIdleCount +1;
-% %                 dv.trial.ttime = GetSecs - dv.trial.trstart;
-% %                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-%             end
         setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameFlip)
-
-
+        p.trial.iFrame = p.trial.iFrame -1;  % revert to current frame
+        %end of that comment
+        
         tfh(p, p.trial.pldaps.trialStates.frameFlip);
         %advance to next frame
-        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameUpdate);           
+        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDraw);           
         p.trial.iFrame = p.trial.iFrame + 1;  % update frame index
     end %while Trial running
 
@@ -137,7 +122,7 @@ function p = runTrial(p)
             warning('pldaps:runTrial','Thread priority was degraded by operating system during the trial.')
         end
     end
-    
+
     tfh(p, p.trial.pldaps.trialStates.trialCleanUpandSave);
 
 end %runTrial
