@@ -66,7 +66,7 @@ end
 p.trial.pldaps.pause=newparams.pldaps.pause;
     
 p.data=PDS.data;
-p.functionHandles=PDS.functionHandles;
+% p.functionHandles=PDS.functionHandles;
 % p.trial.postanalysis=PDS.postanalysis;
 
 %%todo aspect ratio
@@ -75,6 +75,7 @@ p.trial.display.scrnNum=newDisplay.scrnNum;
 p.trial.display.useOverlay=newDisplay.useOverlay;
 p.trial.display.colorclamp=newDisplay.colorclamp;
 p.trial.display.forceLinearGamma=newDisplay.forceLinearGamma;
+p.trial.display.movie=newDisplay.movie;
 if isfield(newDisplay,'gamma')
     p.trial.display.gamma=newDisplay.gamma;
 end

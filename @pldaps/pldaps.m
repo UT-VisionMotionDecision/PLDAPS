@@ -19,7 +19,7 @@ classdef pldaps < handle
           %actual eyeposition used for caculating the frame, etc.
     data@cell
     
-    functionHandles@cell %mostly unused atm
+    functionHandles%@cell %mostly unused atm
  end
 
  methods

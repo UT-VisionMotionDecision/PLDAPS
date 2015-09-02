@@ -135,7 +135,7 @@ classdef params < handle
         %TODO: if we allow dirty structs, we need to cosolidate....
         function p = setLevels(p,value)
             if islogical(value)
-                if length(value)==length(p.struct) 
+                if length(value)==length(p.structs) 
                     p.activeLevels=value;
                 end
             elseif length(value)<length(p.structs)+1 && max(value)<=length(p.structs)
