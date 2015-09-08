@@ -120,6 +120,26 @@ end
             Screen('DrawLines',p.trial.display.overlayptr,p.trial.pldaps.draw.grid.tick_line_matrix,1,p.trial.display.clut.window,p.trial.display.ctr(1:2))
         end
         
+        %draw a history of fast inter frame intervals
+        if p.trial.pldaps.draw.framerate.use && p.trial.iFrame>2
+            %update data
+            p.trial.pldaps.draw.framerate.data=circshift(p.trial.pldaps.draw.framerate.data,-1);
+            p.trial.pldaps.draw.framerate.data(end)=p.trial.timing.flipTimes(1,p.trial.iFrame-1)-p.trial.timing.flipTimes(1,p.trial.iFrame-2);
+            %plot
+            if p.trial.pldaps.draw.framerate.show 
+                %adjust y limit
+                p.trial.pldaps.draw.framerate.sf.ylims=[0 max(max(p.trial.pldaps.draw.framerate.data), 2*p.trial.display.ifi)];
+                %current ifi is solid black
+                pds.pldaps.draw.screenPlot(p.trial.pldaps.draw.framerate.sf, p.trial.pldaps.draw.framerate.sf.xlims, [p.trial.display.ifi p.trial.display.ifi], p.trial.display.clut.blackbg, '-');
+                %2 ifi reference is 5 black dots
+                pds.pldaps.draw.screenPlot(p.trial.pldaps.draw.framerate.sf, p.trial.pldaps.draw.framerate.sf.xlims(2)*(0:0.25:1), ones(1,5)*2*p.trial.display.ifi, p.trial.display.clut.blackbg, '.');
+                %0 ifi reference is 5 black dots
+                pds.pldaps.draw.screenPlot(p.trial.pldaps.draw.framerate.sf, p.trial.pldaps.draw.framerate.sf.xlims(2)*(0:0.25:1), zeros(1,5), p.trial.display.clut.blackbg, '.');
+                %data are red dots
+                pds.pldaps.draw.screenPlot(p.trial.pldaps.draw.framerate.sf, 1:p.trial.pldaps.draw.framerate.nFrames, p.trial.pldaps.draw.framerate.data', p.trial.display.clut.redbg, '.');
+            end
+         end
+        
          %draw the eyepositon to the second srceen only
          %move the color and size parameters to
          %p.trial.pldaps.draw.eyepos?
@@ -258,13 +278,27 @@ end
         %%% prepare reward system
         pds.behavior.reward.trialSetup(p);
         
-        %setup assignemnt of eyeposition data to eyeX and eyeY
-        %first create the S structs for subsref.
-        % Got a big WTF on your face? read up on subsref, subsasgn and substruct
-        % we need this to dynamically access data deep inside a multilevel struct
-        % without using eval.
-        % different approach: have it set by the data collectors
-        % themselves?
+        %%% prepare to plot framerate history on screen
+        if p.trial.pldaps.draw.framerate.use           
+            p.trial.pldaps.draw.framerate.nFrames=round(p.trial.pldaps.draw.framerate.nSeconds/p.trial.display.ifi);
+            p.trial.pldaps.draw.framerate.data=zeros(p.trial.pldaps.draw.framerate.nFrames,1); %holds the data
+            sf.startPos=round(p.trial.display.w2px'.*p.trial.pldaps.draw.framerate.location + [p.trial.display.pWidth/2 p.trial.display.pHeight/2]);
+            sf.size=p.trial.display.w2px'.*p.trial.pldaps.draw.framerate.size;    
+            sf.window=p.trial.display.overlayptr;
+            sf.xlims=[1 p.trial.pldaps.draw.framerate.nFrames];
+            sf.ylims=  [0 2*p.trial.display.ifi];
+            sf.linetype='-';
+            
+            p.trial.pldaps.draw.framerate.sf=sf;
+        end
+
+%         %setup assignemnt of eyeposition data to eyeX and eyeY
+%         %first create the S structs for subsref.
+%         % Got a big WTF on your face? read up on subsref, subsasgn and substruct
+%         % we need this to dynamically access data deep inside a multilevel struct
+%         % without using eval.
+%         % different approach: have it set by the data collectors
+%         % themselves?
      
         
     end %trialSetup
