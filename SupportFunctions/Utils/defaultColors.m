@@ -23,7 +23,7 @@ p.defaultParameters.display.humanCLUT = [0, 0, 0;  % IGNORE THIS LINE
     0,1,0;  % green/bg               12
     1,0,0;  % red/bg                 13
     0,0,0;  % black/bg               14
-    zeros(245,3)];
+    zeros(241,3)];
 
 
 p.defaultParameters.display.monkeyCLUT = [0,0,0; % IGNORE THIS LINE (CLUT is 0 based)
@@ -41,7 +41,7 @@ p.defaultParameters.display.monkeyCLUT = [0,0,0; % IGNORE THIS LINE (CLUT is 0 b
     p.defaultParameters.display.bgColor;  % green/bg               12
     p.defaultParameters.display.bgColor;  % red/bg                 13
     p.defaultParameters.display.bgColor;  % black/bg               14
-    zeros(245,3)];
+    zeros(241,3)];
 
 %%% keeping track of which color is which
 if(p.defaultParameters.datapixx.use && p.defaultParameters.display.useOverlay)
