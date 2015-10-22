@@ -116,6 +116,14 @@ end
         
         %consider moving this stuff to an earlier timepoint, to allow GPU
         %to crunch on this before the real stuff gets added.
+        
+        %did the background color change? Usually already applied after
+        %frameFlip, but make sure we're not missing anything
+        if any(p.trial.pldaps.lastBgColor~=p.trial.display.bgColor)
+        	Screen('FillRect', p.trial.display.ptr,p.trial.display.bgColor);
+            p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
+        end
+        
         if p.trial.pldaps.draw.grid.use
             Screen('DrawLines',p.trial.display.overlayptr,p.trial.pldaps.draw.grid.tick_line_matrix,1,p.trial.display.clut.window,p.trial.display.ctr(1:2))
         end
@@ -207,12 +215,22 @@ end
              frameDuration=1;
              Screen('AddFrameToMovie', p.trial.display.ptr,[],[],p.trial.display.movie.ptr, frameDuration);
          end
+                  
+         %did the background color change?
+         %we're doing it here to make sure we don't overwrite anything
+         %but this tyically causes a one frame delay until it's applied
+         %i.e. when it's set in frame n, it changes when frame n+1 flips
+         %otherwise we could trust users not to draw before
+         %frameDraw, but we'll check again at frameDraw to be sure
+         if any(p.trial.pldaps.lastBgColor~=p.trial.display.bgColor)
+             Screen('FillRect', p.trial.display.ptr,p.trial.display.bgColor);
+             p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
+         end
          
          if(p.trial.datapixx.use)
             Screen('FillRect', p.trial.display.overlayptr,0);
          end
-         
-         
+
          p.trial.stimulus.timeLastFrame = p.trial.timing.flipTimes(1,p.trial.iFrame)-p.trial.trstart;
          p.trial.framePreLastDrawIdleCount=0;
          p.trial.framePostLastDrawIdleCount=0;
@@ -362,6 +380,11 @@ end
         %old
 %                 p.trial.trstart = GetSecs;
         %new
+
+        %ensure background color is correct
+        Screen('FillRect', p.trial.display.ptr,p.trial.display.bgColor);
+        p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
+         
         vblTime = Screen('Flip', p.trial.display.ptr,0); 
         p.trial.trstart = vblTime;
         p.trial.stimulus.timeLastFrame=vblTime-p.trial.trstart;

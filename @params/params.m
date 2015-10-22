@@ -529,7 +529,11 @@ classdef params < handle
             if isstruct(s) && length(s)<2
                 r.parentLevels=parentLevels;
                 r.isNode=true;
-                result(end+1)=r;
+                if isempty(result)
+                    result=r;
+                else
+                    result(end+1)=r;
+                end
 
                 fn=fieldnames(s);
                 nFields=length(fn);
