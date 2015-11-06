@@ -36,6 +36,14 @@ if p.defaultParameters.datapixx.use
          Datapixx('Open');
     end
     
+    % From help PsychDataPixx:
+    % Timestamping is disabled by default (mode == 0), as it incurs a bit of
+    % computational overhead to acquire and log timestamps, typically up to 2-3
+    % msecs of extra time per 'Flip' command.
+    % Buffer is collected at the end of the expeiment!
+    PsychDataPixx('LogOnsetTimestamps',p.trial.datapixx.LogOnsetTimestampLevel);%2
+    PsychDataPixx('ClearTimestampLog');
+    
     %set getPreciseTime options, see testsuite/pldapsTimingTests for
     %details
     if ~isempty(p.trial.datapixx.GetPreciseTime.syncmode)
