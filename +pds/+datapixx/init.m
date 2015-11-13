@@ -30,7 +30,7 @@ function p =  init(p)
 % 2014       adapt to version 4.1
 global dpx;
 
-if p.defaultParameters.datapixx.use
+if p.trial.datapixx.use
     
     if ~Datapixx('IsReady')
          Datapixx('Open');
@@ -68,22 +68,10 @@ if p.defaultParameters.datapixx.use
         end
     end
     
-    p.defaultParameters.datapixx.info.DatapixxFirmwareRevision = Datapixx('GetFirmwareRev'); 
-    p.defaultParameters.datapixx.info.DatapixxRamSize = Datapixx('GetRamSize');
+    p.trial.datapixx.info.DatapixxFirmwareRevision = Datapixx('GetFirmwareRev'); 
+    p.trial.datapixx.info.DatapixxRamSize = Datapixx('GetRamSize');
     
-    %check if transparant color is availiable? but how? firmware versions
-    %differ between all machines...hmm, instead:
-    %Set the transparancy color to the background color. Could set it
-    %to anything, but we'll use this to maximize backward compatibility
-    bgColor=p.trial.display.bgColor;
-    if isField(p.defaultParameters, 'display.gamma.table')
-        bgColor = interp1(linspace(0,1,256),p.defaultParameters.display.gamma.table(:,1), p.defaultParameters.display.bgColor);
-    end
-    Datapixx('SetVideoClutTransparencyColor', bgColor);
-    Datapixx('EnableVideoClutTransparencyColorMode');
-    Datapixx('RegWr');
-    
-    if p.defaultParameters.display.useOverlay
+    if p.trial.display.useOverlay
         disp('****************************************************************')
         disp('****************************************************************')
         disp('Adding Overlay Pointer')
@@ -91,10 +79,23 @@ if p.defaultParameters.datapixx.use
         disp('dv.disp.humanCLUT and dv.disp.monkeyCLUT')
         disp('****************************************************************')
 
-        combinedClut = [p.defaultParameters.display.monkeyCLUT; p.defaultParameters.display.humanCLUT];
+        %check if transparant color is availiable? but how? firmware versions
+        %differ between all machines...hmm, instead:
+        %Set the transparancy color to the background color. Could set it
+        %to anything, but we'll use this to maximize backward compatibility
+        bgColor=p.trial.display.bgColor;
+        if isField(p.trial, 'display.gamma.table')
+            bgColor = interp1(linspace(0,1,256),p.trial.display.gamma.table(:,1), p.trial.display.bgColor);
+        end
+        Datapixx('SetVideoClutTransparencyColor', bgColor);
+        Datapixx('EnableVideoClutTransparencyColorMode');
+        Datapixx('RegWr');
+        
+        
+        combinedClut = [p.trial.display.monkeyCLUT; p.trial.display.humanCLUT];
         %%% Gamma correction for dual CLUT %%%
         % check if gamma correction has been run on the window pointer
-        if isField(p.defaultParameters, 'display.gamma.table')
+        if isField(p.trial, 'display.gamma.table')
             % get size of the combiend CLUT. It should be 512 x 3 (two 256 x 3 CLUTS
             % on top of eachother). 
             sc = size(combinedClut);
@@ -102,12 +103,12 @@ if p.defaultParameters.datapixx.use
             % use sc to make a vector of 8-bit color steps from 0-1
             x = linspace(0,1,sc(1)/2);
             % use the gamma table to lookup what the values should be
-            y = interp1(x,p.defaultParameters.display.gamma.table(:,1), combinedClut(:));
+            y = interp1(x,p.trial.display.gamma.table(:,1), combinedClut(:));
             % reshape the combined clut back to 512 x 3
             combinedClut = reshape(y, sc);
         end
     
-        p.defaultParameters.display.overlayptr = PsychImaging('GetOverlayWindow', p.defaultParameters.display.ptr); % , dv.params.bgColor);
+        p.trial.display.overlayptr = PsychImaging('GetOverlayWindow', p.trial.display.ptr); % , dv.params.bgColor);
         % WARNING about LoadNormalizedGammaTable from Mario Kleiner: 
         % "Not needed, possibly harmful:
         % The PsychImaging() setup code already calls LoadIdentityClut() 
@@ -128,7 +129,9 @@ if p.defaultParameters.datapixx.use
         % (posted on Psychtoolbox forum, 3/9/2010) 
         % 
         % We don't seem to have this problem - jake 12/04/13
-        Screen('LoadNormalizedGammaTable', p.defaultParameters.display.ptr, combinedClut, 2);
+        Screen('LoadNormalizedGammaTable', p.trial.display.ptr, combinedClut, 2);
+    else
+        p.trial.display.overlayptr = p.trial.display.ptr;
     end
     
     
@@ -144,7 +147,7 @@ if p.defaultParameters.datapixx.use
     %start adc data collection if requested
     pds.datapixx.adc.start(p);
 else
-    if p.defaultParameters.display.useOverlay
+    if p.trial.display.useOverlay
         % this is abandoned test code to show how to create a dual clut
         % system without datapixx, by assigning different clut to two
         % screens in mirror modes.  However OsX cannot mix mirror and
@@ -180,7 +183,7 @@ else
 %             dv.defaultParameters.display.overlay.bothFactor = 1*256;
 
         warning('pldaps:datapixxInit','Overlay requested, but not Datapixx disabled. Assuming debug scenario. Will assign ptr to overlayptr');
-        p.defaultParameters.display.overlayptr = p.defaultParameters.display.ptr;
     end
+    p.trial.display.overlayptr = p.trial.display.ptr;
 
 end

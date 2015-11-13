@@ -41,13 +41,13 @@ PsychImaging('PrepareConfiguration');
 % Add appropriate tasks to psych imaging pipeline
 
 % set the size of the screen 
-if p.defaultParameters.display.stereoMode >= 6 || p.defaultParameters.display.stereoMode <=1
-    p.defaultParameters.display.width = 2*atand(p.defaultParameters.display.widthcm/2/p.defaultParameters.display.viewdist);
+if p.trial.display.stereoMode >= 6 || p.trial.display.stereoMode <=1
+    p.trial.display.width = 2*atand(p.trial.display.widthcm/2/p.trial.display.viewdist);
 else
-    p.defaultParameters.display.width = 2*atand((p.defaultParameters.display.widthcm/4)/p.defaultParameters.display.viewdist);
+    p.trial.display.width = 2*atand((p.trial.display.widthcm/4)/p.trial.display.viewdist);
 end
 
-if p.defaultParameters.display.normalizeColor == 1
+if p.trial.display.normalizeColor == 1
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Turning on Normalized High res Color Range')
@@ -58,7 +58,7 @@ if p.defaultParameters.display.normalizeColor == 1
 	PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange');
 end
 
-if p.defaultParameters.display.useOverlay && p.defaultParameters.datapixx.use
+if p.trial.datapixx.use
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Using overlay pointer')
@@ -67,8 +67,10 @@ if p.defaultParameters.display.useOverlay && p.defaultParameters.datapixx.use
     % Tell PTB we are using Datapixx
     PsychImaging('AddTask', 'General', 'UseDataPixx');
     PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
-    % Turn on the overlay
-    PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
+    if p.trial.display.useOverlay
+        % Turn on the overlay
+        PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
+    end
 else
     disp('****************************************************************')
     disp('****************************************************************')
@@ -77,14 +79,14 @@ else
     PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');   
 end
 
-if strcmp(p.defaultParameters.display.stereoFlip,'right');
+if strcmp(p.trial.display.stereoFlip,'right');
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Setting stereo mode for use with planar')
     disp('Flipping the RIGHT monitor to be a mirror image')
     disp('****************************************************************')
     PsychImaging('AddTask', 'RightView', 'FlipHorizontal');
-elseif strcmp(p.defaultParameters.display.stereoFlip,'left')
+elseif strcmp(p.trial.display.stereoFlip,'left')
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Setting stereo mode for use with planar')
@@ -107,27 +109,27 @@ PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTabl
 %% Open double-buffered onscreen window with the requested stereo mode
 disp('****************************************************************')
 disp('****************************************************************')
-fprintf('Opening screen %d with background %02.2f in stereo mode %d\r', p.defaultParameters.display.scrnNum, p.defaultParameters.display.bgColor(1), p.defaultParameters.display.stereoMode)
+fprintf('Opening screen %d with background %02.2f in stereo mode %d\r', p.trial.display.scrnNum, p.trial.display.bgColor(1), p.trial.display.stereoMode)
 disp('****************************************************************')
-[ptr, winRect]=PsychImaging('OpenWindow', p.defaultParameters.display.scrnNum, p.defaultParameters.display.bgColor, p.defaultParameters.display.screenSize, [], [], p.defaultParameters.display.stereoMode, 0);
-p.defaultParameters.display.ptr=ptr;
-p.defaultParameters.display.winRect=winRect;
+[ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, 0);
+p.trial.display.ptr=ptr;
+p.trial.display.winRect=winRect;
 
 % % Set gamma lookup table
-if isField(p.defaultParameters, 'display.gamma')
+if isField(p.trial, 'display.gamma')
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Loading gamma correction')
     disp('****************************************************************')
-    if isstruct(p.defaultParameters.display.gamma) 
-        if isfield(p.defaultParameters.display.gamma, 'table')
-            PsychColorCorrection('SetLookupTable', p.defaultParameters.display.ptr, p.defaultParameters.display.gamma.table, 'FinalFormatting');
-        elseif isfield(p.defaultParameters.display.gamma, 'power')
+    if isstruct(p.trial.display.gamma) 
+        if isfield(p.trial.display.gamma, 'table')
+            PsychColorCorrection('SetLookupTable', p.trial.display.ptr, p.trial.display.gamma.table, 'FinalFormatting');
+        elseif isfield(p.trial.display.gamma, 'power')
             PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
-            PsychColorCorrection('SetEncodingGamma', p.defaultParameters.display.ptr, p.defaultParameters.display.gamma.power, 'FinalFormatting');
+            PsychColorCorrection('SetEncodingGamma', p.trial.display.ptr, p.trial.display.gamma.power, 'FinalFormatting');
         end
     else
-        PsychColorCorrection('SetEncodingGamma', p.defaultParameters.display.ptr, p.defaultParameters.display.gamma, 'FinalFormatting');
+        PsychColorCorrection('SetEncodingGamma', p.trial.display.ptr, p.trial.display.gamma, 'FinalFormatting');
     end
 else
     %set a linear gamma
@@ -135,65 +137,65 @@ else
 end
 
 % % This seems redundant. Is it necessary?
-if p.defaultParameters.display.colorclamp == 1
+if p.trial.display.colorclamp == 1
     disp('****************************************************************')
     disp('****************************************************************')
     disp('clamping color range')
     disp('****************************************************************')
-    Screen('ColorRange', p.defaultParameters.display.ptr, 1, 0);
+    Screen('ColorRange', p.trial.display.ptr, 1, 0);
 end
  
 %% Set some basic variables about the display
-p.defaultParameters.display.ppd = p.defaultParameters.display.winRect(3)/p.defaultParameters.display.width; % calculate pixels per degree
-p.defaultParameters.display.frate = round(1/Screen('GetFlipInterval',p.defaultParameters.display.ptr));   % frame rate (in Hz)
-p.defaultParameters.display.ifi=Screen('GetFlipInterval', p.defaultParameters.display.ptr);               % Inter-frame interval (frame rate in seconds)
-p.defaultParameters.display.ctr = [p.defaultParameters.display.winRect(3:4),p.defaultParameters.display.winRect(3:4)]./2 - 0.5;          % Rect defining screen center
-p.defaultParameters.display.info = Screen('GetWindowInfo', p.defaultParameters.display.ptr);              % Record a bunch of general display settings
+p.trial.display.ppd = p.trial.display.winRect(3)/p.trial.display.width; % calculate pixels per degree
+p.trial.display.frate = round(1/Screen('GetFlipInterval',p.trial.display.ptr));   % frame rate (in Hz)
+p.trial.display.ifi=Screen('GetFlipInterval', p.trial.display.ptr);               % Inter-frame interval (frame rate in seconds)
+p.trial.display.ctr = [p.trial.display.winRect(3:4),p.trial.display.winRect(3:4)]./2 - 0.5;          % Rect defining screen center
+p.trial.display.info = Screen('GetWindowInfo', p.trial.display.ptr);              % Record a bunch of general display settings
 
 %% some more
-p.defaultParameters.display.pWidth=p.defaultParameters.display.winRect(3)-p.defaultParameters.display.winRect(1);
-p.defaultParameters.display.pHeight=p.defaultParameters.display.winRect(4)-p.defaultParameters.display.winRect(2);      
-p.defaultParameters.display.wWidth=p.defaultParameters.display.widthcm;
-p.defaultParameters.display.wHeight=p.defaultParameters.display.heightcm;
-p.defaultParameters.display.dWidth = atand(p.defaultParameters.display.wWidth/2 / p.defaultParameters.display.viewdist)*2;
-p.defaultParameters.display.dHeight = atand(p.defaultParameters.display.wHeight/2 / p.defaultParameters.display.viewdist)*2;
-p.defaultParameters.display.w2px=[p.defaultParameters.display.pWidth/p.defaultParameters.display.wWidth; p.defaultParameters.display.pHeight/p.defaultParameters.display.wHeight];
-p.defaultParameters.display.px2w=[p.defaultParameters.display.wWidth/p.defaultParameters.display.pWidth; p.defaultParameters.display.wHeight/p.defaultParameters.display.pHeight];
+p.trial.display.pWidth=p.trial.display.winRect(3)-p.trial.display.winRect(1);
+p.trial.display.pHeight=p.trial.display.winRect(4)-p.trial.display.winRect(2);      
+p.trial.display.wWidth=p.trial.display.widthcm;
+p.trial.display.wHeight=p.trial.display.heightcm;
+p.trial.display.dWidth = atand(p.trial.display.wWidth/2 / p.trial.display.viewdist)*2;
+p.trial.display.dHeight = atand(p.trial.display.wHeight/2 / p.trial.display.viewdist)*2;
+p.trial.display.w2px=[p.trial.display.pWidth/p.trial.display.wWidth; p.trial.display.pHeight/p.trial.display.wHeight];
+p.trial.display.px2w=[p.trial.display.wWidth/p.trial.display.pWidth; p.trial.display.wHeight/p.trial.display.pHeight];
 
 % Set screen rotation
-p.defaultParameters.display.ltheta = 0.00*pi;                                    % Screen rotation to adjust for mirrors
-p.defaultParameters.display.rtheta = -p.defaultParameters.display.ltheta;
-p.defaultParameters.display.scr_rot = 0;                                         % Screen Rotation for opponency conditions
+p.trial.display.ltheta = 0.00*pi;                                    % Screen rotation to adjust for mirrors
+p.trial.display.rtheta = -p.trial.display.ltheta;
+p.trial.display.scr_rot = 0;                                         % Screen Rotation for opponency conditions
 
 % Make text clean
-Screen('TextFont',p.defaultParameters.display.ptr,'Helvetica'); 
-Screen('TextSize',p.defaultParameters.display.ptr,16);
-Screen('TextStyle',p.defaultParameters.display.ptr,1);
+Screen('TextFont',p.trial.display.ptr,'Helvetica'); 
+Screen('TextSize',p.trial.display.ptr,16);
+Screen('TextStyle',p.trial.display.ptr,1);
 
 %%setup movie creation if desired
-if p.defaultParameters.display.movie.create
-    movie=p.defaultParameters.display.movie;
+if p.trial.display.movie.create
+    movie=p.trial.display.movie;
     if isempty(movie.file)
-        movie.file=p.defaultParameters.session.file(1:end-4);
+        movie.file=p.trial.session.file(1:end-4);
     end
     if isempty(movie.dir)
-        movie.dir=p.defaultParameters.session.dir;
+        movie.dir=p.trial.session.dir;
     end
     if isempty(movie.frameRate)
-        movie.frameRate = p.defaultParameters.display.frate;
+        movie.frameRate = p.trial.display.frate;
     end
     movie.ptr = Screen('CreateMovie', ptr, [movie.dir filesep movie.file '.avi'], movie.width,movie.height,movie.frameRate,movie.options);
-    p.defaultParameters.display.movie=movie;
+    p.trial.display.movie=movie;
 end
 
 % Set up alpha-blending for smooth (anti-aliased) drawing 
 disp('****************************************************************')
 disp('****************************************************************')
-fprintf('Setting Blend Function to %s,%s\r', p.defaultParameters.display.sourceFactorNew, p.defaultParameters.display.destinationFactorNew);
+fprintf('Setting Blend Function to %s,%s\r', p.trial.display.sourceFactorNew, p.trial.display.destinationFactorNew);
 disp('****************************************************************')
-Screen('BlendFunction', p.defaultParameters.display.ptr, p.defaultParameters.display.sourceFactorNew, p.defaultParameters.display.destinationFactorNew);  % alpha blending for anti-aliased dots
+Screen('BlendFunction', p.trial.display.ptr, p.trial.display.sourceFactorNew, p.trial.display.destinationFactorNew);  % alpha blending for anti-aliased dots
 
 if p.trial.display.forceLinearGamma %does't really belong here, but need it before the first flip....
-    LoadIdentityClut(p.defaultParameters.display.ptr);
+    LoadIdentityClut(p.trial.display.ptr);
 end
-p.defaultParameters.display.t0 = Screen('Flip', p.defaultParameters.display.ptr); 
+p.trial.display.t0 = Screen('Flip', p.trial.display.ptr); 

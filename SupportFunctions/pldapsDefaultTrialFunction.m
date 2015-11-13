@@ -209,8 +209,8 @@ end
 %                  
 %              end
 %              
-%              p.defaultParameters.display.movie.moviePtr
-%              p.defaultParameters.display.movie.frameRate
+%              p.trial.display.movie.moviePtr
+%              p.trial.display.movie.frameRate
 %              frameDuration
              frameDuration=1;
              Screen('AddFrameToMovie', p.trial.display.ptr,[],[],p.trial.display.movie.ptr, frameDuration);
@@ -227,7 +227,7 @@ end
              p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
          end
          
-         if(p.trial.datapixx.use)
+         if(p.trial.datapixx.use && p.trial.display.useOverlay)
             Screen('FillRect', p.trial.display.overlayptr,0);
          end
 
