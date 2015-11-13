@@ -12,6 +12,16 @@ It also reduced the required knowledge to start the first experiemnts as a new u
 Of course over time, any user should be familiar with all code, but learning may be easier if
 a new experiment can be setup without this knowledge.
 
+%% before we start
+- PLDAPS has only been tested on Matlab 2014b and 2015b on OSX 10.10. 
+- Psychtoolbox needs to be installed
+- If you are planning to use Datapixx, you should download a current version of the datapixx 
+  toolbox from vpixx.com and place it in the matlab path above PTB. The toolbox provided with
+  PTB tends to be outdated.
+- For a recording rig, all basic testing should be done (e.g. VBLSyncTest with and without datapixx, etc)
+
+%% get started
+
 To start, copy the function loadPLDAPS to a place in your path and edit the 'dirs' to include at least the 
 path to PLDAPS. Next call loadPLDAPS, so that it is included in your path.
 

@@ -93,17 +93,9 @@ try
             % REWARD
             %-------------------------------------------------------------------------%
             p = pds.behavior.reward.setup(p);
-            
-            % From help PsychDataPixx:
-            % Timestamping is disabled by default (mode == 0), as it incurs a bit of
-            % computational overhead to acquire and log timestamps, typically up to 2-3
-            % msecs of extra time per 'Flip' command.
-            % Buffer is collected at the end of the expeiment!
-            PsychDataPixx('LogOnsetTimestamps',p.trial.datapixx.LogOnsetTimestampLevel);%2
-            PsychDataPixx('ClearTimestampLog');
-            
-    
-            % Initialize Datapixx for Dual CLUTS
+                     
+            % Initialize Datapixx including dual CLUTS and timestamp
+            % logging
             p = pds.datapixx.init(p);
             
             pds.keyboard.setup(p);
