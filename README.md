@@ -48,6 +48,8 @@ The pldaps contructor accepts the following inputs, all are optional:
     1. a subject identifier (string)
     2. a function name or handle that sets up all experiement parameters
     3. a struct with changes to the defaultParameters, this is usefull for debugging, but could also be used to replace the function.
+    4. a cell array containing a struct with parameters for each trial (this is typically set later in the fucntion you set in 2.)
+
 As long as the inputs are classifiable, the order is not important, otherwise 
 for the remaining unclassified inputs the above order is assumed.
 

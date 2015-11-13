@@ -85,20 +85,17 @@ classdef pldaps < handle
         end
         subjectSet=false;
         for iArgin=1:nargin
-            if ~isstruct(varargin{iArgin})
-                if isa(varargin{iArgin}, 'function_handle') %fucntion handle will be the experimentSetupFunction
-                     constructorStruct.session.experimentSetupFile=func2str(varargin{iArgin});
+            if isa(varargin{iArgin}, 'function_handle') %fucntion handle will be the experimentSetupFunction
+                 constructorStruct.session.experimentSetupFile=func2str(varargin{iArgin});
+            elseif isa(varargin{iArgin}, 'char')
+                if ~subjectSet  %set experiment file
+                    constructorStruct.session.subject=varargin{iArgin};
+                    subjectSet=true;
                 else
-                    if ~subjectSet  %set experiment file
-                        constructorStruct.session.subject=varargin{iArgin};
-                        subjectSet=true;
-                    else
-                        constructorStruct.session.experimentSetupFile=varargin{iArgin};
-                    end
+                    constructorStruct.session.experimentSetupFile=varargin{iArgin};
                 end
             end
-            
-        end       
+        end
         p.defaultParameters.addLevels({constructorStruct, struct},{'ConstructorInputDefaults', 'SessionParameters'});
         
         
