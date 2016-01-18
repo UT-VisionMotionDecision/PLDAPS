@@ -6,12 +6,11 @@ function p = setup(p)
 % (c) jly 2012
 %     jk  2015 changed to work with version 4.1 and changed to load all
 %              wavfiles in the wavfiles directory
-if p.defaultParameters.sound.use && isField(p.defaultParameters, 'pldaps.dirs.wavfiles')
-    p.defaultParameters.sound.use=true;
+if p.trial.sound.use && isField(p.trial, 'pldaps.dirs.wavfiles')
     % initalize
     InitializePsychSound;
     
-    soundsDir = p.defaultParameters.pldaps.dirs.wavfiles;
+    soundsDir = p.trial.pldaps.dirs.wavfiles;
     
     soundDirFiles=dir(soundsDir);
     soundDirFiles={soundDirFiles.name};
@@ -19,15 +18,15 @@ if p.defaultParameters.sound.use && isField(p.defaultParameters, 'pldaps.dirs.wa
     
     for iFile=soundFiles
        name= soundDirFiles{iFile};
-       p.defaultParameters.sound.wavfiles.(name(1:end-4))=fullfile(soundsDir,name);
+       p.trial.sound.wavfiles.(name(1:end-4))=fullfile(soundsDir,name);
        
-       [y, freq] = audioread(p.defaultParameters.sound.wavfiles.(name(1:end-4)));
+       [y, freq] = audioread(p.trial.sound.wavfiles.(name(1:end-4)));
        wav1 = y';
        nChannels1 = size(wav1, 1);
-       p.defaultParameters.sound.(name(1:end-4)) = PsychPortAudio('Open', [], [], 1, freq, nChannels1);
+       p.trial.sound.(name(1:end-4)) = PsychPortAudio('Open', p.trial.sound.deviceid, [], 1, freq, nChannels1);
        
-       PsychPortAudio('FillBuffer',p.defaultParameters.sound.(name(1:end-4)), wav1);
+       PsychPortAudio('FillBuffer',p.trial.sound.(name(1:end-4)), wav1);
     end    
 else
-    p.defaultParameters.sound.use=false;
+    p.trial.sound.use=false;
 end
