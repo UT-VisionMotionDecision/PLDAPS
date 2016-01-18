@@ -51,7 +51,12 @@ try
         p.defaultParameters.session.file='';
         p.defaultParameters.session.dir='';
     end
-        
+    
+    %experimentSetup before openScreen to allow modifyiers
+    [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+    runStateforModules(p,'experimentPreOpenScreen',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+%     for iModule=find(moduleRequestedStates.('experimentPreOpenScreen')), moduleFunctionHandles{iModule}(p,p.trial.pldaps.trialStates.experimentPreOpenScreen,modules{iModule}); end;
+    
     %% Open PLDAPS windows
     % Open PsychToolbox Screen
     p = openScreen(p);
@@ -100,6 +105,9 @@ try
             
             pds.keyboard.setup(p);
     
+            [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+%             for iModule=find(moduleRequestedStates.('experimentPostOpenScreen')), moduleFunctionHandles{iModule}(p,p.trial.pldaps.trialStates.experimentPostOpenScreen,modules{iModule}); end;
+            runStateforModules(p,'experimentPostOpenScreen',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 
     %% Last chance to check variables
     if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
@@ -266,6 +274,8 @@ try
         end
     end
     
+    [modules,moduleFunctionHandles,moduleRequestedStates] = getModules(p);
+    for iModule=find(moduleRequestedStates.('experimentCleanUp')), moduleFunctionHandles{iModule}(p,p.trial.pldaps.trialStates.experimentCleanUp,modules{iModule}); end;
     
     if ~p.defaultParameters.pldaps.nosave
         [structs,structNames] = p.defaultParameters.getAllStructs();

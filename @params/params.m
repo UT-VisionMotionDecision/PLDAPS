@@ -545,7 +545,11 @@ classdef params < handle
             else %leaf
                 r.parentLevels=parentLevels;
                 r.isNode=false;
-                result(end+1)=r;
+                if isempty(result)
+                    result=r;
+                else
+                    result(end+1)=r;
+                end
             end
         end %result=getNextStructLevel(s,parentLevels,result)
         

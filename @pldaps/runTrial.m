@@ -7,44 +7,54 @@ function p = runTrial(p)
 %               might change to ASYNC buffer flipping. but won't for now.
 
     %the trialFunctionHandle
-    tfh=str2func(p.trial.pldaps.trialFunction);
+    [modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
     
     %trial states that are not in a frame are negative, just to allow both
-    %to be more independent
-    p.trial.pldaps.trialStates.trialSetup=-1;
-    p.trial.pldaps.trialStates.trialPrepare=-2;
-    p.trial.pldaps.trialStates.trialCleanUpandSave=-3;
+%     %to be more independent
+%     p.trial.pldaps.trialStates.trialSetup=-1;
+%     p.trial.pldaps.trialStates.trialPrepare=-2;
+%     p.trial.pldaps.trialStates.trialCleanUpandSave=-3;
+%     
+%     p.trial.pldaps.trialStates.experimentPostOpenScreen=-4;
+%     p.trial.pldaps.trialStates.experimentPreOpenScreen=-5;
+%     p.trial.pldaps.trialStates.experimentCleanUp=-6;
+%     
+%     %ok, what are the options?
+%     %we'll make them states
+%     %is called once after the last frame is done (or even before)
+%     %get current eyepostion, curser position or keypresses 
+%     p.trial.pldaps.trialStates.frameUpdate=1;
+%     %here you can prepare all drawing, e.g. have the dots move
+%     %if you need to update to the latest e.g. eyeposition
+%     %you can still do that later, this could be all expected heavy
+%     %calculations
+%     p.trial.pldaps.trialStates.framePrepareDrawing=2; 
+%     %once you know you've calculated the final image, draw it
+%     p.trial.pldaps.trialStates.frameDraw=3;
+%     %
+%     p.trial.pldaps.trialStates.frameIdlePreLastDraw=4;
+%     %if there is something that needs updating. here is a fucntion to do it
+%     %as late as possible
+%     p.trial.pldaps.trialStates.frameDrawTimecritical=5;
+%     %if this function is not used, drawingFinished will be called after
+%     %frameDraw is done, otherwise drawingFinished will not be called
+%     p.trial.pldaps.trialStates.frameDrawingFinished=6;
+% 
+%     %this function gets called once everything got drawn, until it's time
+%     %to expect (and do) the flip
+%     p.trial.pldaps.trialStates.frameIdlePostDraw=7;
+%     %do the flip (or when async) record the time 
+%     p.trial.pldaps.trialStates.frameFlip=8;
     
-    %ok, what are the options?
-    %we'll make them states
-    %is called once after the last frame is done (or even before)
-    %get current eyepostion, curser position or keypresses 
-    p.trial.pldaps.trialStates.frameUpdate=1;
-    %here you can prepare all drawing, e.g. have the dots move
-    %if you need to update to the latest e.g. eyeposition
-    %you can still do that later, this could be all expected heavy
-    %calculations
-    p.trial.pldaps.trialStates.framePrepareDrawing=2; 
-    %once you know you've calculated the final image, draw it
-    p.trial.pldaps.trialStates.frameDraw=3;
-    %
-    p.trial.pldaps.trialStates.frameIdlePreLastDraw=4;
-    %if there is something that needs updating. here is a fucntion to do it
-    %as late as possible
-    p.trial.pldaps.trialStates.frameDrawTimecritical=5;
-    %if this function is not used, drawingFinished will be called after
-    %frameDraw is done, otherwise drawingFinished will not be called
-    p.trial.pldaps.trialStates.frameDrawingFinished=6;
-
-    %this function gets called once everything got drawn, until it's time
-    %to expect (and do) the flip
-    p.trial.pldaps.trialStates.frameIdlePostDraw=7;
-    %do the flip (or when async) record the time 
-    p.trial.pldaps.trialStates.frameFlip=8;
+    p.trial.currentFrameState=p.trial.pldaps.trialStates.trialSetup;
+    p.trial.currentFrameStateName='trialSetup';
     
-    p.trial.currentFrameState=1;    
-    
-    tfh(p, p.trial.pldaps.trialStates.trialSetup);
+%     tfh(p, p.trial.pldaps.trialStates.trialSetup);
+%using cellfun might be slower than a for loop and does not guaranty
+%execttion in order of the arrays. Not sure if save. Ideally it would be
+%     cellfun(@(x) x(p,p.trial.currentFrameState),modules(moduleRequestedStates(p.trial.currentFrameStateName)));
+%     for iModule=find(moduleRequestedStates.(p.trial.currentFrameStateName)), moduleFunctionHandles{iModule}(p,p.trial.currentFrameState,modules{iModule}); end;
+    runStateforModules(p,p.trial.currentFrameStateName,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
     
 %     timeNeeded(p.trial.pldaps.trialStates.frameUpdate)=0.5;
 %     timeNeeded(p.trial.pldaps.trialStates.framePrepareDrawing)=2;
@@ -67,7 +77,11 @@ function p = runTrial(p)
 
     %will be called just before the trial starts for time critical calls to
     %start data aquisition
-    tfh(p, p.trial.pldaps.trialStates.trialPrepare);
+%     tfh(p, p.trial.pldaps.trialStates.trialPrepare);
+    p.trial.currentFrameState=p.trial.pldaps.trialStates.trialPrepare;
+    p.trial.currentFrameStateName='trialPrepare';
+%     for iModule=find(moduleRequestedStates.(p.trial.currentFrameStateName)), moduleFunctionHandles{iModule}(p,p.trial.currentFrameState,modules{iModule}); end;
+    runStateforModules(p,p.trial.currentFrameStateName,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 
     p.trial.framePreLastDrawIdleCount=0;
     p.trial.framePostLastDrawIdleCount=0;
@@ -82,13 +96,20 @@ function p = runTrial(p)
         %time of the estimated next flip
         p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame+p.trial.display.ifi;
 
-        tfh(p, p.trial.pldaps.trialStates.frameUpdate);
-        setTimeAndFrameState(p,p.trial.pldaps.trialStates.framePrepareDrawing)
+%         tfh(p, p.trial.pldaps.trialStates.frameUpdate);
+%         for iModule=find(moduleRequestedStates.(p.trial.currentFrameStateName)), moduleFunctionHandles{iModule}(p,p.trial.currentFrameState,modules{iModule}); end;
+        runStateforModules(p,p.trial.currentFrameStateName,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+        setTimeAndFrameState(p,'framePrepareDrawing')
 
-        tfh(p, p.trial.pldaps.trialStates.framePrepareDrawing);
-        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDraw);
+%         tfh(p, p.trial.pldaps.trialStates.framePrepareDrawing);
+%         for iModule=find(moduleRequestedStates.(p.trial.currentFrameStateName)), moduleFunctionHandles{iModule}(p,p.trial.currentFrameState,modules{iModule}); end;
+        runStateforModules(p,p.trial.currentFrameStateName,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+        setTimeAndFrameState(p,'frameDraw');
 
-        tfh(p, p.trial.pldaps.trialStates.frameDraw);
+        
+%         tfh(p, p.trial.pldaps.trialStates.frameDraw);
+%         for iModule=find(moduleRequestedStates.(p.trial.currentFrameStateName)), moduleFunctionHandles{iModule}(p,p.trial.currentFrameState,modules{iModule}); end;
+        runStateforModules(p,p.trial.currentFrameStateName,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 %             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePreLastDraw);
 
 %             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
@@ -104,9 +125,11 @@ function p = runTrial(p)
 %             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawTimecritical);
 % 
 %             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
-        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawingFinished);
+        setTimeAndFrameState(p,'frameDrawingFinished');
 
-        tfh(p, p.trial.pldaps.trialStates.frameDrawingFinished);
+%         tfh(p, p.trial.pldaps.trialStates.frameDrawingFinished);
+%         for iModule=find(moduleRequestedStates.(p.trial.currentFrameStateName)), moduleFunctionHandles{iModule}(p,p.trial.currentFrameState,modules{iModule}); end;
+        runStateforModules(p,p.trial.currentFrameStateName,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 %             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePostDraw);
 % 
 %             tfh(p, p.trial.pldaps.trialStates.frameIdlePostDraw);
@@ -119,12 +142,14 @@ function p = runTrial(p)
 % %                 dv.trial.ttime = GetSecs - dv.trial.trstart;
 % %                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
 %             end
-        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameFlip)
+        setTimeAndFrameState(p,'frameFlip')
 
 
-        tfh(p, p.trial.pldaps.trialStates.frameFlip);
+%         tfh(p, p.trial.pldaps.trialStates.frameFlip);
+%         for iModule=find(moduleRequestedStates.(p.trial.currentFrameStateName)), moduleFunctionHandles{iModule}(p,p.trial.currentFrameState,modules{iModule}); end;
+        runStateforModules(p,p.trial.currentFrameStateName,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
         %advance to next frame
-        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameUpdate);           
+        setTimeAndFrameState(p,'frameUpdate');
         p.trial.iFrame = p.trial.iFrame + 1;  % update frame index
     end %while Trial running
 
@@ -138,7 +163,11 @@ function p = runTrial(p)
         end
     end
     
-    tfh(p, p.trial.pldaps.trialStates.trialCleanUpandSave);
+%     tfh(p, p.trial.pldaps.trialStates.trialCleanUpandSave);
+    p.trial.currentFrameState=p.trial.pldaps.trialStates.trialCleanUpandSave;
+    p.trial.currentFrameStateName='trialCleanUpandSave';
+%     for iModule=find(moduleRequestedStates.(p.trial.currentFrameStateName)), moduleFunctionHandles{iModule}(p,p.trial.currentFrameState,modules{iModule}); end;
+        runStateforModules(p,p.trial.currentFrameStateName,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 
 end %runTrial
     
@@ -146,5 +175,6 @@ function setTimeAndFrameState(p,state)
         p.trial.ttime = GetSecs - p.trial.trstart;
         p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
         p.trial.timing.frameStateChangeTimes(p.trial.currentFrameState,p.trial.iFrame)=p.trial.ttime-p.trial.nextFrameTime+p.trial.display.ifi;
-        p.trial.currentFrameState=state;        
+        p.trial.currentFrameState=p.trial.pldaps.trialStates.(state);
+        p.trial.currentFrameStateName=state;
 end
