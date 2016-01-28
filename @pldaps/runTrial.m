@@ -87,6 +87,10 @@ function p = runTrial(p)
     p.trial.framePostLastDrawIdleCount=0;
 
 
+    p.trial.currentFrameState=p.trial.pldaps.trialStates.frameUpdate;
+    p.trial.currentFrameStateName='frameUpdate';
+    p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame+p.trial.display.ifi;
+    setTimeAndFrameState(p,'frameUpdate')
     %%% MAIN WHILE LOOP %%%
     %-------------------------------------------------------------------------%
     while ~p.trial.flagNextTrial && p.trial.pldaps.quit == 0

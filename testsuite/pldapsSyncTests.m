@@ -29,6 +29,7 @@ plot((1:500)/1000,p)
 xlabel('time / s');
 ylabel('precision / s');
 drawnow;
+savefig(gcf,'PDMinDurationTest')
 
 %% next how long it takes to typically reach the observed values. 
 % We set a maxduration to some value. This is only relevant for for the
@@ -53,7 +54,7 @@ hold on;
 plot(steps,mean(t,2)+std(t,0,2),'--');
 ylabel('time / s');
 xlabel('precision / s');
-
+savefig(gcf,'PDOptMinThresholdTest')
 keyboard;
 
     t=zeros(1,1000);
@@ -75,13 +76,13 @@ a.datapixx.GetPreciseTime.maxDuration=[];
 a.datapixx.GetPreciseTime.optMinwinThreshold=[];
 
 %this is what I would choose on one setup
-a.datapixx.syncing.syncmode=2; %1,2,3
-a.datapixx.syncing.maxDuration=0.01;%or take a time form figure 1 where the result seems very stable, e.g. 0.1s in my case
-a.datapixx.syncing.optMinwinThreshold=6.5e-5;%choose a threshold that seems relatively sufficient, i.e. look at figure 2
+a.datapixx.GetPreciseTime.syncmode=2; %1,2,3
+a.datapixx.GetPreciseTime.maxDuration=0.02;%0.01;%or take a time form figure 1 where the result seems very stable, e.g. 0.1s in my case
+a.datapixx.GetPreciseTime.optMinwinThreshold=1.6e-4;%6.5e-5;%choose a threshold that seems relatively sufficient, i.e. look at figure 2
 
 %now call createRigPrefs and set your prefrerred values as defaults (or
 %don't)
-createRigPrefs
+createRigPrefs(a)
 
 % doesnt help much. eyelink time estimate is always inacrurate, very variable (roughly +- 0.6 ms) due to
 % the way sr research handles timing. 

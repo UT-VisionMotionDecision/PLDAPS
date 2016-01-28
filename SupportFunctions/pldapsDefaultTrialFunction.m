@@ -364,7 +364,7 @@ end
         clocktime = fix(clock);
         if p.trial.datapixx.use
             for ii = 1:6
-                pds.datapixx.strobe(clocktime(ii));
+                p.trial.datapixx.unique_number_time(ii,:)=pds.datapixx.strobe(clocktime(ii));
             end
         end
         p.trial.unique_number = clocktime;    % trial identifier
