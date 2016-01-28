@@ -4,6 +4,12 @@ function p=openephys(p,state,name)
             
             case dv.trial.pldaps.trialStates.experimentPostOpenScreen
             %experiment setup
+
+            %make sure we have access to zeroMQ
+            if ~exist('zeroMQwrapper')==3 %#ok<EXIST>
+                error('pds:openephys','zeroMQwrapper not found. Get the wrapper at https://github.com/open-ephys/GUI/tree/master/Resources/Matlab and add the mex file to your Matlab path');
+            end
+            %
             p.trial.(name).address='theIP';
             p.trial.(name).protocol='tcp';
             p.trial.(name).port='5556';
