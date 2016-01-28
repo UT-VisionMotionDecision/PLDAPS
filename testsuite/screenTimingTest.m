@@ -245,8 +245,8 @@ function p=screenTimingTest(p,state)
 %                 Screen('FillRect',  p.trial.display.ptr,[1 1 1],p.trial.stimulus.rect')
                 if p.trial.iFrame==p.trial.stimulus.onFrame
                     PsychDataPixx('LogOnsetTimestamps', 1);
-%                     Screen('FillRect',  p.trial.display.ptr,[1 1 1]*1.,p.trial.stimulus.rect')
-                    Screen('FillRect',  p.trial.display.overlayptr,p.trial.display.clut.red,p.trial.stimulus.rect')
+                    Screen('FillRect',  p.trial.display.ptr,[1 1 1]*1.,p.trial.stimulus.rect')
+%                     Screen('FillRect',  p.trial.display.overlayptr,p.trial.display.clut.red,p.trial.stimulus.rect')
 %                 elseif  p.trial.iFrame==p.trial.stimulus.onFrame+1
 %                     
                 end
