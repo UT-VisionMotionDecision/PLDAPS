@@ -16,8 +16,10 @@ end
 
 
 function []= trialSetup(p)
-
+    
     [p.trial.leap.origin,p.trial.leap.succ] = getRawCoords();
+    p.trial.leap.origin=[0;250;0];
+    p.trial.leap.succ=1
     if ~p.trial.leap.succ
         p.trial.state = p.trial.stimulus.states.NOCURSORINPUT;
     end
