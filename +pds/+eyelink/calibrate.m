@@ -8,7 +8,9 @@ function p=calibrate(p)
 
 % 12/12/2013 jly adapted from EyelinkDoTrackerSetup.m
 commandwindow
-Beeper
+if p.trial.sound.use
+    Beeper
+end
 disp('*************************************')
 disp('Beginning Eyelink Toolbox Calibration')
 disp('*************************************')

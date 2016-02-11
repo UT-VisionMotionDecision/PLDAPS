@@ -88,7 +88,7 @@ while stop==0 && bitand(Eyelink('CurrentMode'), p.trial.eyelink.setup.IN_TARGET_
 		targetvisible = 1;
 		otx = tx;		% record position for future tests
 		oty = ty;
-		if p.trial.eyelink.setup.targetbeep==1
+		if p.trial.eyelink.setup.targetbeep==1 && p.trial.sound.use
 			EyelinkCalTargetBeep(p);	% optional beep to alert subject
 		end
 	end
@@ -97,7 +97,7 @@ end % while IN_TARGET_MODE
 
 
 % exit:					% CLEAN UP ON EXIT
-if p.trial.eyelink.setup.targetbeep==1
+if p.trial.eyelink.setup.targetbeep==1 && p.trial.sound.use
 	if Eyelink('CalResult')==1  % does 1 signal success?
 		EyelinkCalDoneBeep(p, 1);
 	else
