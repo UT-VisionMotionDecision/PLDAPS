@@ -61,20 +61,21 @@ end
 if p.trial.datapixx.use
     disp('****************************************************************')
     disp('****************************************************************')
-    disp('Using overlay pointer')
-    disp('Adds flags for UseDataPixx and EnableDataPixxM16OutputWithOverlay')
+    disp('Adds flags for UseDataPixx')
     disp('****************************************************************')
     % Tell PTB we are using Datapixx
     PsychImaging('AddTask', 'General', 'UseDataPixx');
     PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
     if p.trial.display.useOverlay
         % Turn on the overlay
+        disp('Using overlay window (EnableDataPixxM16OutputWithOverlay)')
+        disp('****************************************************************')
         PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
     end
 else
     disp('****************************************************************')
     disp('****************************************************************')
-    disp('No overlay pointer')
+    disp('No overlay window')
     disp('****************************************************************')
     PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');   
 end

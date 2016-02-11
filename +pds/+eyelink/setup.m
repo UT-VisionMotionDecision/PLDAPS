@@ -41,8 +41,8 @@ else
         fprintf('****************************************************************\r')
         fprintf('****************************************************************\r')
         fprintf('Eyelink Init aborted. Eyelink is not connected.\n');
-        fprintf('PLDAPS is NOT using EYELINK Toolbox for eyetrace. \rUsing pds.datapixx.getEyePosition instead\r')
-        fprintf('if you want to use EYELINK Toolbox for your eyetracking needs, \rtry Eyelink(''Shutdown'') and then retry dv = pds.eyelink.setup(dv)\r')
+        fprintf('PLDAPS is NOT using EYELINK Toolbox for eyetrace. \r')
+        fprintf('if you want to use EYELINK Toolbox for your eyetracking needs, \rtry Eyelink(''Shutdown'') and then retry p = pds.eyelink.setup(p)\r')
         
         Beeper(500); Beeper(400)
         disp('PRESS ENTER TO CONFIRM YOU READ THIS MESSAGE'); pause
