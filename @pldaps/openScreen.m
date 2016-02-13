@@ -37,6 +37,8 @@ Screen('Preference','VisualDebugLevel',3);
 % Initiate Psych Imaging screen configs
 PsychImaging('PrepareConfiguration');
 
+Screen('Preference','ScreenToHead', p.trial.display.scrnNum, 0, 0);
+
 %% Setup Psych Imaging
 % Add appropriate tasks to psych imaging pipeline
 
