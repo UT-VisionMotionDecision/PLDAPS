@@ -28,16 +28,18 @@ function p = openScreen(p)
 % 05/2015    jk  update     changed for use with version 4.1
 %                           moved default parameters to the
 %                           pldapsClassDefaultParameters
+% 02/2016    lpl update     add preference ScreenToHead so beamraster
+%                           queries are directed to display screen
 
 
 InitializeMatlabOpenGL(0,0); %second 0: debug level =0 for speed
 % AssertOpenGL;
 % prevent splash screen
 Screen('Preference','VisualDebugLevel',3);
+Screen('Preference','ScreenToHead', p.trial.display.scrnNum, 0, 0);
+
 % Initiate Psych Imaging screen configs
 PsychImaging('PrepareConfiguration');
-
-Screen('Preference','ScreenToHead', p.trial.display.scrnNum, 0, 0);
 
 %% Setup Psych Imaging
 % Add appropriate tasks to psych imaging pipeline
