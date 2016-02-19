@@ -17,7 +17,10 @@ end
 
 function []= trialSetup(p)
 
-    [p.trial.leap.origin,p.trial.leap.succ] = LeapDevice.getRawCoords();
+    
+    [p.trial.leap.origin,p.trial.leap.succ] = getRawCoords();
+    p.trial.leap.origin=[0;250;0];
+    p.trial.leap.succ=1;
     if ~p.trial.leap.succ
         p.trial.state = p.trial.stimulus.states.NOCURSORINPUT;
     end
@@ -36,9 +39,11 @@ function []= frameUpdate(p)
     [pos,p.trial.leap.succ] = getRawCoords();
     p.trial.leap.samples = p.trial.leap.samples+1;
     p.trial.leap.samplesTimes(p.trial.leap.samples)=GetSecs;
-    p.trial.leap.cursorSamples(1:3,p.trial.leap.samples) = pos;
-    
 
+    p.trial.leap.cursorSamples(1:3,p.trial.leap.samples) = pos-p.trial.leap.origin;
+    if ~p.trial.leap.succ
+        p.trial.state = p.trial.stimulus.states.NOCURSORINPUT;
+    end
 end
 
 function [] = cleanUpAndSave(p)
@@ -49,7 +54,8 @@ function [] = cleanUpAndSave(p)
 end
 
 function [pos,succ] = getRawCoords()
-    pos = [NaN,NaN,NaN];
+
+    pos = [NaN;NaN;NaN];
     succ = true;
     try
         f = pds.leap.matleapmaster.matleap(1);
@@ -57,10 +63,8 @@ function [pos,succ] = getRawCoords()
         y = f.pointables(1).position(2);
         z = f.pointables(1).position(3);
         pos = [x;y;z];
-        pos
+
     catch
-        fprintf('Here\n');
-        
         succ = false;
     end
 end

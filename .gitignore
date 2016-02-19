@@ -1,2 +1,4 @@
 *.m~
 
++pds/+leap/+matleapmaster/libLeap.dylib
++pds/+leap/+matleapmaster/LeapSDK/*

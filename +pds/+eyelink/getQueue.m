@@ -48,11 +48,11 @@ if p.trial.eyelink.use
         if p.trial.pldaps.eyeposMovAv > 1
            %should we warn in case of ~p.trial.eyelink.collectQueue?
            eInds=(p.trial.eyelink.sampleNum-p.trial.pldaps.eyeposMovAv+1):p.trial.eyelink.sampleNum;
-           p.trial.eyeX = mean(p.trial.eyelink.samples(14,eInds));
-           p.trial.eyeY = mean(p.trial.eyelink.samples(16,eInds));
+           p.trial.eyeX = mean(p.trial.eyelink.samples(p.trial.eyelink.eyeIdx+13,eInds)); % raw=14: left x; raw=15: left x
+           p.trial.eyeY = mean(p.trial.eyelink.samples(p.trial.eyelink.eyeIdx+15,eInds)); 
         else
-           p.trial.eyeX = p.trial.eyelink.samples(14,p.trial.eyelink.sampleNum);
-           p.trial.eyeY = p.trial.eyelink.samples(16,p.trial.eyelink.sampleNum);
+           p.trial.eyeX = p.trial.eyelink.samples(p.trial.eyelink.eyeIdx+13,p.trial.eyelink.sampleNum); % raw=14: left x; raw=15: left x
+           p.trial.eyeY = p.trial.eyelink.samples(p.trial.eyelink.eyeIdx+15,p.trial.eyelink.sampleNum); % raw=16: left y; raw=17: left x
         end
 	end
 end
