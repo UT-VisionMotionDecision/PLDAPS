@@ -24,14 +24,9 @@ classdef pldaps < handle
 
  methods
      function p = pldaps(varargin)
-        %classdefaults: load from structure
-        defaults{1}=load('pldaps/pldapsClassDefaultParameters');
-        fn=fieldnames(defaults{1});
-        if length(fn)>1
-             error('pldaps:pldaps', 'The classes internal default parameter struct should only have one fieldname');
-        end
-        defaults{1}=defaults{1}.(fn{1});
-        defaultsNames{1}=fn{1};
+        %classdefaults: create default struction from function
+        defaults{1}=pldaps.pldapsClassDefaultParameters();
+        defaultsNames{1}='pldapsClassDefaultParameters';
         
         %rigdefaults: load from prefs?
         defaults{2}=getpref('pldaps');
@@ -116,6 +111,8 @@ classdef pldaps < handle
       [xy,z] = px2deg(p,xy,z)
       
       [xy,z] = world2deg(p,xy,z)
+      
+      s = pldapsClassDefaultParameters(s)
  end
 
 end
