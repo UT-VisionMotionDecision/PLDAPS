@@ -17,13 +17,22 @@ end
 
 function []= trialSetup(p)
     %start listening
-    pds.leap.matleapmaster.matleap(2);
+    pds.leap.matleap.matleap(2);
     
     %allocate data
     %assuming leap sampling rate o 120Hz for now. Could query later if needed.
     p.trial.leap.cursorSamples = nan(3,round(round(p.trial.pldaps.maxFrames/p.trial.display.frate*120*1.1)));
     p.trial.leap.samplesTimes = nan(3,round(round(p.trial.pldaps.maxFrames/p.trial.display.frate*120*1.1)));
     p.trial.leap.samples = 0;
+    
+    for iTry=1:10
+        if p.trial.leap.samples~=0
+            p.trial.leap.succ = true;
+            break;
+        end
+        WaitSecs(0.05);
+        getRawCoords(p);
+    end
 end
 
 
@@ -33,7 +42,7 @@ end
 
 function [] = cleanUpAndSave(p)
     %stop listening
-    pds.leap.matleapmaster.matleap(3);
+    pds.leap.matleap.matleap(3);
     %prune unused data
     p.trial.leap.cursorSamples(:,p.trial.leap.samples+1:end) = [];
     p.trial.leap.samplesTimes(:,p.trial.leap.samples+1:end) = [];
@@ -42,7 +51,7 @@ end
 
 function getRawCoords(p)
     succ = false;
-    f = pds.leap.matleapmaster.matleap(1);
+    f = pds.leap.matleap.matleap(1);
     fpcell={f.pointables};
     if ~isempty(f)
         has_pointables=~cellfun(@isempty, fpcell);
