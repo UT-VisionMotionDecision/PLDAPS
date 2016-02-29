@@ -14,10 +14,12 @@ function [] = leap(p,state)
 
 end
 
-
 function []= trialSetup(p)
-    %start listening
-    pds.leap.matleap.matleap(3);
+    if ~(exist('+matleap/matleap')==3) %#ok<EXIST>
+        error('pds:leap','matleap wrapper for Leap not found. Please get it from <a href="https://github.com/jonaskn/matleap">https://github.com/jonaskn/matleap</a>, compile (build_matleap) and add the folder to the matlab path');
+    end
+	%start listening
+    matleap.start_listening();
     
     %allocate data
     %assuming max leap sampling rate of 120Hz for now. Could query later if needed.
@@ -35,7 +37,7 @@ end
 
 function [] = cleanUpAndSave(p)
     %stop listening
-    pds.leap.matleap.matleap(4);
+    matleap.stop_listening();
     %prune unused data
     p.trial.leap.cursorSamples(:,p.trial.leap.samples+1:end) = [];
     p.trial.leap.samplesTimes(:,p.trial.leap.samples+1:end) = [];
@@ -44,9 +46,9 @@ end
 
 function getRawCoords(p, latestOnly)
     if nargin<2 || ~latestOnly
-        f = pds.leap.matleap.matleap(2); %all samples
+        f = matleap.frames(); %all samples
     else
-        f = pds.leap.matleap.matleap(1); %only one
+        f = matleap.frame(); %only one
     end
     succ = false;
     
