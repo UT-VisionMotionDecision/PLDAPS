@@ -188,8 +188,13 @@ try
                disp(result.message)
            end
                       
-           %store the difference of the trial struct to .data
-           dTrialStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
+           if p.defaultParameters.pldaps.save.mergedData
+               %store the complete trial struct to .data
+               dTrialStruct = p.trial;
+           else
+               %store the difference of the trial struct to .data
+               dTrialStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
+           end
            p.data{trialNr}=dTrialStruct;
            
            %advance to next trial
@@ -273,7 +278,9 @@ try
         PDS=struct;
         PDS.initialParameters=structs(levelsPreTrials);
         PDS.initialParameterNames=structNames(levelsPreTrials);
-        PDS.initialParametersMerged=mergeToSingleStruct(p.defaultParameters); %too redundant?
+        if p.defaultParameters.pldaps.save.initialParametersMerged
+            PDS.initialParametersMerged=mergeToSingleStruct(p.defaultParameters); %too redundant?
+        end
         
         levelsCondition=1:length(structs);
         levelsCondition(ismember(levelsCondition,levelsPreTrials))=[];
@@ -281,7 +288,11 @@ try
         PDS.conditionNames=structNames(levelsCondition);
         PDS.data=p.data; 
         PDS.functionHandles=p.functionHandles;
-        save(fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file),'PDS','-mat')
+        if p.defaultParameters.pldaps.save.v73
+            save(fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file),'PDS','-mat','-v7.3')
+        else
+            save(fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file),'PDS','-mat')
+        end
     end
     
 

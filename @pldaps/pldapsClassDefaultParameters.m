@@ -98,6 +98,9 @@ function s=pldapsClassDefaultParameters(s)
  s.	pldaps.	nosave = false;
  s.	pldaps.	pass = false;
  s.	pldaps.	quit = 0;
+ s.	pldaps.	save.	initialParametersMerged = 1;
+ s.	pldaps.	save.	mergedData = 0;
+ s.	pldaps.	save.	v73 = 0;
  s.	pldaps.	trialMasterFunction = 'runTrial';
  s.	pldaps.	useFileGUI = false;
 
