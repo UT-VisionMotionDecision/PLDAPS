@@ -36,7 +36,11 @@ if dv.useDatapixxbool
     disp('dv.disp.humanCLUT and dv.disp.monkeyCLUT')
     disp('****************************************************************')
     
-    combinedClut = [dv.disp.humanCLUT ;dv.disp.monkeyCLUT];
+    if isfield(dv.pa, 'switchCLUTs') && dv.pa.switchCLUTs
+        combinedClut = [dv.disp.monkeyCLUT; dv.disp.humanCLUT]; % 20160223 - lnk, added option to switch CLUTs.
+    else
+        combinedClut = [dv.disp.humanCLUT ;dv.disp.monkeyCLUT];
+    end
     
     %%% Gamma correction for dual CLUT %%%
     % check if gamma correction has been run on the window pointer
