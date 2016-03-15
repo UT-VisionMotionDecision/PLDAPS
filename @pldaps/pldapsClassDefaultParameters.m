@@ -65,6 +65,7 @@ function s=pldapsClassDefaultParameters(s)
 %s.	eyelink.
  s.	eyelink.	buffereventlength = 30;
  s.	eyelink.	buffersamplelength = 31;
+ s.	eyelink.	calibration_matrix = [];
  s.	eyelink.	collectQueue = true;
  s.	eyelink.	custom_calibration = false;
  s.	eyelink.	custom_calibrationScale = 0.2500;
