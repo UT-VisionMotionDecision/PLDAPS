@@ -2,7 +2,7 @@ function p=openephys(p,state,name)
 %openephys     send experiment information to an open-ephys network source
         switch state
             
-            case dv.trial.pldaps.trialStates.experimentPostOpenScreen
+            case p.trial.pldaps.trialStates.experimentPostOpenScreen
             %experiment setup
 
             %make sure we have access to zeroMQ
@@ -10,58 +10,73 @@ function p=openephys(p,state,name)
                 error('pds:openephys','zeroMQwrapper not found. Get the wrapper at https://github.com/open-ephys/GUI/tree/master/Resources/Matlab and add the mex file to your Matlab path');
             end
             %
-            p.trial.(name).address='theIP';
+            p.trial.(name).address='localhost';
             p.trial.(name).protocol='tcp';
             p.trial.(name).port='5556';
-            url=sprintf('%s://%s:%s',p.trial.(name).protocol, p.trial.(name).adress, p.trial.(name).port);
-            p.trial.(name).handle = zeroMQwrapper('StartConnectThread',url);
+            p.trial.(name).url=sprintf('%s://%s:%s',p.trial.(name).protocol, p.trial.(name).address, p.trial.(name).port);
+%             p.trial.(name).url = zeroMQwrapper('StartConnectThread',url);
 
             %send our filename
-            handle=p.trial.(name).handle;
-            zeroMQwrapper('Send',handle ,sprintf('PLDAPS newExperiment File %s',p.defaultParameters.session.file));
-            zeroMQwrapper('Send',handle ,sprintf('PLDAPS newExperiment Dir %s',p.defaultParameters.session.dir));
-            zeroMQwrapper('Send',handle ,sprintf('PLDAPS newExperiment Setupfile %s',p.defaultParameters.session.experimentSetupFile));
+            url=p.trial.(name).url;
+            zeroMQwrapper('Send',url ,sprintf('PLDAPS newExperiment File %s',p.defaultParameters.session.file));
+            zeroMQwrapper('Send',url ,sprintf('PLDAPS newExperiment Dir %s',p.defaultParameters.session.dir));
+            zeroMQwrapper('Send',url ,sprintf('PLDAPS newExperiment Setupfile %s',p.defaultParameters.session.experimentSetupFile));
             
+            
+            p.trial.(name).status.acquiring = zeroMQwrapper('Send',url ,'IsAcquiring');
+            p.trial.(name).status.recording = zeroMQwrapper('Send',url ,'IsRecording');
+            if(p.trial.(name).status.recording)
+                p.trial.(name).status.recordingPath = zeroMQwrapper('Send',url ,'GetRecordingPath');
+                p.trial.(name).status.recordingNumber = zeroMQwrapper('Send',url ,'getRecordingNumber');
+                p.trial.(name).status.experimentNumber = zeroMQwrapper('Send',url ,'getExperimentNumber');
+            else
+                p.trial.(name).status.recordingPath = '';
+                p.trial.(name).status.recordingNumber = NaN;
+                p.trial.(name).status.experimentNumber = NaN;
+            end
 %             %implement: way to make this easily, just as strings?
-%             zeroMQwrapper('Send',handle ,'ClearDesign');
-%             zeroMQwrapper('Send',handle ,'NewDesign nGo_Left_Right');
-%             zeroMQwrapper('Send',handle ,'AddCondition Name GoRight TrialTypes 1 2 3');
-%             zeroMQwrapper('Send',handle ,'AddCondition Name GoLeft TrialTypes 4 5 6');
+%             zeroMQwrapper('Send',url ,'ClearDesign');
+%             zeroMQwrapper('Send',url ,'NewDesign nGo_Left_Right');
+%             zeroMQwrapper('Send',url ,'AddCondition Name GoRight TrialTypes 1 2 3');
+%             zeroMQwrapper('Send',url ,'AddCondition Name GoLeft TrialTypes 4 5 6');
 
-            case dv.trial.pldaps.trialStates.experimentCleanUp
+            case p.trial.pldaps.trialStates.experimentCleanUp
             %experiment cleanUp
-            handle=p.trial.(name).handle;
-            zeroMQwrapper('Send',handle ,sprintf('PLDAPS endExperiment File %s',p.defaultParameters.session.file));
-            zeroMQwrapper('CloseThread',handle);
+            url=p.trial.(name).url;
+            zeroMQwrapper('Send',url ,sprintf('PLDAPS endExperiment File %s',p.defaultParameters.session.file));
+            zeroMQwrapper('CloseThread',url);
+            [tmp]=zeroMQwrapper('GetResponses');
             
-            case dv.trial.pldaps.trialStates.trialSetup
+            case p.trial.pldaps.trialStates.trialSetup
                 %send trialStart condition
                 %send trialNrStart trial number
-                handle=p.trial.(name).handle;
-%                 zeroMQwrapper('Send',handle ,'TrialStart 2'); 
-                zeroMQwrapper('Send',handle ,sprintf('PLDAPS TrialNr %i Start', p.trial.iFrame)); 
-                zeroMQwrapper('Send',handle ,sprintf('PLDAPS unique_number %s',p.trial.unique_number)); 
+                url=p.trial.(name).url;
+%                 zeroMQwrapper('Send',url ,'TrialStart 2'); 
+                zeroMQwrapper('Send',url ,sprintf('PLDAPS TrialNr %i Start', p.trial.pldaps.iTrial)); 
                 
                 
                 
-%             case dv.trial.pldaps.trialStates.trialPrepare
-            case dv.trial.pldaps.trialStates.trialCleanUpandSave
+%             case p.trial.pldaps.trialStates.trialPrepare
+            case p.trial.pldaps.trialStates.trialCleanUpandSave
                 %send TrialEnd condition
                 %send trialNrEnd number
-                handle=p.trial.(name).handle;
-                zeroMQwrapper('Send',handle ,sprintf('PLDAPS TrialNr %i End', p.trial.iFrame)); 
-%                 zeroMQwrapper('Send',handle ,'TrialEnd 2'); 
+                url=p.trial.(name).url;
+                zeroMQwrapper('Send',url ,sprintf('PLDAPS unique_number %i %i %i %i %i %i', p.trial.unique_number)); 
+                zeroMQwrapper('Send',url ,sprintf('PLDAPS TrialNr %i End', p.trial.pldaps.iTrial)); 
+                %for now we just flush everything
+                [tmp]=zeroMQwrapper('GetResponses');
+%                 zeroMQwrapper('Send',url ,'TrialEnd 2'); 
 
                 %implement: send trialOutcome....
                 
 %not  implemented               
-%             case dv.trial.pldaps.trialStates.frameUpdate
-%             case dv.trial.pldaps.trialStates.framePrepareDrawing; 
-%             case dv.trial.pldaps.trialStates.frameDraw;
-% %             case dv.trial.pldaps.trialStates.frameIdlePreLastDraw;
-% %             case dv.trial.pldaps.trialStates.frameDrawTimecritical;
-%             case dv.trial.pldaps.trialStates.frameDrawingFinished;
-% %             case dv.trial.pldaps.trialStates.frameIdlePostDraw;
+%             case p.trial.pldaps.trialStates.frameUpdate
+%             case p.trial.pldaps.trialStates.framePrepareDrawing; 
+%             case p.trial.pldaps.trialStates.frameDraw;
+% %             case p.trial.pldaps.trialStates.frameIdlePreLastDraw;
+% %             case p.trial.pldaps.trialStates.frameDrawTimecritical;
+%             case p.trial.pldaps.trialStates.frameDrawingFinished;
+% %             case p.trial.pldaps.trialStates.frameIdlePostDraw;
 %             case p.trial.pldaps.trialStates.frameFlip;   
 %
 

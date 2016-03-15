@@ -274,8 +274,8 @@ try
         end
     end
     
-    [modules,moduleFunctionHandles,moduleRequestedStates] = getModules(p);
-    for iModule=find(moduleRequestedStates.('experimentCleanUp')), moduleFunctionHandles{iModule}(p,p.trial.pldaps.trialStates.experimentCleanUp,modules{iModule}); end;
+    [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+    runStateforModules(p,'experimentCleanUp',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
     
     if ~p.defaultParameters.pldaps.nosave
         [structs,structNames] = p.defaultParameters.getAllStructs();

@@ -16,6 +16,7 @@ end
 %consider having a preallocated bufferData and bufferTimeTags
 Datapixx('RegWrRd');
 adcStatus = Datapixx('GetAdcStatus');
+p.trial.datapixx.adc.status = adcStatus;
 [bufferData, bufferTimetags, underflow, overflow] = Datapixx('ReadAdcBuffer', adcStatus.newBufferFrames,-1);
 if underflow
     warning('pds:datapixxadcgetData','underflow: getData is called to often');

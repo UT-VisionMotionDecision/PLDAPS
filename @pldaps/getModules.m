@@ -6,14 +6,14 @@ function [modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInpu
     modules=fieldnames(p.trial);
     modules(cellfun(@(x) ~isstruct(p.trial.(x)),modules))=[]; %remove non struct candidates
     modules(cellfun(@(x) ~isfield(p.trial.(x),'stateFunction'),modules))=[]; %remove candidates without a stateFucntion specified
-    modules(cellfun(@(x) (~isfield(p.trial.(x),'use') || p.trial.(x).use ),modules))=[]; %remove modules not activated
+    modules(cellfun(@(x) (~isfield(p.trial.(x),'use') || ~p.trial.(x).use ),modules))=[]; %remove modules not activated
     
     moduleOrder=double(cellfun(@(x) isfield(p.trial.(x).stateFunction,'order'),modules));
     moduleOrder(find(moduleOrder))=cellfun(@(x) p.trial.(x).stateFunction.order, modules(find(moduleOrder)));
     [moduleOrder,so]=sort(moduleOrder);
     modules=modules(so);
     
-    moduleLocationInputs=cellfun(@(x) (isfield(p.trial.(x),'acceptsLocationInput') && p.trial.(x).acceptsLocationInput),modules); %does the function accept the thirn input to specifiy where to save the data?
+    moduleLocationInputs=cellfun(@(x) (isfield(p.trial.(x).stateFunction,'acceptsLocationInput') && p.trial.(x).stateFunction.acceptsLocationInput),modules); %does the function accept the thirn input to specifiy where to save the data?
     
     moduleFunctionHandles=cellfun(@(x) str2func(p.trial.(x).stateFunction.name), modules, 'UniformOutput', false); 
 %     moduleRequestedStates=cellfun(@(x) (p.trial.(x).stateFunction.requestedStates), modules, 'UniformOutput', false);
