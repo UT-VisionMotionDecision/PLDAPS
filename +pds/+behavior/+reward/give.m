@@ -25,6 +25,5 @@ function p = give(p, amount)
     end
     
     %% store data
-    p.trial.behavior.reward.timeReward(:,p.trial.behavior.reward.iReward) = [p.trial.ttime amount];
+	p.trial.behavior.reward.timeReward(:,p.trial.behavior.reward.iReward) = [GetSecs amount];
 	p.trial.behavior.reward.iReward = p.trial.behavior.reward.iReward + 1;
-   	

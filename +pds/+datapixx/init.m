@@ -99,8 +99,11 @@ if p.trial.datapixx.use
         Datapixx('EnableVideoClutTransparencyColorMode');
         Datapixx('RegWr');
         
-        
-        combinedClut = [p.trial.display.monkeyCLUT; p.trial.display.humanCLUT];
+        if p.trial.display.switchOverlayCLUTs
+            combinedClut = [p.trial.display.humanCLUT; p.trial.display.monkeyCLUT];
+        else
+            combinedClut = [p.trial.display.monkeyCLUT; p.trial.display.humanCLUT];
+        end
         %%% Gamma correction for dual CLUT %%%
         % check if gamma correction has been run on the window pointer
         if isField(p.trial, 'display.gamma.table')

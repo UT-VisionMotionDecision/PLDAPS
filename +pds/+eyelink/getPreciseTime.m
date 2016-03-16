@@ -4,7 +4,7 @@ function out=getPreciseTime(optMinwinThreshold,maxTimeThreshold,syncmode)
 % This function is meant to be analogous to the PsychDatapixx('getPreciseTime')
 % However the times sr-research provides are already estimates (and bad ones at that)
 % while this is still good for synchronizing the clocks, the third output
-% should be ignored
+% should be ignored. 
 %
 % jk wrote it 2014
     if nargin<3
@@ -80,7 +80,7 @@ function out=getPreciseTime(optMinwinThreshold,maxTimeThreshold,syncmode)
             error('Pds: Eyelink: getPreciseTime: Unknown timestamping method provided!!');
     end
     
-    out=[getsecs trackertime precision];
-    
+%    out=[getsecs trackertime precision];
+    out=[getsecs trackertime NaN];
 
     

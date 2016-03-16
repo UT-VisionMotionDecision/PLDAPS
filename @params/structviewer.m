@@ -519,7 +519,11 @@ function fieldEditor_Callback(hObject, eventdata, handles) %#ok<*INUSL>
             if any(field.hierarchyLevels==full_index)
                 value=getParameter(handles.param, selectedId, activeLevels(level_selected));
             end
-            evalc(['value=' get(handles.fieldEditor,'String')]);
+            v=get(handles.fieldEditor,'String');
+            if isempty(v)
+                v='[]';
+            end
+            evalc(['value=' v]);
 %             valueString=params.valueString(value);%a first kind of text that it might hve worked.
 
             addField(handles.param,selectedId,value,activeLevels(level_selected)); 

@@ -1,4 +1,4 @@
-function pdsEyelinkEraseCalTarget(dv, x,y)
+function pdsEyelinkEraseCalTarget(p, x,y)
 
 % erase calibration target
 %
@@ -6,12 +6,12 @@ function pdsEyelinkEraseCalTarget(dv, x,y)
 %
 %		el: eyelink default values
 %		rect: rect that will be filled with background colour 
-if dv.trial.display.useOverlay
-    tempcolor = dv.trial.display.clut.bg; 
-    Screen('Drawdots',dv.trial.display.overlayptr,[x; y],dv.trial.stimulus.fixdotW,tempcolor,[],2)
+if p.trial.display.useOverlay
+    tempcolor = p.trial.display.clut.bg;
+    Screen('Drawdots',p.trial.display.overlayptr,[x; y],p.trial.stimulus.fixdotW,tempcolor,[],2)
 else
-    tempcolor = dv.trial.display.bgColor';
-    Screen('Drawdots',dv.trial.display.ptr,[x; y],dv.trial.stimulus.fixdotW,tempcolor,[],2)
+    tempcolor = p.trial.display.bgColor';
+    Screen('Drawdots',p.trial.display.ptr,[x; y],p.trial.stimulus.fixdotW,tempcolor,[],2)
 end
 
-Screen( 'Flip',  dv.trial.display.ptr);
+Screen( 'Flip',  p.trial.display.ptr);

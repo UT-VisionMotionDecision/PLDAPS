@@ -519,8 +519,16 @@ classdef params < handle
                     else
                         vs = 'false';
                     end
+                elseif iscell(value)
+                    vs = ['{' vs '}'];
                 elseif ~isempty(value)
-                    vs = [ '[ ' vs ' ]' ];
+                    if length(value)>1
+                        vs = [ '[ ' vs ' ]' ];
+                    else
+                        vs = vs;
+                    end
+                else
+                     vs = '[ ]';
                 end
                 vs=strtrim(vs);
             end

@@ -45,14 +45,25 @@ if p.trial.eyelink.use
     p.trial.eyelink.drained = false;
     
 	if(p.trial.eyelink.useAsEyepos) 
+        eyeIdx=p.trial.eyelink.eyeIdx;
+        if ~isempty(p.trial.eyelink.calibration_matrix)
+            eyeIdx=eyeIdx - 10; %the raw data is 10 fields prior to calibrated data
+        end
+
         if p.trial.pldaps.eyeposMovAv > 1
            %should we warn in case of ~p.trial.eyelink.collectQueue?
            eInds=(p.trial.eyelink.sampleNum-p.trial.pldaps.eyeposMovAv+1):p.trial.eyelink.sampleNum;
-           p.trial.eyeX = mean(p.trial.eyelink.samples(14,eInds));
-           p.trial.eyeY = mean(p.trial.eyelink.samples(16,eInds));
+           p.trial.eyeX = mean(p.trial.eyelink.samples(eyeIdx+13,eInds)); % raw=14: left x; raw=15: right x
+           p.trial.eyeY = mean(p.trial.eyelink.samples(eyeIdx+15,eInds));
         else
-           p.trial.eyeX = p.trial.eyelink.samples(14,p.trial.eyelink.sampleNum);
-           p.trial.eyeY = p.trial.eyelink.samples(16,p.trial.eyelink.sampleNum);
+           p.trial.eyeX = p.trial.eyelink.samples(eyeIdx+13,p.trial.eyelink.sampleNum); % raw=14: left x; raw=15: right x
+           p.trial.eyeY = p.trial.eyelink.samples(eyeIdx+15,p.trial.eyelink.sampleNum); % raw=16: left y; raw=17: right x
+        end
+
+        if ~isempty(p.trial.eyelink.calibration_matrix)
+           eXY= p.trial.eyelink.calibration_matrix*[p.trial.eyeX;p.trial.eyeY;1];
+           p.trial.eyeX=eXY(1);
+           p.trial.eyeY=eXY(2);
         end
 	end
 end

@@ -1,3 +1,5 @@
 *.m~
-.DS_Store
-
+*.*~
+*.DS_Store
++pds/+leap/+matleapmaster/libLeap.dylib
++pds/+leap/+matleapmaster/LeapSDK/*
