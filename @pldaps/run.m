@@ -52,10 +52,11 @@ try
         p.defaultParameters.session.dir='';
     end
     
-    %experimentSetup before openScreen to allow modifyiers
-    [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
-    runStateforModules(p,'experimentPreOpenScreen',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
-%     for iModule=find(moduleRequestedStates.('experimentPreOpenScreen')), moduleFunctionHandles{iModule}(p,p.trial.pldaps.trialStates.experimentPreOpenScreen,modules{iModule}); end;
+    if p.trial.pldaps.useModularStateFunctions
+        %experimentSetup before openScreen to allow modifyiers
+        [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+        runStateforModules(p,'experimentPreOpenScreen',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+    end
     
     %% Open PLDAPS windows
     % Open PsychToolbox Screen
@@ -105,9 +106,10 @@ try
             
             pds.keyboard.setup(p);
     
-            [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
-%             for iModule=find(moduleRequestedStates.('experimentPostOpenScreen')), moduleFunctionHandles{iModule}(p,p.trial.pldaps.trialStates.experimentPostOpenScreen,modules{iModule}); end;
-            runStateforModules(p,'experimentPostOpenScreen',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+            if p.trial.pldaps.useModularStateFunctions
+                [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+                runStateforModules(p,'experimentPostOpenScreen',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+            end
 
     %% Last chance to check variables
     if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
@@ -200,6 +202,27 @@ try
            dTrialStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
            p.data{trialNr}=dTrialStruct;
            
+           
+           if p.trial.pldaps.useModularStateFunctions
+               oldptrial=p.trial;
+               [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+               p.defaultParameters.setLevels(levelsPreTrials);
+               p.defaultParameters.pldaps.iTrial=trialNr;
+               p.trial=mergeToSingleStruct(p.defaultParameters);
+               p.defaultParameters.setLock(true); 
+
+               runStateforModules(p,'experimentAfterTrials',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+
+               p.defaultParameters.setLock(false); 
+               betweenTrialsStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
+               if(~isequal(struct,betweenTrialsStruct))
+                    p.defaultParameters.addLevels({betweenTrialsStruct}, {['experimentAfterTrials' num2str(trialNr) 'Parameters']});
+                    levelsPreTrials=[levelsPreTrials length(p.defaultParameters.getAllLevels())]; %#ok<AGROW>
+               end
+
+               p.trial=oldptrial;
+           end
+
            %advance to next trial
 %            if(dv.trial.pldaps.iTrial ~= dv.trial.pldaps.finish)
 %                 %now we add this and the next Trials condition parameters
@@ -274,8 +297,10 @@ try
         end
     end
     
-    [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
-    runStateforModules(p,'experimentCleanUp',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+    if p.trial.pldaps.useModularStateFunctions
+        [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+        runStateforModules(p,'experimentCleanUp',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+    end
     
     if ~p.defaultParameters.pldaps.nosave
         [structs,structNames] = p.defaultParameters.getAllStructs();
