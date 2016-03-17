@@ -113,6 +113,8 @@ classdef pldaps < handle
       [xy,z] = world2deg(p,xy,z)
       
       s = pldapsClassDefaultParameters(s)
+      
+      [stateValue, stateName] = getReorderedFrameStates(trialStates,moduleRequestedStates)
  end
 
 end
