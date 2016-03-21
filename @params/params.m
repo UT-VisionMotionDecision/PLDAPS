@@ -362,7 +362,7 @@ classdef params < handle
                                 Sold=Snew;
                                 Sold(2).subs={level_index};
                                 
-                                [~]=builtin('subsasgn',p,Snew,builtin('subsref',p,Sold));
+                                [~]=builtin('subsasgn',p,Snew(1:(length(p.Snew1)+dotNr)),builtin('subsref',p,Sold(1:(length(p.Snew1)+dotNr))));
                             end
                         end
                     end
