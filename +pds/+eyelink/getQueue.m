@@ -46,7 +46,7 @@ if p.trial.eyelink.use
     
 	if(p.trial.eyelink.useAsEyepos) 
         eyeIdx=p.trial.eyelink.eyeIdx;
-        if ~isempty(p.trial.eyelink.calibration_matrix)
+        if p.trial.eyelink.useRawData
             eyeIdx=eyeIdx - 10; %the raw data is 10 fields prior to calibrated data
         end
 
@@ -60,8 +60,8 @@ if p.trial.eyelink.use
            p.trial.eyeY = p.trial.eyelink.samples(eyeIdx+15,p.trial.eyelink.sampleNum); % raw=16: left y; raw=17: right x
         end
 
-        if ~isempty(p.trial.eyelink.calibration_matrix)
-           eXY= p.trial.eyelink.calibration_matrix*[p.trial.eyeX;p.trial.eyeY;1];
+        if p.trial.eyelink.useRawData
+           eXY= p.trial.eyelink.calibration_matrix(:,:,eyeIdx)*[p.trial.eyeX;p.trial.eyeY;1];
            p.trial.eyeX=eXY(1);
            p.trial.eyeY=eXY(2);
         end

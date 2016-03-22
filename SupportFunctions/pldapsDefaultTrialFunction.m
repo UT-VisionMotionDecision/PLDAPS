@@ -25,6 +25,12 @@ function pldapsDefaultTrialFunction(p,state)
             trialPrepare(p);
         case p.trial.pldaps.trialStates.trialCleanUpandSave
             cleanUpandSave(p);
+        %only availiable if p.trial.pldaps.trialMasterFunction = 'runModularTrial'
+        case p.trial.pldaps.trialStates.experimentAfterTrials
+            if ~isempty(p.trial.pldaps.experimentAfterTrialsFunction)
+               h=str2func(p.trial.pldaps.experimentAfterTrialsFunction);
+               h(p, state)
+            end
     end
 end
 %%% get inputs and check behavior%%%

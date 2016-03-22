@@ -72,6 +72,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	eyelink.	saveEDF = false;
  s.	eyelink.	use = true;
  s.	eyelink.	useAsEyepos = true;
+ s.	eyelink.	useRawData = false;
 
 %s.	git.
  s.	git.	use = false;
@@ -90,6 +91,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	newEraSyringePump.	use = false;
 
 %s.	pldaps.
+ s.	pldaps.	experimentAfterTrialsFunction = [ ];
  s.	pldaps.	eyeposMovAv = 1;
  s.	pldaps.	finish = Inf;
  s.	pldaps.	goodtrial = 0;
