@@ -61,7 +61,7 @@ if p.trial.eyelink.use
         end
 
         if p.trial.eyelink.useRawData
-           eXY= p.trial.eyelink.calibration_matrix(:,:,eyeIdx+10)*[p.trial.eyeX;p.trial.eyeY;1];
+           eXY= p.trial.eyelink.calibration_matrix(:,:,eyeIdx)*[p.trial.eyeX;p.trial.eyeY;1];
            p.trial.eyeX=eXY(1);
            p.trial.eyeY=eXY(2);
         end
