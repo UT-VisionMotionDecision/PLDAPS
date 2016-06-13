@@ -164,8 +164,12 @@ try
             
            %load parameters for next trial and lock defaultsParameters
            trialNr=trialNr+1;
-           p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
-           p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr]);
+           if ~isempty(p.conditions)
+            p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
+            p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr]);
+           else
+            p.defaultParameters.setLevels([levelsPreTrials]);
+           end
            p.defaultParameters.pldaps.iTrial=trialNr;
            
 
