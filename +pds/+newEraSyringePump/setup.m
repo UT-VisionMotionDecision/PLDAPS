@@ -29,7 +29,7 @@ if p.trial.newEraSyringePump.use
     
     IOPort('Write', h, ['AL ' num2str(p.trial.newEraSyringePump.alarmMode) p.trial.newEraSyringePump.commandSeparator],0); %low noise mode, try
 
-    IOPort('Write', h, ['TRG T2'  p.trial.newEraSyringePump.commandSeparator],0);
+    IOPort('Write', h, ['TRG ' p.trial.newEraSyringePump.triggerMode  p.trial.newEraSyringePump.commandSeparator],0);
     
     WaitSecs(0.1);
     a=char(IOPort('Read',h,1,14));
@@ -45,7 +45,8 @@ if p.trial.newEraSyringePump.use
     
     IOPort('Write', h, ['RAT ' num2str(p.trial.newEraSyringePump.rate) ' MH ' p.trial.newEraSyringePump.commandSeparator],0);%2900
 
-    IOPort('Write', h, ['VOL ' num2str(p.trial.behavior.reward.defaultAmount) p.trial.newEraSyringePump.commandSeparator],0);%0.05
+     
+    IOPort('Write', h, ['VOL ' num2str(p.trial.behavior.reward.defaultAmount) ' ' p.trial.newEraSyringePump.volumeUnits p.trial.newEraSyringePump.commandSeparator],0);%0.05
     
     
 %     a=char(IOPort('Read',h)); %clear buffer

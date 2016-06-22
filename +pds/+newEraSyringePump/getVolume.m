@@ -15,7 +15,7 @@ function [volumeGiven,volumeWithdrawn] = getVolume(p)
         timeout=0.1;
         starttime=GetSecs;
 %         tic;
-        while isempty(strfind(a,'ML'))
+        while isempty(strfind(a,'ML'))&&isempty(strfind(a,'UL'))
             if GetSecs > starttime+timeout
                 warning('pds:newEraSyringePump:getVolume','Timed out getting Volume');
                 volumeGiven = NaN;
@@ -40,9 +40,19 @@ function [volumeGiven,volumeWithdrawn] = getVolume(p)
 %         end2=end2(end);
 %         volumeGiven = str2double(a(start:start2-1));
 %         volumeWithdrawn = str2double(a(start2+1:end2-1));
-        res=regexp(a,'00[SI]I(?<given>\d+.\d+)W(?<withdrawn>\d+.\d+)', 'names');
+        res=regexp(a,'00[SI][I](?<given>\d+.\d+)W(?<withdrawn>\d+.\d+)', 'names');
+        if isempty(res)
+            res=regexp(a,'00[SI][I](?<given>\d+.)W(?<withdrawn>\d+.\d+)', 'names');
+%              IOPort('Write', h, ['CLD INF' p.trial.newEraSyringePump.commandSeparator],0);
+%              IOPort('Write', h, ['CLD WDR' p.trial.newEraSyringePump.commandSeparator],0);
+        end
         volumeGiven = res.given;
         volumeWithdrawn = res.withdrawn;
+        
+%         if str2double(res.given)>900 || str2double(res.withdrawn)>900
+%              IOPort('Write', h, ['CLD INF' p.trial.newEraSyringePump.commandSeparator],0);
+%              IOPort('Write', h, ['CLD WDR' p.trial.newEraSyringePump.commandSeparator],0);
+%         end
     else
         volumeGiven = NaN;
         volumeWithdrawn = NaN;

@@ -6,53 +6,53 @@ function p=openephys(p,state,name)
             %experiment setup
 
             %make sure we have access to zeroMQ
-            if ~exist('zeroMQwrapper')==3 %#ok<EXIST>
-                error('pds:openephys','zeroMQwrapper not found. Get the wrapper at https://github.com/open-ephys/GUI/tree/master/Resources/Matlab and add the mex file to your Matlab path');
+            if ~exist('zeroMQrr')==3 %#ok<EXIST>
+                error('pds:openephys','zeroMQrr not found. Get the wrapper at https://github.com/open-ephys/GUI/tree/master/Resources/Matlab and add the mex file to your Matlab path');
             end
             %
-            p.trial.(name).address='localhost';
+            p.trial.(name).address='100.2.1.1';
             p.trial.(name).protocol='tcp';
             p.trial.(name).port='5556';
             p.trial.(name).url=sprintf('%s://%s:%s',p.trial.(name).protocol, p.trial.(name).address, p.trial.(name).port);
-%             p.trial.(name).url = zeroMQwrapper('StartConnectThread',url);
+%             p.trial.(name).url = zeroMQrr('StartConnectThread',url);
 
             %send our filename
             url=p.trial.(name).url;
-            zeroMQwrapper('Send',url ,sprintf('PLDAPS newExperiment File %s',p.defaultParameters.session.file));
-            zeroMQwrapper('Send',url ,sprintf('PLDAPS newExperiment Dir %s',p.defaultParameters.session.dir));
-            zeroMQwrapper('Send',url ,sprintf('PLDAPS newExperiment Setupfile %s',p.defaultParameters.session.experimentSetupFile));
+            zeroMQrr('Send',url ,sprintf('PLDAPS newExperiment File %s',p.defaultParameters.session.file));
+            zeroMQrr('Send',url ,sprintf('PLDAPS newExperiment Dir %s',p.defaultParameters.session.dir));
+            zeroMQrr('Send',url ,sprintf('PLDAPS newExperiment Setupfile %s',p.defaultParameters.session.experimentSetupFile));
             
             
-            p.trial.(name).status.acquiring = zeroMQwrapper('Send',url ,'IsAcquiring');
-            p.trial.(name).status.recording = zeroMQwrapper('Send',url ,'IsRecording');
+            p.trial.(name).status.acquiring = zeroMQrr('Send',url ,'IsAcquiring');
+            p.trial.(name).status.recording = zeroMQrr('Send',url ,'IsRecording');
             if(p.trial.(name).status.recording)
-                p.trial.(name).status.recordingPath = zeroMQwrapper('Send',url ,'GetRecordingPath');
-                p.trial.(name).status.recordingNumber = zeroMQwrapper('Send',url ,'getRecordingNumber');
-                p.trial.(name).status.experimentNumber = zeroMQwrapper('Send',url ,'getExperimentNumber');
+                p.trial.(name).status.recordingPath = zeroMQrr('Send',url ,'GetRecordingPath');
+                p.trial.(name).status.recordingNumber = zeroMQrr('Send',url ,'getRecordingNumber');
+                p.trial.(name).status.experimentNumber = zeroMQrr('Send',url ,'getExperimentNumber');
             else
                 p.trial.(name).status.recordingPath = '';
                 p.trial.(name).status.recordingNumber = NaN;
                 p.trial.(name).status.experimentNumber = NaN;
             end
 %             %implement: way to make this easily, just as strings?
-%             zeroMQwrapper('Send',url ,'ClearDesign');
-%             zeroMQwrapper('Send',url ,'NewDesign nGo_Left_Right');
-%             zeroMQwrapper('Send',url ,'AddCondition Name GoRight TrialTypes 1 2 3');
-%             zeroMQwrapper('Send',url ,'AddCondition Name GoLeft TrialTypes 4 5 6');
+%             zeroMQrr('Send',url ,'ClearDesign');
+%             zeroMQrr('Send',url ,'NewDesign nGo_Left_Right');
+%             zeroMQrr('Send',url ,'AddCondition Name GoRight TrialTypes 1 2 3');
+%             zeroMQrr('Send',url ,'AddCondition Name GoLeft TrialTypes 4 5 6');
 
             case p.trial.pldaps.trialStates.experimentCleanUp
             %experiment cleanUp
             url=p.trial.(name).url;
-            zeroMQwrapper('Send',url ,sprintf('PLDAPS endExperiment File %s',p.defaultParameters.session.file));
-            zeroMQwrapper('CloseThread',url);
-            [tmp]=zeroMQwrapper('GetResponses');
+            zeroMQrr('Send',url ,sprintf('PLDAPS endExperiment File %s',p.defaultParameters.session.file));
+            zeroMQrr('CloseThread',url);
+            [tmp]=zeroMQrr('GetResponses');
             
             case p.trial.pldaps.trialStates.trialSetup
                 %send trialStart condition
                 %send trialNrStart trial number
                 url=p.trial.(name).url;
-%                 zeroMQwrapper('Send',url ,'TrialStart 2'); 
-                zeroMQwrapper('Send',url ,sprintf('PLDAPS TrialNr %i Start', p.trial.pldaps.iTrial)); 
+%                 zeroMQrr('Send',url ,'TrialStart 2'); 
+                zeroMQrr('Send',url ,sprintf('PLDAPS TrialNr %i Start', p.trial.pldaps.iTrial)); 
                 
                 
                 
@@ -61,11 +61,11 @@ function p=openephys(p,state,name)
                 %send TrialEnd condition
                 %send trialNrEnd number
                 url=p.trial.(name).url;
-                zeroMQwrapper('Send',url ,sprintf('PLDAPS unique_number %i %i %i %i %i %i', p.trial.unique_number)); 
-                zeroMQwrapper('Send',url ,sprintf('PLDAPS TrialNr %i End', p.trial.pldaps.iTrial)); 
+                zeroMQrr('Send',url ,sprintf('PLDAPS unique_number %i %i %i %i %i %i', p.trial.unique_number)); 
+                zeroMQrr('Send',url ,sprintf('PLDAPS TrialNr %i End', p.trial.pldaps.iTrial)); 
                 %for now we just flush everything
-                [tmp]=zeroMQwrapper('GetResponses');
-%                 zeroMQwrapper('Send',url ,'TrialEnd 2'); 
+                [tmp]=zeroMQrr('GetResponses');
+%                 zeroMQrr('Send',url ,'TrialEnd 2'); 
 
                 %implement: send trialOutcome....
                 

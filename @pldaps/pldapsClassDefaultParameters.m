@@ -88,7 +88,9 @@ function s=pldapsClassDefaultParameters(s)
  s.	newEraSyringePump.	lowNoiseMode = 0;
  s.	newEraSyringePump.	port = '/dev/cu.usbserial';
  s.	newEraSyringePump.	rate = 2900;
+ s.	newEraSyringePump.	triggerMode = 'T2';
  s.	newEraSyringePump.	use = false;
+ s.	newEraSyringePump.	volumeUnits = 'ML';
 
 %s.	pldaps.
  s.	pldaps.	experimentAfterTrialsFunction = [ ];
