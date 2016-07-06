@@ -41,7 +41,7 @@ end
         %Keyboard    
         [p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ, firstRelease, lastPress, lastRelease]=KbQueueCheck(); % fast
         
-        if p.trial.keyboard.pressedQ
+        if p.trial.keyboard.pressedQ || any(firstRelease)
     %         [p.trial.keyboard.pressedQ,  p.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
             p.trial.keyboard.samples = p.trial.keyboard.samples+1;
             p.trial.keyboard.samplesTimes(p.trial.keyboard.samples)=GetSecs;
@@ -78,7 +78,7 @@ end
                 ShowCursor
             elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) % d=debug
                     disp('stepped into debugger. Type return to start first trial...')
-                    keyboard %#ok<MCKBD>
+?                    keyboard %#ok<MCKBD>
     %             dbstop if warning opticflow:debugger_requested;
     %             warning on opticflow:debugger_requested;
     %             warning('opticflow:debugger_requested','At your service!');
