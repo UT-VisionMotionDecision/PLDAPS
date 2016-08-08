@@ -231,6 +231,10 @@ try
 
                p.trial=oldptrial;
            end
+           
+           if ~p.defaultParameters.datapixx.use && p.defaultParameters.display.useOverlay
+                glDeleteTextures(2,glGenTextures(1));
+           end
 
            %advance to next trial
 %            if(dv.trial.pldaps.iTrial ~= dv.trial.pldaps.finish)
@@ -337,6 +341,10 @@ try
 
     if p.trial.display.movie.create
         Screen('FinalizeMovie', p.trial.display.movie.ptr);
+    end
+    
+    if ~p.defaultParameters.datapixx.use && p.defaultParameters.display.useOverlay
+        glDeleteTextures(2,glGenTextures(1));
     end
     Screen('CloseAll');
 

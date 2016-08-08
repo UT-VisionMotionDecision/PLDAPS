@@ -73,10 +73,10 @@ if p.trial.datapixx.use
         PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
     end
 else
-    disp('****************************************************************')
-    disp('****************************************************************')
-    disp('No overlay window')
-    disp('****************************************************************')
+%     disp('****************************************************************')
+%     disp('****************************************************************')
+%     disp('No overlay window')
+%     disp('****************************************************************')
     PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');   
 end
 
@@ -155,7 +155,12 @@ p.trial.display.info = Screen('GetWindowInfo', p.trial.display.ptr);            
 
 %% some more
 p.trial.display.pWidth=p.trial.display.winRect(3)-p.trial.display.winRect(1);
-p.trial.display.pHeight=p.trial.display.winRect(4)-p.trial.display.winRect(2);      
+p.trial.display.pHeight=p.trial.display.winRect(4)-p.trial.display.winRect(2);
+% if using a no datapixx overlay, adjust the window size to be half
+if ~p.trial.datapixx.use && p.trial.display.useOverlay
+    p.trial.display.pWidth=p.trial.display.pWidth/2;
+    p.trial.display.ctr([1 3])=p.trial.display.ctr([1 3])/2;
+end
 p.trial.display.wWidth=p.trial.display.widthcm;
 p.trial.display.wHeight=p.trial.display.heightcm;
 p.trial.display.dWidth = atand(p.trial.display.wWidth/2 / p.trial.display.viewdist)*2;
