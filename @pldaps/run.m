@@ -306,6 +306,13 @@ try
         end
     end
     
+    if p.defaultParameters.sound.use
+       % Stop playback:
+        PsychPortAudio('Stop', p.defaultParameters.sound.master);
+        % Close the audio device:
+        PsychPortAudio('Close', p.defaultParameters.sound.master); 
+    end
+    
     if p.trial.pldaps.useModularStateFunctions
         [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
         runStateforModules(p,'experimentCleanUp',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
