@@ -3,10 +3,11 @@ function p = openScreen(p)
 %              decives like datapixx.
 % 
 % required fields
-% dv.defaultParameters.display.
+% p.defaultParameters.display.
 %   stereoMode      [double] -  0 is no stereo
 %   normalizeColor  [boolean] - 1 normalized color range on PTB screen
-%   useOverlay      [boolean] - 1 opens datapixx overlay window
+%   useOverlay      [double]  - 0,1,2 opens different overlay windows
+%                             - 0=no overlay, 1=datapixx, 2=software
 %   stereoFlip      [string]  - 'left', 'right', or [] flips one stereo
 %                               image for the planar screen
 %   colorclamp      [boolean] - 1 clamps color between 0 and 1
@@ -31,7 +32,6 @@ function p = openScreen(p)
 
 
 InitializeMatlabOpenGL(0,0); %second 0: debug level =0 for speed
-% AssertOpenGL;
 % prevent splash screen
 Screen('Preference','VisualDebugLevel',3);
 % Initiate Psych Imaging screen configs
@@ -66,6 +66,7 @@ if p.trial.datapixx.use
     % Tell PTB we are using Datapixx
     PsychImaging('AddTask', 'General', 'UseDataPixx');
     PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
+    
     if p.trial.display.useOverlay
         % Turn on the overlay
         disp('Using overlay window (EnableDataPixxM16OutputWithOverlay)')
@@ -204,4 +205,6 @@ Screen('BlendFunction', p.trial.display.ptr, p.trial.display.sourceFactorNew, p.
 if p.trial.display.forceLinearGamma %does't really belong here, but need it before the first flip....
     LoadIdentityClut(p.trial.display.ptr);
 end
+
+p=defaultColors(p); % load the default CLUTs -- this is useful for opening overlay window in pds.datapixx.init
 p.trial.display.t0 = Screen('Flip', p.trial.display.ptr); 
