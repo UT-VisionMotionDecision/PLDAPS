@@ -20,7 +20,7 @@ function p = give(p, amount)
 	end
     
     %%sound
-    if p.trial.sound.use
+    if p.trial.sound.use && p.trial.sound.useForReward
         PsychPortAudio('Start', p.trial.sound.reward);
     end
     
