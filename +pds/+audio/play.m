@@ -1,4 +1,4 @@
-function p = play(p,sound_name,repeats)
+function p = play(varargin)
 %pds.audio.play(p,sound_name,repeats) play the sound associated with the
 %name sound_name repeats number of times
 %
@@ -17,6 +17,14 @@ function p = play(p,sound_name,repeats)
 %  Lee Lovejoy
 %  ll2833@columbia.edu
 %  August 2016
+
+p = varargin{1};
+sound_name = varargin{2};
+if(nargin==3)
+    repeats = varargin{3};
+else
+    repeats = 1;
+end
 
 %  Virtual device handle
 [~,name] = fileparts(p.trial.sound.wavfiles.(sound_name));
