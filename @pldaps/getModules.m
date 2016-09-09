@@ -31,7 +31,7 @@ if isfield(p.trial.pldaps,'trialFunction') && ~isempty(p.trial.pldaps.trialFunct
     for iState=1:length(moduleRequestedStates)
         moduleRequestedStates{iState}(end+1)=true;
     end
-    moduleOrder(end+1)=NaN;d
+    moduleOrder(end+1)=NaN;
     moduleLocationInputs(end+1)=false;
 end
 moduleRequestedStates=cellfun(@(x) reshape(x,1,numel(x)), moduleRequestedStates, 'UniformOutput', false);
