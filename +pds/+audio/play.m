@@ -1,4 +1,4 @@
-function p = play(varargin)
+function p = play(p,sound_name,repeats)
 %pds.audio.play(p,sound_name,repeats) play the sound associated with the
 %name sound_name repeats number of times
 %
@@ -18,11 +18,7 @@ function p = play(varargin)
 %  ll2833@columbia.edu
 %  August 2016
 
-p = varargin{1};
-sound_name = varargin{2};
-if(nargin==3)
-    repeats = varargin{3};
-else
+if(nargin<3)
     repeats = 1;
 end
 
