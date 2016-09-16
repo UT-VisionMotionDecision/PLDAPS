@@ -74,6 +74,14 @@ while stop==0 && bitand(Eyelink( 'CurrentMode'), p.trial.eyelink.setup.IN_SETUP_
     if bitand(i, p.trial.eyelink.setup.IN_TARGET_MODE)			% calibrate, validate, etc: show targets
         fprintf ('%s\n', 'dotrackersetup: in targetmodedisplay' );
         pds.eyelink.targetModeDisplay(p);
+
+%  EDIT
+%pause(0.1)
+
+%pds.behavior.reward.give(p);
+
+
+
     elseif bitand(i, p.trial.eyelink.setup.IN_IMAGE_MODE)		% display image until we're back
         fprintf ('%s\n', 'EyelinkDoTrackerSetup: in ''ImageModeDisplay''' );
         pds.eyelink.clearCalDisplay(p);	% setup_cal_display()
