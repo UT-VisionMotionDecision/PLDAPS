@@ -175,4 +175,5 @@ function s=pldapsClassDefaultParameters(s)
 %s.	sound.
  s.	sound.	deviceid = [ ];
  s.	sound.	use = true;
+ s.	sound.	useForReward = true;
 end
