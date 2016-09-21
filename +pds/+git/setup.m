@@ -10,7 +10,7 @@ function p = setup(p)
 %
 % 05/2014 jk wrote it
 
-if ~isField(p.defaultParameters,'git.use') || ~p.defaultParameters.git.use
+if ~isfield(p.defaultParameters,'git.use') || ~p.defaultParameters.git.use
     return
 end
 

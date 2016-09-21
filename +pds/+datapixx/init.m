@@ -92,7 +92,7 @@ if p.trial.datapixx.use
         %Set the transparancy color to the background color. Could set it
         %to anything, but we'll use this to maximize backward compatibility
         bgColor=p.trial.display.bgColor;
-        if isField(p.trial, 'display.gamma.table')
+        if isfield(p.trial, 'display.gamma.table')
             bgColor = interp1(linspace(0,1,256),p.trial.display.gamma.table(:,1), p.trial.display.bgColor);
         end
         Datapixx('SetVideoClutTransparencyColor', bgColor);
@@ -106,7 +106,7 @@ if p.trial.datapixx.use
         end
         %%% Gamma correction for dual CLUT %%%
         % check if gamma correction has been run on the window pointer
-        if isField(p.trial, 'display.gamma.table')
+        if isfield(p.trial, 'display.gamma.table')
             % get size of the combiend CLUT. It should be 512 x 3 (two 256 x 3 CLUTS
             % on top of eachother). 
             sc = size(combinedClut);

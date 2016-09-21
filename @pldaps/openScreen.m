@@ -117,7 +117,7 @@ p.trial.display.ptr=ptr;
 p.trial.display.winRect=winRect;
 
 % % Set gamma lookup table
-if isField(p.trial, 'display.gamma')
+if isfield(p.trial, 'display.gamma')
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Loading gamma correction')

@@ -3,7 +3,7 @@ function loadPLDAPS()
 
     %add the path to you PLDAPS code and other Dirs you want to have added
     %(your stimuli
-    dirs{1}='~/Documents/PLDAPS';
+    dirs{1}='/usr/local/PLDAPS';
 %     dirs{2}='~/Documents/stimuli';
 
     for j=1:length(dirs)
