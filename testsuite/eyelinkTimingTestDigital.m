@@ -46,13 +46,13 @@ function p=eyelinkTimingTestDigital(p,state)
 
     if nargin==1  %initial call to setup conditions
         
-        if ~isField(p.trial,'stimulus.nTrials')
+        if ~isfield(p.trial,'stimulus.nTrials')
             p.trial.stimulus.nTrials = 5;
         end        
-        if ~isField(p.trial,'stimulus.online.analysis')
+        if ~isfield(p.trial,'stimulus.online.analysis')
             p.trial.stimulus.online.analysis = false;
         end
-        if ~isField(p.trial,'pldaps.trialLength')
+        if ~isfield(p.trial,'pldaps.trialLength')
             p.trial.pldaps.trialLength = 30;
         end
         

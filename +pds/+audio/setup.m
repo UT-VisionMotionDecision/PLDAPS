@@ -6,7 +6,7 @@ function p = setup(p)
 % (c) jly 2012
 %     jk  2015 changed to work with version 4.1 and changed to load all
 %              wavfiles in the wavfiles directory
-if p.trial.sound.use && isField(p.trial, 'pldaps.dirs.wavfiles')
+if p.trial.sound.use && isfield(p.trial, 'pldaps.dirs.wavfiles')
     % initalize
     InitializePsychSound;
     

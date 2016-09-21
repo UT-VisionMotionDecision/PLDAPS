@@ -124,7 +124,7 @@ classdef params < handle
             p.topLevel=find(p.activeLevels, 1, 'last');
         end
         
-        function is = isField(p,fieldname)
+        function is = isfield(p,fieldname)
             if(fieldname(1)~='.')
                 fieldname=['.' fieldname];
             end
@@ -345,12 +345,12 @@ classdef params < handle
                     end
                     id=sprintf('.%s',S(1:dotNr).subs);                 
                     
-                    [isField, fieldPos]=ismember(id,{p.flatStruct.identifier});
+                    [hasfield, fieldPos]=ismember(id,{p.flatStruct.identifier});
                     
                     Snew=[p.Snew1 S];
                     Snew(2).subs={p.topLevel};
                     
-                    if(isField)
+                    if(hasfield)
                         if(~allDots)
                             %partially changing an existing field, make
                             %sure it exists in this level
@@ -368,7 +368,7 @@ classdef params < handle
                     [~]=builtin('subsasgn',p,Snew,value);
                     
                     %ok, set the value, now make sure its in the flatStruct
-                    if isField
+                    if hasfield
                         parentLevels=p.flatStruct(fieldPos).parentLevels;
                     else
                         parentLevels= {S(1:dotNr).subs};

@@ -37,7 +37,7 @@ classdef pldaps < handle
         %unnecassary, but we'll allow to save parameters in a rig
         %struct, rather than the prefs, as that's a little more
         %conveniant
-        if isField(p.defaultParameters,'pldaps.rigParameters')
+        if isfield(p.defaultParameters,'pldaps.rigParameters')
             defaults{3}=load(p.defaultParameters.pldaps.rigParameters);
             fn=fieldnames(defaults{3});
             if length(fn)>1

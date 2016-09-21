@@ -68,17 +68,17 @@ function p=screenTimingTest(p,state)
 
     if nargin==1 && isempty(p.data) %initial call to setup conditions
         
-        if ~isField(p.trial,'stimulus.nTrials')
+        if ~isfield(p.trial,'stimulus.nTrials')
             p.trial.stimulus.nTrials = 200;
         end
-        if ~isField(p.trial,'stimulus.location')
+        if ~isfield(p.trial,'stimulus.location')
             p.trial.stimulus.location = 1;
         end
         
-        if ~isField(p.trial,'stimulus.online.analysis')
+        if ~isfield(p.trial,'stimulus.online.analysis')
             p.trial.stimulus.online.analysis = false;
         end
-        if ~isField(p.trial,'pldaps.trialLength')
+        if ~isfield(p.trial,'pldaps.trialLength')
             p.trial.pldaps.trialLength = 3;
         end
         
