@@ -78,7 +78,7 @@ end
                 ShowCursor
             elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) % d=debug
                     disp('stepped into debugger. Type return to start first trial...')
-?                    keyboard %#ok<MCKBD>
+                    keyboard %#ok<MCKBD>
     %             dbstop if warning opticflow:debugger_requested;
     %             warning on opticflow:debugger_requested;
     %             warning('opticflow:debugger_requested','At your service!');
@@ -209,17 +209,16 @@ end
              %we should skip every nth frame depending on the ration of
              %frame rates, or increase every nth frameduration by 1 every
              %nth frame
-%              if p.trial.display.frate > p.trial.display.movie.frameRate
-%                  mod(p.trial.iFrame, p.trial.display.frate/p.trial.display.movie.frameRate)>1
-%              else
-%                  
-%              end
-%              
-%              p.trial.display.movie.moviePtr
-%              p.trial.display.movie.frameRate
-%              frameDuration
-             frameDuration=1;
-             Screen('AddFrameToMovie', p.trial.display.ptr,[],[],p.trial.display.movie.ptr, frameDuration);
+             if p.trial.display.frate > p.trial.display.movie.frameRate
+                 thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.display.movie.frameRate)>0;
+             else
+                 thisframe=true;
+             end
+
+             if thisframe
+                 frameDuration=1;
+                 Screen('AddFrameToMovie', p.trial.display.ptr,[],[],p.trial.display.movie.ptr, frameDuration);
+             end
          end
                   
          %did the background color change?
