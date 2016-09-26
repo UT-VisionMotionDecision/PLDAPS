@@ -26,6 +26,8 @@ classdef params < handle
         MethodsList
         
         Snew1
+
+        profile
     end
     
     methods 
@@ -37,6 +39,9 @@ classdef params < handle
             end
             if nargin<3
             	active=true(1,length(s));
+            end
+            if nargin<5
+                p.profile=false;
             end
             p=addStructs(p,s,sN,active);
  
@@ -99,6 +104,15 @@ classdef params < handle
             id=cellfun(@(x) sprintf('.%s',x{:}), {fs.parentLevels}, 'UniformOutput', false);   
             [fs.identifier]=deal(id{:});
             [fs.hierarchyLevels]=deal(levelNr);
+            if p.profile
+                st=dbstack('-completenames');
+                st=st(find(~strncmp({st.name},mfilename, length(mfilename)), 1,'first'));
+                [fs.set]=deal(params.addToHelpStack([],st));
+            else
+                [fs.set]=deal([]);
+            end
+            [fs.get]=deal([]);
+            [fs.help]=deal('');
             
             %now merge with the current masterFlatStruct:
             if(isempty(p.flatStruct))
@@ -132,7 +146,91 @@ classdef params < handle
             
             is = ismember(fieldname,{p.flatStruct.identifier});
         end
+
+        function assignHelp(p,fieldnames, h,s,g)
+            for ih=1:size(fieldnames)
+                idx = find(strcmp(fieldnames{ih},{p.flatStruct.identifier}));
+                if isempty(idx)
+                    warning('%s does not exist, ignoring...', fieldnames{ih});
+                end
+                if ~istempty(h) && ~isempty(h{ih})
+                    p.flatStruct(idx).help=h{ih};
+                end
+                if nargin>3 && ~isempty(s) && ~isempty(s{ih})
+                    p.flatStruct(idx).set=params.addToHelpStack(p.flatStruct(idx).set,s{ih});
+                end
+                if nargin>4 && ~isempty(g) && ~isempty(g{ih})
+                    p.flatStruct(idx).get=params.addToHelpStack(p.flatStruct(idx).get,g{ih});
+                end
+            end
+        end
         
+        function [fieldnames,h,s,g] =retrieveHelp(p)
+            fieldnames={p.flatStruct.identifier};
+            h={p.flatStruct.help};
+            s={p.flatStruct.set};
+            g={p.flatStruct.get};
+            remove=cellfun(@isempty,h)&cellfun(@length,s)<2&cellfun(@isempty,g);
+            fieldnames(remove)=[];
+            h(remove)=[];
+            s(remove)=[];
+            g(remove)=[];
+        end
+
+        function help(p, fieldname)
+            if(fieldname(1)~='.')
+                fieldname=['.' fieldname];
+            end
+
+            idx = find(strcmp(fieldname,{p.flatStruct.identifier}));
+            if isempty(idx)
+                warning('%s does not exist', fieldname);
+                return;
+            end
+
+            helptext=strrep(p.flatStruct(idx).help,'\n', '\n  ');
+            fprintf(['\n<strong>%s</strong>\t ' helptext '\n'],fieldname);
+            if p.flatStruct(idx).isNode
+                display('  Subfields:');
+                printsubparameters(p, fieldname)
+            else
+                display('  Assigned by:');
+                if ~isempty(p.flatStruct(idx).set)
+                    lengths=cellfun(@length,{p.flatStruct(idx).set.name});
+                    max_length=max(lengths);
+                    for is=1:length(p.flatStruct(idx).set)
+                        fprintf('\t<a href="matlab:matlab.internal.language.introspective.errorDocCallback(''%s'',''%s'')">%s</a>',p.flatStruct(idx).set(is).name,which([p.flatStruct(idx).set(is).name p.flatStruct(idx).set(is).extension]),p.flatStruct(idx).set(is).name)
+                        fprintf('%s\tLines: ', repmat(' ', 1,max_length-lengths(is)))
+                        for ls=1:length(p.flatStruct(idx).set(is).line)
+                            fprintf('<a href="matlab: opentoline(''%s'',%i)">%i</a>',which([p.flatStruct(idx).set(is).name p.flatStruct(idx).set(is).extension]),p.flatStruct(idx).set(is).line(ls),p.flatStruct(idx).set(is).line(ls));
+                            if ls==length(p.flatStruct(idx).set(is).line)
+                                fprintf('\n');
+                            else
+                                fprintf(',');
+                            end
+                        end
+                    end
+                end
+                display('  Used by:');
+                if ~isempty(p.flatStruct(idx).get)
+                    lengths=cellfun(@length,{p.flatStruct(idx).get.name});
+                    max_length=max(lengths);
+                    for is=1:length(p.flatStruct(idx).get)
+                        fprintf('\t<a href="matlab:matlab.internal.language.introspective.errorDocCallback(''%s'',''%s'')">%s</a>',p.flatStruct(idx).get(is).name,which([p.flatStruct(idx).get(is).name p.flatStruct(idx).get(is).extension]),p.flatStruct(idx).get(is).name)
+                        fprintf('%s\tLines: ', repmat(' ', 1,max_length-lengths(is)))
+                        for ls=1:length(p.flatStruct(idx).get(is).line)
+                            fprintf('<a href="matlab: opentoline(''%s'',%i)">%i</a>',which([p.flatStruct(idx).get(is).name p.flatStruct(idx).get(is).extension]),p.flatStruct(idx).get(is).line(ls),p.flatStruct(idx).get(is).line(ls));
+                            if ls==length(p.flatStruct(idx).get(is).line)
+                                fprintf('\n');
+                            else
+                                fprintf(',');
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
         %TODO: if we allow dirty structs, we need to cosolidate....
         function p = setLevels(p,value)
             if islogical(value)
@@ -162,7 +260,7 @@ classdef params < handle
             if nargin<4
                 levelNr=p.topLevel;
             end
-            
+
             parentLevels=textscan(id,'%s','delimiter','.');
             parentLevels=parentLevels{1}(2:end);
             %assign the value, could probably use subsref of struct
@@ -262,7 +360,19 @@ classdef params < handle
                         end
                         k={S(1:dotNr).type; S(1:dotNr).subs};
                         id=[k{:}];
-                        
+
+                        if p.profile
+                            match_location=find(strcmp({p.flatStruct.identifier},id));
+                            if ~isempty(match_location)
+                                st=dbstack('-completenames');
+                                st=st(find(~strncmp({st.name},mfilename, length(mfilename)), 1,'first'));
+                                if ~isempty(st)
+                                    st=st(1);
+                                    p.flatStruct(match_location).get=params.addToHelpStack(p.flatStruct(match_location).get,st);
+                                end
+                            end
+                        end
+
                         parts_inds=find(strncmp({p.flatStruct.identifier},id,length(id)));
                         length_ids=cellfun(@length,{p.flatStruct(parts_inds).identifier})==length(id);
                         length_ids(~length_ids)=cellfun(@(x) x(length(id)+1)=='.',{p.flatStruct(parts_inds(~length_ids)).identifier});
@@ -344,10 +454,22 @@ classdef params < handle
                     else
                         allDots=false;
                     end
-                    id=sprintf('.%s',S(1:dotNr).subs);                 
-                    
+                    id=sprintf('.%s',S(1:dotNr).subs);   
+
+                    if p.profile
+                        match_location=find(strcmp({p.flatStruct.identifier},id));
+                        if ~isempty(match_location)
+                            st=dbstack('-completenames');
+                            st=st(find(~strncmp({st.name},mfilename, length(mfilename)), 1,'first'));    
+                            if ~isempty(st)
+                                st=st(1);
+                                p.flatStruct(match_location).set=params.addToHelpStack(p.flatStruct(match_location).set,st);
+                            end
+                        end
+                    end
+
                     [isField, fieldPos]=ismember(id,{p.flatStruct.identifier});
-                    
+
                     Snew=[p.Snew1 S];
                     Snew(2).subs={p.topLevel};
                     
@@ -389,7 +511,15 @@ classdef params < handle
                     id=cellfun(@(x) sprintf('.%s',x{:}), {addFlatStruct.parentLevels}, 'UniformOutput', false);   
                     [addFlatStruct.identifier]=deal(id{:});
                     [addFlatStruct.hierarchyLevels]=deal(p.topLevel);
-
+                    if p.profile
+                        st=dbstack('-completenames');
+                        st=st(find(~strncmp({st.name},mfilename, length(mfilename)), 1,'first'));
+                        [addFlatStruct.set]=deal(params.addToHelpStack([],st));
+                    else
+                        [addFlatStruct.set]=deal([]);
+                    end
+                    [addFlatStruct.get]=deal([]);
+                    [addFlatStruct.help]=deal('');
 
                     [overruled, overruledPos]=ismember({addFlatStruct.identifier},{p.flatStruct.identifier});
 
@@ -564,5 +694,34 @@ classdef params < handle
         
         varargout = structviewer(varargin)
         
+        function old=addToHelpStack(old,new)
+            if ~isempty(new)
+                for iN=1:length(new)
+                    st=new(iN);
+                    sfile=strsplit(st.file,filesep);
+                    first_class=find(strncmp(sfile,'+',1)|strncmp(sfile,'@',1),1,'first');
+    %                             sfile=cellfun(@(x) [x(2:end) '.'], sfile(first_class:end-1), 'UniformOutput', false);
+    %                             st.name=[sfile{:} st.name];
+                    sfile(strncmp(sfile,'+',1))=cellfun(@(x) [x(2:end) '.'], sfile(strncmp(sfile,'+',1)), 'UniformOutput', false);
+                    sfile(strncmp(sfile,'@',1))=cellfun(@(x) [x(2:end) '/'], sfile(strncmp(sfile,'@',1)), 'UniformOutput', false);
+                    [~,~,st.extension]=fileparts(st.file);
+                    st.name=[sfile{first_class:end-1} st.name];
+                    st=rmfield(st,'file');
+                    if isempty(old)
+                        old=st;
+                    else
+                        function_location=find(strcmp({old.name}, st.name));
+                        if isempty(function_location)
+                            old(end+1)=st;
+                        else
+                            line_location=(st.line==old(function_location).line);
+                            if ~any(line_location)
+                                old(function_location).line=sort([old(function_location).line st.line]);
+                            end
+                        end
+                    end
+                end
+            end
+        end
     end %methods(Static)
 end

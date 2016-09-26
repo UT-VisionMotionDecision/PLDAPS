@@ -114,6 +114,8 @@ classdef pldaps < handle
       
       s = pldapsClassDefaultParameters(s)
       
+      h = pldapsClassDefaultParametersHelp(h)
+      
       [stateValue, stateName] = getReorderedFrameStates(trialStates,moduleRequestedStates)
  end
 
