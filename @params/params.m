@@ -33,16 +33,17 @@ classdef params < handle
     methods 
 
         %% start new functions for new approach
-        function p=params(s,sN,active)
+        function p=params(s,sN,active,profile)
             if nargin<2
             	sN=cellfun(@(x) sprintf('level%i',x),num2cell(1:length(s)),'UniformOutput',false);
             end
             if nargin<3
             	active=true(1,length(s));
             end
-            if nargin<5
-                p.profile=false;
+            if nargin<4
+                profile=false;
             end
+            p.profile=profile;
             p=addStructs(p,s,sN,active);
  
             p.MethodsList={'view', 'setLevels','getAllLevels', 'mergeToSingleStruct','getDifferenceFromStruct','addLevels','addStructs','addNewStruct', 'getAllStructs','setLock','getParameter','fieldnames'};
@@ -148,12 +149,13 @@ classdef params < handle
         end
 
         function assignHelp(p,fieldnames, h,s,g)
-            for ih=1:size(fieldnames)
+            for ih=1:length(fieldnames)
                 idx = find(strcmp(fieldnames{ih},{p.flatStruct.identifier}));
                 if isempty(idx)
                     warning('%s does not exist, ignoring...', fieldnames{ih});
+                    continue;
                 end
-                if ~istempty(h) && ~isempty(h{ih})
+                if ~isempty(h) && ~isempty(h{ih})
                     p.flatStruct(idx).help=h{ih};
                 end
                 if nargin>3 && ~isempty(s) && ~isempty(s{ih})
@@ -202,7 +204,7 @@ classdef params < handle
                         fprintf('\t<a href="matlab:matlab.internal.language.introspective.errorDocCallback(''%s'',''%s'')">%s</a>',p.flatStruct(idx).set(is).name,which([p.flatStruct(idx).set(is).name p.flatStruct(idx).set(is).extension]),p.flatStruct(idx).set(is).name)
                         fprintf('%s\tLines: ', repmat(' ', 1,max_length-lengths(is)))
                         for ls=1:length(p.flatStruct(idx).set(is).line)
-                            fprintf('<a href="matlab: opentoline(''%s'',%i)">%i</a>',which([p.flatStruct(idx).set(is).name p.flatStruct(idx).set(is).extension]),p.flatStruct(idx).set(is).line(ls),p.flatStruct(idx).set(is).line(ls));
+                            fprintf('<a href="matlab: opentoline(''%s'',%i)">%i</a>',which([p.flatStruct(idx).set(is).name]),p.flatStruct(idx).set(is).line(ls),p.flatStruct(idx).set(is).line(ls));
                             if ls==length(p.flatStruct(idx).set(is).line)
                                 fprintf('\n');
                             else
@@ -219,7 +221,7 @@ classdef params < handle
                         fprintf('\t<a href="matlab:matlab.internal.language.introspective.errorDocCallback(''%s'',''%s'')">%s</a>',p.flatStruct(idx).get(is).name,which([p.flatStruct(idx).get(is).name p.flatStruct(idx).get(is).extension]),p.flatStruct(idx).get(is).name)
                         fprintf('%s\tLines: ', repmat(' ', 1,max_length-lengths(is)))
                         for ls=1:length(p.flatStruct(idx).get(is).line)
-                            fprintf('<a href="matlab: opentoline(''%s'',%i)">%i</a>',which([p.flatStruct(idx).get(is).name p.flatStruct(idx).get(is).extension]),p.flatStruct(idx).get(is).line(ls),p.flatStruct(idx).get(is).line(ls));
+                            fprintf('<a href="matlab: opentoline(''%s'',%i)">%i</a>',which([p.flatStruct(idx).get(is).name]),p.flatStruct(idx).get(is).line(ls),p.flatStruct(idx).get(is).line(ls));
                             if ls==length(p.flatStruct(idx).get(is).line)
                                 fprintf('\n');
                             else
@@ -698,15 +700,19 @@ classdef params < handle
             if ~isempty(new)
                 for iN=1:length(new)
                     st=new(iN);
-                    sfile=strsplit(st.file,filesep);
-                    first_class=find(strncmp(sfile,'+',1)|strncmp(sfile,'@',1),1,'first');
-    %                             sfile=cellfun(@(x) [x(2:end) '.'], sfile(first_class:end-1), 'UniformOutput', false);
-    %                             st.name=[sfile{:} st.name];
-                    sfile(strncmp(sfile,'+',1))=cellfun(@(x) [x(2:end) '.'], sfile(strncmp(sfile,'+',1)), 'UniformOutput', false);
-                    sfile(strncmp(sfile,'@',1))=cellfun(@(x) [x(2:end) '/'], sfile(strncmp(sfile,'@',1)), 'UniformOutput', false);
-                    [~,~,st.extension]=fileparts(st.file);
-                    st.name=[sfile{first_class:end-1} st.name];
-                    st=rmfield(st,'file');
+                    if isfield(st,'file') %fresh from dbstack, need to edit
+                        sfile=strsplit(st.file,filesep);
+                        first_class=find(strncmp(sfile,'+',1)|strncmp(sfile,'@',1),1,'first');
+    %                     first_class=find(strncmp(sfile,'+',1),1,'first');
+        %                             sfile=cellfun(@(x) [x(2:end) '.'], sfile(first_class:end-1), 'UniformOutput', false);
+        %                             st.name=[sfile{:} st.name];
+                        sfile(strncmp(sfile,'+',1))=cellfun(@(x) [x(2:end) '.'], sfile(strncmp(sfile,'+',1)), 'UniformOutput', false);
+                        sfile(strncmp(sfile,'@',1))=cellfun(@(x) [x(2:end) '/'], sfile(strncmp(sfile,'@',1)), 'UniformOutput', false);
+                        [~,st.name,st.extension]=fileparts(st.file);
+                        st.name=[sfile{first_class:end-1} st.name];
+    %                     st.name=[sfile{first_class:end}];
+                        st=rmfield(st,'file');
+                    end
                     if isempty(old)
                         old=st;
                     else

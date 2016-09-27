@@ -32,7 +32,10 @@ classdef pldaps < handle
         defaults{2}=getpref('pldaps');
         defaultsNames{2}='pldapsRigPrefs';
         
-        p.defaultParameters=params(defaults,defaultsNames);
+        p.defaultParameters=params(defaults,defaultsNames,true(1,length(defaults)),true);
+        h=pldaps.pldapsClassDefaultParametersHelp();
+        assignHelp(p.defaultParameters, h(:,1), h(:,2));
+        
         
         %unnecassary, but we'll allow to save parameters in a rig
         %struct, rather than the prefs, as that's a little more
