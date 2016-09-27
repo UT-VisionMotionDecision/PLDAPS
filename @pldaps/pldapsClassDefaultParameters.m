@@ -140,6 +140,7 @@ function s=pldapsClassDefaultParameters(s)
 %s.	pldaps.	save.
  s.	pldaps.	save.	initialParametersMerged = 1;
  s.	pldaps.	save.	mergedData = 0;
+ s.	pldaps.	save.	trialTempfiles = 1;
  s.	pldaps.	save.	v73 = 0;
 
 %s.	pldaps.	trialStates.
@@ -175,4 +176,5 @@ function s=pldapsClassDefaultParameters(s)
 %s.	sound.
  s.	sound.	deviceid = [ ];
  s.	sound.	use = true;
+ s.	sound.	useForReward = true;
 end

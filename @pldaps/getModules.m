@@ -34,4 +34,5 @@ function [modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInpu
         moduleOrder(end+1)=NaN;
         moduleLocationInputs(end+1)=false;
     end
+    moduleRequestedStates=cellfun(@(x) reshape(x,1,numel(x)), moduleRequestedStates, 'UniformOutput', false);
     moduleRequestedStates=cell2struct(moduleRequestedStates,availiableStates);
