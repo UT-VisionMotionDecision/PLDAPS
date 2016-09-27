@@ -58,7 +58,7 @@ if p.trial.display.normalizeColor == 1
 	PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange');
 end
 
-if p.trial.datapixx.use
+if p.trial.datapixx.use && p.trial.display.useOverlay~=2
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Adds flags for UseDataPixx')

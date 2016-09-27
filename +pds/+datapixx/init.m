@@ -298,7 +298,7 @@ if p.trial.display.useOverlay==2 % software overlay
     PsychColorCorrection('ApplyPostGLSLLinkSetup', p.trial.display.ptr, 'FinalFormatting');
     PsychColorCorrection('SetLookupTable', p.trial.display.ptr, linspace(0,1,256)', 'FinalFormatting');
     
-elseif p.trial.display.useOverlay==1
+else %if p.trial.display.useOverlay==1
     p.trial.display.overlayptr=p.trial.display.ptr;
 end
 
