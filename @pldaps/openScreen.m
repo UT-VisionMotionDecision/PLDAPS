@@ -1,7 +1,7 @@
 function p = openScreen(p)
 %openScreen    opens PsychImaging Window with preferences set for special
 %              decives like datapixx.
-% 
+%
 % required fields
 % p.defaultParameters.display.
 %   stereoMode      [double] -  0 is no stereo
@@ -12,19 +12,19 @@ function p = openScreen(p)
 %                               image for the planar screen
 %   colorclamp      [boolean] - 1 clamps color between 0 and 1
 %   scrnNum         [double]  - number of screen to open
-%   sourceFactorNew [string]  - see Screen Blendfunction? 
-%   destinationFactorNew      - see Screen Blendfunction? 
+%   sourceFactorNew [string]  - see Screen Blendfunction?
+%   destinationFactorNew      - see Screen Blendfunction?
 %   widthcm
 %   heightcm
 %   viewdist
 %   bgColor
- 
+
 % 12/12/2013 jly wrote it   Mostly taken from Init_StereoDispPI without any
 %                           of the switch-case in the front for each rig.
 %                           This assumes you have set up your display
 %                           struct before calling.
 % 01/20/2014 jly update     Updated help text and added default arguments.
-%                           Created a distinct variable to separate 
+%                           Created a distinct variable to separate
 %                           colorclamp and normalize color.
 % 05/2015    jk  update     changed for use with version 4.1
 %                           moved default parameters to the
@@ -40,7 +40,7 @@ PsychImaging('PrepareConfiguration');
 %% Setup Psych Imaging
 % Add appropriate tasks to psych imaging pipeline
 
-% set the size of the screen 
+% set the size of the screen
 if p.trial.display.stereoMode >= 6 || p.trial.display.stereoMode <=1
     p.trial.display.width = 2*atand(p.trial.display.widthcm/2/p.trial.display.viewdist);
 else
@@ -55,10 +55,10 @@ if p.trial.display.normalizeColor == 1
     disp('Potential danger: this fxn sets color range to unclamped...don''t')
     disp('know if this will cause issue. TBC 12-18-2012')
     disp('****************************************************************')
-	PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange');
+    PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange');
 end
 
-if p.trial.datapixx.use && p.trial.display.useOverlay~=2
+if p.trial.datapixx.use
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Adds flags for UseDataPixx')
@@ -67,7 +67,7 @@ if p.trial.datapixx.use && p.trial.display.useOverlay~=2
     PsychImaging('AddTask', 'General', 'UseDataPixx');
     PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
     
-    if p.trial.display.useOverlay
+    if p.trial.display.useOverlay==1
         % Turn on the overlay
         disp('Using overlay window (EnableDataPixxM16OutputWithOverlay)')
         disp('****************************************************************')
@@ -78,7 +78,8 @@ else
 %     disp('****************************************************************')
 %     disp('No overlay window')
 %     disp('****************************************************************')
-    PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');   
+    PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
+    
 end
 
 if strcmp(p.trial.display.stereoFlip,'right');
@@ -101,7 +102,7 @@ end
 % if 2 gamma tables
 % PsychImaging('AddTask', 'LeftView', 'DisplayColorCorrection', 'LookupTable');
 % PsychImaging('AddTask', 'RightView', 'DisplayColorCorrection', 'LookupTable');
-% end        
+% end
 disp('****************************************************************')
 disp('****************************************************************')
 disp('Adding DisplayColorCorrection LookUpTable to FinalFormatting')
@@ -117,13 +118,15 @@ disp('****************************************************************')
 p.trial.display.ptr=ptr;
 p.trial.display.winRect=winRect;
 
+
+
 % % Set gamma lookup table
 if isField(p.trial, 'display.gamma')
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Loading gamma correction')
     disp('****************************************************************')
-    if isstruct(p.trial.display.gamma) 
+    if isstruct(p.trial.display.gamma)
         if isfield(p.trial.display.gamma, 'table')
             PsychColorCorrection('SetLookupTable', p.trial.display.ptr, p.trial.display.gamma.table, 'FinalFormatting');
         elseif isfield(p.trial.display.gamma, 'power')
@@ -146,7 +149,8 @@ if p.trial.display.colorclamp == 1
     disp('****************************************************************')
     Screen('ColorRange', p.trial.display.ptr, 1, 0);
 end
- 
+
+
 %% Set some basic variables about the display
 p.trial.display.ppd = p.trial.display.winRect(3)/p.trial.display.width; % calculate pixels per degree
 p.trial.display.frate = round(1/Screen('GetFlipInterval',p.trial.display.ptr));   % frame rate (in Hz)
@@ -157,10 +161,18 @@ p.trial.display.info = Screen('GetWindowInfo', p.trial.display.ptr);            
 %% some more
 p.trial.display.pWidth=p.trial.display.winRect(3)-p.trial.display.winRect(1);
 p.trial.display.pHeight=p.trial.display.winRect(4)-p.trial.display.winRect(2);
-% if using a no datapixx overlay, adjust the window size to be half
-if ~p.trial.datapixx.use && p.trial.display.useOverlay
+% open software overlay
+if p.trial.display.useOverlay==2
+    % if using a software overlay, adjust the window size to be half
     p.trial.display.pWidth=p.trial.display.pWidth/2;
     p.trial.display.ctr([1 3])=p.trial.display.ctr([1 3])/2;
+    disp('****************************************************************')
+    disp('****************************************************************')
+    disp('Using software overlay window')
+    disp('****************************************************************')
+    Screen('ColorRange', p.trial.display.ptr, 255)
+    p.trial.display.overlayptr=Screen('OpenOffscreenWindow', p.trial.display.ptr, 0, [0 0 p.trial.display.pWidth p.trial.display.pHeight], 8, 32);
+    Screen('ColorRange', p.trial.display.ptr, 1);
 end
 p.trial.display.wWidth=p.trial.display.widthcm;
 p.trial.display.wHeight=p.trial.display.heightcm;
@@ -175,7 +187,7 @@ p.trial.display.rtheta = -p.trial.display.ltheta;
 p.trial.display.scr_rot = 0;                                         % Screen Rotation for opponency conditions
 
 % Make text clean
-Screen('TextFont',p.trial.display.ptr,'Helvetica'); 
+Screen('TextFont',p.trial.display.ptr,'Helvetica');
 Screen('TextSize',p.trial.display.ptr,16);
 Screen('TextStyle',p.trial.display.ptr,1);
 
@@ -195,7 +207,7 @@ if p.trial.display.movie.create
     p.trial.display.movie=movie;
 end
 
-% Set up alpha-blending for smooth (anti-aliased) drawing 
+% Set up alpha-blending for smooth (anti-aliased) drawing
 disp('****************************************************************')
 disp('****************************************************************')
 fprintf('Setting Blend Function to %s,%s\r', p.trial.display.sourceFactorNew, p.trial.display.destinationFactorNew);
@@ -207,4 +219,4 @@ if p.trial.display.forceLinearGamma %does't really belong here, but need it befo
 end
 
 p=defaultColors(p); % load the default CLUTs -- this is useful for opening overlay window in pds.datapixx.init
-p.trial.display.t0 = Screen('Flip', p.trial.display.ptr); 
+p.trial.display.t0 = Screen('Flip', p.trial.display.ptr);

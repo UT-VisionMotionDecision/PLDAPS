@@ -32,7 +32,7 @@ function p =  init(p)
 % 2011       kme wrote it
 % 12/03/2013 jly reboot for version 3
 % 2014       adapt to version 4.1
-% 2016       jly add software overlay for stereomodes setups
+% 2016       jly add software overlay
 global dpx GL;
 
 if p.trial.datapixx.use
@@ -188,10 +188,6 @@ if p.trial.display.useOverlay==2 % software overlay
         combinedClut = reshape(y, sc);
     end
     
-    %% start testing overlay
-    Screen('ColorRange', p.trial.display.ptr, 255)
-    p.trial.display.overlayptr=Screen('OpenOffscreenWindow', p.trial.display.ptr, 0, [0 0 p.trial.display.pWidth p.trial.display.pHeight], 8, 32);
-    Screen('ColorRange', p.trial.display.ptr, 1);
     %%
     
     % Retrieve low-level OpenGl texture handle to the window:
