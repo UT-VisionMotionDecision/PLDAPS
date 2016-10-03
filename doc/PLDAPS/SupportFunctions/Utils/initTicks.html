@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of initTicks</title>
+  <meta name="keywords" content="initTicks">
+  <meta name="description" content="p = initTicks(p)">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">SupportFunctions</a> &gt; <a href="index.html">Utils</a> &gt; initTicks.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/SupportFunctions/Utils&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>initTicks
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>p = initTicks(p)</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function p = initTicks(p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> p = initTicks(p)
+ Initialize grid of tick marks for Screen('DrawLines')
+ initTicks creates a matrix for drawing tick marks on the human display 
+ spaced every degree of visual angle. This grids up the screen into 1deg and
+ 5deg step sizes so the experimenter can easily see the eccentricity of the
+ stimulus. Set p.trial.pldaps.draw.grid.use=true if you want ticks on your
+ display. 
+ 
+ INPUTS:
+   p [class]
+     .trial [struct] - main variables structure (see PLDAPShelp)
+       .display   - display structure 
+           .dWidth screen width in degree
+           .dHeight screen height in degree
+ OUTPUTS:
+   p [class]
+     .trial [struct] - main variables structure (modified)
+       .display   - display stucture  (modified)
+         .draw
+           .grid
+             .tick_line_matrix - field added in format called by
+                               Screen('DrawLines')
+
+ 
+ 2011?      kme Wrote it
+ 2013?      lnk Cave_samsung addendum added by ktz, 2013. rest is untouched.
+                (added more vairables to the d2p function call and increased 
+                number of ticks)
+ 12/12/2013 jly Updated help text and robustified screensize calculation
+ 05/30/2014 jk  couple of changes:
+                  output is now in pixels
+                  grid is now made of '+'s instead of 'L's
+                  converted loops to one liners</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../PLDAPS/+pds/deg2px.html" class="code" title="function [xy,z] = deg2px(xy,z,w2px,zIsR)">pds.deg2px</a>	deg2px    convert from degrees of visual angle to pixel coordinates</li><li><a href="initTicks.html" class="code" title="function p = initTicks(p)">initTicks</a>	p = initTicks(p)</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../PLDAPS/@pldaps/run.html" class="code" title="function p = run(p)">@pldaps/run</a>	run    run a new experiment for a previuously created pldaps class</li><li><a href="initTicks.html" class="code" title="function p = initTicks(p)">initTicks</a>	p = initTicks(p)</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../../Parameters/display/dHeight.html" class="code" title="">.display.dHeight:</a>	
+        <a href="#_line0047" class="code"}">47 </a></li><li><a href="../../../Parameters/display/dWidth.html" class="code" title="">.display.dWidth:</a>	
+        <a href="#_line0046" class="code"}">46 </a></li><li><a href="../../../Parameters/display/viewdist.html" class="code" title="screend distance to the observer">.display.viewdist:</a>	
+        <a href="#_line0059" class="code"}">59 </a>    <a href="#_line0062" class="code"}">62 </a>    <a href="#_line0065" class="code"}">65 </a>    <a href="#_line0068" class="code"}">68 </a>    <a href="#_line0072" class="code"}">72 </a>    <a href="#_line0077" class="code"}">77 </a>screend distance to the observer</li><li><a href="../../../Parameters/display/w2px.html" class="code" title="">.display.w2px:</a>	
+        <a href="#_line0059" class="code"}">59 </a>    <a href="#_line0062" class="code"}">62 </a>    <a href="#_line0065" class="code"}">65 </a>    <a href="#_line0068" class="code"}">68 </a>    <a href="#_line0072" class="code"}">72 </a>    <a href="#_line0077" class="code"}">77 </a></li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../../Parameters/pldaps/draw/grid/tick_line_matrix.html" class="code" title="">.pldaps.draw.grid.tick_line_matrix:</a>
+        <a href="#_line0084" class="code"}">84 </a></li></ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function p = initTicks(p)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">% p = initTicks(p)</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">% Initialize grid of tick marks for Screen('DrawLines')</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% initTicks creates a matrix for drawing tick marks on the human display</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% spaced every degree of visual angle. This grids up the screen into 1deg and</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% 5deg step sizes so the experimenter can easily see the eccentricity of the</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% stimulus. Set p.trial.pldaps.draw.grid.use=true if you want ticks on your</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">% display.</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">%</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">% INPUTS:</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">%   p [class]</span>
+</div><div id="_line0012" class="line">0012 <span class="comment">%     .trial [struct] - main variables structure (see PLDAPShelp)</span>
+</div><div id="_line0013" class="line">0013 <span class="comment">%       .display   - display structure</span>
+</div><div id="_line0014" class="line">0014 <span class="comment">%           .dWidth screen width in degree</span>
+</div><div id="_line0015" class="line">0015 <span class="comment">%           .dHeight screen height in degree</span>
+</div><div id="_line0016" class="line">0016 <span class="comment">% OUTPUTS:</span>
+</div><div id="_line0017" class="line">0017 <span class="comment">%   p [class]</span>
+</div><div id="_line0018" class="line">0018 <span class="comment">%     .trial [struct] - main variables structure (modified)</span>
+</div><div id="_line0019" class="line">0019 <span class="comment">%       .display   - display stucture  (modified)</span>
+</div><div id="_line0020" class="line">0020 <span class="comment">%         .draw</span>
+</div><div id="_line0021" class="line">0021 <span class="comment">%           .grid</span>
+</div><div id="_line0022" class="line">0022 <span class="comment">%             .tick_line_matrix - field added in format called by</span>
+</div><div id="_line0023" class="line">0023 <span class="comment">%                               Screen('DrawLines')</span>
+</div><div id="_line0024" class="line">0024 <span class="comment">%</span>
+</div><div id="_line0025" class="line">0025 <span class="comment">%</span>
+</div><div id="_line0026" class="line">0026 <span class="comment">% 2011?      kme Wrote it</span>
+</div><div id="_line0027" class="line">0027 <span class="comment">% 2013?      lnk Cave_samsung addendum added by ktz, 2013. rest is untouched.</span>
+</div><div id="_line0028" class="line">0028 <span class="comment">%                (added more vairables to the d2p function call and increased</span>
+</div><div id="_line0029" class="line">0029 <span class="comment">%                number of ticks)</span>
+</div><div id="_line0030" class="line">0030 <span class="comment">% 12/12/2013 jly Updated help text and robustified screensize calculation</span>
+</div><div id="_line0031" class="line">0031 <span class="comment">% 05/30/2014 jk  couple of changes:</span>
+</div><div id="_line0032" class="line">0032 <span class="comment">%                  output is now in pixels</span>
+</div><div id="_line0033" class="line">0033 <span class="comment">%                  grid is now made of '+'s instead of 'L's</span>
+</div><div id="_line0034" class="line">0034 <span class="comment">%                  converted loops to one liners</span>
+</div><div id="_line0035" class="line">0035 
+</div><div id="_line0036" class="line">0036 <span class="keyword">if</span> nargin &lt; 1
+</div><div id="_line0037" class="line">0037     help <a href="initTicks.html" class="code" title="function p = initTicks(p)">initTicks</a>
+</div><div id="_line0038" class="line">0038     <span class="keyword">return</span>
+</div><div id="_line0039" class="line">0039 <span class="keyword">end</span>
+</div><div id="_line0040" class="line">0040 
+</div><div id="_line0041" class="line">0041 small_tick_length = 2;
+</div><div id="_line0042" class="line">0042 small_tick_length=small_tick_length(1);
+</div><div id="_line0043" class="line">0043 big_tick_length = 5;
+</div><div id="_line0044" class="line">0044 big_tick_length = big_tick_length(1);
+</div><div id="_line0045" class="line">0045 
+</div><div id="_line0046" class="line">0046 screen_size_h = floor(p.trial<a href="../../../Parameters/display/dWidth.html" class="param" title="">.display.dWidth</a>/2);
+</div><div id="_line0047" class="line">0047 screen_size_v = floor(p.trial<a href="../../../Parameters/display/dHeight.html" class="param" title="">.display.dHeight</a>/2);
+</div><div id="_line0048" class="line">0048 
+</div><div id="_line0049" class="line">0049 small_vert_degrees=-screen_size_v:screen_size_v;
+</div><div id="_line0050" class="line">0050 small_horiz_degrees=-screen_size_h:screen_size_h;
+</div><div id="_line0051" class="line">0051 
+</div><div id="_line0052" class="line">0052 big_grid_size=5;
+</div><div id="_line0053" class="line">0053 screen_size_h = floor(screen_size_h/big_grid_size)*big_grid_size;
+</div><div id="_line0054" class="line">0054 screen_size_v = floor(screen_size_v/big_grid_size)*big_grid_size;
+</div><div id="_line0055" class="line">0055 
+</div><div id="_line0056" class="line">0056 big_vert_degrees=-screen_size_v:big_grid_size:screen_size_v;
+</div><div id="_line0057" class="line">0057 big_horiz_degrees=-screen_size_h:big_grid_size:screen_size_h;
+</div><div id="_line0058" class="line">0058 
+</div><div id="_line0059" class="line">0059 small_horizontal_matrix=<a href="../../../PLDAPS/+pds/pds.deg2px.html" class="code" title="function [xy,z] = deg2px(xy,z,w2px,zIsR)">pds.deg2px</a>([reshape(repmat(small_horiz_degrees,[2,1]),1,2*length(small_horiz_degrees)); zeros(1,2*length(small_horiz_degrees))],p.trial<a href="../../../Parameters/display/viewdist.html" class="param" title="screend distance to the observer">.display.viewdist</a>,p.trial<a href="../../../Parameters/display/w2px.html" class="param" title="">.display.w2px</a>);
+</div><div id="_line0060" class="line">0060 small_horizontal_matrix(2,:)= small_horizontal_matrix(2,:)+repmat([-small_tick_length small_tick_length],[1,length(small_horiz_degrees)]);
+</div><div id="_line0061" class="line">0061     
+</div><div id="_line0062" class="line">0062 small_vertical_matrix=<a href="../../../PLDAPS/+pds/pds.deg2px.html" class="code" title="function [xy,z] = deg2px(xy,z,w2px,zIsR)">pds.deg2px</a>([zeros(1,2*length(small_vert_degrees)); reshape(repmat(small_vert_degrees,[2,1]),1,2*length(small_vert_degrees))],p.trial<a href="../../../Parameters/display/viewdist.html" class="param" title="screend distance to the observer">.display.viewdist</a>,p.trial<a href="../../../Parameters/display/w2px.html" class="param" title="">.display.w2px</a>);
+</div><div id="_line0063" class="line">0063 small_vertical_matrix(1,:)=small_vertical_matrix(1,:)+repmat([-small_tick_length small_tick_length],[1,length(small_vert_degrees)]);
+</div><div id="_line0064" class="line">0064 
+</div><div id="_line0065" class="line">0065 big_horizontal_matrix=<a href="../../../PLDAPS/+pds/pds.deg2px.html" class="code" title="function [xy,z] = deg2px(xy,z,w2px,zIsR)">pds.deg2px</a>([reshape(repmat(big_horiz_degrees,[2,1]),1,2*length(big_horiz_degrees)); zeros(1,2*length(big_horiz_degrees))],p.trial<a href="../../../Parameters/display/viewdist.html" class="param" title="screend distance to the observer">.display.viewdist</a>,p.trial<a href="../../../Parameters/display/w2px.html" class="param" title="">.display.w2px</a>);
+</div><div id="_line0066" class="line">0066 big_horizontal_matrix(2,:)=big_horizontal_matrix(2,:)+repmat([-big_tick_length big_tick_length],[1,length(big_horiz_degrees)]);
+</div><div id="_line0067" class="line">0067 
+</div><div id="_line0068" class="line">0068 big_vertical_matrix=<a href="../../../PLDAPS/+pds/pds.deg2px.html" class="code" title="function [xy,z] = deg2px(xy,z,w2px,zIsR)">pds.deg2px</a>([zeros(1,2*length(big_vert_degrees));reshape(repmat(big_vert_degrees,[2,1]),1,2*length(big_vert_degrees))],p.trial<a href="../../../Parameters/display/viewdist.html" class="param" title="screend distance to the observer">.display.viewdist</a>,p.trial<a href="../../../Parameters/display/w2px.html" class="param" title="">.display.w2px</a>);
+</div><div id="_line0069" class="line">0069 big_vertical_matrix(1,:)=big_vertical_matrix(1,:)+repmat([-big_tick_length big_tick_length],[1,length(big_vert_degrees)]);
+</div><div id="_line0070" class="line">0070 
+</div><div id="_line0071" class="line">0071 big_vertical_grid_matrix=<a href="../../../PLDAPS/+pds/pds.deg2px.html" class="code" title="function [xy,z] = deg2px(xy,z,w2px,zIsR)">pds.deg2px</a>([reshape(repmat(big_horiz_degrees,[2*length(big_vert_degrees),1]),1,2*length(big_horiz_degrees)*length(big_vert_degrees)); <span class="keyword">...</span>
+</div><div id="_line0072" class="line">0072 repmat(reshape([big_vert_degrees; big_vert_degrees],1,2*length(big_vert_degrees)), [1, length(big_horiz_degrees)])],p.trial<a href="../../../Parameters/display/viewdist.html" class="param" title="screend distance to the observer">.display.viewdist</a>,p.trial<a href="../../../Parameters/display/w2px.html" class="param" title="">.display.w2px</a>);
+</div><div id="_line0073" class="line">0073 big_vertical_grid_matrix(2,:)=big_vertical_grid_matrix(2,:)+<span class="keyword">...</span>
+</div><div id="_line0074" class="line">0074 repmat(reshape([-small_tick_length; small_tick_length],1,2), [1, length(big_horiz_degrees)*length(big_vert_degrees)]);
+</div><div id="_line0075" class="line">0075 
+</div><div id="_line0076" class="line">0076 big_horizontal_grid_matrix=<a href="../../../PLDAPS/+pds/pds.deg2px.html" class="code" title="function [xy,z] = deg2px(xy,z,w2px,zIsR)">pds.deg2px</a>([repmat(reshape([big_horiz_degrees; big_horiz_degrees],1,2*length(big_horiz_degrees)), [1, length(big_vert_degrees)]);<span class="keyword">...</span>
+</div><div id="_line0077" class="line">0077     reshape(repmat(big_vert_degrees,[2*length(big_horiz_degrees),1]),1,2*length(big_vert_degrees)*length(big_horiz_degrees))],p.trial<a href="../../../Parameters/display/viewdist.html" class="param" title="screend distance to the observer">.display.viewdist</a>,p.trial<a href="../../../Parameters/display/w2px.html" class="param" title="">.display.w2px</a>);
+</div><div id="_line0078" class="line">0078 big_horizontal_grid_matrix(1,:)=big_horizontal_grid_matrix(1,:)+<span class="keyword">...</span>
+</div><div id="_line0079" class="line">0079     repmat(reshape([-small_tick_length;small_tick_length],1,2), [1, length(big_vert_degrees)*length(big_horiz_degrees)]);
+</div><div id="_line0080" class="line">0080 
+</div><div id="_line0081" class="line">0081 
+</div><div id="_line0082" class="line">0082 line_matrix = [small_horizontal_matrix,small_vertical_matrix,big_horizontal_matrix,big_vertical_matrix,big_vertical_grid_matrix,big_horizontal_grid_matrix];
+</div><div id="_line0083" class="line">0083 
+</div><div id="_line0084" class="line">0084 p.trial<a href="../../../Parameters/pldaps/draw/grid/tick_line_matrix.html" class="param" title="">.pldaps.draw.grid.tick_line_matrix</a> = line_matrix;
+</div><div id="_line0085" class="line">0085 
+</div><div id="_line0086" class="line">0086 
+</div><div id="_line0087" class="line">0087 <span class="comment">% small_horizontal_matrix=[reshape(repmat(small_horiz_degrees,[2,1]),1,2*length(small_horiz_degrees)); repmat([-small_tick_length small_tick_length],[1,length(small_horiz_degrees)])];</span>
+</div><div id="_line0088" class="line">0088 <span class="comment">% small_vertical_matrix=[repmat([-small_tick_length small_tick_length],[1,length(small_vert_degrees)]); reshape(repmat(small_vert_degrees,[2,1]),1,2*length(small_vert_degrees))];</span>
+</div><div id="_line0089" class="line">0089 <span class="comment">% big_horizontal_matrix=[reshape(repmat(big_horiz_degrees,[2,1]),1,2*length(big_horiz_degrees)); repmat([-big_tick_length big_tick_length],[1,length(big_horiz_degrees)])];</span>
+</div><div id="_line0090" class="line">0090 <span class="comment">% big_vertical_matrix=[repmat([-big_tick_length big_tick_length],[1,length(big_vert_degrees)]);reshape(repmat(big_vert_degrees,[2,1]),1,2*length(big_vert_degrees))];</span>
+</div><div id="_line0091" class="line">0091 <span class="comment">%</span>
+</div><div id="_line0092" class="line">0092 <span class="comment">% big_vertical_grid_matrix=[reshape(repmat(big_horiz_degrees,[2*length(big_vert_degrees),1]),1,2*length(big_horiz_degrees)*length(big_vert_degrees)); ...</span>
+</div><div id="_line0093" class="line">0093 <span class="comment">% repmat(reshape([big_vert_degrees-small_tick_length; big_vert_degrees+small_tick_length],1,2*length(big_vert_degrees)), [1, length(big_horiz_degrees)])];</span>
+</div><div id="_line0094" class="line">0094 <span class="comment">%</span>
+</div><div id="_line0095" class="line">0095 <span class="comment">% big_horizontal_grid_matrix=[repmat(reshape([big_horiz_degrees-small_tick_length; big_horiz_degrees+small_tick_length],1,2*length(big_horiz_degrees)), [1, length(big_vert_degrees)]);...</span>
+</div><div id="_line0096" class="line">0096 <span class="comment">%     reshape(repmat(big_vert_degrees,[2*length(big_horiz_degrees),1]),1,2*length(big_vert_degrees)*length(big_horiz_degrees))];</span>
+</div><div id="_line0097" class="line">0097 <span class="comment">%</span>
+</div><div id="_line0098" class="line">0098 <span class="comment">% line_matrix = [small_horizontal_matrix,small_vertical_matrix,big_horizontal_matrix,big_vertical_matrix,big_vertical_grid_matrix,big_horizontal_grid_matrix];</span>
+</div><div id="_line0099" class="line">0099 <span class="comment">%</span>
+</div><div id="_line0100" class="line">0100 <span class="comment">% dv.trial.pldaps.draw.grid.tick_line_matrix = dv.deg2px(line_matrix);</span>
+</div><div id="_line0101" class="line">0101 
+</div><div id="_line0102" class="line">0102 
+</div><div id="_line0103" class="line">0103 <span class="comment">% screen_size_h = dv.trial.display.winRect(3)/dv.trial.display.ppd;</span>
+</div><div id="_line0104" class="line">0104 <span class="comment">% screen_size_v = dv.trial.display.winRect(4)/dv.trial.display.ppd;</span>
+</div><div id="_line0105" class="line">0105 <span class="comment">%</span>
+</div><div id="_line0106" class="line">0106 <span class="comment">% screen_size_h = dv.px2deg([dv.trial.display.winRect(3)/2;0]);</span>
+</div><div id="_line0107" class="line">0107 <span class="comment">% screen_size_v = dv.px2deg([0;dv.trial.display.winRect(4)/2]);</span>
+</div><div id="_line0108" class="line">0108 <span class="comment">%</span>
+</div><div id="_line0109" class="line">0109 <span class="comment">% sH = 0:screen_size_h/2;</span>
+</div><div id="_line0110" class="line">0110 <span class="comment">% bH = 0:5:screen_size_h/2;</span>
+</div><div id="_line0111" class="line">0111 <span class="comment">% sV = 0:screen_size_v/2;</span>
+</div><div id="_line0112" class="line">0112 <span class="comment">% bV = 0:5:screen_size_v/2;</span>
+</div><div id="_line0113" class="line">0113 <span class="comment">%</span>
+</div><div id="_line0114" class="line">0114 <span class="comment">%</span>
+</div><div id="_line0115" class="line">0115 <span class="comment">% small_vert_degrees  = [-sV(2:end) sV];</span>
+</div><div id="_line0116" class="line">0116 <span class="comment">% small_horiz_degrees = [-sH(2:end) sH];</span>
+</div><div id="_line0117" class="line">0117 <span class="comment">% big_vert_degrees    = [-bV(2:end) bV];</span>
+</div><div id="_line0118" class="line">0118 <span class="comment">% big_horiz_degrees   = [-bH(2:end) bH];</span>
+</div><div id="_line0119" class="line">0119 <span class="comment">%</span>
+</div><div id="_line0120" class="line">0120 <span class="comment">% line_matrix = [];</span>
+</div><div id="_line0121" class="line">0121 <span class="comment">% for i = 1:length(small_horiz_degrees)</span>
+</div><div id="_line0122" class="line">0122 <span class="comment">%     line_matrix = [line_matrix,[small_horiz_degrees(i) small_horiz_degrees(i);pix2deg([0 small_tick_length],dv)]];</span>
+</div><div id="_line0123" class="line">0123 <span class="comment">% end</span>
+</div><div id="_line0124" class="line">0124 <span class="comment">%</span>
+</div><div id="_line0125" class="line">0125 <span class="comment">% small horizontal matrix</span>
+</div><div id="_line0126" class="line">0126 <span class="comment">% for i = 1:length(small_vert_degrees)</span>
+</div><div id="_line0127" class="line">0127 <span class="comment">%     line_matrix = [line_matrix,[pix2deg([0 small_tick_length],dv);small_vert_degrees(i) small_vert_degrees(i)]];</span>
+</div><div id="_line0128" class="line">0128 <span class="comment">% end</span>
+</div><div id="_line0129" class="line">0129 <span class="comment">%</span>
+</div><div id="_line0130" class="line">0130 <span class="comment">% big vertical matrix</span>
+</div><div id="_line0131" class="line">0131 <span class="comment">% for i = 1:length(big_horiz_degrees)</span>
+</div><div id="_line0132" class="line">0132 <span class="comment">%     line_matrix = [line_matrix,[big_horiz_degrees(i) big_horiz_degrees(i);pix2deg([0 big_tick_length],dv)]];</span>
+</div><div id="_line0133" class="line">0133 <span class="comment">% end</span>
+</div><div id="_line0134" class="line">0134 <span class="comment">%</span>
+</div><div id="_line0135" class="line">0135 <span class="comment">% big horizontal matrix</span>
+</div><div id="_line0136" class="line">0136 <span class="comment">% for i = 1:length(big_vert_degrees)</span>
+</div><div id="_line0137" class="line">0137 <span class="comment">%     line_matrix = [line_matrix,[pix2deg([0 big_tick_length],dv);big_vert_degrees(i) big_vert_degrees(i)]];</span>
+</div><div id="_line0138" class="line">0138 <span class="comment">% end</span>
+</div><div id="_line0139" class="line">0139 <span class="comment">%</span>
+</div><div id="_line0140" class="line">0140 <span class="comment">% big horizontal matrix</span>
+</div><div id="_line0141" class="line">0141 <span class="comment">% for i = 1:length(big_horiz_degrees)</span>
+</div><div id="_line0142" class="line">0142 <span class="comment">%     for j = 1:length(big_vert_degrees)</span>
+</div><div id="_line0143" class="line">0143 <span class="comment">%         line_matrix = [line_matrix,[big_horiz_degrees(i) big_horiz_degrees(i);big_vert_degrees(j) big_vert_degrees(j)+pix2deg(small_tick_length,dv)]];</span>
+</div><div id="_line0144" class="line">0144 <span class="comment">%         line_matrix = [line_matrix,[big_horiz_degrees(i) big_horiz_degrees(i)+pix2deg(small_tick_length,dv);big_vert_degrees(j) big_vert_degrees(j)]];</span>
+</div><div id="_line0145" class="line">0145 <span class="comment">%     end</span>
+</div><div id="_line0146" class="line">0146 <span class="comment">% end</span>
+</div><div id="_line0147" class="line">0147 <span class="comment">%</span>
+</div><div id="_line0148" class="line">0148 <span class="comment">% dv.trial.display.tick_line_matrix = line_matrix;</span>
+</div><div id="_line0149" class="line">0149 
+</div><div id="_line0150" class="line">0150 
+</div><div id="_line0151" class="line">0151 <span class="keyword">end</span>
+</div><div id="_line0152" class="line">0152 <span class="comment">%</span>
+</div><div id="_line0153" class="line">0153 <span class="comment">%</span>
+</div><div id="_line0154" class="line">0154 <span class="comment">%</span>
+</div><div id="_line0155" class="line">0155 <span class="comment">% % inline functions</span>
+</div><div id="_line0156" class="line">0156 <span class="comment">% function d = pix2deg(x, dv)</span>
+</div><div id="_line0157" class="line">0157 <span class="comment">%</span>
+</div><div id="_line0158" class="line">0158 <span class="comment">% d = x / dv.trial.display.ppd;</span>
+</div><div id="_line0159" class="line">0159 <span class="comment">% end</span>
+</div><div id="_line0160" class="line">0160 <span class="comment">%</span>
+</div><div id="_line0161" class="line">0161 
+</div><div id="_line0162" class="line">0162 
+</div><div id="_line0163" class="line">0163 
+</div><div id="_line0164" class="line">0164 
+</div><div id="_line0165" class="line">0165 
+</div><div id="_line0166" class="line">0166 
+</div><div id="_line0167" class="line">0167 
+</div><div id="_line0168" class="line">0168 
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

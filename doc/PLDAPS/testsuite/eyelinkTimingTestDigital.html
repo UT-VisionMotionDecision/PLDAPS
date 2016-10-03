@@ -1,0 +1,352 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of eyelinkTimingTestDigital</title>
+  <meta name="keywords" content="eyelinkTimingTestDigital">
+  <meta name="description" content="eyelinkTimingTest    pldaps trial state function to test the time delay of the eyelink system with">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">PLDAPS</a> &gt; <a href="index.html">testsuite</a> &gt; eyelinkTimingTestDigital.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/testsuite&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>eyelinkTimingTestDigital
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>eyelinkTimingTest    pldaps trial state function to test the time delay of the eyelink system with</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function p=eyelinkTimingTestDigital(p,state) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">eyelinkTimingTest    pldaps trial state function to test the time delay of the eyelink system with
+                     the computer
+ oversample on datapixx on some large prime number
+ run at different eyelink frequencies
+ 
+ how to use:
+ 1. Connect one eyelinks x and y channels to Datapixx
+ You need to connect the eyelink analog output to one of the Datapixx analog inputs and
+ configure pldaps to record that data, e.g.:
+ 
+ Connect digital C0 to Datapixx
+
+ settingsStruct.datapixx.adc.channels=[0 1]; % first channel
+ settingsStruct.datapixx.adc.channelModes=2; %photodiode ground is
+ connected to Ref 0 (0: ground, 1:differential to channelNr+1,
+ 2:Differential to Ref0, 3:Differetial to Ref1)
+ settingsStruct.datapixx.adc.srate=10000; % 10k, so get 0.1ms precision
+ 
+ 2. move your eyes
+ do a couple of trials a move your eyes around, randomly if possible.
+ don't blink
+
+ 3. Set Trial Parameters
+ settingsStruct.pldaps.maxTrialLength = 3; %Each trial is 3 seconds long.
+ The stimulus will only be shown up to 1 second before end of trial trial.
+ If you do not set this, this will befault to whatever you have set in
+ your rigprefs
+ settingsStruct.stimulus.nTrials = 200; %how many measurements?
+
+ 4. Analyze
+ a simple online analysis is included in this. Turn on online analysis:
+ settingsStruct.stimulus.online.analysis = true;
+
+ putting it all together:
+ settingsStruct.datapixx.adc.channels=[0 1 2];
+ settingsStruct.datapixx.adc.channelModes=2;
+ settingsStruct.datapixx.adc.srate=10781; 
+ settingsStruct.pldaps.trialLength = 15;
+ settingsStruct.stimulus.nTrials = 20; 
+ settingsStruct.stimulus.online.analysis = true;
+ settingsStruct.eyelink.use=true;
+ settingsStruct.pldaps.pause.preExperiment=true; %we want to calibrate
+ p=pldaps(@eyelinkTimingTest, settingsStruct, 'RigAndScreenNameAndEyelinkFrequency');
+ p.run</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../PLDAPS/SupportFunctions/pdsDefaultTrialStructure.html" class="code" title="function p = pdsDefaultTrialStructure(p, stimulusname)">pdsDefaultTrialStructure</a>	p = pdsDefaultTrialStructure(p)</li><li><a href="../../PLDAPS/SupportFunctions/pldapsDefaultTrialFunction.html" class="code" title="function pldapsDefaultTrialFunction(p,state)">pldapsDefaultTrialFunction</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../Parameters/display/frate.html" class="code" title="">.display.frate:</a>	
+        <a href="#_line0064" class="code"}">64 </a>    <a href="#_line0100" class="code"}">100 </a></li><li><a href="../../Parameters/iFrame.html" class="code" title="">.iFrame:</a>	
+        <a href="#_line0215" class="code"}">215 </a>    <a href="#_line0221" class="code"}">221 </a></li><li><a href="../../Parameters/pldaps/iTrial.html" class="code" title="trial number. cannot be changed by the user">.pldaps.iTrial:</a>	
+        <a href="#_line0110" class="code"}">110 </a>trial number. cannot be changed by the user</li><li><a href="../../Parameters/pldaps/maxFrames.html" class="code" title="">.pldaps.maxFrames:</a>	
+        <a href="#_line0100" class="code"}">100 </a>    <a href="#_line0221" class="code"}">221 </a></li><li><a href="../../Parameters/pldaps/trialFunction.html" class="code" title="">.pldaps.trialFunction:</a>	
+        <a href="#_line0062" class="code"}">62 </a></li><li><a href="../../Parameters/pldaps/trialLength.html" class="code" title="">.pldaps.trialLength:</a>	
+        <a href="#_line0064" class="code"}">64 </a></li><li><a href="../../Parameters/pldaps/trialStates/frameDraw.html" class="code" title="called every frame for drawing command.">.pldaps.trialStates.frameDraw:</a>	
+        <a href="#_line0214" class="code"}">214 </a>called every frame for drawing command.</li><li><a href="../../Parameters/pldaps/trialStates/frameFlip.html" class="code" title="called every frame to flip the buffers.">.pldaps.trialStates.frameFlip:</a>	
+        <a href="#_line0220" class="code"}">220 </a>called every frame to flip the buffers.</li><li><a href="../../Parameters/pldaps/trialStates/trialCleanUpandSave.html" class="code" title="called at the end of the trial.">.pldaps.trialStates.trialCleanUpandSave:</a>	
+        <a href="#_line0107" class="code"}">107 </a>called at the end of the trial.</li><li><a href="../../Parameters/pldaps/trialStates/trialSetup.html" class="code" title="called before each trial for data allocation.">.pldaps.trialStates.trialSetup:</a>	
+        <a href="#_line0099" class="code"}">99 </a>called before each trial for data allocation.</li><li><a href="../../Parameters/stimulus/nTrials.html" class="code" title="">.stimulus.nTrials:</a>	
+        <a href="#_line0067" class="code"}">67 </a></li><li><a href="../../Parameters/stimulus/onFrame.html" class="code" title="">.stimulus.onFrame:</a>	
+        <a href="#_line0215" class="code"}">215 </a></li><li><a href="../../Parameters/stimulus/online/analysis.html" class="code" title="">.stimulus.online.analysis:</a>	
+        <a href="#_line0074" class="code"}">74 </a>    <a href="#_line0110" class="code"}">110 </a></li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../Parameters/flagNextTrial.html" class="code" title="">.flagNextTrial:</a>
+        <a href="#_line0222" class="code"}">222 </a></li><li><a href="../../Parameters/pldaps/finish.html" class="code" title="Number of trials to run. can be changed dynamically">.pldaps.finish:</a>
+        <a href="#_line0069" class="code"}">69 </a>Number of trials to run. can be changed dynamically</li><li><a href="../../Parameters/pldaps/iTrial.html" class="code" title="trial number. cannot be changed by the user">.pldaps.iTrial:</a>
+        <a href="#_line0111" class="code"}">111 </a>trial number. cannot be changed by the user</li><li><a href="../../Parameters/pldaps/maxFrames.html" class="code" title="">.pldaps.maxFrames:</a>
+        <a href="#_line0064" class="code"}">64 </a></li><li><a href="../../Parameters/pldaps/trialLength.html" class="code" title="">.pldaps.trialLength:</a>
+        <a href="#_line0056" class="code"}">56 </a></li><li><a href="../../Parameters/stimulus/bestLag.html" class="code" title="">.stimulus.bestLag:</a>
+        <a href="#_line0111" class="code"}">111 </a></li><li><a href="../../Parameters/stimulus/nTrials.html" class="code" title="">.stimulus.nTrials:</a>
+        <a href="#_line0050" class="code"}">50 </a></li><li><a href="../../Parameters/stimulus/onFrame.html" class="code" title="">.stimulus.onFrame:</a>
+        <a href="#_line0100" class="code"}">100 </a></li><li><a href="../../Parameters/stimulus/online/analysis.html" class="code" title="">.stimulus.online.analysis:</a>
+        <a href="#_line0053" class="code"}">53 </a></li><li><a href="../../Parameters/stimulus/online/figureAx1.html" class="code" title="">.stimulus.online.figureAx1:</a>
+        <a href="#_line0077" class="code"}">77 </a></li><li><a href="../../Parameters/stimulus/online/figureAx2.html" class="code" title="">.stimulus.online.figureAx2:</a>
+        <a href="#_line0080" class="code"}">80 </a></li><li><a href="../../Parameters/stimulus/online/figureAx3.html" class="code" title="">.stimulus.online.figureAx3:</a>
+        <a href="#_line0083" class="code"}">83 </a></li><li><a href="../../Parameters/stimulus/online/figureAx4.html" class="code" title="">.stimulus.online.figureAx4:</a>
+        <a href="#_line0086" class="code"}">86 </a></li></ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function p=eyelinkTimingTestDigital(p,state)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%eyelinkTimingTest    pldaps trial state function to test the time delay of the eyelink system with</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%                     the computer</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% oversample on datapixx on some large prime number</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% run at different eyelink frequencies</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">%</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% how to use:</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">% 1. Connect one eyelinks x and y channels to Datapixx</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">% You need to connect the eyelink analog output to one of the Datapixx analog inputs and</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">% configure pldaps to record that data, e.g.:</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">%</span>
+</div><div id="_line0012" class="line">0012 <span class="comment">% Connect digital C0 to Datapixx</span>
+</div><div id="_line0013" class="line">0013 <span class="comment">%</span>
+</div><div id="_line0014" class="line">0014 <span class="comment">% settingsStruct.datapixx.adc.channels=[0 1]; % first channel</span>
+</div><div id="_line0015" class="line">0015 <span class="comment">% settingsStruct.datapixx.adc.channelModes=2; %photodiode ground is</span>
+</div><div id="_line0016" class="line">0016 <span class="comment">% connected to Ref 0 (0: ground, 1:differential to channelNr+1,</span>
+</div><div id="_line0017" class="line">0017 <span class="comment">% 2:Differential to Ref0, 3:Differetial to Ref1)</span>
+</div><div id="_line0018" class="line">0018 <span class="comment">% settingsStruct.datapixx.adc.srate=10000; % 10k, so get 0.1ms precision</span>
+</div><div id="_line0019" class="line">0019 <span class="comment">%</span>
+</div><div id="_line0020" class="line">0020 <span class="comment">% 2. move your eyes</span>
+</div><div id="_line0021" class="line">0021 <span class="comment">% do a couple of trials a move your eyes around, randomly if possible.</span>
+</div><div id="_line0022" class="line">0022 <span class="comment">% don't blink</span>
+</div><div id="_line0023" class="line">0023 <span class="comment">%</span>
+</div><div id="_line0024" class="line">0024 <span class="comment">% 3. Set Trial Parameters</span>
+</div><div id="_line0025" class="line">0025 <span class="comment">% settingsStruct.pldaps.maxTrialLength = 3; %Each trial is 3 seconds long.</span>
+</div><div id="_line0026" class="line">0026 <span class="comment">% The stimulus will only be shown up to 1 second before end of trial trial.</span>
+</div><div id="_line0027" class="line">0027 <span class="comment">% If you do not set this, this will befault to whatever you have set in</span>
+</div><div id="_line0028" class="line">0028 <span class="comment">% your rigprefs</span>
+</div><div id="_line0029" class="line">0029 <span class="comment">% settingsStruct.stimulus.nTrials = 200; %how many measurements?</span>
+</div><div id="_line0030" class="line">0030 <span class="comment">%</span>
+</div><div id="_line0031" class="line">0031 <span class="comment">% 4. Analyze</span>
+</div><div id="_line0032" class="line">0032 <span class="comment">% a simple online analysis is included in this. Turn on online analysis:</span>
+</div><div id="_line0033" class="line">0033 <span class="comment">% settingsStruct.stimulus.online.analysis = true;</span>
+</div><div id="_line0034" class="line">0034 <span class="comment">%</span>
+</div><div id="_line0035" class="line">0035 <span class="comment">% putting it all together:</span>
+</div><div id="_line0036" class="line">0036 <span class="comment">% settingsStruct.datapixx.adc.channels=[0 1 2];</span>
+</div><div id="_line0037" class="line">0037 <span class="comment">% settingsStruct.datapixx.adc.channelModes=2;</span>
+</div><div id="_line0038" class="line">0038 <span class="comment">% settingsStruct.datapixx.adc.srate=10781;</span>
+</div><div id="_line0039" class="line">0039 <span class="comment">% settingsStruct.pldaps.trialLength = 15;</span>
+</div><div id="_line0040" class="line">0040 <span class="comment">% settingsStruct.stimulus.nTrials = 20;</span>
+</div><div id="_line0041" class="line">0041 <span class="comment">% settingsStruct.stimulus.online.analysis = true;</span>
+</div><div id="_line0042" class="line">0042 <span class="comment">% settingsStruct.eyelink.use=true;</span>
+</div><div id="_line0043" class="line">0043 <span class="comment">% settingsStruct.pldaps.pause.preExperiment=true; %we want to calibrate</span>
+</div><div id="_line0044" class="line">0044 <span class="comment">% p=pldaps(@eyelinkTimingTest, settingsStruct, 'RigAndScreenNameAndEyelinkFrequency');</span>
+</div><div id="_line0045" class="line">0045 <span class="comment">% p.run</span>
+</div><div id="_line0046" class="line">0046 
+</div><div id="_line0047" class="line">0047     <span class="keyword">if</span> nargin==1  <span class="comment">%initial call to setup conditions</span>
+</div><div id="_line0048" class="line">0048         
+</div><div id="_line0049" class="line">0049         <span class="keyword">if</span> ~isField(p.trial,<span class="string">'stimulus.nTrials'</span>)
+</div><div id="_line0050" class="line">0050             p.trial<a href="../../Parameters/stimulus/nTrials.html" class="param" title="">.stimulus.nTrials</a> = 5;
+</div><div id="_line0051" class="line">0051         <span class="keyword">end</span>        
+</div><div id="_line0052" class="line">0052         <span class="keyword">if</span> ~isField(p.trial,<span class="string">'stimulus.online.analysis'</span>)
+</div><div id="_line0053" class="line">0053             p.trial<a href="../../Parameters/stimulus/online/analysis.html" class="param" title="">.stimulus.online.analysis</a> = false;
+</div><div id="_line0054" class="line">0054         <span class="keyword">end</span>
+</div><div id="_line0055" class="line">0055         <span class="keyword">if</span> ~isField(p.trial,<span class="string">'pldaps.trialLength'</span>)
+</div><div id="_line0056" class="line">0056             p.trial<a href="../../Parameters/pldaps/trialLength.html" class="param" title="">.pldaps.trialLength</a> = 30;
+</div><div id="_line0057" class="line">0057         <span class="keyword">end</span>
+</div><div id="_line0058" class="line">0058         
+</div><div id="_line0059" class="line">0059         p = <a href="../../PLDAPS/SupportFunctions/pdsDefaultTrialStructure.html" class="code" title="function p = pdsDefaultTrialStructure(p, stimulusname)">pdsDefaultTrialStructure</a>(p); 
+</div><div id="_line0060" class="line">0060 
+</div><div id="_line0061" class="line">0061 <span class="comment">%         dv.trial.pldaps.trialMasterFunction='runTrial';</span>
+</div><div id="_line0062" class="line">0062         p.defaultParameters<a href="../../Parameters/pldaps/trialFunction.html" class="param" title="">.pldaps.trialFunction</a>=<span class="string">'eyelinkTimingTestDigital'</span>;
+</div><div id="_line0063" class="line">0063         
+</div><div id="_line0064" class="line">0064         p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a> = p.trial<a href="../../Parameters/pldaps/trialLength.html" class="param" title="">.pldaps.trialLength</a>*p.trial<a href="../../Parameters/display/frate.html" class="param" title="">.display.frate</a>;
+</div><div id="_line0065" class="line">0065         
+</div><div id="_line0066" class="line">0066         c.Nr=1; <span class="comment">%one condition;</span>
+</div><div id="_line0067" class="line">0067         p.conditions=repmat({c},1,p.trial<a href="../../Parameters/stimulus/nTrials.html" class="param" title="">.stimulus.nTrials</a>);
+</div><div id="_line0068" class="line">0068 
+</div><div id="_line0069" class="line">0069         p.defaultParameters<a href="../../Parameters/pldaps/finish.html" class="param" title="Number of trials to run. can be changed dynamically">.pldaps.finish</a> = length(p.conditions); 
+</div><div id="_line0070" class="line">0070 
+</div><div id="_line0071" class="line">0071         defaultTrialVariables(p);
+</div><div id="_line0072" class="line">0072         
+</div><div id="_line0073" class="line">0073 <span class="comment">%         %online analysis</span>
+</div><div id="_line0074" class="line">0074         <span class="keyword">if</span> p.trial<a href="../../Parameters/stimulus/online/analysis.html" class="param" title="">.stimulus.online.analysis</a>
+</div><div id="_line0075" class="line">0075            figure;
+</div><div id="_line0076" class="line">0076            p.functionHandles{end+1}=subplot(4,1,1);
+</div><div id="_line0077" class="line">0077            p.trial<a href="../../Parameters/stimulus/online/figureAx1.html" class="param" title="">.stimulus.online.figureAx1</a> = length(p.functionHandles);
+</div><div id="_line0078" class="line">0078            
+</div><div id="_line0079" class="line">0079            p.functionHandles{end+1}=subplot(4,1,2);
+</div><div id="_line0080" class="line">0080            p.trial<a href="../../Parameters/stimulus/online/figureAx2.html" class="param" title="">.stimulus.online.figureAx2</a> = length(p.functionHandles);
+</div><div id="_line0081" class="line">0081            
+</div><div id="_line0082" class="line">0082            p.functionHandles{end+1}=subplot(4,1,3);
+</div><div id="_line0083" class="line">0083            p.trial<a href="../../Parameters/stimulus/online/figureAx3.html" class="param" title="">.stimulus.online.figureAx3</a> = length(p.functionHandles);
+</div><div id="_line0084" class="line">0084            
+</div><div id="_line0085" class="line">0085            p.functionHandles{end+1}=subplot(4,1,4);
+</div><div id="_line0086" class="line">0086            p.trial<a href="../../Parameters/stimulus/online/figureAx4.html" class="param" title="">.stimulus.online.figureAx4</a> = length(p.functionHandles);
+</div><div id="_line0087" class="line">0087 <span class="comment">%            p.trial.stimulus.online.figureAx1 = subplot(4,1,1);</span>
+</div><div id="_line0088" class="line">0088 <span class="comment">%            p.trial.stimulus.online.figureAx2 = subplot(4,1,2);</span>
+</div><div id="_line0089" class="line">0089 <span class="comment">%            p.trial.stimulus.online.figureAx3 = subplot(4,1,3);</span>
+</div><div id="_line0090" class="line">0090 <span class="comment">%            p.trial.stimulus.online.figureAx4 = subplot(4,1,4);</span>
+</div><div id="_line0091" class="line">0091         <span class="keyword">end</span>
+</div><div id="_line0092" class="line">0092         
+</div><div id="_line0093" class="line">0093     <span class="keyword">else</span>
+</div><div id="_line0094" class="line">0094         <span class="comment">%if you don't want all the pldapsDefaultTrialFucntions states to be used,</span>
+</div><div id="_line0095" class="line">0095         <span class="comment">%just call them in the states you want to use it.</span>
+</div><div id="_line0096" class="line">0096         <span class="comment">%otherwise just leave it here</span>
+</div><div id="_line0097" class="line">0097         <a href="../../PLDAPS/SupportFunctions/pldapsDefaultTrialFunction.html" class="code" title="function pldapsDefaultTrialFunction(p,state)">pldapsDefaultTrialFunction</a>(p,state);
+</div><div id="_line0098" class="line">0098         <span class="keyword">switch</span> state
+</div><div id="_line0099" class="line">0099             <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/trialSetup.html" class="param" title="called before each trial for data allocation.">.pldaps.trialStates.trialSetup</a>
+</div><div id="_line0100" class="line">0100                 p.trial<a href="../../Parameters/stimulus/onFrame.html" class="param" title="">.stimulus.onFrame</a>=randi([1 ceil(p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>-p.trial<a href="../../Parameters/display/frate.html" class="param" title="">.display.frate</a>-0.25)]);
+</div><div id="_line0101" class="line">0101                 <span class="comment">%%make sure port is set to 0 again</span>
+</div><div id="_line0102" class="line">0102                 Eyelink(<span class="string">'command'</span>,<span class="string">'*create_button 8 2 0x01 0'</span>);
+</div><div id="_line0103" class="line">0103                 Eyelink(<span class="string">'command'</span>,<span class="string">'*input_data_ports 2'</span>);
+</div><div id="_line0104" class="line">0104                 Eyelink(<span class="string">'command'</span>,<span class="string">'*input_data_mask 0x01'</span>);
+</div><div id="_line0105" class="line">0105                 Eyelink(<span class="string">'command'</span>,<span class="string">'!*write_ioport 4 0x00'</span>);
+</div><div id="_line0106" class="line">0106 <span class="comment">%             case dv.trial.pldaps.trialStates.trialPrepare</span>
+</div><div id="_line0107" class="line">0107             <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/trialCleanUpandSave.html" class="param" title="called at the end of the trial.">.pldaps.trialStates.trialCleanUpandSave</a> 
+</div><div id="_line0108" class="line">0108                 <span class="comment">%%make sure port is set to 0 again</span>
+</div><div id="_line0109" class="line">0109                 Eyelink(<span class="string">'command'</span>,<span class="string">'!*write_ioport 4 0x00'</span>);
+</div><div id="_line0110" class="line">0110                 <span class="keyword">if</span> p.trial<a href="../../Parameters/pldaps/iTrial.html" class="param" title="trial number. cannot be changed by the user">.pldaps.iTrial</a>&lt;2 || ~p.trial<a href="../../Parameters/stimulus/online/analysis.html" class="param" title="">.stimulus.online.analysis</a><span class="comment">%p.trial.iTrial&gt;1</span>
+</div><div id="_line0111" class="line">0111                     p.trial<a href="../../Parameters/stimulus/bestLag.html" class="param" title="">.stimulus.bestLag</a>(p.trial<a href="../../Parameters/pldaps/iTrial.html" class="param" title="trial number. cannot be changed by the user">.pldaps.iTrial</a>) = NaN;
+</div><div id="_line0112" class="line">0112                     <span class="keyword">return</span>;
+</div><div id="_line0113" class="line">0113                 <span class="keyword">end</span>
+</div><div id="_line0114" class="line">0114 <span class="comment">%                 %get eyelink data sent over ethernet: Do this for X and Y</span>
+</div><div id="_line0115" class="line">0115 <span class="comment">%                 elXind=find(~cellfun(@isempty,strfind(p.trial.eyelink.sampleIds,'EyeX')),1,'first');</span>
+</div><div id="_line0116" class="line">0116 <span class="comment">%                 elYind=find(~cellfun(@isempty,strfind(p.trial.eyelink.sampleIds,'EyeY')),1,'first');</span>
+</div><div id="_line0117" class="line">0117 <span class="comment">%                 elDataX=p.trial.eyelink.samples(elXind,:);</span>
+</div><div id="_line0118" class="line">0118 <span class="comment">%                 elDataY=p.trial.eyelink.samples(elYind,:);</span>
+</div><div id="_line0119" class="line">0119 <span class="comment">%                 elSampleTimeEL =p.trial.eyelink.samples(1,:)/1000; %el sample Times in EL time</span>
+</div><div id="_line0120" class="line">0120 <span class="comment">%</span>
+</div><div id="_line0121" class="line">0121 <span class="comment">%                 ELtime=cellfun(@(x) x.timing.eyelinkStartTime, p.data, 'UniformOutput', false);</span>
+</div><div id="_line0122" class="line">0122 <span class="comment">%                 ELtime{end+1}=p.trial.timing.eyelinkStartTime;</span>
+</div><div id="_line0123" class="line">0123 <span class="comment">%                 ELtime=vertcat(ELtime{:})';</span>
+</div><div id="_line0124" class="line">0124 <span class="comment">%                 ELfit=[ELtime(2,:); ones(size(ELtime(2,:)))]'\ELtime(1,:)';</span>
+</div><div id="_line0125" class="line">0125 <span class="comment">%</span>
+</div><div id="_line0126" class="line">0126 <span class="comment">%                 EL2PTB=@(x) x*ELfit(1) + ELfit(2);</span>
+</div><div id="_line0127" class="line">0127 <span class="comment">%                 elSampleTimePTB = EL2PTB(elSampleTimeEL);</span>
+</div><div id="_line0128" class="line">0128 <span class="comment">%</span>
+</div><div id="_line0129" class="line">0129 <span class="comment">%                 %get eyelink data sent over ethernet: Do this for X and Y</span>
+</div><div id="_line0130" class="line">0130 <span class="comment">%                 dpDataX=p.trial.datapixx.adc.data(1,:);</span>
+</div><div id="_line0131" class="line">0131 <span class="comment">%                 dpDataY=p.trial.datapixx.adc.data(2,:);</span>
+</div><div id="_line0132" class="line">0132 <span class="comment">%                 dpSampleTimeDP =p.trial.datapixx.adc.dataSampleTimes; %el sample Times in EL time</span>
+</div><div id="_line0133" class="line">0133 <span class="comment">%</span>
+</div><div id="_line0134" class="line">0134 <span class="comment">%                 DPtime=cellfun(@(x) x.timing.datapixxPreciseTime, p.data, 'UniformOutput', false);</span>
+</div><div id="_line0135" class="line">0135 <span class="comment">%                 DPtime{end+1}=p.trial.timing.datapixxPreciseTime;</span>
+</div><div id="_line0136" class="line">0136 <span class="comment">%                 DPtime=vertcat(DPtime{:})';</span>
+</div><div id="_line0137" class="line">0137 <span class="comment">%                 DPfit=[DPtime(2,:); ones(size(DPtime(2,:)))]'\DPtime(1,:)';</span>
+</div><div id="_line0138" class="line">0138 <span class="comment">%</span>
+</div><div id="_line0139" class="line">0139 <span class="comment">%                 DP2PTB=@(x) x*DPfit(1) + DPfit(2);</span>
+</div><div id="_line0140" class="line">0140 <span class="comment">%                 dpSampleTimePTB = DP2PTB(dpSampleTimeDP);</span>
+</div><div id="_line0141" class="line">0141 <span class="comment">%</span>
+</div><div id="_line0142" class="line">0142 <span class="comment">%                 %now in a loop compare the EL dataset with the DP dataset.</span>
+</div><div id="_line0143" class="line">0143 <span class="comment">%                 %We're oversampling in DP, so we will do an interpolation</span>
+</div><div id="_line0144" class="line">0144 <span class="comment">%                 %of the datapixx data and get that data with different</span>
+</div><div id="_line0145" class="line">0145 <span class="comment">%                 %offsets</span>
+</div><div id="_line0146" class="line">0146 <span class="comment">%</span>
+</div><div id="_line0147" class="line">0147 <span class="comment">%                 ii=1;</span>
+</div><div id="_line0148" class="line">0148 <span class="comment">%                 offsetRange=(-10:0.05:10)/1000;</span>
+</div><div id="_line0149" class="line">0149 <span class="comment">%                 rpe=nan(1,length(offsetRange));</span>
+</div><div id="_line0150" class="line">0150 <span class="comment">%                 for offset=offsetRange</span>
+</div><div id="_line0151" class="line">0151 <span class="comment">%                     dpDataXInt=interp1(dpSampleTimePTB,dpDataX,elSampleTimePTB(51:end-51)+offset,'linear','extrap');</span>
+</div><div id="_line0152" class="line">0152 <span class="comment">%                     dpDataYInt=interp1(dpSampleTimePTB,dpDataY,elSampleTimePTB(51:end-51)+offset,'linear','extrap');</span>
+</div><div id="_line0153" class="line">0153 <span class="comment">%</span>
+</div><div id="_line0154" class="line">0154 <span class="comment">%                     elDataXvoltage=(elDataX-diff(p.trial.display.winRect([1 3])/2))/(diff(p.trial.display.winRect([1 3])/2))*5;</span>
+</div><div id="_line0155" class="line">0155 <span class="comment">%                     elDataXvoltage(elDataXvoltage&lt;-5)=-5;</span>
+</div><div id="_line0156" class="line">0156 <span class="comment">%                     elDataYvoltage=(elDataX-diff(p.trial.display.winRect([2 4])/2))/(diff(p.trial.display.winRect([2 4])/2))*5;</span>
+</div><div id="_line0157" class="line">0157 <span class="comment">%                     elDataYvoltage(elDataYvoltage&lt;-5)=-5;</span>
+</div><div id="_line0158" class="line">0158 <span class="comment">%</span>
+</div><div id="_line0159" class="line">0159 <span class="comment">%                     x1= [dpDataXInt; ones(size(dpDataXInt))]'\elDataXvoltage(51:end-51)';</span>
+</div><div id="_line0160" class="line">0160 <span class="comment">%                     x2= [dpDataYInt; ones(size(dpDataYInt))]'\elDataYvoltage(51:end-51)';</span>
+</div><div id="_line0161" class="line">0161 <span class="comment">%</span>
+</div><div id="_line0162" class="line">0162 <span class="comment">%                     if offset==0</span>
+</div><div id="_line0163" class="line">0163 <span class="comment">%                         x1_0=x1;</span>
+</div><div id="_line0164" class="line">0164 <span class="comment">%                         elDataXvoltage_0=elDataXvoltage;</span>
+</div><div id="_line0165" class="line">0165 <span class="comment">%                     end</span>
+</div><div id="_line0166" class="line">0166 <span class="comment">%</span>
+</div><div id="_line0167" class="line">0167 <span class="comment">%                     rpeX = nanmean(abs(elDataXvoltage(51:end-51) - (x1(1)*dpDataXInt + x1(2))));</span>
+</div><div id="_line0168" class="line">0168 <span class="comment">%                     rpeY = nanmean(abs(elDataXvoltage(51:end-51) - (x2(1)*dpDataYInt + x2(2))));</span>
+</div><div id="_line0169" class="line">0169 <span class="comment">%                     %now regress dpDataX against ELDataX and find</span>
+</div><div id="_line0170" class="line">0170 <span class="comment">%                     %reconstruction error</span>
+</div><div id="_line0171" class="line">0171 <span class="comment">%                     rpe(ii)=nanmean([rpeX rpeY]);</span>
+</div><div id="_line0172" class="line">0172 <span class="comment">%                     ii=ii+1;</span>
+</div><div id="_line0173" class="line">0173 <span class="comment">%                 end</span>
+</div><div id="_line0174" class="line">0174 <span class="comment">%</span>
+</div><div id="_line0175" class="line">0175 <span class="comment">%                 [~,ii]=min(rpe);</span>
+</div><div id="_line0176" class="line">0176 <span class="comment">%                 p.trial.stimulus.bestLag = offsetRange(ii);</span>
+</div><div id="_line0177" class="line">0177 <span class="comment">%</span>
+</div><div id="_line0178" class="line">0178 <span class="comment">%                 ax=p.functionHandles{p.trial.stimulus.online.figureAx1};</span>
+</div><div id="_line0179" class="line">0179 <span class="comment">%                 x=cellfun(@(x) x.stimulus.bestLag,p.data);</span>
+</div><div id="_line0180" class="line">0180 <span class="comment">%                 x(end+1)= p.trial.stimulus.bestLag;</span>
+</div><div id="_line0181" class="line">0181 <span class="comment">%                 plot(ax,x);</span>
+</div><div id="_line0182" class="line">0182 <span class="comment">%</span>
+</div><div id="_line0183" class="line">0183 <span class="comment">%                 ax=p.functionHandles{p.trial.stimulus.online.figureAx2};</span>
+</div><div id="_line0184" class="line">0184 <span class="comment">% %                 plot(ax,dpSampleTimePTB,dpDataX*x1_0(1) + x1_0(2));</span>
+</div><div id="_line0185" class="line">0185 <span class="comment">% %                 hold(ax, 'all');</span>
+</div><div id="_line0186" class="line">0186 <span class="comment">% %                 plot(ax,elSampleTimePTB,elDataX);</span>
+</div><div id="_line0187" class="line">0187 <span class="comment">% %                 legend(ax,{'DataPixx','Eyelink'});</span>
+</div><div id="_line0188" class="line">0188 <span class="comment">% %                 hold(ax, 'off');</span>
+</div><div id="_line0189" class="line">0189 <span class="comment">%                 plot(ax,dpSampleTimePTB,dpDataX);</span>
+</div><div id="_line0190" class="line">0190 <span class="comment">%                 hold(ax, 'all');</span>
+</div><div id="_line0191" class="line">0191 <span class="comment">%                 plot(ax,elSampleTimePTB,elDataXvoltage_0);</span>
+</div><div id="_line0192" class="line">0192 <span class="comment">%                 legend(ax,{'DataPixx','Eyelink'});</span>
+</div><div id="_line0193" class="line">0193 <span class="comment">%                 hold(ax, 'off');</span>
+</div><div id="_line0194" class="line">0194 <span class="comment">%</span>
+</div><div id="_line0195" class="line">0195 <span class="comment">%                 ax=p.functionHandles{p.trial.stimulus.online.figureAx3};</span>
+</div><div id="_line0196" class="line">0196 <span class="comment">%                 plot(ax,offsetRange,rpe)</span>
+</div><div id="_line0197" class="line">0197 <span class="comment">%</span>
+</div><div id="_line0198" class="line">0198 <span class="comment">%                 ax=p.functionHandles{p.trial.stimulus.online.figureAx4};</span>
+</div><div id="_line0199" class="line">0199 <span class="comment">%                 anyft=any(p.trial.timing.frameStateChangeTimes,2);</span>
+</div><div id="_line0200" class="line">0200 <span class="comment">%                 plot(ax,p.trial.timing.frameStateChangeTimes(anyft,:)'*1000);</span>
+</div><div id="_line0201" class="line">0201 <span class="comment">%                 l=cell(size(p.trial.timing.frameStateChangeTimes,1));</span>
+</div><div id="_line0202" class="line">0202 <span class="comment">%                 [l{:}]=deal('');</span>
+</div><div id="_line0203" class="line">0203 <span class="comment">%                 l{p.trial.pldaps.trialStates.frameUpdate}='Update';</span>
+</div><div id="_line0204" class="line">0204 <span class="comment">%                 l{p.trial.pldaps.trialStates.framePrepareDrawing}='fPrepareDrawing';</span>
+</div><div id="_line0205" class="line">0205 <span class="comment">%                 l{p.trial.pldaps.trialStates.frameDraw}='Draw';</span>
+</div><div id="_line0206" class="line">0206 <span class="comment">%                 l{p.trial.pldaps.trialStates.frameDrawingFinished}='DrawingFinished';</span>
+</div><div id="_line0207" class="line">0207 <span class="comment">%                 l{p.trial.pldaps.trialStates.frameFlip}='Flip';</span>
+</div><div id="_line0208" class="line">0208 <span class="comment">%                 legend(ax,l(anyft));</span>
+</div><div id="_line0209" class="line">0209 <span class="comment">%                 hold(ax, 'off');</span>
+</div><div id="_line0210" class="line">0210 <span class="comment">%</span>
+</div><div id="_line0211" class="line">0211 <span class="comment">%                 drawnow</span>
+</div><div id="_line0212" class="line">0212 <span class="comment">%                 shg</span>
+</div><div id="_line0213" class="line">0213                 
+</div><div id="_line0214" class="line">0214             <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/frameDraw.html" class="param" title="called every frame for drawing command.">.pldaps.trialStates.frameDraw</a>;
+</div><div id="_line0215" class="line">0215                 <span class="keyword">if</span> p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>==p.trial<a href="../../Parameters/stimulus/onFrame.html" class="param" title="">.stimulus.onFrame</a>
+</div><div id="_line0216" class="line">0216                     Eyelink(<span class="string">'command'</span>,<span class="string">'!*write_ioport 4 0x01'</span>);
+</div><div id="_line0217" class="line">0217                 <span class="keyword">end</span>
+</div><div id="_line0218" class="line">0218 
+</div><div id="_line0219" class="line">0219                 
+</div><div id="_line0220" class="line">0220             <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/frameFlip.html" class="param" title="called every frame to flip the buffers.">.pldaps.trialStates.frameFlip</a>;   
+</div><div id="_line0221" class="line">0221                 <span class="keyword">if</span> p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a> &gt;= p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>
+</div><div id="_line0222" class="line">0222                     p.trial<a href="../../Parameters/flagNextTrial.html" class="param" title="">.flagNextTrial</a>=true;
+</div><div id="_line0223" class="line">0223                 <span class="keyword">end</span>
+</div><div id="_line0224" class="line">0224         <span class="keyword">end</span>
+</div><div id="_line0225" class="line">0225     <span class="keyword">end</span>
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

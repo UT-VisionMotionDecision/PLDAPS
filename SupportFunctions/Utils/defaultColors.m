@@ -44,7 +44,7 @@ p.defaultParameters.display.monkeyCLUT = [0,0,0; % IGNORE THIS LINE (CLUT is 0 b
     zeros(241,3)];
 
 %%% keeping track of which color is which
-if(p.defaultParameters.datapixx.use && p.defaultParameters.display.useOverlay)
+if p.defaultParameters.display.useOverlay %TODO make this separate from useDatapixx %(p.defaultParameters.datapixx.use && p.defaultParameters.display.useOverlay)
     p.defaultParameters.display.clut.bg         = 1*[1 1 1]';
     p.defaultParameters.display.clut.cursor     = 2*[1 1 1]';
     p.defaultParameters.display.clut.targetgood = 3*[1 1 1]';

@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of give</title>
+  <meta name="keywords" content="give">
+  <meta name="description" content="pds.behavior.reward.give(p, amount)    give a certaim amount of reward">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../../index.html">Home</a> &gt;  <a href="../../../index.html">PLDAPS</a> &gt; <a href="../../index.html">+pds</a> &gt; <a href="../index.html">+behavior</a> &gt; <a href="index.html">+reward</a> &gt; give.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../../index.html"><img alt="<" border="0" src="../../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/+pds/+behavior/+reward&nbsp;<img alt=">" border="0" src="../../../../right.png"></a></td></tr></table>-->
+
+<h1>give
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="box"><strong>pds.behavior.reward.give(p, amount)    give a certaim amount of reward</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="box"><strong>function p = give(p, amount) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">pds.behavior.reward.give(p, amount)    give a certaim amount of reward
+ handles reward for newEraSyringePumps and via TTL over datapixx. Also
+ send a reward bit via datapixx (if datapixx is used).
+ stores the time and amount in p.trial.behavior.reward.timeReward
+ If no amount is specified, the value set in
+ p.trial.behavior.reward.defaultAmount will be used</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../../matlabicon.gif)">
+<li><a href="../../../../PLDAPS/+pds/+datapixx/analogOut.html" class="code" title="function analogOut(open_time, chan, TTLamp)">pds.datapixx.analogOut</a>	datapixxanalogOut    Send a TTL pulse through the Analog Out</li><li><a href="../../../../PLDAPS/+pds/+datapixx/flipBit.html" class="code" title="function timings=flipBit(bit,trial)">pds.datapixx.flipBit</a>	pds.datapixx.flipBit    flip a bit on the digital out of the Datapixx</li><li><a href="../../../../PLDAPS/+pds/+newEraSyringePump/give.html" class="code" title="function p = give(p, amount)">pds.newEraSyringePump.give</a>	pds.newEraSyringePump.five   dispense a specified amount of volume</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../../matlabicon.gif)">
+<li><a href="../../../../PLDAPS/+pds/+eyelink/targetModeDisplay.html" class="code" title="function result=targetModeDisplay(p)">pds.eyelink.targetModeDisplay</a>	pds.eyelink.targetModeDisplay   set eyelink into target mode</li><li><a href="../../../../PLDAPS/@pldaps/run.html" class="code" title="function p = run(p)">@pldaps/run</a>	run    run a new experiment for a previuously created pldaps class</li><li><a href="../../../../PLDAPS/SupportFunctions/pldapsDefaultTrialFunction.html" class="code" title="function pldapsDefaultTrialFunction(p,state)">pldapsDefaultTrialFunction</a>	</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../../../Parameters/behavior/reward/defaultAmount.html" class="code" title="Default amount of reward.">.behavior.reward.defaultAmount:</a>	
+        <a href="#_line0009" class="code"}">9 </a>Default amount of reward.</li><li><a href="../../../../Parameters/behavior/reward/iReward.html" class="code" title="">.behavior.reward.iReward:</a>	
+        <a href="#_line0029" class="code"}">29 </a></li><li><a href="../../../../Parameters/datapixx/use.html" class="code" title="enable control of VPixx devices">.datapixx.use:</a>	
+        <a href="#_line0014" class="code"}">14 </a>enable control of VPixx devices</li><li><a href="../../../../Parameters/datapixx/useForReward.html" class="code" title="use Datapixx to set...for a given duration....">.datapixx.useForReward:</a>	
+        <a href="#_line0015" class="code"}">15 </a>use Datapixx to set...for a given duration....</li><li><a href="../../../../Parameters/event/REWARD.html" class="code" title="">.event.REWARD:</a>	
+        <a href="#_line0019" class="code"}">19 </a></li><li><a href="../../../../Parameters/pldaps/iTrial.html" class="code" title="trial number. cannot be changed by the user">.pldaps.iTrial:</a>	
+        <a href="#_line0019" class="code"}">19 </a>trial number. cannot be changed by the user</li><li><a href="../../../../Parameters/sound/reward.html" class="code" title="">.sound.reward:</a>	
+        <a href="#_line0024" class="code"}">24 </a></li><li><a href="../../../../Parameters/sound/use.html" class="code" title="toogle use of sound">.sound.use:</a>	
+        <a href="#_line0023" class="code"}">23 </a>toogle use of sound</li><li><a href="../../../../Parameters/sound/useForReward.html" class="code" title="toogle playing a sound for reward">.sound.useForReward:</a>	
+        <a href="#_line0023" class="code"}">23 </a>toogle playing a sound for reward</li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../../../Parameters/behavior/reward/iReward.html" class="code" title="">.behavior.reward.iReward:</a>
+        <a href="#_line0028" class="code"}">28 </a>    <a href="#_line0029" class="code"}">29 </a></li><li><a href="../../../../Parameters/behavior/reward/timeReward.html" class="code" title="">.behavior.reward.timeReward:</a>
+        <a href="#_line0028" class="code"}">28 </a></li></ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function p = give(p, amount)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%pds.behavior.reward.give(p, amount)    give a certaim amount of reward</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">% handles reward for newEraSyringePumps and via TTL over datapixx. Also</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% send a reward bit via datapixx (if datapixx is used).</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% stores the time and amount in p.trial.behavior.reward.timeReward</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% If no amount is specified, the value set in</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% p.trial.behavior.reward.defaultAmount will be used</span>
+</div><div id="_line0008" class="line">0008     <span class="keyword">if</span> nargin &lt; 2
+</div><div id="_line0009" class="line">0009         amount = p.trial<a href="../../../../Parameters/behavior/reward/defaultAmount.html" class="param" title="Default amount of reward.">.behavior.reward.defaultAmount</a>;
+</div><div id="_line0010" class="line">0010     <span class="keyword">end</span>
+</div><div id="_line0011" class="line">0011 
+</div><div id="_line0012" class="line">0012     <a href="../../../../PLDAPS/+pds/+newEraSyringePump/pds.newEraSyringePump.give.html" class="code" title="function p = give(p, amount)">pds.newEraSyringePump.give</a>(p,amount);
+</div><div id="_line0013" class="line">0013       
+</div><div id="_line0014" class="line">0014     <span class="keyword">if</span> p.trial<a href="../../../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a>
+</div><div id="_line0015" class="line">0015         <span class="keyword">if</span>  p.trial<a href="../../../../Parameters/datapixx/useForReward.html" class="param" title="use Datapixx to set...for a given duration....">.datapixx.useForReward</a>
+</div><div id="_line0016" class="line">0016             <a href="../../../../PLDAPS/+pds/+datapixx/pds.datapixx.analogOut.html" class="code" title="function analogOut(open_time, chan, TTLamp)">pds.datapixx.analogOut</a>(amount);
+</div><div id="_line0017" class="line">0017         <span class="keyword">end</span>
+</div><div id="_line0018" class="line">0018         <span class="comment">%%flag</span>
+</div><div id="_line0019" class="line">0019         <a href="../../../../PLDAPS/+pds/+datapixx/pds.datapixx.flipBit.html" class="code" title="function timings=flipBit(bit,trial)">pds.datapixx.flipBit</a>(p.trial<a href="../../../../Parameters/event/REWARD.html" class="param" title="">.event.REWARD</a>,p.trial<a href="../../../../Parameters/pldaps/iTrial.html" class="param" title="trial number. cannot be changed by the user">.pldaps.iTrial</a>);
+</div><div id="_line0020" class="line">0020     <span class="keyword">end</span>
+</div><div id="_line0021" class="line">0021     
+</div><div id="_line0022" class="line">0022     <span class="comment">%%sound</span>
+</div><div id="_line0023" class="line">0023     <span class="keyword">if</span> p.trial<a href="../../../../Parameters/sound/use.html" class="param" title="toogle use of sound">.sound.use</a> &amp;&amp; p.trial<a href="../../../../Parameters/sound/useForReward.html" class="param" title="toogle playing a sound for reward">.sound.useForReward</a>
+</div><div id="_line0024" class="line">0024         PsychPortAudio(<span class="string">'Start'</span>, p.trial<a href="../../../../Parameters/sound/reward.html" class="param" title="">.sound.reward</a>);
+</div><div id="_line0025" class="line">0025     <span class="keyword">end</span>
+</div><div id="_line0026" class="line">0026     
+</div><div id="_line0027" class="line">0027     <span class="comment">%% store data</span>
+</div><div id="_line0028" class="line">0028     p.trial<a href="../../../../Parameters/behavior/reward/timeReward.html" class="param" title="">.behavior.reward.timeReward</a>(:,p.trial<a href="../../../../Parameters/behavior/reward/iReward.html" class="param" title="">.behavior.reward.iReward</a>) = [GetSecs amount];
+</div><div id="_line0029" class="line">0029     p.trial<a href="../../../../Parameters/behavior/reward/iReward.html" class="param" title="">.behavior.reward.iReward</a> = p.trial<a href="../../../../Parameters/behavior/reward/iReward.html" class="param" title="">.behavior.reward.iReward</a> + 1;
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

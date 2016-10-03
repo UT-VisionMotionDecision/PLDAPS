@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of pdsEyelinkDrawCalTarget</title>
+  <meta name="keywords" content="pdsEyelinkDrawCalTarget">
+  <meta name="description" content="draw simple calibration target (PLDAPS version)">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">PLDAPS</a> &gt; <a href="index.html">SupportFunctions</a> &gt; pdsEyelinkDrawCalTarget.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/SupportFunctions&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>pdsEyelinkDrawCalTarget
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>draw simple calibration target (PLDAPS version)</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function pdsEyelinkDrawCalTarget(dv, x, y) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> draw simple calibration target (PLDAPS version)
+
+ USAGE: EyelinkDrawCalTarget(el, x, y)
+
+        dv: display variables
+        x,y: position at which it should be drawn</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../PLDAPS/+pds/+eyelink/targetModeDisplay.html" class="code" title="function result=targetModeDisplay(p)">pds.eyelink.targetModeDisplay</a>	pds.eyelink.targetModeDisplay   set eyelink into target mode</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../Parameters/display/clut/targetgood.html" class="code" title="">.display.clut.targetgood:</a>	
+        <a href="#_line0014" class="code"}">14 </a></li><li><a href="../../Parameters/display/overlayptr.html" class="code" title="">.display.overlayptr:</a>	
+        <a href="#_line0015" class="code"}">15 </a>    <a href="#_line0016" class="code"}">16 </a></li><li><a href="../../Parameters/display/ptr.html" class="code" title="">.display.ptr:</a>	
+        <a href="#_line0019" class="code"}">19 </a>    <a href="#_line0022" class="code"}">22 </a></li><li><a href="../../Parameters/display/useOverlay.html" class="code" title="create an overlay pointer.">.display.useOverlay:</a>	
+        <a href="#_line0013" class="code"}">13 </a>create an overlay pointer.</li><li><a href="../../Parameters/stimulus/fixdotW.html" class="code" title="">.stimulus.fixdotW:</a>	
+        <a href="#_line0016" class="code"}">16 </a>    <a href="#_line0019" class="code"}">19 </a></li></ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function pdsEyelinkDrawCalTarget(dv, x, y)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">% draw simple calibration target (PLDAPS version)</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% USAGE: EyelinkDrawCalTarget(el, x, y)</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">%</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">%        dv: display variables</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">%        x,y: position at which it should be drawn</span>
+</div><div id="_line0008" class="line">0008 
+</div><div id="_line0009" class="line">0009 <span class="comment">% simple, standard eyelink version</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">%   22-06-06    fwc OSX-ed</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">%   12-12-13    jly Takes in dv struct and draws dots instead of ovals</span>
+</div><div id="_line0012" class="line">0012 
+</div><div id="_line0013" class="line">0013 <span class="keyword">if</span> dv.trial<a href="../../Parameters/display/useOverlay.html" class="param" title="create an overlay pointer.">.display.useOverlay</a>
+</div><div id="_line0014" class="line">0014     tempcolor = dv.trial<a href="../../Parameters/display/clut/targetgood.html" class="param" title="">.display.clut.targetgood</a>; 
+</div><div id="_line0015" class="line">0015     Screen(<span class="string">'FillRect'</span>, dv.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a>, 0); 
+</div><div id="_line0016" class="line">0016     Screen(<span class="string">'Drawdots'</span>,dv.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a>,[x; y],dv.trial<a href="../../Parameters/stimulus/fixdotW.html" class="param" title="">.stimulus.fixdotW</a>,tempcolor,[],2)
+</div><div id="_line0017" class="line">0017 <span class="keyword">else</span>
+</div><div id="_line0018" class="line">0018     tempcolor = [1 0 0]';
+</div><div id="_line0019" class="line">0019     Screen(<span class="string">'Drawdots'</span>,dv.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>,[x; y],dv.trial<a href="../../Parameters/stimulus/fixdotW.html" class="param" title="">.stimulus.fixdotW</a>,tempcolor,[],2)
+</div><div id="_line0020" class="line">0020 <span class="keyword">end</span>
+</div><div id="_line0021" class="line">0021 
+</div><div id="_line0022" class="line">0022 Screen( <span class="string">'Flip'</span>,  dv.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>);
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

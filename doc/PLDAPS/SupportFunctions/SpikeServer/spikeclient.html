@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of spikeclient</title>
+  <meta name="keywords" content="spikeclient">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">SupportFunctions</a> &gt; <a href="index.html">SpikeServer</a> &gt; spikeclient.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/SupportFunctions/SpikeServer&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>spikeclient
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function [spikes] = spikeclient(selfip,selfport,remoteip,remoteport) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+</ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function [spikes] = spikeclient(selfip,selfport,remoteip,remoteport)</a>
+</div><div id="_line0002" class="line">0002     spikes = [];
+</div><div id="_line0003" class="line">0003     
+</div><div id="_line0004" class="line">0004     pnet(<span class="string">'closeall'</span>);
+</div><div id="_line0005" class="line">0005     initt0 = tic;
+</div><div id="_line0006" class="line">0006     
+</div><div id="_line0007" class="line">0007     <span class="keyword">while</span> 1 <span class="comment">%Auto reconnect on failure</span>
+</div><div id="_line0008" class="line">0008         sock=pnet(<span class="string">'udpsocket'</span>,selfport);
+</div><div id="_line0009" class="line">0009         <span class="keyword">if</span> sock == -1
+</div><div id="_line0010" class="line">0010             error(<span class="string">'Could not open port %d'</span>,selfport);
+</div><div id="_line0011" class="line">0011         <span class="keyword">end</span>
+</div><div id="_line0012" class="line">0012         pnet(sock,<span class="string">'setwritetimeout'</span>,1);
+</div><div id="_line0013" class="line">0013         pnet(sock,<span class="string">'setreadtimeout'</span>,1);
+</div><div id="_line0014" class="line">0014 
+</div><div id="_line0015" class="line">0015         <span class="comment">%Send request</span>
+</div><div id="_line0016" class="line">0016         disp(<span class="string">'Connecting to server'</span>);
+</div><div id="_line0017" class="line">0017 
+</div><div id="_line0018" class="line">0018         pnet(sock,<span class="string">'printf'</span>,[<span class="string">'MARCO'</span> char(10) selfip char(10)]);
+</div><div id="_line0019" class="line">0019         pnet(sock,<span class="string">'write'</span>,uint16(selfport));
+</div><div id="_line0020" class="line">0020         pnet(sock,<span class="string">'writepacket'</span>,remoteip,remoteport);
+</div><div id="_line0021" class="line">0021 
+</div><div id="_line0022" class="line">0022         <span class="comment">%Receive a polo message from the server</span>
+</div><div id="_line0023" class="line">0023         dbefore = 0;
+</div><div id="_line0024" class="line">0024         
+</div><div id="_line0025" class="line">0025         <span class="keyword">while</span> 1
+</div><div id="_line0026" class="line">0026             size = pnet(sock,<span class="string">'readpacket'</span>);
+</div><div id="_line0027" class="line">0027             <span class="keyword">if</span> size &gt; 0
+</div><div id="_line0028" class="line">0028                 <span class="comment">%Awesome</span>
+</div><div id="_line0029" class="line">0029                 msg = pnet(sock,<span class="string">'readline'</span>);
+</div><div id="_line0030" class="line">0030                 <span class="keyword">if</span> strcmp(msg,<span class="string">'POLO'</span>)
+</div><div id="_line0031" class="line">0031                     <span class="comment">%Received acknowledgement, sync times</span>
+</div><div id="_line0032" class="line">0032                     disp(<span class="string">'Connected to server'</span>);
+</div><div id="_line0033" class="line">0033                     remotet0 = pnet(sock,<span class="string">'read'</span>,[1,1],<span class="string">'double'</span>);
+</div><div id="_line0034" class="line">0034                     localt0 = toc(initt0);
+</div><div id="_line0035" class="line">0035 
+</div><div id="_line0036" class="line">0036                     <span class="keyword">while</span> 1
+</div><div id="_line0037" class="line">0037                         <span class="comment">%Receive messages</span>
+</div><div id="_line0038" class="line">0038                         sze = pnet(sock,<span class="string">'readpacket'</span>);
+</div><div id="_line0039" class="line">0039                         <span class="keyword">if</span> sze &gt; 0
+</div><div id="_line0040" class="line">0040                             msg = pnet(sock,<span class="string">'readline'</span>);
+</div><div id="_line0041" class="line">0041                             <span class="keyword">if</span> strcmp(msg,<span class="string">'SPIKES'</span>)
+</div><div id="_line0042" class="line">0042                                 <span class="comment">%Read spikes</span>
+</div><div id="_line0043" class="line">0043                                 pnet(sock,<span class="string">'read'</span>,[1,1],<span class="string">'double'</span>);
+</div><div id="_line0044" class="line">0044                                 sze = sze - 7 - 8;
+</div><div id="_line0045" class="line">0045                                 nspks = sze/(8*4);
+</div><div id="_line0046" class="line">0046                                 <span class="keyword">if</span> nspks ~= 0 <span class="comment">%No spikes in this one</span>
+</div><div id="_line0047" class="line">0047                                     data = pnet(sock,<span class="string">'read'</span>,[nspks,4],<span class="string">'double'</span>);
+</div><div id="_line0048" class="line">0048                                     <span class="keyword">if</span> isempty(data)
+</div><div id="_line0049" class="line">0049                                         disp(<span class="string">'Corrupt message received'</span>);
+</div><div id="_line0050" class="line">0050                                         <span class="keyword">break</span>;
+</div><div id="_line0051" class="line">0051                                     <span class="keyword">end</span>
+</div><div id="_line0052" class="line">0052                                     data(:,4) = data(:,4) - remotet0 + localt0;
+</div><div id="_line0053" class="line">0053                                     spikes = [spikes;data];
+</div><div id="_line0054" class="line">0054                                 <span class="keyword">end</span>
+</div><div id="_line0055" class="line">0055                             <span class="keyword">else</span>
+</div><div id="_line0056" class="line">0056                                 fprintf(<span class="string">'Invalid message type received: %s\n'</span>,msg);
+</div><div id="_line0057" class="line">0057                                 <span class="keyword">break</span>;
+</div><div id="_line0058" class="line">0058                             <span class="keyword">end</span>
+</div><div id="_line0059" class="line">0059 
+</div><div id="_line0060" class="line">0060                             dnow = toc(initt0);
+</div><div id="_line0061" class="line">0061                             <span class="keyword">if</span> mod(dbefore,2) &gt; mod(dnow,2)
+</div><div id="_line0062" class="line">0062                                 <span class="comment">%Send keep alive signal every 10 seconds</span>
+</div><div id="_line0063" class="line">0063                                 pnet(sock,<span class="string">'printf'</span>,[<span class="string">'KEEPALIVE'</span> char(10) selfip char(10)]);
+</div><div id="_line0064" class="line">0064                                 pnet(sock,<span class="string">'write'</span>,int16(selfport));
+</div><div id="_line0065" class="line">0065                                 pnet(sock,<span class="string">'writepacket'</span>,remoteip,remoteport);
+</div><div id="_line0066" class="line">0066                             <span class="keyword">end</span>
+</div><div id="_line0067" class="line">0067 
+</div><div id="_line0068" class="line">0068                             <span class="keyword">if</span> mod(dbefore,3) &gt; mod(dnow,3)
+</div><div id="_line0069" class="line">0069                                 <span class="comment">%Plot the spikes in the last 5 seconds</span>
+</div><div id="_line0070" class="line">0070                                 tgt = spikes(spikes(:,3) - dnow + 1 &gt; 0,:);
+</div><div id="_line0071" class="line">0071                                 plot(tgt(:,3) - dnow + 1,tgt(:,1) + (tgt(:,2)-1)*128,<span class="string">'.'</span>);
+</div><div id="_line0072" class="line">0072                                 drawnow;
+</div><div id="_line0073" class="line">0073                                 spikes = [];
+</div><div id="_line0074" class="line">0074                             <span class="keyword">end</span>
+</div><div id="_line0075" class="line">0075 
+</div><div id="_line0076" class="line">0076                             dbefore = dnow;
+</div><div id="_line0077" class="line">0077                         <span class="keyword">else</span>
+</div><div id="_line0078" class="line">0078                             <span class="comment">%timed out... either no spikes for a second or some network issue</span>
+</div><div id="_line0079" class="line">0079                             <span class="comment">%Try reconnecting</span>
+</div><div id="_line0080" class="line">0080                             disp(<span class="string">'Timeout receiving spikes'</span>);
+</div><div id="_line0081" class="line">0081                             <span class="keyword">break</span>;
+</div><div id="_line0082" class="line">0082                         <span class="keyword">end</span>
+</div><div id="_line0083" class="line">0083                     <span class="keyword">end</span>
+</div><div id="_line0084" class="line">0084                 <span class="keyword">else</span>
+</div><div id="_line0085" class="line">0085                     fprintf(<span class="string">'Received unknown message %s, waiting for POLO\n'</span>,msg);
+</div><div id="_line0086" class="line">0086                 <span class="keyword">end</span>
+</div><div id="_line0087" class="line">0087             <span class="keyword">else</span>
+</div><div id="_line0088" class="line">0088                 fprintf(<span class="string">'Timed out waiting for server\n'</span>);
+</div><div id="_line0089" class="line">0089             <span class="keyword">end</span>
+</div><div id="_line0090" class="line">0090         <span class="keyword">end</span>
+</div><div id="_line0091" class="line">0091         pnet(sock,<span class="string">'close'</span>)
+</div><div id="_line0092" class="line">0092     <span class="keyword">end</span>
+</div><div id="_line0093" class="line">0093 <span class="keyword">end</span>
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

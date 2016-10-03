@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of defaultBitNames</title>
+  <meta name="keywords" content="defaultBitNames">
+  <meta name="description" content="dv = defaultBitNames(dv)">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">SupportFunctions</a> &gt; <a href="index.html">Utils</a> &gt; defaultBitNames.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/SupportFunctions/Utils&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>defaultBitNames
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>dv = defaultBitNames(dv)</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function dv = defaultBitNames(dv) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> dv = defaultBitNames(dv)
+ defaultBitNames adds .events.NAME to dv
+ The MAP server can only take 7 unique bits. BIT names are:
+   1. FIXATION
+   2. STIMULUS
+   3. TARGS
+   4. REWARD
+   5. BREAKFIX
+   6. TRIALEND
+   7. TRIALSTART</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../PLDAPS/SupportFunctions/pdsDefaultTrialStructure.html" class="code" title="function p = pdsDefaultTrialStructure(p, stimulusname)">pdsDefaultTrialStructure</a>	p = pdsDefaultTrialStructure(p)</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+</ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../../Parameters/event/BREAKFIX.html" class="code" title="">.event.BREAKFIX:</a>
+        <a href="#_line0019" class="code"}">19 </a></li><li><a href="../../../Parameters/event/CHOICE.html" class="code" title="">.event.CHOICE:</a>
+        <a href="#_line0021" class="code"}">21 </a></li><li><a href="../../../Parameters/event/FIXATION.html" class="code" title="">.event.FIXATION:</a>
+        <a href="#_line0015" class="code"}">15 </a></li><li><a href="../../../Parameters/event/REWARD.html" class="code" title="">.event.REWARD:</a>
+        <a href="#_line0018" class="code"}">18 </a></li><li><a href="../../../Parameters/event/STIMULUS.html" class="code" title="">.event.STIMULUS:</a>
+        <a href="#_line0016" class="code"}">16 </a></li><li><a href="../../../Parameters/event/TARGS.html" class="code" title="">.event.TARGS:</a>
+        <a href="#_line0017" class="code"}">17 </a></li><li><a href="../../../Parameters/event/TRIALEND.html" class="code" title="">.event.TRIALEND:</a>
+        <a href="#_line0020" class="code"}">20 </a></li><li><a href="../../../Parameters/event/TRIALSTART.html" class="code" title="">.event.TRIALSTART:</a>
+        <a href="#_line0022" class="code"}">22 </a></li></ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function dv = defaultBitNames(dv)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">% dv = defaultBitNames(dv)</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">% defaultBitNames adds .events.NAME to dv</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% The MAP server can only take 7 unique bits. BIT names are:</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">%   1. FIXATION</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">%   2. STIMULUS</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">%   3. TARGS</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">%   4. REWARD</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">%   5. BREAKFIX</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">%   6. TRIALEND</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">%   7. TRIALSTART</span>
+</div><div id="_line0012" class="line">0012 
+</div><div id="_line0013" class="line">0013 <span class="comment">% 12/12/2013 jly    Wrote it</span>
+</div><div id="_line0014" class="line">0014 
+</div><div id="_line0015" class="line">0015 dv.defaultParameters<a href="../../../Parameters/event/FIXATION.html" class="param" title="">.event.FIXATION</a>  = 1;
+</div><div id="_line0016" class="line">0016 dv.defaultParameters<a href="../../../Parameters/event/STIMULUS.html" class="param" title="">.event.STIMULUS</a>  = 2;
+</div><div id="_line0017" class="line">0017 dv.defaultParameters<a href="../../../Parameters/event/TARGS.html" class="param" title="">.event.TARGS</a>     = 3;
+</div><div id="_line0018" class="line">0018 dv.defaultParameters<a href="../../../Parameters/event/REWARD.html" class="param" title="">.event.REWARD</a>    = 4;
+</div><div id="_line0019" class="line">0019 dv.defaultParameters<a href="../../../Parameters/event/BREAKFIX.html" class="param" title="">.event.BREAKFIX</a>  = 5;
+</div><div id="_line0020" class="line">0020 dv.defaultParameters<a href="../../../Parameters/event/TRIALEND.html" class="param" title="">.event.TRIALEND</a>  = 6;
+</div><div id="_line0021" class="line">0021 dv.defaultParameters<a href="../../../Parameters/event/CHOICE.html" class="param" title="">.event.CHOICE</a>    = 8;
+</div><div id="_line0022" class="line">0022 dv.defaultParameters<a href="../../../Parameters/event/TRIALSTART.html" class="param" title="">.event.TRIALSTART</a> = 7;
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

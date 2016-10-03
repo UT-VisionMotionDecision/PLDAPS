@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of saveQueue</title>
+  <meta name="keywords" content="saveQueue">
+  <meta name="description" content="pds.eyelink.saveQueue    prunes unused samples and unneeded fields">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">+pds</a> &gt; <a href="index.html">+eyelink</a> &gt; saveQueue.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/+pds/+eyelink&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>saveQueue
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>pds.eyelink.saveQueue    prunes unused samples and unneeded fields</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function [Q, rowId] = saveQueue(p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">pds.eyelink.saveQueue    prunes unused samples and unneeded fields
+
+ [Q, rowId] = pds.eyelink.saveQueue(p)
+ Prunes unused samples from eyelinksamples
+
+ OUTPUT
+   Q   [double] - n datatypes x n samples
+   rowId [cell] - cell array of strings, name of each row in Q
+
+ 01/2014 jly   wrote it
+ 2014    jk    adapted for use with version 4.1</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="saveQueue.html" class="code" title="function [Q, rowId] = saveQueue(p)">pds.eyelink.saveQueue</a>	pds.eyelink.saveQueue    prunes unused samples and unneeded fields</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="saveQueue.html" class="code" title="function [Q, rowId] = saveQueue(p)">pds.eyelink.saveQueue</a>	pds.eyelink.saveQueue    prunes unused samples and unneeded fields</li><li><a href="../../../PLDAPS/SupportFunctions/pldapsDefaultTrialFunction.html" class="code" title="function pldapsDefaultTrialFunction(p,state)">pldapsDefaultTrialFunction</a>	</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../../Parameters/eyelink/EYE_USED.html" class="code" title="">.eyelink.EYE_USED:</a>	
+        <a href="#_line0046" class="code"}">46 </a></li><li><a href="../../../Parameters/eyelink/samples.html" class="code" title="">.eyelink.samples:</a>	
+        <a href="#_line0020" class="code"}">20 </a>    <a href="#_line0023" class="code"}">23 </a>    <a href="#_line0024" class="code"}">24 </a>    <a href="#_line0025" class="code"}">25 </a>    <a href="#_line0026" class="code"}">26 </a>    <a href="#_line0027" class="code"}">27 </a>    <a href="#_line0028" class="code"}">28 </a>    <a href="#_line0029" class="code"}">29 </a>    <a href="#_line0030" class="code"}">30 </a>    <a href="#_line0033" class="code"}">33 </a>    <a href="#_line0034" class="code"}">34 </a>    <a href="#_line0035" class="code"}">35 </a>    <a href="#_line0036" class="code"}">36 </a>    <a href="#_line0042" class="code"}">42 </a></li><li><a href="../../../Parameters/eyelink/trackermode.html" class="code" title="">.eyelink.trackermode:</a>	
+        <a href="#_line0039" class="code"}">39 </a></li><li><a href="../../../Parameters/eyelink/useRawData.html" class="code" title="toggle use of raw (uncalibrated) Data.">.eyelink.useRawData:</a>	
+        <a href="#_line0032" class="code"}">32 </a>    <a href="#_line0051" class="code"}">51 </a>    <a href="#_line0059" class="code"}">59 </a>toggle use of raw (uncalibrated) Data.</li></ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function [Q, rowId] = saveQueue(p)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%pds.eyelink.saveQueue    prunes unused samples and unneeded fields</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% [Q, rowId] = pds.eyelink.saveQueue(p)</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% Prunes unused samples from eyelinksamples</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">%</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% OUTPUT</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">%   Q   [double] - n datatypes x n samples</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">%   rowId [cell] - cell array of strings, name of each row in Q</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">%</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">% 01/2014 jly   wrote it</span>
+</div><div id="_line0012" class="line">0012 <span class="comment">% 2014    jk    adapted for use with version 4.1</span>
+</div><div id="_line0013" class="line">0013 <span class="keyword">if</span> nargin &lt; 1
+</div><div id="_line0014" class="line">0014     Eyelink(<span class="string">'GetQueuedData?'</span>)
+</div><div id="_line0015" class="line">0015     help <a href="pds.eyelink.saveQueue.html" class="code" title="function [Q, rowId] = saveQueue(p)">pds.eyelink.saveQueue</a>
+</div><div id="_line0016" class="line">0016     <span class="keyword">return</span>
+</div><div id="_line0017" class="line">0017 <span class="keyword">end</span>
+</div><div id="_line0018" class="line">0018     
+</div><div id="_line0019" class="line">0019 
+</div><div id="_line0020" class="line">0020 goodSampleIdx = ~isnan(p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(1,:));
+</div><div id="_line0021" class="line">0021 
+</div><div id="_line0022" class="line">0022 <span class="comment">% these numbers are hard coded from Eyelink('GetQueuedData')</span>
+</div><div id="_line0023" class="line">0023 tmp.time            = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(1,goodSampleIdx);
+</div><div id="_line0024" class="line">0024 tmp.sampleType      = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(2,goodSampleIdx);
+</div><div id="_line0025" class="line">0025 tmp.LeftPupilSize   = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(12,goodSampleIdx);
+</div><div id="_line0026" class="line">0026 tmp.RightPupilSize  = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(13,goodSampleIdx);
+</div><div id="_line0027" class="line">0027 tmp.LeftEyeX        = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(14,goodSampleIdx);
+</div><div id="_line0028" class="line">0028 tmp.LeftEyeY        = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(16,goodSampleIdx);
+</div><div id="_line0029" class="line">0029 tmp.RightEyeX       = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(15,goodSampleIdx);
+</div><div id="_line0030" class="line">0030 tmp.RightEyeY       = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(17,goodSampleIdx);
+</div><div id="_line0031" class="line">0031 
+</div><div id="_line0032" class="line">0032 <span class="keyword">if</span> p.trial<a href="../../../Parameters/eyelink/useRawData.html" class="param" title="toggle use of raw (uncalibrated) Data.">.eyelink.useRawData</a>
+</div><div id="_line0033" class="line">0033     tmp.LeftEyeRawX        = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(4,goodSampleIdx);
+</div><div id="_line0034" class="line">0034     tmp.LeftEyeRawY        = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(6,goodSampleIdx);
+</div><div id="_line0035" class="line">0035     tmp.RightEyeRawX       = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(5,goodSampleIdx);
+</div><div id="_line0036" class="line">0036     tmp.RightEyeRawY       = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(7,goodSampleIdx);
+</div><div id="_line0037" class="line">0037 <span class="keyword">end</span>
+</div><div id="_line0038" class="line">0038 
+</div><div id="_line0039" class="line">0039 <span class="keyword">if</span> strcmp(p.trial<a href="../../../Parameters/eyelink/trackermode.html" class="param" title="">.eyelink.trackermode</a>, <span class="string">'RTABLER'</span>)
+</div><div id="_line0040" class="line">0040     <span class="keyword">for</span> ii = 1:8
+</div><div id="_line0041" class="line">0041         tmpfield = sprintf(<span class="string">'HeadTracking%02.0f'</span>, ii);
+</div><div id="_line0042" class="line">0042         tmp.(tmpfield) = p.trial<a href="../../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a>(22+ii,goodSampleIdx);
+</div><div id="_line0043" class="line">0043     <span class="keyword">end</span>
+</div><div id="_line0044" class="line">0044 <span class="keyword">end</span>
+</div><div id="_line0045" class="line">0045 
+</div><div id="_line0046" class="line">0046 <span class="keyword">switch</span> p.trial<a href="../../../Parameters/eyelink/EYE_USED.html" class="param" title="">.eyelink.EYE_USED</a>
+</div><div id="_line0047" class="line">0047     <span class="keyword">case</span> <span class="string">'RIGHT'</span>
+</div><div id="_line0048" class="line">0048         tmp = rmfield(tmp, <span class="string">'LeftEyeX'</span>);
+</div><div id="_line0049" class="line">0049         tmp = rmfield(tmp, <span class="string">'LeftEyeY'</span>);
+</div><div id="_line0050" class="line">0050         tmp = rmfield(tmp, <span class="string">'LeftPupilSize'</span>);
+</div><div id="_line0051" class="line">0051         <span class="keyword">if</span> p.trial<a href="../../../Parameters/eyelink/useRawData.html" class="param" title="toggle use of raw (uncalibrated) Data.">.eyelink.useRawData</a>
+</div><div id="_line0052" class="line">0052             tmp = rmfield(tmp, <span class="string">'LeftEyeRawX'</span>);
+</div><div id="_line0053" class="line">0053             tmp = rmfield(tmp, <span class="string">'LeftEyeRawY'</span>);
+</div><div id="_line0054" class="line">0054         <span class="keyword">end</span>
+</div><div id="_line0055" class="line">0055     <span class="keyword">case</span> <span class="string">'LEFT'</span>
+</div><div id="_line0056" class="line">0056         tmp = rmfield(tmp, <span class="string">'RightEyeX'</span>);
+</div><div id="_line0057" class="line">0057         tmp = rmfield(tmp, <span class="string">'RightEyeY'</span>);
+</div><div id="_line0058" class="line">0058         tmp = rmfield(tmp, <span class="string">'RightPupilSize'</span>);
+</div><div id="_line0059" class="line">0059         <span class="keyword">if</span> p.trial<a href="../../../Parameters/eyelink/useRawData.html" class="param" title="toggle use of raw (uncalibrated) Data.">.eyelink.useRawData</a>
+</div><div id="_line0060" class="line">0060             tmp = rmfield(tmp, <span class="string">'RightEyeRawX'</span>);
+</div><div id="_line0061" class="line">0061             tmp = rmfield(tmp, <span class="string">'RightEyeRawY'</span>);
+</div><div id="_line0062" class="line">0062         <span class="keyword">end</span>
+</div><div id="_line0063" class="line">0063     <span class="keyword">case</span> <span class="string">'BOTH'</span>
+</div><div id="_line0064" class="line">0064 <span class="keyword">end</span>
+</div><div id="_line0065" class="line">0065 
+</div><div id="_line0066" class="line">0066 Q = cell2mat(struct2cell(tmp));
+</div><div id="_line0067" class="line">0067 rowId = fieldnames(tmp);
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

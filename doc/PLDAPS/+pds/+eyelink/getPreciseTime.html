@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getPreciseTime</title>
+  <meta name="keywords" content="getPreciseTime">
+  <meta name="description" content="pds.eyelink.getPreciseTime    get a rough estimate about the eyelink time">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">+pds</a> &gt; <a href="index.html">+eyelink</a> &gt; getPreciseTime.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/+pds/+eyelink&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>getPreciseTime
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>pds.eyelink.getPreciseTime    get a rough estimate about the eyelink time</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function out=getPreciseTime(optMinwinThreshold,maxTimeThreshold,syncmode) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">pds.eyelink.getPreciseTime    get a rough estimate about the eyelink time
+
+ This function is meant to be analogous to the PsychDatapixx('getPreciseTime')
+ However the times sr-research provides are already estimates (and bad ones at that)
+ while this is still good for synchronizing the clocks, the third output
+ should be ignored. 
+
+ jk wrote it 2014</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="startTrialPrepare.html" class="code" title="function p = startTrialPrepare(p)">pds.eyelink.startTrialPrepare</a>	pds.eyelink.startTrialPrepare   prepare the next trial</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+</ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function out=getPreciseTime(optMinwinThreshold,maxTimeThreshold,syncmode)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%pds.eyelink.getPreciseTime    get a rough estimate about the eyelink time</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% This function is meant to be analogous to the PsychDatapixx('getPreciseTime')</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% However the times sr-research provides are already estimates (and bad ones at that)</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% while this is still good for synchronizing the clocks, the third output</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% should be ignored.</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">%</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">% jk wrote it 2014</span>
+</div><div id="_line0010" class="line">0010     <span class="keyword">if</span> nargin&lt;3
+</div><div id="_line0011" class="line">0011         syncmode=2;
+</div><div id="_line0012" class="line">0012     <span class="keyword">end</span>
+</div><div id="_line0013" class="line">0013     <span class="keyword">if</span> nargin&lt;2
+</div><div id="_line0014" class="line">0014         maxTimeThreshold=0.5;
+</div><div id="_line0015" class="line">0015     <span class="keyword">end</span>
+</div><div id="_line0016" class="line">0016     <span class="keyword">if</span> nargin&lt;1
+</div><div id="_line0017" class="line">0017         optMinwinThreshold=0;
+</div><div id="_line0018" class="line">0018     <span class="keyword">end</span>
+</div><div id="_line0019" class="line">0019     
+</div><div id="_line0020" class="line">0020     <span class="keyword">if</span> maxTimeThreshold&gt;120
+</div><div id="_line0021" class="line">0021         error(<span class="string">'Pds: Eyelink: getPreciseTime: choose a lower maxTimeThreshold or comment this line out. Your are risking a deadlick since this is running at maximum priority.'</span>)
+</div><div id="_line0022" class="line">0022     <span class="keyword">end</span>
+</div><div id="_line0023" class="line">0023     
+</div><div id="_line0024" class="line">0024     oldPriority=Priority;
+</div><div id="_line0025" class="line">0025     <span class="keyword">if</span> oldPriority &lt; MaxPriority(<span class="string">'GetSecs'</span>)
+</div><div id="_line0026" class="line">0026             Priority(MaxPriority(<span class="string">'GetSecs'</span>));
+</div><div id="_line0027" class="line">0027     <span class="keyword">end</span>
+</div><div id="_line0028" class="line">0028 
+</div><div id="_line0029" class="line">0029     stopTime=GetSecs + maxTimeThreshold;
+</div><div id="_line0030" class="line">0030 
+</div><div id="_line0031" class="line">0031     t=nan(3,1000);
+</div><div id="_line0032" class="line">0032     ic=0;
+</div><div id="_line0033" class="line">0033     minwin=Inf;
+</div><div id="_line0034" class="line">0034     minIdx=0;
+</div><div id="_line0035" class="line">0035     ranOnce=false;
+</div><div id="_line0036" class="line">0036     <span class="keyword">while</span>((GetSecs&lt;stopTime &amp;&amp; minwin&gt;optMinwinThreshold)|| ~ranOnce)
+</div><div id="_line0037" class="line">0037 
+</div><div id="_line0038" class="line">0038         ic=ic+1;
+</div><div id="_line0039" class="line">0039         WaitSecs(rand / 1000);
+</div><div id="_line0040" class="line">0040         t(1,ic)=GetSecs;
+</div><div id="_line0041" class="line">0041         Eyelink(<span class="string">'RequestTime'</span>);
+</div><div id="_line0042" class="line">0042 <span class="comment">%         t(3,ic)=Eyelink('TrackerTime');</span>
+</div><div id="_line0043" class="line">0043         t(2,ic)=GetSecs;
+</div><div id="_line0044" class="line">0044 
+</div><div id="_line0045" class="line">0045         <span class="keyword">while</span> (GetSecs &lt; t(2,ic)+1)
+</div><div id="_line0046" class="line">0046             t(3,ic) = Eyelink(<span class="string">'ReadTime'</span>)/1000;
+</div><div id="_line0047" class="line">0047             <span class="keyword">if</span> t(3,ic)~=0
+</div><div id="_line0048" class="line">0048                 <span class="keyword">break</span>;
+</div><div id="_line0049" class="line">0049             <span class="keyword">end</span>
+</div><div id="_line0050" class="line">0050         <span class="keyword">end</span>
+</div><div id="_line0051" class="line">0051         
+</div><div id="_line0052" class="line">0052         <span class="keyword">if</span> t(2,ic)-t(1,ic) &lt; minwin
+</div><div id="_line0053" class="line">0053             minwin=t(2,ic)-t(1,ic);
+</div><div id="_line0054" class="line">0054             minIdx=ic;
+</div><div id="_line0055" class="line">0055         <span class="keyword">end</span>
+</div><div id="_line0056" class="line">0056         ranOnce=true;
+</div><div id="_line0057" class="line">0057     <span class="keyword">end</span>
+</div><div id="_line0058" class="line">0058 
+</div><div id="_line0059" class="line">0059     <span class="keyword">if</span> Priority ~= oldPriority
+</div><div id="_line0060" class="line">0060             Priority(oldPriority);
+</div><div id="_line0061" class="line">0061     <span class="keyword">end</span>
+</div><div id="_line0062" class="line">0062     
+</div><div id="_line0063" class="line">0063     <span class="comment">%check PsychDataPixx:getPreciseTime for more info</span>
+</div><div id="_line0064" class="line">0064     <span class="keyword">switch</span> syncmode 
+</div><div id="_line0065" class="line">0065         <span class="keyword">case</span> 2          
+</div><div id="_line0066" class="line">0066             getsecs=(t(2,minIdx)+t(1,minIdx))/2;
+</div><div id="_line0067" class="line">0067             trackertime=t(3,minIdx);
+</div><div id="_line0068" class="line">0068             precision=minwin;
+</div><div id="_line0069" class="line">0069         <span class="keyword">case</span> 1
+</div><div id="_line0070" class="line">0070             [~, idx] = min(t(2,:) - t(3,:));
+</div><div id="_line0071" class="line">0071             getsecs = t(2,idx);
+</div><div id="_line0072" class="line">0072             trackertime=t(3,idx);
+</div><div id="_line0073" class="line">0073             precision=t(2,idx)-t(1,idx);
+</div><div id="_line0074" class="line">0074         <span class="keyword">case</span> 0
+</div><div id="_line0075" class="line">0075             [~, idx] = max(t(1,:) - t(3,:));
+</div><div id="_line0076" class="line">0076             getsecs = t(1,idx);
+</div><div id="_line0077" class="line">0077             trackertime=t(3,idx);
+</div><div id="_line0078" class="line">0078             precision=t(2,idx)-t(1,idx);
+</div><div id="_line0079" class="line">0079         <span class="keyword">otherwise</span>
+</div><div id="_line0080" class="line">0080             error(<span class="string">'Pds: Eyelink: getPreciseTime: Unknown timestamping method provided!!'</span>);
+</div><div id="_line0081" class="line">0081     <span class="keyword">end</span>
+</div><div id="_line0082" class="line">0082     
+</div><div id="_line0083" class="line">0083 <span class="comment">%    out=[getsecs trackertime precision];</span>
+</div><div id="_line0084" class="line">0084     out=[getsecs trackertime NaN];
+</div><div id="_line0085" class="line">0085 
+</div><div id="_line0086" class="line">0086     
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of calibrate</title>
+  <meta name="keywords" content="calibrate">
+  <meta name="description" content="pds.eyelink.calibrate    start eyelink calibration routines">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">+pds</a> &gt; <a href="index.html">+eyelink</a> &gt; calibrate.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/+pds/+eyelink&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>calibrate
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>pds.eyelink.calibrate    start eyelink calibration routines</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function p=calibrate(p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">pds.eyelink.calibrate    start eyelink calibration routines
+ dv = pds.eyelink.calibrate(dv)
+
+ USAGE: result=EyelinkDoTrackerSetup(el [, sendkey])
+
+        dv.el: Eyelink default values</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="clearCalDisplay.html" class="code" title="function clearCalDisplay(p)">pds.eyelink.clearCalDisplay</a>	pds.eyelink.clearCalDisplay    clears the display</li><li><a href="targetModeDisplay.html" class="code" title="function result=targetModeDisplay(p)">pds.eyelink.targetModeDisplay</a>	pds.eyelink.targetModeDisplay   set eyelink into target mode</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="clearCalDisplay.html" class="code" title="function clearCalDisplay(p)">pds.eyelink.clearCalDisplay</a>	pds.eyelink.clearCalDisplay    clears the display</li><li><a href="../../../PLDAPS/@pldaps/replay.html" class="code" title="function p = replay(p,input)">@pldaps/replay</a>	replay    replay a previously recorded experiment on screen</li><li><a href="../../../PLDAPS/@pldaps/run.html" class="code" title="function p = run(p)">@pldaps/run</a>	run    run a new experiment for a previuously created pldaps class</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../../Parameters/eyelink/setup/index.html" class="code" title="">.eyelink.setup:</a>	
+        <a href="#_line0064" class="code"}">64 </a>    <a href="#_line0083" class="code"}">83 </a></li><li><a href="../../../Parameters/eyelink/setup/ESC_KEY.html" class="code" title="">.eyelink.setup.ESC_KEY:</a>	
+        <a href="#_line0092" class="code"}">92 </a></li><li><a href="../../../Parameters/eyelink/setup/IN_IMAGE_MODE.html" class="code" title="">.eyelink.setup.IN_IMAGE_MODE:</a>	
+        <a href="#_line0077" class="code"}">77 </a></li><li><a href="../../../Parameters/eyelink/setup/IN_SETUP_MODE.html" class="code" title="">.eyelink.setup.IN_SETUP_MODE:</a>	
+        <a href="#_line0068" class="code"}">68 </a></li><li><a href="../../../Parameters/eyelink/setup/IN_TARGET_MODE.html" class="code" title="">.eyelink.setup.IN_TARGET_MODE:</a>	
+        <a href="#_line0074" class="code"}">74 </a></li><li><a href="../../../Parameters/eyelink/setup/JUNK_KEY.html" class="code" title="">.eyelink.setup.JUNK_KEY:</a>	
+        <a href="#_line0084" class="code"}">84 </a>    <a href="#_line0091" class="code"}">91 </a></li><li><a href="../../../Parameters/eyelink/setup/KB_PRESS.html" class="code" title="">.eyelink.setup.KB_PRESS:</a>	
+        <a href="#_line0097" class="code"}">97 </a></li><li><a href="../../../Parameters/eyelink/setup/TERMINATE_KEY.html" class="code" title="">.eyelink.setup.TERMINATE_KEY:</a>	
+        <a href="#_line0089" class="code"}">89 </a></li><li><a href="../../../Parameters/eyelink/setup/allowlocalcontrol.html" class="code" title="">.eyelink.setup.allowlocalcontrol:</a>	
+        <a href="#_line0096" class="code"}">96 </a></li><li><a href="../../../Parameters/eyelink/setup/waitformodereadytime.html" class="code" title="">.eyelink.setup.waitformodereadytime:</a>	
+        <a href="#_line0059" class="code"}">59 </a>    <a href="#_line0105" class="code"}">105 </a></li><li><a href="../../../Parameters/sound/use.html" class="code" title="toogle use of sound">.sound.use:</a>	
+        <a href="#_line0011" class="code"}">11 </a>toogle use of sound</li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../../Parameters/eyelink/setup/index.html" class="code" title="">.eyelink.setup:</a>
+        <a href="#_line0083" class="code"}">83 </a></li></ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function p=calibrate(p)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%pds.eyelink.calibrate    start eyelink calibration routines</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">% dv = pds.eyelink.calibrate(dv)</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">%</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% USAGE: result=EyelinkDoTrackerSetup(el [, sendkey])</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">%</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">%        dv.el: Eyelink default values</span>
+</div><div id="_line0008" class="line">0008 
+</div><div id="_line0009" class="line">0009 <span class="comment">% 12/12/2013 jly adapted from EyelinkDoTrackerSetup.m</span>
+</div><div id="_line0010" class="line">0010 commandwindow
+</div><div id="_line0011" class="line">0011 <span class="keyword">if</span> p.trial<a href="../../../Parameters/sound/use.html" class="param" title="toogle use of sound">.sound.use</a>
+</div><div id="_line0012" class="line">0012     Beeper
+</div><div id="_line0013" class="line">0013 <span class="keyword">end</span>
+</div><div id="_line0014" class="line">0014 disp(<span class="string">'*************************************'</span>)
+</div><div id="_line0015" class="line">0015 disp(<span class="string">'Beginning Eyelink Toolbox Calibration'</span>)
+</div><div id="_line0016" class="line">0016 disp(<span class="string">'*************************************'</span>)
+</div><div id="_line0017" class="line">0017 
+</div><div id="_line0018" class="line">0018 disp(<span class="string">'Checking if Eyelink is recording'</span>)
+</div><div id="_line0019" class="line">0019 
+</div><div id="_line0020" class="line">0020 
+</div><div id="_line0021" class="line">0021 <span class="keyword">if</span> Eyelink(<span class="string">'CheckRecording'</span>)==0
+</div><div id="_line0022" class="line">0022     disp(<span class="string">'Eyelink is currently recording'</span>);
+</div><div id="_line0023" class="line">0023 <span class="keyword">else</span>
+</div><div id="_line0024" class="line">0024     disp(<span class="string">'Eyelink is not recording. Is it supposed to be'</span>);
+</div><div id="_line0025" class="line">0025 <span class="keyword">end</span>
+</div><div id="_line0026" class="line">0026 
+</div><div id="_line0027" class="line">0027 mytext = <span class="string">'Control Keys are:\rc\tcalibrate mode\rv\tvalidate\rd\tdrift correction\renter\tcamera setup\resc\texit\r'</span>; 
+</div><div id="_line0028" class="line">0028 fprintf(mytext)
+</div><div id="_line0029" class="line">0029 
+</div><div id="_line0030" class="line">0030 <span class="comment">% [nx, ny, textbounds] = DrawFormattedText(dv.disp.pter, mytext, dv.disp.ctr(1), dv.disp.ctr(2));</span>
+</div><div id="_line0031" class="line">0031 
+</div><div id="_line0032" class="line">0032 
+</div><div id="_line0033" class="line">0033 <span class="keyword">if</span> nargin &lt; 1
+</div><div id="_line0034" class="line">0034     error( <span class="string">'USAGE: result=EyelinkDoTrackerSetup(el [,sendkey])'</span> );
+</div><div id="_line0035" class="line">0035 <span class="keyword">end</span>
+</div><div id="_line0036" class="line">0036 ListenChar(2)
+</div><div id="_line0037" class="line">0037 <span class="comment">% if we have the new callback code, we call it.</span>
+</div><div id="_line0038" class="line">0038 <span class="comment">% if ~isempty(dv.el.callback)</span>
+</div><div id="_line0039" class="line">0039 <span class="comment">%     if Eyelink('IsConnected') ~= dv.el.notconnected</span>
+</div><div id="_line0040" class="line">0040 <span class="comment">%         if ~isempty(dv.el.window)</span>
+</div><div id="_line0041" class="line">0041 <span class="comment">%             rect=Screen(dv.el.window,'Rect');</span>
+</div><div id="_line0042" class="line">0042 <span class="comment">%             % make sure we use the correct screen coordinates</span>
+</div><div id="_line0043" class="line">0043 <span class="comment">%             Eyelink('Command', 'screen_pixel_coords = %d %d %d %d',rect(1),rect(2),rect(3)-1,rect(4)-1);</span>
+</div><div id="_line0044" class="line">0044 <span class="comment">%         end</span>
+</div><div id="_line0045" class="line">0045 <span class="comment">%     else</span>
+</div><div id="_line0046" class="line">0046 <span class="comment">%         return</span>
+</div><div id="_line0047" class="line">0047 <span class="comment">%     end</span>
+</div><div id="_line0048" class="line">0048 <span class="comment">%     result = Eyelink( 'StartSetup', 1 );</span>
+</div><div id="_line0049" class="line">0049 <span class="comment">%</span>
+</div><div id="_line0050" class="line">0050 <span class="comment">%     return;</span>
+</div><div id="_line0051" class="line">0051 <span class="comment">% end</span>
+</div><div id="_line0052" class="line">0052 <span class="comment">% else we continue with the old version</span>
+</div><div id="_line0053" class="line">0053 
+</div><div id="_line0054" class="line">0054 <span class="comment">% if Eyelink('CheckRecording')==0</span>
+</div><div id="_line0055" class="line">0055 <span class="comment">%     fprintf('Eyelink is recording')</span>
+</div><div id="_line0056" class="line">0056 
+</div><div id="_line0057" class="line">0057 Eyelink(<span class="string">'Command'</span>, <span class="string">'heuristic_filter = ON'</span>);
+</div><div id="_line0058" class="line">0058 Eyelink( <span class="string">'StartSetup'</span> );        <span class="comment">% start setup mode</span>
+</div><div id="_line0059" class="line">0059 Eyelink( <span class="string">'WaitForModeReady'</span>, p.trial<a href="../../../Parameters/eyelink/setup/waitformodereadytime.html" class="param" title="">.eyelink.setup.waitformodereadytime</a> );  <span class="comment">% time for mode change</span>
+</div><div id="_line0060" class="line">0060 
+</div><div id="_line0061" class="line">0061 
+</div><div id="_line0062" class="line">0062 key=1;
+</div><div id="_line0063" class="line">0063 <span class="keyword">while</span> key~= 0
+</div><div id="_line0064" class="line">0064     key=EyelinkGetKey(p.trial<a href="../../../Parameters/eyelink/setup/index.html" class="param" title="">.eyelink.setup</a>);        <span class="comment">% dump old keys</span>
+</div><div id="_line0065" class="line">0065 <span class="keyword">end</span>
+</div><div id="_line0066" class="line">0066 
+</div><div id="_line0067" class="line">0067 stop=0;
+</div><div id="_line0068" class="line">0068 <span class="keyword">while</span> stop==0 &amp;&amp; bitand(Eyelink( <span class="string">'CurrentMode'</span>), p.trial<a href="../../../Parameters/eyelink/setup/IN_SETUP_MODE.html" class="param" title="">.eyelink.setup.IN_SETUP_MODE</a>)
+</div><div id="_line0069" class="line">0069     
+</div><div id="_line0070" class="line">0070     i=Eyelink( <span class="string">'CurrentMode'</span>);
+</div><div id="_line0071" class="line">0071     
+</div><div id="_line0072" class="line">0072     <span class="keyword">if</span> ~Eyelink( <span class="string">'IsConnected'</span> ), stop=1; <span class="keyword">end</span>;
+</div><div id="_line0073" class="line">0073     
+</div><div id="_line0074" class="line">0074     <span class="keyword">if</span> bitand(i, p.trial<a href="../../../Parameters/eyelink/setup/IN_TARGET_MODE.html" class="param" title="">.eyelink.setup.IN_TARGET_MODE</a>)            <span class="comment">% calibrate, validate, etc: show targets</span>
+</div><div id="_line0075" class="line">0075         fprintf (<span class="string">'%s\n'</span>, <span class="string">'dotrackersetup: in targetmodedisplay'</span> );
+</div><div id="_line0076" class="line">0076         <a href="pds.eyelink.targetModeDisplay.html" class="code" title="function result=targetModeDisplay(p)">pds.eyelink.targetModeDisplay</a>(p);
+</div><div id="_line0077" class="line">0077     <span class="keyword">elseif</span> bitand(i, p.trial<a href="../../../Parameters/eyelink/setup/IN_IMAGE_MODE.html" class="param" title="">.eyelink.setup.IN_IMAGE_MODE</a>)        <span class="comment">% display image until we're back</span>
+</div><div id="_line0078" class="line">0078         fprintf (<span class="string">'%s\n'</span>, <span class="string">'EyelinkDoTrackerSetup: in ''ImageModeDisplay'''</span> );
+</div><div id="_line0079" class="line">0079         <a href="pds.eyelink.clearCalDisplay.html" class="code" title="function clearCalDisplay(p)">pds.eyelink.clearCalDisplay</a>(p);    <span class="comment">% setup_cal_display()</span>
+</div><div id="_line0080" class="line">0080         
+</div><div id="_line0081" class="line">0081     <span class="keyword">end</span>
+</div><div id="_line0082" class="line">0082     
+</div><div id="_line0083" class="line">0083     [key, p.trial<a href="../../../Parameters/eyelink/setup/index.html" class="param" title="">.eyelink.setup</a>]=EyelinkGetKey(p.trial<a href="../../../Parameters/eyelink/setup/index.html" class="param" title="">.eyelink.setup</a>);        <span class="comment">% getkey() HANDLE LOCAL KEY PRESS</span>
+</div><div id="_line0084" class="line">0084     <span class="keyword">if</span> 1 &amp;&amp; key~=0 &amp;&amp; key~=p.trial<a href="../../../Parameters/eyelink/setup/JUNK_KEY.html" class="param" title="">.eyelink.setup.JUNK_KEY</a>    <span class="comment">% print pressed key codes and chars</span>
+</div><div id="_line0085" class="line">0085         fprintf(<span class="string">'%d\t%s\n'</span>, key, char(key) );
+</div><div id="_line0086" class="line">0086     <span class="keyword">end</span>
+</div><div id="_line0087" class="line">0087     
+</div><div id="_line0088" class="line">0088     <span class="keyword">switch</span> key
+</div><div id="_line0089" class="line">0089         <span class="keyword">case</span> p.trial<a href="../../../Parameters/eyelink/setup/TERMINATE_KEY.html" class="param" title="">.eyelink.setup.TERMINATE_KEY</a>,                <span class="comment">% breakout key code</span>
+</div><div id="_line0090" class="line">0090             <span class="keyword">return</span>;
+</div><div id="_line0091" class="line">0091         <span class="keyword">case</span> { 0, p.trial<a href="../../../Parameters/eyelink/setup/JUNK_KEY.html" class="param" title="">.eyelink.setup.JUNK_KEY</a> }          <span class="comment">% No or uninterpretable key</span>
+</div><div id="_line0092" class="line">0092         <span class="keyword">case</span> p.trial<a href="../../../Parameters/eyelink/setup/ESC_KEY.html" class="param" title="">.eyelink.setup.ESC_KEY</a>,
+</div><div id="_line0093" class="line">0093             stop = 1;
+</div><div id="_line0094" class="line">0094             <span class="comment">% add reward somehow</span>
+</div><div id="_line0095" class="line">0095         <span class="keyword">otherwise</span>,         <span class="comment">% Echo to tracker for remote control</span>
+</div><div id="_line0096" class="line">0096             <span class="keyword">if</span> p.trial<a href="../../../Parameters/eyelink/setup/allowlocalcontrol.html" class="param" title="">.eyelink.setup.allowlocalcontrol</a>==1
+</div><div id="_line0097" class="line">0097                 Eyelink(<span class="string">'SendKeyButton'</span>, double(key), 0, p.trial<a href="../../../Parameters/eyelink/setup/KB_PRESS.html" class="param" title="">.eyelink.setup.KB_PRESS</a> );
+</div><div id="_line0098" class="line">0098             <span class="keyword">end</span>
+</div><div id="_line0099" class="line">0099     <span class="keyword">end</span>
+</div><div id="_line0100" class="line">0100 <span class="keyword">end</span> <span class="comment">% while IN_SETUP_MODE</span>
+</div><div id="_line0101" class="line">0101 
+</div><div id="_line0102" class="line">0102 <a href="pds.eyelink.clearCalDisplay.html" class="code" title="function clearCalDisplay(p)">pds.eyelink.clearCalDisplay</a>(p);    <span class="comment">% exit_cal_display()</span>
+</div><div id="_line0103" class="line">0103 <span class="comment">% dv = pds.eyelink.setup(dv);</span>
+</div><div id="_line0104" class="line">0104 Eyelink(<span class="string">'StartRecording'</span>);
+</div><div id="_line0105" class="line">0105 Eyelink( <span class="string">'WaitForModeReady'</span>, p.trial<a href="../../../Parameters/eyelink/setup/waitformodereadytime.html" class="param" title="">.eyelink.setup.waitformodereadytime</a> );  <span class="comment">% time for mode change</span>
+</div><div id="_line0106" class="line">0106     
+</div><div id="_line0107" class="line">0107 ListenChar(0)
+</div><div id="_line0108" class="line">0108 ShowCursor
+</div><div id="_line0109" class="line">0109 <span class="keyword">return</span>;
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

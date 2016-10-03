@@ -1,0 +1,640 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of params</title>
+  <meta name="keywords" content="params">
+  <meta name="description" content="PARAMS    A hierarchical parameter handling class">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">PLDAPS</a> &gt; <a href="index.html">@params</a> &gt; params.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/@params&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>params
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>PARAMS    A hierarchical parameter handling class</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function p=params(s,sN,active) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">PARAMS    A hierarchical parameter handling class
+ PARAMS takes a cell array of strucs and a cell array of names and
+ organized it so that you can access a parameter that is defined in any of
+ those structs. If a parameter is defined in more than one struct, the
+ value of the struct with the higher index is used.
+ The hierarchy levels can be limited by calling PARAMS.setLevels.
+ New levels can be added using PARAMS.addLevels
+ Since performance is not sufficient for high demand scenarios as many
+ psychphysical experiments, the paraneters often have to be merged to a
+ single struct for use during a trial with PARAMS.mergeToSingleStruct
+ Use PARAMS.getDifferenceFromStruct to get a struct that only hold changes
+ made to a perviously obtained merged single struct.
+ PARAMS.view opens a gui for visualization and editing of the parameters</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="structviewer.html" class="code" title="function varargout = structviewer(varargin)">@params/structviewer</a>	structviewer Application M-file for structviewer.fig</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../PLDAPS/@pldaps/pldaps.html" class="code" title="function p = pldaps(varargin)">@pldaps/pldaps</a>	pldaps    main class for PLDAPS (Plexon Datapixx PsychToolbox) version 4.1</li><li><a href="../../PLDAPS/@pldaps/replay.html" class="code" title="function p = replay(p,input)">@pldaps/replay</a>	replay    replay a previously recorded experiment on screen</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+</ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">params</a></li><li><a href="#_sub2" class="code">fieldnames</a></li><li><a href="#_sub3" class="code">properties</a></li><li><a href="#_sub4" class="code">disp</a></li><li><a href="#_sub5" class="code">addStructs</a></li><li><a href="#_sub6" class="code">addLevels</a></li><li><a href="#_sub7" class="code">addNewStruct</a></li><li><a href="#_sub8" class="code">isField</a></li><li><a href="#_sub9" class="code">setLevels</a></li><li><a href="#_sub10" class="code">getAllLevels</a></li><li><a href="#_sub11" class="code">getAllStructs</a></li><li><a href="#_sub12" class="code">addField</a></li><li><a href="#_sub13" class="code">getParameter</a></li><li><a href="#_sub14" class="code">view</a></li><li><a href="#_sub15" class="code">setLock</a></li><li><a href="#_sub16" class="code">subsref</a></li><li><a href="#_sub17" class="code">subsasgn</a></li><li><a href="#_sub18" class="code">mergeToSingleStruct</a></li><li><a href="#_sub19" class="code">getDifferenceFromStruct</a></li><li><a href="#_sub20" class="code">valueString</a></li><li><a href="#_sub21" class="code">getNextStructLevel</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">classdef params &lt; handle</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%PARAMS    A hierarchical parameter handling class</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">% PARAMS takes a cell array of strucs and a cell array of names and</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% organized it so that you can access a parameter that is defined in any of</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% those structs. If a parameter is defined in more than one struct, the</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% value of the struct with the higher index is used.</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% The hierarchy levels can be limited by calling PARAMS.setLevels.</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">% New levels can be added using PARAMS.addLevels</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">% Since performance is not sufficient for high demand scenarios as many</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">% psychphysical experiments, the paraneters often have to be merged to a</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">% single struct for use during a trial with PARAMS.mergeToSingleStruct</span>
+</div><div id="_line0012" class="line">0012 <span class="comment">% Use PARAMS.getDifferenceFromStruct to get a struct that only hold changes</span>
+</div><div id="_line0013" class="line">0013 <span class="comment">% made to a perviously obtained merged single struct.</span>
+</div><div id="_line0014" class="line">0014 <span class="comment">% PARAMS.view opens a gui for visualization and editing of the parameters</span>
+</div><div id="_line0015" class="line">0015 
+</div><div id="_line0016" class="line">0016  
+</div><div id="_line0017" class="line">0017     <a href="#_sub3" class="code" title="subproperties">properties</a>
+</div><div id="_line0018" class="line">0018         structs
+</div><div id="_line0019" class="line">0019         structNames
+</div><div id="_line0020" class="line">0020         activeLevels
+</div><div id="_line0021" class="line">0021         topLevel
+</div><div id="_line0022" class="line">0022                       
+</div><div id="_line0023" class="line">0023         flatStruct
+</div><div id="_line0024" class="line">0024         locked
+</div><div id="_line0025" class="line">0025         
+</div><div id="_line0026" class="line">0026         MethodsList
+</div><div id="_line0027" class="line">0027         
+</div><div id="_line0028" class="line">0028         Snew1
+</div><div id="_line0029" class="line">0029     <span class="keyword">end</span>
+</div><div id="_line0030" class="line">0030     
+</div><div id="_line0031" class="line">0031     methods 
+</div><div id="_line0032" class="line">0032 
+</div><div id="_line0033" class="line">0033         <span class="comment">%% start new functions for new approach</span>
+</div><div id="_line0034" class="line">0034         <a name="_sub1" href="#_subfunctions" class="code">function p=params(s,sN,active)</a>
+</div><div id="_line0035" class="line">0035             <span class="keyword">if</span> nargin&lt;2
+</div><div id="_line0036" class="line">0036                 sN=cellfun(@(x) sprintf(<span class="string">'level%i'</span>,x),num2cell(1:length(s)),<span class="string">'UniformOutput'</span>,false);
+</div><div id="_line0037" class="line">0037             <span class="keyword">end</span>
+</div><div id="_line0038" class="line">0038             <span class="keyword">if</span> nargin&lt;3
+</div><div id="_line0039" class="line">0039                 active=true(1,length(s));
+</div><div id="_line0040" class="line">0040             <span class="keyword">end</span>
+</div><div id="_line0041" class="line">0041             p=<a href="#_sub5" class="code" title="subaddStructs">addStructs</a>(p,s,sN,active);
+</div><div id="_line0042" class="line">0042  
+</div><div id="_line0043" class="line">0043             p.MethodsList={<span class="string">'view'</span>, <span class="string">'setLevels'</span>,<span class="string">'getAllLevels'</span>, <span class="string">'mergeToSingleStruct'</span>,<span class="string">'getDifferenceFromStruct'</span>,<span class="string">'addLevels'</span>,<span class="string">'addStructs'</span>,<span class="string">'addNewStruct'</span>, <span class="string">'getAllStructs'</span>,<span class="string">'setLock'</span>,<span class="string">'getParameter'</span>,<span class="string">'fieldnames'</span>};
+</div><div id="_line0044" class="line">0044             p.Snew1= substruct(<span class="string">'.'</span>,<span class="string">'structs'</span>,<span class="string">'{}'</span>, {NaN});
+</div><div id="_line0045" class="line">0045         <span class="keyword">end</span> <span class="comment">%params(s,sN)</span>
+</div><div id="_line0046" class="line">0046         
+</div><div id="_line0047" class="line">0047         <span class="comment">% Overload fieldnames retrieval</span>
+</div><div id="_line0048" class="line">0048         <a name="_sub2" href="#_subfunctions" class="code">function names = fieldnames(p) </a>
+</div><div id="_line0049" class="line">0049             activeFields=cellfun(@(x) any(ismember(find(p.activeLevels),x)), {p.flatStruct.hierarchyLevels});
+</div><div id="_line0050" class="line">0050             names={p.flatStruct(cellfun(@length,{p.flatStruct(activeFields).parentLevels})==1).identifier};
+</div><div id="_line0051" class="line">0051             names=cellfun(@(x) x(2:end),names,<span class="string">'UniformOutput'</span>,false);
+</div><div id="_line0052" class="line">0052         <span class="keyword">end</span>
+</div><div id="_line0053" class="line">0053         
+</div><div id="_line0054" class="line">0054         <a name="_sub3" href="#_subfunctions" class="code">function names = properties(p) </a>
+</div><div id="_line0055" class="line">0055             names = <a href="#_sub2" class="code" title="subfieldnames">fieldnames</a>(p);
+</div><div id="_line0056" class="line">0056         <span class="keyword">end</span>
+</div><div id="_line0057" class="line">0057             
+</div><div id="_line0058" class="line">0058         <a name="_sub4" href="#_subfunctions" class="code">function disp(p)</a>
+</div><div id="_line0059" class="line">0059             builtin(<span class="string">'disp'</span>,p);
+</div><div id="_line0060" class="line">0060             
+</div><div id="_line0061" class="line">0061             fprintf(<span class="string">'    with public methods:\n'</span>)
+</div><div id="_line0062" class="line">0062             fprintf(<span class="string">'\t%s\n'</span>,p.MethodsList{:});
+</div><div id="_line0063" class="line">0063             
+</div><div id="_line0064" class="line">0064             fprintf(<span class="string">'\n'</span>);
+</div><div id="_line0065" class="line">0065             names=<a href="#_sub2" class="code" title="subfieldnames">fieldnames</a>(p);
+</div><div id="_line0066" class="line">0066             fprintf(<span class="string">'    with fieldnames:\n'</span>);
+</div><div id="_line0067" class="line">0067             fprintf(<span class="string">'\t%s\n'</span>,names{:});
+</div><div id="_line0068" class="line">0068         <span class="keyword">end</span>
+</div><div id="_line0069" class="line">0069         
+</div><div id="_line0070" class="line">0070         <a name="_sub5" href="#_subfunctions" class="code">function p=addStructs(p,s,sN,active)</a>
+</div><div id="_line0071" class="line">0071             <span class="keyword">if</span> nargin&lt;3
+</div><div id="_line0072" class="line">0072                 sN=cellfun(@(x) sprintf(<span class="string">'level%i'</span>,x),num2cell(1:length(s)),<span class="string">'UniformOutput'</span>,false);
+</div><div id="_line0073" class="line">0073             <span class="keyword">end</span>
+</div><div id="_line0074" class="line">0074             <span class="keyword">if</span> nargin&lt;4
+</div><div id="_line0075" class="line">0075                 active=true(1,length(s));
+</div><div id="_line0076" class="line">0076             <span class="keyword">elseif</span> length(active)==1
+</div><div id="_line0077" class="line">0077                 <span class="keyword">if</span>(active)
+</div><div id="_line0078" class="line">0078                     active=true(1,length(s));
+</div><div id="_line0079" class="line">0079                 <span class="keyword">else</span>
+</div><div id="_line0080" class="line">0080                     active=false(1,length(s));
+</div><div id="_line0081" class="line">0081                 <span class="keyword">end</span>
+</div><div id="_line0082" class="line">0082             <span class="keyword">else</span>
+</div><div id="_line0083" class="line">0083                 active=~~active;
+</div><div id="_line0084" class="line">0084             <span class="keyword">end</span>
+</div><div id="_line0085" class="line">0085             
+</div><div id="_line0086" class="line">0086             <span class="keyword">for</span> iStruct=1:length(s)
+</div><div id="_line0087" class="line">0087                 p = <a href="#_sub7" class="code" title="subaddNewStruct">addNewStruct</a>(p,s{iStruct},sN{iStruct},active(iStruct));
+</div><div id="_line0088" class="line">0088             <span class="keyword">end</span>
+</div><div id="_line0089" class="line">0089         <span class="keyword">end</span>
+</div><div id="_line0090" class="line">0090         
+</div><div id="_line0091" class="line">0091         <a name="_sub6" href="#_subfunctions" class="code">function p=addLevels(varargin)</a>
+</div><div id="_line0092" class="line">0092             p=<a href="#_sub5" class="code" title="subaddStructs">addStructs</a>(varargin{:});
+</div><div id="_line0093" class="line">0093         <span class="keyword">end</span> <span class="comment">%p=addLevels(p,s,sN,active)</span>
+</div><div id="_line0094" class="line">0094         
+</div><div id="_line0095" class="line">0095         <a name="_sub7" href="#_subfunctions" class="code">function p=addNewStruct(p,newStruct,newStructName,makeActive)</a>
+</div><div id="_line0096" class="line">0096            <span class="comment">%first get at flat version of that Struct</span>
+</div><div id="_line0097" class="line">0097             levelNr=length(p.structs)+1;
+</div><div id="_line0098" class="line">0098             fs=p.getNextStructLevel(newStruct,{},[]);
+</div><div id="_line0099" class="line">0099             id=cellfun(@(x) sprintf(<span class="string">'.%s'</span>,x{:}), {fs.parentLevels}, <span class="string">'UniformOutput'</span>, false);   
+</div><div id="_line0100" class="line">0100             [fs.identifier]=deal(id{:});
+</div><div id="_line0101" class="line">0101             [fs.hierarchyLevels]=deal(levelNr);
+</div><div id="_line0102" class="line">0102             
+</div><div id="_line0103" class="line">0103             <span class="comment">%now merge with the current masterFlatStruct:</span>
+</div><div id="_line0104" class="line">0104             <span class="keyword">if</span>(isempty(p.flatStruct))
+</div><div id="_line0105" class="line">0105                 p.flatStruct=fs;
+</div><div id="_line0106" class="line">0106             <span class="keyword">else</span>
+</div><div id="_line0107" class="line">0107                 <span class="comment">%1: find the ones that are overruled (and newly defined (overruled==0</span>
+</div><div id="_line0108" class="line">0108                 <span class="comment">%&amp;overrluledPos==0</span>
+</div><div id="_line0109" class="line">0109                 [overruled, overruledPos]=ismember({fs.identifier},{p.flatStruct.identifier});
+</div><div id="_line0110" class="line">0110                 
+</div><div id="_line0111" class="line">0111                  nFields=length(fs);
+</div><div id="_line0112" class="line">0112                  <span class="keyword">for</span> iField=1:nFields
+</div><div id="_line0113" class="line">0113                     <span class="keyword">if</span>(overruled(iField))
+</div><div id="_line0114" class="line">0114                         p.flatStruct(overruledPos(iField)).hierarchyLevels(end+1) = levelNr; 
+</div><div id="_line0115" class="line">0115                     <span class="keyword">else</span>
+</div><div id="_line0116" class="line">0116                         p.flatStruct(end+1)=fs(iField);
+</div><div id="_line0117" class="line">0117                     <span class="keyword">end</span>
+</div><div id="_line0118" class="line">0118                  <span class="keyword">end</span>
+</div><div id="_line0119" class="line">0119             <span class="keyword">end</span>
+</div><div id="_line0120" class="line">0120             
+</div><div id="_line0121" class="line">0121             p.structs{end+1}=newStruct;
+</div><div id="_line0122" class="line">0122             p.structNames{end+1}=newStructName;
+</div><div id="_line0123" class="line">0123             p.activeLevels(end+1)=makeActive;
+</div><div id="_line0124" class="line">0124             p.activeLevels=~~p.activeLevels;
+</div><div id="_line0125" class="line">0125             p.topLevel=find(p.activeLevels, 1, <span class="string">'last'</span>);
+</div><div id="_line0126" class="line">0126         <span class="keyword">end</span>
+</div><div id="_line0127" class="line">0127         
+</div><div id="_line0128" class="line">0128         <a name="_sub8" href="#_subfunctions" class="code">function is = isField(p,fieldname)</a>
+</div><div id="_line0129" class="line">0129             <span class="keyword">if</span>(fieldname(1)~=<span class="string">'.'</span>)
+</div><div id="_line0130" class="line">0130                 fieldname=[<span class="string">'.'</span> fieldname];
+</div><div id="_line0131" class="line">0131             <span class="keyword">end</span>
+</div><div id="_line0132" class="line">0132             
+</div><div id="_line0133" class="line">0133             is = ismember(fieldname,{p.flatStruct.identifier});
+</div><div id="_line0134" class="line">0134         <span class="keyword">end</span>
+</div><div id="_line0135" class="line">0135         
+</div><div id="_line0136" class="line">0136         <span class="comment">%TODO: if we allow dirty structs, we need to cosolidate....</span>
+</div><div id="_line0137" class="line">0137         <a name="_sub9" href="#_subfunctions" class="code">function p = setLevels(p,value)</a>
+</div><div id="_line0138" class="line">0138             <span class="keyword">if</span> islogical(value)
+</div><div id="_line0139" class="line">0139                 <span class="keyword">if</span> length(value)==length(p.structs) 
+</div><div id="_line0140" class="line">0140                     p.activeLevels=value;
+</div><div id="_line0141" class="line">0141                 <span class="keyword">end</span>
+</div><div id="_line0142" class="line">0142             <span class="keyword">elseif</span> length(value)&lt;length(p.structs)+1 &amp;&amp; max(value)&lt;=length(p.structs)
+</div><div id="_line0143" class="line">0143                 p.activeLevels(:)=false;
+</div><div id="_line0144" class="line">0144                 p.activeLevels(value)=true;
+</div><div id="_line0145" class="line">0145             <span class="keyword">end</span>          
+</div><div id="_line0146" class="line">0146             p.topLevel=find(p.activeLevels, 1, <span class="string">'last'</span>);
+</div><div id="_line0147" class="line">0147         <span class="keyword">end</span>
+</div><div id="_line0148" class="line">0148         
+</div><div id="_line0149" class="line">0149         <a name="_sub10" href="#_subfunctions" class="code">function l = getAllLevels(p)</a>
+</div><div id="_line0150" class="line">0150             l=1:length(p.structs);
+</div><div id="_line0151" class="line">0151         <span class="keyword">end</span>
+</div><div id="_line0152" class="line">0152         
+</div><div id="_line0153" class="line">0153         <a name="_sub11" href="#_subfunctions" class="code">function [s, sN, active] = getAllStructs(p)</a>
+</div><div id="_line0154" class="line">0154             s=p.structs;
+</div><div id="_line0155" class="line">0155             sN=p.structNames;
+</div><div id="_line0156" class="line">0156             active=p.activeLevels;
+</div><div id="_line0157" class="line">0157         <span class="keyword">end</span>
+</div><div id="_line0158" class="line">0158         
+</div><div id="_line0159" class="line">0159         <a name="_sub12" href="#_subfunctions" class="code">function p = addField(p,id,value,levelNr) </a>
+</div><div id="_line0160" class="line">0160             <span class="comment">%most ineficient way ever: but we are not planning on running</span>
+</div><div id="_line0161" class="line">0161             <span class="comment">%this during a trial (for now)</span>
+</div><div id="_line0162" class="line">0162             <span class="keyword">if</span> nargin&lt;4
+</div><div id="_line0163" class="line">0163                 levelNr=p.topLevel;
+</div><div id="_line0164" class="line">0164             <span class="keyword">end</span>
+</div><div id="_line0165" class="line">0165             
+</div><div id="_line0166" class="line">0166             parentLevels=textscan(id,<span class="string">'%s'</span>,<span class="string">'delimiter'</span>,<span class="string">'.'</span>);
+</div><div id="_line0167" class="line">0167             parentLevels=parentLevels{1}(2:end);
+</div><div id="_line0168" class="line">0168             <span class="comment">%assign the value, could probably use subsref of struct</span>
+</div><div id="_line0169" class="line">0169             <span class="comment">%instead.</span>
+</div><div id="_line0170" class="line">0170             Spartial=p.Snew1(ones(1,length(parentLevels)));
+</div><div id="_line0171" class="line">0171             [Spartial.subs]=deal(parentLevels{:});
+</div><div id="_line0172" class="line">0172             S=[p.Snew1 Spartial];
+</div><div id="_line0173" class="line">0173             S(2).subs={levelNr};
+</div><div id="_line0174" class="line">0174             [~]=builtin(<span class="string">'subsasgn'</span>,p,S,value);
+</div><div id="_line0175" class="line">0175             
+</div><div id="_line0176" class="line">0176             <span class="keyword">if</span> isstruct(value) <span class="comment">%need to flatten that.</span>
+</div><div id="_line0177" class="line">0177                 addFlatStruct=p.getNextStructLevel(tmp,parentLevels,[]);
+</div><div id="_line0178" class="line">0178                 id=cellfun(@(x) sprintf(<span class="string">'.%s'</span>,x{:}), {addFlatStruct.parentLevels}, <span class="string">'UniformOutput'</span>, false);   
+</div><div id="_line0179" class="line">0179                 [addFlatStruct.identifier]=deal(id{:});
+</div><div id="_line0180" class="line">0180                 [addFlatStruct.hierarchyLevels]=levelNr;
+</div><div id="_line0181" class="line">0181             
+</div><div id="_line0182" class="line">0182                 [overruled, overruledPos]=ismember({addFlatStruct.identifier},{p.flatStruct.identifier});
+</div><div id="_line0183" class="line">0183                 
+</div><div id="_line0184" class="line">0184                 nFields=length(addFlatStruct);
+</div><div id="_line0185" class="line">0185                 <span class="keyword">for</span> iField=1:nFields
+</div><div id="_line0186" class="line">0186                     <span class="keyword">if</span> overruled(iField)
+</div><div id="_line0187" class="line">0187                         <span class="keyword">if</span> ~any(p.flatStruct(overruledPos(iField)).hierarchyLevels==levelNr) 
+</div><div id="_line0188" class="line">0188                             p.flatStruct(overruledPos(iField)).hierarchyLevels(end+1) = levelNr; 
+</div><div id="_line0189" class="line">0189                         <span class="keyword">end</span>
+</div><div id="_line0190" class="line">0190                     <span class="keyword">else</span>
+</div><div id="_line0191" class="line">0191                         p.flatStruct(end+1)=addFlatStruct(iField);
+</div><div id="_line0192" class="line">0192                     <span class="keyword">end</span>
+</div><div id="_line0193" class="line">0193                 <span class="keyword">end</span>
+</div><div id="_line0194" class="line">0194                 
+</div><div id="_line0195" class="line">0195             <span class="keyword">else</span> <span class="comment">%simpler...but maybe not worth it</span>
+</div><div id="_line0196" class="line">0196                 [overruled, overruledPos]=ismember(id,{p.flatStruct.identifier});
+</div><div id="_line0197" class="line">0197                 <span class="keyword">if</span> overruled 
+</div><div id="_line0198" class="line">0198                     <span class="keyword">if</span> ~any(p.flatStruct(overruledPos).hierarchyLevels==levelNr) 
+</div><div id="_line0199" class="line">0199                         p.flatStruct(overruledPos).hierarchyLevels(end+1)=levelNr;
+</div><div id="_line0200" class="line">0200                     <span class="keyword">end</span>
+</div><div id="_line0201" class="line">0201                 <span class="keyword">else</span>
+</div><div id="_line0202" class="line">0202                     addFlatStruct.parentLevels=textscan(id,<span class="string">'%s'</span>,<span class="string">'delimiter'</span>,<span class="string">'.'</span>);
+</div><div id="_line0203" class="line">0203                     addFlatStruct.parentLevels=addFlatStruct.parentLevels{1}(2:end);
+</div><div id="_line0204" class="line">0204                     
+</div><div id="_line0205" class="line">0205                     addFlatStruct.isNode=false;
+</div><div id="_line0206" class="line">0206                     addFlatStruct.identifier=id;
+</div><div id="_line0207" class="line">0207                     addFlatStruct.hierarchyLevels=levelNr;
+</div><div id="_line0208" class="line">0208                     p.flatStruct(end+1) = addFlatStruct;
+</div><div id="_line0209" class="line">0209                 <span class="keyword">end</span>                
+</div><div id="_line0210" class="line">0210             <span class="keyword">end</span>
+</div><div id="_line0211" class="line">0211         <span class="keyword">end</span>
+</div><div id="_line0212" class="line">0212         
+</div><div id="_line0213" class="line">0213         <a name="_sub13" href="#_subfunctions" class="code">function varargout =getParameter(p,id,levelNr)</a>
+</div><div id="_line0214" class="line">0214             parentLevels=textscan(id,<span class="string">'%s'</span>,<span class="string">'delimiter'</span>,<span class="string">'.'</span>);
+</div><div id="_line0215" class="line">0215             parentLevels=parentLevels{1}(2:end);
+</div><div id="_line0216" class="line">0216 
+</div><div id="_line0217" class="line">0217             Spartial=p.Snew1(ones(1,length(parentLevels)));
+</div><div id="_line0218" class="line">0218             [Spartial.subs]=deal(parentLevels{:});
+</div><div id="_line0219" class="line">0219 
+</div><div id="_line0220" class="line">0220             <span class="keyword">if</span> nargin&lt;3 <span class="comment">%from the merged dataset</span>
+</div><div id="_line0221" class="line">0221                 [varargout{1:nargout}] = <a href="#_sub16" class="code" title="subsubsref">subsref</a>(p,Spartial);
+</div><div id="_line0222" class="line">0222             <span class="keyword">else</span>
+</div><div id="_line0223" class="line">0223                 S=[p.Snew1 Spartial];
+</div><div id="_line0224" class="line">0224                 S(2).subs={levelNr};
+</div><div id="_line0225" class="line">0225                 [varargout{1:nargout}] = builtin(<span class="string">'subsref'</span>,p, S);
+</div><div id="_line0226" class="line">0226             <span class="keyword">end</span>
+</div><div id="_line0227" class="line">0227         <span class="keyword">end</span>
+</div><div id="_line0228" class="line">0228         
+</div><div id="_line0229" class="line">0229         <span class="comment">%% end new functions for new approach</span>
+</div><div id="_line0230" class="line">0230         
+</div><div id="_line0231" class="line">0231         <a name="_sub14" href="#_subfunctions" class="code">function view(p)</a>
+</div><div id="_line0232" class="line">0232            p.structviewer(p);
+</div><div id="_line0233" class="line">0233         <span class="keyword">end</span>
+</div><div id="_line0234" class="line">0234 
+</div><div id="_line0235" class="line">0235         <a name="_sub15" href="#_subfunctions" class="code">function setLock(p,lock)</a>
+</div><div id="_line0236" class="line">0236            p.locked = lock;
+</div><div id="_line0237" class="line">0237         <span class="keyword">end</span>
+</div><div id="_line0238" class="line">0238         
+</div><div id="_line0239" class="line">0239         <a name="_sub16" href="#_subfunctions" class="code">function varargout = subsref(p,S)</a>
+</div><div id="_line0240" class="line">0240             <span class="keyword">if</span>(p.locked)
+</div><div id="_line0241" class="line">0241                 <span class="keyword">if</span> ~strcmp(S(1).type,<span class="string">'.'</span>) || ~strcmp(S(1).subs,<span class="string">'setLock'</span>)
+</div><div id="_line0242" class="line">0242                    error(<span class="string">'params:subsref'</span>,<span class="string">'params class was locked using setLock(true). Unlock by calling setLock(false) first'</span>); 
+</div><div id="_line0243" class="line">0243                 <span class="keyword">end</span>   
+</div><div id="_line0244" class="line">0244             <span class="keyword">end</span>
+</div><div id="_line0245" class="line">0245             
+</div><div id="_line0246" class="line">0246             <span class="keyword">switch</span> S(1).type
+</div><div id="_line0247" class="line">0247                 <span class="keyword">case</span> <span class="string">'.'</span>
+</div><div id="_line0248" class="line">0248                    <span class="keyword">if</span> any(strcmp(S(1).subs,p.MethodsList))
+</div><div id="_line0249" class="line">0249                         <span class="comment">% Enable dot notation for some functions</span>
+</div><div id="_line0250" class="line">0250                         <span class="keyword">if</span>(nargout==0)
+</div><div id="_line0251" class="line">0251                             builtin(<span class="string">'subsref'</span>,p,S);
+</div><div id="_line0252" class="line">0252                         <span class="keyword">else</span>   
+</div><div id="_line0253" class="line">0253                             [varargout{1:nargout}] = builtin(<span class="string">'subsref'</span>,p,S);<span class="comment">%p.(S.subs);</span>
+</div><div id="_line0254" class="line">0254                         <span class="keyword">end</span>
+</div><div id="_line0255" class="line">0255                    <span class="keyword">else</span>
+</div><div id="_line0256" class="line">0256                         dotNr=find(diff(strcmp({S.type}, <span class="string">'.'</span>))==-1);
+</div><div id="_line0257" class="line">0257                         <span class="keyword">if</span> isempty(dotNr) <span class="comment">% no -1, means only '.' in there</span>
+</div><div id="_line0258" class="line">0258                             dotNr=length(S);
+</div><div id="_line0259" class="line">0259                             allDots=true;
+</div><div id="_line0260" class="line">0260                         <span class="keyword">else</span>
+</div><div id="_line0261" class="line">0261                             allDots=false;
+</div><div id="_line0262" class="line">0262                         <span class="keyword">end</span>
+</div><div id="_line0263" class="line">0263                         k={S(1:dotNr).type; S(1:dotNr).subs};
+</div><div id="_line0264" class="line">0264                         id=[k{:}];
+</div><div id="_line0265" class="line">0265                         
+</div><div id="_line0266" class="line">0266                         parts_inds=find(strncmp({p.flatStruct.identifier},id,length(id)));
+</div><div id="_line0267" class="line">0267                         length_ids=cellfun(@length,{p.flatStruct(parts_inds).identifier})==length(id);
+</div><div id="_line0268" class="line">0268                         length_ids(~length_ids)=cellfun(@(x) x(length(id)+1)==<span class="string">'.'</span>,{p.flatStruct(parts_inds(~length_ids)).identifier});
+</div><div id="_line0269" class="line">0269                         parts_inds=parts_inds(length_ids);
+</div><div id="_line0270" class="line">0270                         
+</div><div id="_line0271" class="line">0271                         levels={p.flatStruct(parts_inds).hierarchyLevels};
+</div><div id="_line0272" class="line">0272                         alevels=cellfun(@(x) any(x(p.activeLevels(x))),levels);
+</div><div id="_line0273" class="line">0273                         
+</div><div id="_line0274" class="line">0274                         levels=levels(alevels);
+</div><div id="_line0275" class="line">0275                         parts_inds=parts_inds(alevels);
+</div><div id="_line0276" class="line">0276                         
+</div><div id="_line0277" class="line">0277                         level_index=cellfun(@(x) max(x(p.activeLevels(x))),levels);
+</div><div id="_line0278" class="line">0278                         nodes=[p.flatStruct(parts_inds).isNode];
+</div><div id="_line0279" class="line">0279                         
+</div><div id="_line0280" class="line">0280                         <span class="comment">% if not all Dots, we know the requested data is not</span>
+</div><div id="_line0281" class="line">0281                         <span class="comment">% substruct</span>
+</div><div id="_line0282" class="line">0282                         Snew=[p.Snew1 S];
+</div><div id="_line0283" class="line">0283                         <span class="keyword">if</span> ~allDots || length(parts_inds)==1
+</div><div id="_line0284" class="line">0284                             Snew(2).subs={level_index};
+</div><div id="_line0285" class="line">0285                             [varargout{1:nargout}] = builtin(<span class="string">'subsref'</span>,p, Snew);
+</div><div id="_line0286" class="line">0286                         <span class="keyword">else</span>
+</div><div id="_line0287" class="line">0287                             <span class="comment">%now if it's a struct, we at least know that</span>
+</div><div id="_line0288" class="line">0288                             <span class="comment">%only one output argument is requested, but we</span>
+</div><div id="_line0289" class="line">0289                             <span class="comment">%need to mix the struct from all levels</span>
+</div><div id="_line0290" class="line">0290 
+</div><div id="_line0291" class="line">0291                             <span class="comment">%first assign the whole substruct from the</span>
+</div><div id="_line0292" class="line">0292                             <span class="comment">%lowest</span>
+</div><div id="_line0293" class="line">0293                             <span class="comment">%level that defined it?</span>
+</div><div id="_line0294" class="line">0294                             min_level=min(level_index);
+</div><div id="_line0295" class="line">0295                             Snew(2).subs={min_level};
+</div><div id="_line0296" class="line">0296                             tmp=builtin(<span class="string">'subsref'</span>,p, Snew);
+</div><div id="_line0297" class="line">0297                             
+</div><div id="_line0298" class="line">0298                             covered_inds=level_index==min_level;
+</div><div id="_line0299" class="line">0299                             parts_inds(covered_inds | nodes)=[];
+</div><div id="_line0300" class="line">0300                             level_index(covered_inds| nodes)=[];
+</div><div id="_line0301" class="line">0301                             
+</div><div id="_line0302" class="line">0302                             <span class="comment">%now loop over the remaining ones...</span>
+</div><div id="_line0303" class="line">0303                             <span class="keyword">for</span> iPart=1:length(parts_inds)
+</div><div id="_line0304" class="line">0304                                 thisSubID=p.flatStruct(parts_inds(iPart)).parentLevels(length(S)+1:end);
+</div><div id="_line0305" class="line">0305                                 Spartial=S(ones(1,length(thisSubID)));
+</div><div id="_line0306" class="line">0306                                 [Spartial.subs]=deal(thisSubID{:});
+</div><div id="_line0307" class="line">0307                                 
+</div><div id="_line0308" class="line">0308                                 Snew(2).subs={level_index(iPart)};
+</div><div id="_line0309" class="line">0309                                 tmp=builtin(<span class="string">'subsasgn'</span>,tmp,Spartial,builtin(<span class="string">'subsref'</span>,p,[Snew Spartial]));
+</div><div id="_line0310" class="line">0310                             <span class="keyword">end</span>
+</div><div id="_line0311" class="line">0311                             varargout{1}=tmp;
+</div><div id="_line0312" class="line">0312                                 
+</div><div id="_line0313" class="line">0313                         <span class="keyword">end</span>
+</div><div id="_line0314" class="line">0314 
+</div><div id="_line0315" class="line">0315                    <span class="keyword">end</span>
+</div><div id="_line0316" class="line">0316                 <span class="keyword">otherwise</span>
+</div><div id="_line0317" class="line">0317                     error(<span class="string">'params:subsref'</span>, <span class="string">'just don''t, ok? I''m a params class, so don''t go all brackety on me. Understood? I''m not an array, nor a cell. Is that explicit enough?'</span>);
+</div><div id="_line0318" class="line">0318             <span class="keyword">end</span>
+</div><div id="_line0319" class="line">0319         <span class="keyword">end</span>
+</div><div id="_line0320" class="line">0320         
+</div><div id="_line0321" class="line">0321         <span class="comment">%because all external calls end up here, this makes all properties</span>
+</div><div id="_line0322" class="line">0322         <span class="comment">%protected from changes.</span>
+</div><div id="_line0323" class="line">0323         <a name="_sub17" href="#_subfunctions" class="code">function p = subsasgn(p,S,value)</a>
+</div><div id="_line0324" class="line">0324             <span class="comment">%copying a class, but its a handle class,i.e. we expect it to</span>
+</div><div id="_line0325" class="line">0325             <span class="comment">%be just the handle</span>
+</div><div id="_line0326" class="line">0326             <span class="keyword">if</span> isempty(S) &amp;&amp; isa(p,<span class="string">'params'</span>)
+</div><div id="_line0327" class="line">0327                 <span class="comment">%%</span>
+</div><div id="_line0328" class="line">0328                 <span class="keyword">return</span>;
+</div><div id="_line0329" class="line">0329             <span class="keyword">end</span>
+</div><div id="_line0330" class="line">0330             
+</div><div id="_line0331" class="line">0331             <span class="keyword">if</span>(p.locked)
+</div><div id="_line0332" class="line">0332                 error(<span class="string">'params:subsasgn'</span>,<span class="string">'params class was locked using setLock(true). Unlock by calling setLock(false) first'</span>); 
+</div><div id="_line0333" class="line">0333             <span class="keyword">end</span>
+</div><div id="_line0334" class="line">0334             
+</div><div id="_line0335" class="line">0335             <span class="keyword">switch</span> S(1).type
+</div><div id="_line0336" class="line">0336              <span class="comment">% Use the built-in subsasagn for dot notation</span>
+</div><div id="_line0337" class="line">0337                 <span class="keyword">case</span> <span class="string">'.'</span>
+</div><div id="_line0338" class="line">0338                     <span class="comment">% get a value from the flatStruct</span>
+</div><div id="_line0339" class="line">0339                     <span class="comment">%how many .?</span>
+</div><div id="_line0340" class="line">0340                     dotNr=find(diff(strcmp({S.type}, <span class="string">'.'</span>))==-1);
+</div><div id="_line0341" class="line">0341                     <span class="keyword">if</span> isempty(dotNr) <span class="comment">% no -1, meanst only '.' in there</span>
+</div><div id="_line0342" class="line">0342                         dotNr=length(S);
+</div><div id="_line0343" class="line">0343                         allDots=true;
+</div><div id="_line0344" class="line">0344                     <span class="keyword">else</span>
+</div><div id="_line0345" class="line">0345                         allDots=false;
+</div><div id="_line0346" class="line">0346                     <span class="keyword">end</span>
+</div><div id="_line0347" class="line">0347                     id=sprintf(<span class="string">'.%s'</span>,S(1:dotNr).subs);                 
+</div><div id="_line0348" class="line">0348                     
+</div><div id="_line0349" class="line">0349                     [<a href="#_sub8" class="code" title="subisField">isField</a>, fieldPos]=ismember(id,{p.flatStruct.identifier});
+</div><div id="_line0350" class="line">0350                     
+</div><div id="_line0351" class="line">0351                     Snew=[p.Snew1 S];
+</div><div id="_line0352" class="line">0352                     Snew(2).subs={p.topLevel};
+</div><div id="_line0353" class="line">0353                     
+</div><div id="_line0354" class="line">0354                     <span class="keyword">if</span>(<a href="#_sub8" class="code" title="subisField">isField</a>)
+</div><div id="_line0355" class="line">0355                         <span class="keyword">if</span>(~allDots)
+</div><div id="_line0356" class="line">0356                             <span class="comment">%partially changing an existing field, make</span>
+</div><div id="_line0357" class="line">0357                             <span class="comment">%sure it exists in this level</span>
+</div><div id="_line0358" class="line">0358                             
+</div><div id="_line0359" class="line">0359                             levels=p.flatStruct(fieldPos).hierarchyLevels(p.activeLevels(p.flatStruct(fieldPos).hierarchyLevels));
+</div><div id="_line0360" class="line">0360                             level_index=max(levels); 
+</div><div id="_line0361" class="line">0361                             <span class="keyword">if</span> level_index~=p.topLevel
+</div><div id="_line0362" class="line">0362                                 Sold=Snew;
+</div><div id="_line0363" class="line">0363                                 Sold(2).subs={level_index};
+</div><div id="_line0364" class="line">0364                                 
+</div><div id="_line0365" class="line">0365                                 [~]=builtin(<span class="string">'subsasgn'</span>,p,Snew(1:(length(p.Snew1)+dotNr)),builtin(<span class="string">'subsref'</span>,p,Sold(1:(length(p.Snew1)+dotNr))));
+</div><div id="_line0366" class="line">0366                             <span class="keyword">end</span>
+</div><div id="_line0367" class="line">0367                         <span class="keyword">end</span>
+</div><div id="_line0368" class="line">0368                     <span class="keyword">end</span>
+</div><div id="_line0369" class="line">0369                     [~]=builtin(<span class="string">'subsasgn'</span>,p,Snew,value);
+</div><div id="_line0370" class="line">0370                     
+</div><div id="_line0371" class="line">0371                     <span class="comment">%ok, set the value, now make sure its in the flatStruct</span>
+</div><div id="_line0372" class="line">0372                     <span class="keyword">if</span> <a href="#_sub8" class="code" title="subisField">isField</a>
+</div><div id="_line0373" class="line">0373                         parentLevels=p.flatStruct(fieldPos).parentLevels;
+</div><div id="_line0374" class="line">0374                     <span class="keyword">else</span>
+</div><div id="_line0375" class="line">0375                         parentLevels= {S(1:dotNr).subs};
+</div><div id="_line0376" class="line">0376                     <span class="keyword">end</span>
+</div><div id="_line0377" class="line">0377                     addFlatStruct=p.getNextStructLevel(value,parentLevels,[]);
+</div><div id="_line0378" class="line">0378                     <span class="comment">%finally go back through the initial paranetLevels and</span>
+</div><div id="_line0379" class="line">0379                     <span class="comment">%make sure that the node entries exist. not strictly</span>
+</div><div id="_line0380" class="line">0380                     <span class="comment">%necessary but good for the viewer</span>
+</div><div id="_line0381" class="line">0381                     <span class="keyword">for</span> iNode=1:length(parentLevels)-1
+</div><div id="_line0382" class="line">0382                         tmp=struct;
+</div><div id="_line0383" class="line">0383                         tmp.parentLevels=parentLevels(1:iNode);
+</div><div id="_line0384" class="line">0384                         tmp.isNode=true;
+</div><div id="_line0385" class="line">0385                         addFlatStruct(end+1)=tmp; <span class="comment">%#ok&lt;AGROW&gt;</span>
+</div><div id="_line0386" class="line">0386                     <span class="keyword">end</span>
+</div><div id="_line0387" class="line">0387                     
+</div><div id="_line0388" class="line">0388                     
+</div><div id="_line0389" class="line">0389                     id=cellfun(@(x) sprintf(<span class="string">'.%s'</span>,x{:}), {addFlatStruct.parentLevels}, <span class="string">'UniformOutput'</span>, false);   
+</div><div id="_line0390" class="line">0390                     [addFlatStruct.identifier]=deal(id{:});
+</div><div id="_line0391" class="line">0391                     [addFlatStruct.hierarchyLevels]=deal(p.topLevel);
+</div><div id="_line0392" class="line">0392 
+</div><div id="_line0393" class="line">0393 
+</div><div id="_line0394" class="line">0394                     [overruled, overruledPos]=ismember({addFlatStruct.identifier},{p.flatStruct.identifier});
+</div><div id="_line0395" class="line">0395 
+</div><div id="_line0396" class="line">0396                     nFields=length(addFlatStruct);
+</div><div id="_line0397" class="line">0397                     <span class="keyword">for</span> iField=1:nFields
+</div><div id="_line0398" class="line">0398                         <span class="keyword">if</span> overruled(iField) 
+</div><div id="_line0399" class="line">0399                             <span class="keyword">if</span> ~any(p.flatStruct(overruledPos(iField)).hierarchyLevels==p.topLevel) 
+</div><div id="_line0400" class="line">0400                                 p.flatStruct(overruledPos(iField)).hierarchyLevels(end+1) = p.topLevel; 
+</div><div id="_line0401" class="line">0401                             <span class="keyword">end</span>
+</div><div id="_line0402" class="line">0402                         <span class="keyword">else</span>
+</div><div id="_line0403" class="line">0403                             p.flatStruct(end+1)=addFlatStruct(iField);
+</div><div id="_line0404" class="line">0404                         <span class="keyword">end</span>
+</div><div id="_line0405" class="line">0405                     <span class="keyword">end</span>
+</div><div id="_line0406" class="line">0406 
+</div><div id="_line0407" class="line">0407                 
+</div><div id="_line0408" class="line">0408                 <span class="keyword">otherwise</span>
+</div><div id="_line0409" class="line">0409                     error(<span class="string">'params:subsassign'</span>, <span class="string">'just don''t, ok? I''m a params clas, so don''t go all brackety on me. Understood? I''m not an array, nor a cell. Is that explicit enough?'</span>);
+</div><div id="_line0410" class="line">0410             <span class="keyword">end</span>
+</div><div id="_line0411" class="line">0411                     
+</div><div id="_line0412" class="line">0412         <span class="keyword">end</span>
+</div><div id="_line0413" class="line">0413             
+</div><div id="_line0414" class="line">0414         <span class="comment">%ok now generate the output</span>
+</div><div id="_line0415" class="line">0415         <span class="comment">%merged struct: the struct as it's shown in the hierarical viewer</span>
+</div><div id="_line0416" class="line">0416         <a name="_sub18" href="#_subfunctions" class="code">function mergedStruct=mergeToSingleStruct(p)  </a>
+</div><div id="_line0417" class="line">0417             mergedStruct=struct;
+</div><div id="_line0418" class="line">0418             nFields=length(p.flatStruct);
+</div><div id="_line0419" class="line">0419             <span class="keyword">for</span> iField=1:nFields
+</div><div id="_line0420" class="line">0420                 levels=p.flatStruct(iField).hierarchyLevels(p.activeLevels(p.flatStruct(iField).hierarchyLevels));
+</div><div id="_line0421" class="line">0421                 level_index=max(levels(p.activeLevels(levels))); 
+</div><div id="_line0422" class="line">0422                 
+</div><div id="_line0423" class="line">0423                 <span class="keyword">if</span> isempty(level_index) ||  p.flatStruct(iField).isNode <span class="comment">%not defined in any _active_ levels</span>
+</div><div id="_line0424" class="line">0424                     <span class="keyword">continue</span>;
+</div><div id="_line0425" class="line">0425                 <span class="keyword">end</span>
+</div><div id="_line0426" class="line">0426 
+</div><div id="_line0427" class="line">0427                 thisSubID=p.flatStruct(iField).parentLevels;
+</div><div id="_line0428" class="line">0428                 Spartial=p.Snew1(ones(1,length(thisSubID)));
+</div><div id="_line0429" class="line">0429                 [Spartial.subs]=deal(thisSubID{:});
+</div><div id="_line0430" class="line">0430                 S=[p.Snew1 Spartial];
+</div><div id="_line0431" class="line">0431                 S(2).subs={level_index};
+</div><div id="_line0432" class="line">0432                 
+</div><div id="_line0433" class="line">0433                 mergedStruct=builtin(<span class="string">'subsasgn'</span>,mergedStruct,Spartial,builtin(<span class="string">'subsref'</span>,p,S));
+</div><div id="_line0434" class="line">0434             <span class="keyword">end</span>
+</div><div id="_line0435" class="line">0435             
+</div><div id="_line0436" class="line">0436         <span class="keyword">end</span> <span class="comment">%mergedStruct=mergeToSingleStruct(p)</span>
+</div><div id="_line0437" class="line">0437 
+</div><div id="_line0438" class="line">0438         <span class="comment">%return the differerence of a struct to this classes active version</span>
+</div><div id="_line0439" class="line">0439         <a name="_sub19" href="#_subfunctions" class="code">function dStruct = getDifferenceFromStruct(p,newStruct)</a>
+</div><div id="_line0440" class="line">0440             newFlatStruct=p.getNextStructLevel(newStruct,{},[]);
+</div><div id="_line0441" class="line">0441             newFlatStruct(1).parentLevels={<span class="string">''</span>};
+</div><div id="_line0442" class="line">0442             id=cellfun(@(x) sprintf(<span class="string">'.%s'</span>,x{:}), {newFlatStruct.parentLevels}, <span class="string">'UniformOutput'</span>, false);   
+</div><div id="_line0443" class="line">0443             [newFlatStruct.identifier]=deal(id{:});
+</div><div id="_line0444" class="line">0444             
+</div><div id="_line0445" class="line">0445             
+</div><div id="_line0446" class="line">0446             activeFields=cellfun(@(x) any(ismember(x,find(p.activeLevels))),{p.flatStruct.hierarchyLevels});
+</div><div id="_line0447" class="line">0447             <span class="comment">%we will not handle the possibility newStruct is missing a fieled</span>
+</div><div id="_line0448" class="line">0448             removedFields=~ismember({p.flatStruct(activeFields).identifier},id);
+</div><div id="_line0449" class="line">0449             <span class="keyword">if</span> any(removedFields)
+</div><div id="_line0450" class="line">0450                 warning(<span class="string">'params:getDifferenceFromStruct'</span>,<span class="string">'The newStruct is missing fields the class has.'</span>);
+</div><div id="_line0451" class="line">0451             <span class="keyword">end</span>
+</div><div id="_line0452" class="line">0452             
+</div><div id="_line0453" class="line">0453             [newFields, newFieldPos]=ismember(id,{p.flatStruct.identifier});
+</div><div id="_line0454" class="line">0454             newFields=~newFields;
+</div><div id="_line0455" class="line">0455             newFields([newFlatStruct.isNode])=false;
+</div><div id="_line0456" class="line">0456             
+</div><div id="_line0457" class="line">0457             subs=cell(1,length(newFlatStruct));
+</div><div id="_line0458" class="line">0458             
+</div><div id="_line0459" class="line">0459             nFields=length(newFlatStruct);
+</div><div id="_line0460" class="line">0460             <span class="keyword">for</span> iField=1:nFields
+</div><div id="_line0461" class="line">0461                 <span class="keyword">if</span> newFields(iField) || newFlatStruct(iField).isNode
+</div><div id="_line0462" class="line">0462                     <span class="keyword">continue</span>;
+</div><div id="_line0463" class="line">0463                 <span class="keyword">end</span>
+</div><div id="_line0464" class="line">0464                 
+</div><div id="_line0465" class="line">0465                 fS_index=newFieldPos(iField);
+</div><div id="_line0466" class="line">0466                 levels=p.flatStruct(fS_index).hierarchyLevels(p.activeLevels(p.flatStruct(fS_index).hierarchyLevels));
+</div><div id="_line0467" class="line">0467                 level_index=max(levels(p.activeLevels(levels))); 
+</div><div id="_line0468" class="line">0468                 
+</div><div id="_line0469" class="line">0469                 
+</div><div id="_line0470" class="line">0470                 <span class="keyword">if</span> isempty(level_index) <span class="comment">%not defined in any _active_ levels</span>
+</div><div id="_line0471" class="line">0471                     newFields(iField) = true;
+</div><div id="_line0472" class="line">0472                 <span class="keyword">else</span>
+</div><div id="_line0473" class="line">0473                     thisSubID=newFlatStruct(iField).parentLevels;
+</div><div id="_line0474" class="line">0474                     Spartial=p.Snew1(ones(1,length(thisSubID)));
+</div><div id="_line0475" class="line">0475                     [Spartial.subs]=deal(thisSubID{:});
+</div><div id="_line0476" class="line">0476                     S=[p.Snew1 Spartial];
+</div><div id="_line0477" class="line">0477                     S(2).subs={level_index};
+</div><div id="_line0478" class="line">0478                     
+</div><div id="_line0479" class="line">0479                     subs{iField}=Spartial;
+</div><div id="_line0480" class="line">0480                     
+</div><div id="_line0481" class="line">0481                     newValue=builtin(<span class="string">'subsref'</span>,newStruct,Spartial);
+</div><div id="_line0482" class="line">0482                     oldValue=builtin(<span class="string">'subsref'</span>,p,S);
+</div><div id="_line0483" class="line">0483 
+</div><div id="_line0484" class="line">0484                     newFields(iField) = ~(strcmp(class(newValue),class(oldValue)) &amp;&amp; isequal(newValue,oldValue));
+</div><div id="_line0485" class="line">0485                 <span class="keyword">end</span>
+</div><div id="_line0486" class="line">0486             <span class="keyword">end</span>
+</div><div id="_line0487" class="line">0487             
+</div><div id="_line0488" class="line">0488             dStruct=struct;          
+</div><div id="_line0489" class="line">0489             <span class="keyword">for</span> iField=1:nFields
+</div><div id="_line0490" class="line">0490                 <span class="keyword">if</span> newFields(iField)
+</div><div id="_line0491" class="line">0491                     <span class="keyword">if</span>(isempty(subs{iField}))
+</div><div id="_line0492" class="line">0492                         thisSubID=newFlatStruct(iField).parentLevels;
+</div><div id="_line0493" class="line">0493                         Spartial=p.Snew1(ones(1,length(thisSubID)));
+</div><div id="_line0494" class="line">0494                         [Spartial.subs]=deal(thisSubID{:});
+</div><div id="_line0495" class="line">0495                         subs{iField}=Spartial;
+</div><div id="_line0496" class="line">0496                     <span class="keyword">end</span>
+</div><div id="_line0497" class="line">0497                     
+</div><div id="_line0498" class="line">0498                     dStruct=builtin(<span class="string">'subsasgn'</span>,dStruct,subs{iField},builtin(<span class="string">'subsref'</span>,newStruct,subs{iField}));
+</div><div id="_line0499" class="line">0499                  <span class="keyword">end</span>
+</div><div id="_line0500" class="line">0500             <span class="keyword">end</span>
+</div><div id="_line0501" class="line">0501             
+</div><div id="_line0502" class="line">0502         <span class="keyword">end</span> <span class="comment">%dStruct = getDifferenceFromStruct(p,newStruct)</span>
+</div><div id="_line0503" class="line">0503         
+</div><div id="_line0504" class="line">0504         
+</div><div id="_line0505" class="line">0505     <span class="keyword">end</span> <span class="comment">%methods</span>
+</div><div id="_line0506" class="line">0506     
+</div><div id="_line0507" class="line">0507     methods(Static)
+</div><div id="_line0508" class="line">0508         <a name="_sub20" href="#_subfunctions" class="code">function vs=valueString(value)</a>
+</div><div id="_line0509" class="line">0509             <span class="keyword">if</span> isstruct(value)
+</div><div id="_line0510" class="line">0510                 vs=[];
+</div><div id="_line0511" class="line">0511             <span class="keyword">else</span>
+</div><div id="_line0512" class="line">0512                 vs=evalc(<span class="string">'disp(value)'</span>);
+</div><div id="_line0513" class="line">0513                 vs=strtrim(vs);
+</div><div id="_line0514" class="line">0514                 <span class="keyword">if</span> ischar(value)
+</div><div id="_line0515" class="line">0515                     vs = [<span class="string">''''</span> vs <span class="string">''''</span> ];
+</div><div id="_line0516" class="line">0516                 <span class="keyword">elseif</span> islogical(value)
+</div><div id="_line0517" class="line">0517                     <span class="keyword">if</span> value
+</div><div id="_line0518" class="line">0518                         vs = <span class="string">'true'</span>;
+</div><div id="_line0519" class="line">0519                     <span class="keyword">else</span>
+</div><div id="_line0520" class="line">0520                         vs = <span class="string">'false'</span>;
+</div><div id="_line0521" class="line">0521                     <span class="keyword">end</span>
+</div><div id="_line0522" class="line">0522                 <span class="keyword">elseif</span> iscell(value)
+</div><div id="_line0523" class="line">0523                     vs = [<span class="string">'{'</span> vs <span class="string">'}'</span>];
+</div><div id="_line0524" class="line">0524                 <span class="keyword">elseif</span> ~isempty(value)
+</div><div id="_line0525" class="line">0525                     <span class="keyword">if</span> length(value)&gt;1
+</div><div id="_line0526" class="line">0526                         vs = [ <span class="string">'[ '</span> vs <span class="string">' ]'</span> ];
+</div><div id="_line0527" class="line">0527                     <span class="keyword">else</span>
+</div><div id="_line0528" class="line">0528                         vs = vs;
+</div><div id="_line0529" class="line">0529                     <span class="keyword">end</span>
+</div><div id="_line0530" class="line">0530                 <span class="keyword">else</span>
+</div><div id="_line0531" class="line">0531                      vs = <span class="string">'[ ]'</span>;
+</div><div id="_line0532" class="line">0532                 <span class="keyword">end</span>
+</div><div id="_line0533" class="line">0533                 vs=strtrim(vs);
+</div><div id="_line0534" class="line">0534             <span class="keyword">end</span>
+</div><div id="_line0535" class="line">0535         <span class="keyword">end</span> <span class="comment">%valueString(value)</span>
+</div><div id="_line0536" class="line">0536         
+</div><div id="_line0537" class="line">0537         <a name="_sub21" href="#_subfunctions" class="code">function result=getNextStructLevel(s,parentLevels,result)</a>
+</div><div id="_line0538" class="line">0538             <span class="keyword">if</span> isstruct(s) &amp;&amp; length(s)&lt;2
+</div><div id="_line0539" class="line">0539                 r.parentLevels=parentLevels;
+</div><div id="_line0540" class="line">0540                 r.isNode=true;
+</div><div id="_line0541" class="line">0541                 <span class="keyword">if</span> isempty(result)
+</div><div id="_line0542" class="line">0542                     result=r;
+</div><div id="_line0543" class="line">0543                 <span class="keyword">else</span>
+</div><div id="_line0544" class="line">0544                     result(end+1)=r;
+</div><div id="_line0545" class="line">0545                 <span class="keyword">end</span>
+</div><div id="_line0546" class="line">0546 
+</div><div id="_line0547" class="line">0547                 fn=<a href="#_sub2" class="code" title="subfieldnames">fieldnames</a>(s);
+</div><div id="_line0548" class="line">0548                 nFields=length(fn);
+</div><div id="_line0549" class="line">0549                 <span class="keyword">for</span> iField=1:nFields
+</div><div id="_line0550" class="line">0550                     lev=parentLevels;
+</div><div id="_line0551" class="line">0551                     lev(end+1)=fn(iField); <span class="comment">%#ok&lt;AGROW&gt;</span>
+</div><div id="_line0552" class="line">0552                     result=params.getNextStructLevel(s.(fn{iField}),lev,result);
+</div><div id="_line0553" class="line">0553                 <span class="keyword">end</span>
+</div><div id="_line0554" class="line">0554             <span class="keyword">else</span> <span class="comment">%leaf</span>
+</div><div id="_line0555" class="line">0555                 r.parentLevels=parentLevels;
+</div><div id="_line0556" class="line">0556                 r.isNode=false;
+</div><div id="_line0557" class="line">0557                 <span class="keyword">if</span> isempty(result)
+</div><div id="_line0558" class="line">0558                     result=r;
+</div><div id="_line0559" class="line">0559                 <span class="keyword">else</span>
+</div><div id="_line0560" class="line">0560                     result(end+1)=r;
+</div><div id="_line0561" class="line">0561                 <span class="keyword">end</span>
+</div><div id="_line0562" class="line">0562             <span class="keyword">end</span>
+</div><div id="_line0563" class="line">0563         <span class="keyword">end</span> <span class="comment">%result=getNextStructLevel(s,parentLevels,result)</span>
+</div><div id="_line0564" class="line">0564         
+</div><div id="_line0565" class="line">0565         varargout = <a href="structviewer.html" class="code" title="function varargout = structviewer(varargin)">structviewer</a>(varargin)
+</div><div id="_line0566" class="line">0566         
+</div><div id="_line0567" class="line">0567     <span class="keyword">end</span> <span class="comment">%methods(Static)</span>
+</div><div id="_line0568" class="line">0568 <span class="keyword">end</span>
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

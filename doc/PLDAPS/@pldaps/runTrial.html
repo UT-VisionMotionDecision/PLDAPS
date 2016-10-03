@@ -1,0 +1,252 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of runTrial</title>
+  <meta name="keywords" content="runTrial">
+  <meta name="description" content="runTrial    runs a single Trial by calling the function defined in">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">PLDAPS</a> &gt; <a href="index.html">@pldaps</a> &gt; runTrial.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/@pldaps&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>runTrial
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>runTrial    runs a single Trial by calling the function defined in</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function p = runTrial(p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">runTrial    runs a single Trial by calling the function defined in 
+            p.trial.pldaps.trialFunction through different states
+
+ 03/2013 jly   Wrote hyperflow
+ 03/2014 jk    Used jly's code to get the PLDAPS structure and frame it into a class
+               might change to ASYNC buffer flipping. but won't for now.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../Parameters/display/ifi.html" class="code" title="">.display.ifi:</a>	
+        <a href="#_line0083" class="code"}">83 </a>    <a href="#_line0148" class="code"}">148 </a></li><li><a href="../../Parameters/flagNextTrial.html" class="code" title="">.flagNextTrial:</a>	
+        <a href="#_line0078" class="code"}">78 </a></li><li><a href="../../Parameters/iFrame.html" class="code" title="">.iFrame:</a>	
+        <a href="#_line0128" class="code"}">128 </a></li><li><a href="../../Parameters/nextFrameTime.html" class="code" title="">.nextFrameTime:</a>	
+        <a href="#_line0147" class="code"}">147 </a>    <a href="#_line0148" class="code"}">148 </a></li><li><a href="../../Parameters/pldaps/maxPriority.html" class="code" title="Switch to PTB to maxpriority during the trial? See MaxPriority('?')">.pldaps.maxPriority:</a>	
+        <a href="#_line0060" class="code"}">60 </a>    <a href="#_line0131" class="code"}">131 </a>Switch to PTB to maxpriority during the trial? See MaxPriority('?')</li><li><a href="../../Parameters/pldaps/quit.html" class="code" title="control expeiment during a trial.">.pldaps.quit:</a>	
+        <a href="#_line0078" class="code"}">78 </a>control expeiment during a trial.</li><li><a href="../../Parameters/pldaps/trialFunction.html" class="code" title="">.pldaps.trialFunction:</a>	
+        <a href="#_line0010" class="code"}">10 </a></li><li><a href="../../Parameters/pldaps/trialStates/frameDraw.html" class="code" title="called every frame for drawing command.">.pldaps.trialStates.frameDraw:</a>	
+        <a href="#_line0089" class="code"}">89 </a>    <a href="#_line0091" class="code"}">91 </a>called every frame for drawing command.</li><li><a href="../../Parameters/pldaps/trialStates/frameDrawingFinished.html" class="code" title="called every frame after drawing.">.pldaps.trialStates.frameDrawingFinished:</a>	
+        <a href="#_line0107" class="code"}">107 </a>    <a href="#_line0109" class="code"}">109 </a>called every frame after drawing.</li><li><a href="../../Parameters/pldaps/trialStates/frameFlip.html" class="code" title="called every frame to flip the buffers.">.pldaps.trialStates.frameFlip:</a>	
+        <a href="#_line0122" class="code"}">122 </a>    <a href="#_line0125" class="code"}">125 </a>called every frame to flip the buffers.</li><li><a href="../../Parameters/pldaps/trialStates/framePrepareDrawing.html" class="code" title="called every frame to prepare drawing.">.pldaps.trialStates.framePrepareDrawing:</a>	
+        <a href="#_line0086" class="code"}">86 </a>    <a href="#_line0088" class="code"}">88 </a>called every frame to prepare drawing.</li><li><a href="../../Parameters/pldaps/trialStates/frameUpdate.html" class="code" title="called every frame to update input.">.pldaps.trialStates.frameUpdate:</a>	
+        <a href="#_line0085" class="code"}">85 </a>    <a href="#_line0127" class="code"}">127 </a>called every frame to update input.</li><li><a href="../../Parameters/pldaps/trialStates/trialCleanUpandSave.html" class="code" title="called at the end of the trial.">.pldaps.trialStates.trialCleanUpandSave:</a>	
+        <a href="#_line0141" class="code"}">141 </a>called at the end of the trial.</li><li><a href="../../Parameters/pldaps/trialStates/trialPrepare.html" class="code" title="called before each trial for synchronization">.pldaps.trialStates.trialPrepare:</a>	
+        <a href="#_line0070" class="code"}">70 </a>called before each trial for synchronization</li><li><a href="../../Parameters/pldaps/trialStates/trialSetup.html" class="code" title="called before each trial for data allocation.">.pldaps.trialStates.trialSetup:</a>	
+        <a href="#_line0047" class="code"}">47 </a>called before each trial for data allocation.</li><li><a href="../../Parameters/stimulus/timeLastFrame.html" class="code" title="">.stimulus.timeLastFrame:</a>	
+        <a href="#_line0083" class="code"}">83 </a></li><li><a href="../../Parameters/trstart.html" class="code" title="">.trstart:</a>	
+        <a href="#_line0146" class="code"}">146 </a></li><li><a href="../../Parameters/ttime.html" class="code" title="">.ttime:</a>	
+        <a href="#_line0147" class="code"}">147 </a>    <a href="#_line0148" class="code"}">148 </a></li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../Parameters/currentFrameState.html" class="code" title="">.currentFrameState:</a>
+        <a href="#_line0045" class="code"}">45 </a>    <a href="#_line0148" class="code"}">148 </a>    <a href="#_line0149" class="code"}">149 </a></li><li><a href="../../Parameters/framePostLastDrawIdleCount.html" class="code" title="">.framePostLastDrawIdleCount:</a>
+        <a href="#_line0073" class="code"}">73 </a></li><li><a href="../../Parameters/framePreLastDrawIdleCount.html" class="code" title="">.framePreLastDrawIdleCount:</a>
+        <a href="#_line0072" class="code"}">72 </a></li><li><a href="../../Parameters/iFrame.html" class="code" title="">.iFrame:</a>
+        <a href="#_line0128" class="code"}">128 </a>    <a href="#_line0148" class="code"}">148 </a></li><li><a href="../../Parameters/nextFrameTime.html" class="code" title="">.nextFrameTime:</a>
+        <a href="#_line0083" class="code"}">83 </a></li><li><a href="../../Parameters/pldaps/trialStates/frameDraw.html" class="code" title="called every frame for drawing command.">.pldaps.trialStates.frameDraw:</a>
+        <a href="#_line0029" class="code"}">29 </a>called every frame for drawing command.</li><li><a href="../../Parameters/pldaps/trialStates/frameDrawTimecritical.html" class="code" title="disabled">.pldaps.trialStates.frameDrawTimecritical:</a>
+        <a href="#_line0034" class="code"}">34 </a>disabled</li><li><a href="../../Parameters/pldaps/trialStates/frameDrawingFinished.html" class="code" title="called every frame after drawing.">.pldaps.trialStates.frameDrawingFinished:</a>
+        <a href="#_line0037" class="code"}">37 </a>called every frame after drawing.</li><li><a href="../../Parameters/pldaps/trialStates/frameFlip.html" class="code" title="called every frame to flip the buffers.">.pldaps.trialStates.frameFlip:</a>
+        <a href="#_line0043" class="code"}">43 </a>called every frame to flip the buffers.</li><li><a href="../../Parameters/pldaps/trialStates/frameIdlePostDraw.html" class="code" title="diabled">.pldaps.trialStates.frameIdlePostDraw:</a>
+        <a href="#_line0041" class="code"}">41 </a>diabled</li><li><a href="../../Parameters/pldaps/trialStates/frameIdlePreLastDraw.html" class="code" title="diabled">.pldaps.trialStates.frameIdlePreLastDraw:</a>
+        <a href="#_line0031" class="code"}">31 </a>diabled</li><li><a href="../../Parameters/pldaps/trialStates/framePrepareDrawing.html" class="code" title="called every frame to prepare drawing.">.pldaps.trialStates.framePrepareDrawing:</a>
+        <a href="#_line0027" class="code"}">27 </a>called every frame to prepare drawing.</li><li><a href="../../Parameters/pldaps/trialStates/frameUpdate.html" class="code" title="called every frame to update input.">.pldaps.trialStates.frameUpdate:</a>
+        <a href="#_line0022" class="code"}">22 </a>called every frame to update input.</li><li><a href="../../Parameters/pldaps/trialStates/trialCleanUpandSave.html" class="code" title="called at the end of the trial.">.pldaps.trialStates.trialCleanUpandSave:</a>
+        <a href="#_line0016" class="code"}">16 </a>called at the end of the trial.</li><li><a href="../../Parameters/pldaps/trialStates/trialPrepare.html" class="code" title="called before each trial for synchronization">.pldaps.trialStates.trialPrepare:</a>
+        <a href="#_line0015" class="code"}">15 </a>called before each trial for synchronization</li><li><a href="../../Parameters/pldaps/trialStates/trialSetup.html" class="code" title="called before each trial for data allocation.">.pldaps.trialStates.trialSetup:</a>
+        <a href="#_line0014" class="code"}">14 </a>called before each trial for data allocation.</li><li><a href="../../Parameters/remainingFrameTime.html" class="code" title="">.remainingFrameTime:</a>
+        <a href="#_line0147" class="code"}">147 </a></li><li><a href="../../Parameters/timing/frameStateChangeTimes.html" class="code" title="">.timing.frameStateChangeTimes:</a>
+        <a href="#_line0148" class="code"}">148 </a></li><li><a href="../../Parameters/ttime.html" class="code" title="">.ttime:</a>
+        <a href="#_line0146" class="code"}">146 </a></li></ul>
+<!-- parameterreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">setTimeAndFrameState</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function p = runTrial(p)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%runTrial    runs a single Trial by calling the function defined in</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%            p.trial.pldaps.trialFunction through different states</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">%</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% 03/2013 jly   Wrote hyperflow</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% 03/2014 jk    Used jly's code to get the PLDAPS structure and frame it into a class</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">%               might change to ASYNC buffer flipping. but won't for now.</span>
+</div><div id="_line0008" class="line">0008 
+</div><div id="_line0009" class="line">0009     <span class="comment">%the trialFunctionHandle</span>
+</div><div id="_line0010" class="line">0010     tfh=str2func(p.trial<a href="../../Parameters/pldaps/trialFunction.html" class="param" title="">.pldaps.trialFunction</a>);
+</div><div id="_line0011" class="line">0011     
+</div><div id="_line0012" class="line">0012     <span class="comment">%trial states that are not in a frame are negative, just to allow both</span>
+</div><div id="_line0013" class="line">0013     <span class="comment">%to be more independent</span>
+</div><div id="_line0014" class="line">0014     p.trial<a href="../../Parameters/pldaps/trialStates/trialSetup.html" class="param" title="called before each trial for data allocation.">.pldaps.trialStates.trialSetup</a>=-1;
+</div><div id="_line0015" class="line">0015     p.trial<a href="../../Parameters/pldaps/trialStates/trialPrepare.html" class="param" title="called before each trial for synchronization">.pldaps.trialStates.trialPrepare</a>=-2;
+</div><div id="_line0016" class="line">0016     p.trial<a href="../../Parameters/pldaps/trialStates/trialCleanUpandSave.html" class="param" title="called at the end of the trial.">.pldaps.trialStates.trialCleanUpandSave</a>=-3;
+</div><div id="_line0017" class="line">0017     
+</div><div id="_line0018" class="line">0018     <span class="comment">%ok, what are the options?</span>
+</div><div id="_line0019" class="line">0019     <span class="comment">%we'll make them states</span>
+</div><div id="_line0020" class="line">0020     <span class="comment">%is called once after the last frame is done (or even before)</span>
+</div><div id="_line0021" class="line">0021     <span class="comment">%get current eyepostion, curser position or keypresses</span>
+</div><div id="_line0022" class="line">0022     p.trial<a href="../../Parameters/pldaps/trialStates/frameUpdate.html" class="param" title="called every frame to update input.">.pldaps.trialStates.frameUpdate</a>=1;
+</div><div id="_line0023" class="line">0023     <span class="comment">%here you can prepare all drawing, e.g. have the dots move</span>
+</div><div id="_line0024" class="line">0024     <span class="comment">%if you need to update to the latest e.g. eyeposition</span>
+</div><div id="_line0025" class="line">0025     <span class="comment">%you can still do that later, this could be all expected heavy</span>
+</div><div id="_line0026" class="line">0026     <span class="comment">%calculations</span>
+</div><div id="_line0027" class="line">0027     p.trial<a href="../../Parameters/pldaps/trialStates/framePrepareDrawing.html" class="param" title="called every frame to prepare drawing.">.pldaps.trialStates.framePrepareDrawing</a>=2; 
+</div><div id="_line0028" class="line">0028     <span class="comment">%once you know you've calculated the final image, draw it</span>
+</div><div id="_line0029" class="line">0029     p.trial<a href="../../Parameters/pldaps/trialStates/frameDraw.html" class="param" title="called every frame for drawing command.">.pldaps.trialStates.frameDraw</a>=3;
+</div><div id="_line0030" class="line">0030     <span class="comment">%</span>
+</div><div id="_line0031" class="line">0031     p.trial<a href="../../Parameters/pldaps/trialStates/frameIdlePreLastDraw.html" class="param" title="diabled">.pldaps.trialStates.frameIdlePreLastDraw</a>=4;
+</div><div id="_line0032" class="line">0032     <span class="comment">%if there is something that needs updating. here is a fucntion to do it</span>
+</div><div id="_line0033" class="line">0033     <span class="comment">%as late as possible</span>
+</div><div id="_line0034" class="line">0034     p.trial<a href="../../Parameters/pldaps/trialStates/frameDrawTimecritical.html" class="param" title="disabled">.pldaps.trialStates.frameDrawTimecritical</a>=5;
+</div><div id="_line0035" class="line">0035     <span class="comment">%if this function is not used, drawingFinished will be called after</span>
+</div><div id="_line0036" class="line">0036     <span class="comment">%frameDraw is done, otherwise drawingFinished will not be called</span>
+</div><div id="_line0037" class="line">0037     p.trial<a href="../../Parameters/pldaps/trialStates/frameDrawingFinished.html" class="param" title="called every frame after drawing.">.pldaps.trialStates.frameDrawingFinished</a>=6;
+</div><div id="_line0038" class="line">0038 
+</div><div id="_line0039" class="line">0039     <span class="comment">%this function gets called once everything got drawn, until it's time</span>
+</div><div id="_line0040" class="line">0040     <span class="comment">%to expect (and do) the flip</span>
+</div><div id="_line0041" class="line">0041     p.trial<a href="../../Parameters/pldaps/trialStates/frameIdlePostDraw.html" class="param" title="diabled">.pldaps.trialStates.frameIdlePostDraw</a>=7;
+</div><div id="_line0042" class="line">0042     <span class="comment">%do the flip (or when async) record the time</span>
+</div><div id="_line0043" class="line">0043     p.trial<a href="../../Parameters/pldaps/trialStates/frameFlip.html" class="param" title="called every frame to flip the buffers.">.pldaps.trialStates.frameFlip</a>=8;
+</div><div id="_line0044" class="line">0044     
+</div><div id="_line0045" class="line">0045     p.trial<a href="../../Parameters/currentFrameState.html" class="param" title="">.currentFrameState</a>=1;    
+</div><div id="_line0046" class="line">0046     
+</div><div id="_line0047" class="line">0047     tfh(p, p.trial<a href="../../Parameters/pldaps/trialStates/trialSetup.html" class="param" title="called before each trial for data allocation.">.pldaps.trialStates.trialSetup</a>);
+</div><div id="_line0048" class="line">0048     
+</div><div id="_line0049" class="line">0049 <span class="comment">%     timeNeeded(p.trial.pldaps.trialStates.frameUpdate)=0.5;</span>
+</div><div id="_line0050" class="line">0050 <span class="comment">%     timeNeeded(p.trial.pldaps.trialStates.framePrepareDrawing)=2;</span>
+</div><div id="_line0051" class="line">0051 <span class="comment">%     timeNeeded(p.trial.pldaps.trialStates.frameDraw)=2;</span>
+</div><div id="_line0052" class="line">0052 <span class="comment">%     timeNeeded(p.trial.pldaps.trialStates.frameIdlePreLastDraw)=2;</span>
+</div><div id="_line0053" class="line">0053 <span class="comment">%     timeNeeded(p.trial.pldaps.trialStates.frameDrawTimecritical)=0.5;</span>
+</div><div id="_line0054" class="line">0054 <span class="comment">%     timeNeeded(p.trial.pldaps.trialStates.frameDrawingFinished)=2;</span>
+</div><div id="_line0055" class="line">0055 <span class="comment">%     timeNeeded(p.trial.pldaps.trialStates.frameIdlePostDraw)=0.5;</span>
+</div><div id="_line0056" class="line">0056 <span class="comment">%     timeNeeded(p.trial.pldaps.trialStates.frameFlip)=5;</span>
+</div><div id="_line0057" class="line">0057 <span class="comment">%     timeNeeded=timeNeeded/1000;%convert to seconds</span>
+</div><div id="_line0058" class="line">0058 
+</div><div id="_line0059" class="line">0059     <span class="comment">%switch to high priority mode</span>
+</div><div id="_line0060" class="line">0060     <span class="keyword">if</span> p.trial<a href="../../Parameters/pldaps/maxPriority.html" class="param" title="Switch to PTB to maxpriority during the trial? See MaxPriority('?')">.pldaps.maxPriority</a>
+</div><div id="_line0061" class="line">0061         oldPriority=Priority;
+</div><div id="_line0062" class="line">0062         maxPriority=MaxPriority(<span class="string">'GetSecs'</span>);
+</div><div id="_line0063" class="line">0063         <span class="keyword">if</span> oldPriority &lt; maxPriority
+</div><div id="_line0064" class="line">0064                 Priority(maxPriority);
+</div><div id="_line0065" class="line">0065         <span class="keyword">end</span>
+</div><div id="_line0066" class="line">0066     <span class="keyword">end</span>
+</div><div id="_line0067" class="line">0067 
+</div><div id="_line0068" class="line">0068     <span class="comment">%will be called just before the trial starts for time critical calls to</span>
+</div><div id="_line0069" class="line">0069     <span class="comment">%start data aquisition</span>
+</div><div id="_line0070" class="line">0070     tfh(p, p.trial<a href="../../Parameters/pldaps/trialStates/trialPrepare.html" class="param" title="called before each trial for synchronization">.pldaps.trialStates.trialPrepare</a>);
+</div><div id="_line0071" class="line">0071 
+</div><div id="_line0072" class="line">0072     p.trial<a href="../../Parameters/framePreLastDrawIdleCount.html" class="param" title="">.framePreLastDrawIdleCount</a>=0;
+</div><div id="_line0073" class="line">0073     p.trial<a href="../../Parameters/framePostLastDrawIdleCount.html" class="param" title="">.framePostLastDrawIdleCount</a>=0;
+</div><div id="_line0074" class="line">0074 
+</div><div id="_line0075" class="line">0075 
+</div><div id="_line0076" class="line">0076     <span class="comment">%%% MAIN WHILE LOOP %%%</span>
+</div><div id="_line0077" class="line">0077     <span class="comment">%-------------------------------------------------------------------------%</span>
+</div><div id="_line0078" class="line">0078     <span class="keyword">while</span> ~p.trial<a href="../../Parameters/flagNextTrial.html" class="param" title="">.flagNextTrial</a> &amp;&amp; p.trial<a href="../../Parameters/pldaps/quit.html" class="param" title="control expeiment during a trial.">.pldaps.quit</a> == 0
+</div><div id="_line0079" class="line">0079         <span class="comment">%go through one frame by calling tfh with the different states.</span>
+</div><div id="_line0080" class="line">0080         <span class="comment">%Save the times each state is finished.</span>
+</div><div id="_line0081" class="line">0081 
+</div><div id="_line0082" class="line">0082         <span class="comment">%time of the estimated next flip</span>
+</div><div id="_line0083" class="line">0083         p.trial<a href="../../Parameters/nextFrameTime.html" class="param" title="">.nextFrameTime</a> = p.trial<a href="../../Parameters/stimulus/timeLastFrame.html" class="param" title="">.stimulus.timeLastFrame</a>+p.trial<a href="../../Parameters/display/ifi.html" class="param" title="">.display.ifi</a>;
+</div><div id="_line0084" class="line">0084 
+</div><div id="_line0085" class="line">0085         tfh(p, p.trial<a href="../../Parameters/pldaps/trialStates/frameUpdate.html" class="param" title="called every frame to update input.">.pldaps.trialStates.frameUpdate</a>);
+</div><div id="_line0086" class="line">0086         <a href="#_sub1" class="code" title="subsetTimeAndFrameState">setTimeAndFrameState</a>(p,p.trial<a href="../../Parameters/pldaps/trialStates/framePrepareDrawing.html" class="param" title="called every frame to prepare drawing.">.pldaps.trialStates.framePrepareDrawing</a>)
+</div><div id="_line0087" class="line">0087 
+</div><div id="_line0088" class="line">0088         tfh(p, p.trial<a href="../../Parameters/pldaps/trialStates/framePrepareDrawing.html" class="param" title="called every frame to prepare drawing.">.pldaps.trialStates.framePrepareDrawing</a>);
+</div><div id="_line0089" class="line">0089         <a href="#_sub1" class="code" title="subsetTimeAndFrameState">setTimeAndFrameState</a>(p,p.trial<a href="../../Parameters/pldaps/trialStates/frameDraw.html" class="param" title="called every frame for drawing command.">.pldaps.trialStates.frameDraw</a>);
+</div><div id="_line0090" class="line">0090 
+</div><div id="_line0091" class="line">0091         tfh(p, p.trial<a href="../../Parameters/pldaps/trialStates/frameDraw.html" class="param" title="called every frame for drawing command.">.pldaps.trialStates.frameDraw</a>);
+</div><div id="_line0092" class="line">0092 <span class="comment">%             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePreLastDraw);</span>
+</div><div id="_line0093" class="line">0093 
+</div><div id="_line0094" class="line">0094 <span class="comment">%             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);</span>
+</div><div id="_line0095" class="line">0095 <span class="comment">%             p.trial.framePreLastDrawIdleCount = p.trial.framePreLastDrawIdleCount +1;</span>
+</div><div id="_line0096" class="line">0096 <span class="comment">% %             dv.trial.ttime = GetSecs - dv.trial.trstart;</span>
+</div><div id="_line0097" class="line">0097 <span class="comment">% %             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;</span>
+</div><div id="_line0098" class="line">0098 <span class="comment">% %             while (dv.trial.remainingFrameTime&gt;sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePreLastDraw+1:end)))</span>
+</div><div id="_line0099" class="line">0099 <span class="comment">% %                 tfh(dv, dv.trial.pldaps.trialStates.frameIdlePreLastDraw);</span>
+</div><div id="_line0100" class="line">0100 <span class="comment">% %                 dv.trial.framePreLastDrawIdleCount = dv.trial.framePreLastDrawIdleCount +1;</span>
+</div><div id="_line0101" class="line">0101 <span class="comment">% %                 dv.trial.ttime = GetSecs - dv.trial.trstart;</span>
+</div><div id="_line0102" class="line">0102 <span class="comment">% %                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;</span>
+</div><div id="_line0103" class="line">0103 <span class="comment">% %             end</span>
+</div><div id="_line0104" class="line">0104 <span class="comment">%             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawTimecritical);</span>
+</div><div id="_line0105" class="line">0105 <span class="comment">%</span>
+</div><div id="_line0106" class="line">0106 <span class="comment">%             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);</span>
+</div><div id="_line0107" class="line">0107         <a href="#_sub1" class="code" title="subsetTimeAndFrameState">setTimeAndFrameState</a>(p,p.trial<a href="../../Parameters/pldaps/trialStates/frameDrawingFinished.html" class="param" title="called every frame after drawing.">.pldaps.trialStates.frameDrawingFinished</a>);
+</div><div id="_line0108" class="line">0108 
+</div><div id="_line0109" class="line">0109         tfh(p, p.trial<a href="../../Parameters/pldaps/trialStates/frameDrawingFinished.html" class="param" title="called every frame after drawing.">.pldaps.trialStates.frameDrawingFinished</a>);
+</div><div id="_line0110" class="line">0110 <span class="comment">%             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePostDraw);</span>
+</div><div id="_line0111" class="line">0111 <span class="comment">%</span>
+</div><div id="_line0112" class="line">0112 <span class="comment">%             tfh(p, p.trial.pldaps.trialStates.frameIdlePostDraw);</span>
+</div><div id="_line0113" class="line">0113 <span class="comment">%             p.trial.framePostLastDrawIdleCount = p.trial.framePostLastDrawIdleCount +1;</span>
+</div><div id="_line0114" class="line">0114 <span class="comment">% %             dv.trial.ttime = GetSecs - dv.trial.trstart;</span>
+</div><div id="_line0115" class="line">0115 <span class="comment">% %             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;</span>
+</div><div id="_line0116" class="line">0116 <span class="comment">% %             while (dv.trial.remainingFrameTime&gt;sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePostDraw+1:end)))</span>
+</div><div id="_line0117" class="line">0117 <span class="comment">% %                 tfh(dv, dv.trial.pldaps.trialStates.frameIdlePostDraw);</span>
+</div><div id="_line0118" class="line">0118 <span class="comment">% %                 dv.trial.framePostLastDrawIdleCount = dv.trial.framePostLastDrawIdleCount +1;</span>
+</div><div id="_line0119" class="line">0119 <span class="comment">% %                 dv.trial.ttime = GetSecs - dv.trial.trstart;</span>
+</div><div id="_line0120" class="line">0120 <span class="comment">% %                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;</span>
+</div><div id="_line0121" class="line">0121 <span class="comment">%             end</span>
+</div><div id="_line0122" class="line">0122         <a href="#_sub1" class="code" title="subsetTimeAndFrameState">setTimeAndFrameState</a>(p,p.trial<a href="../../Parameters/pldaps/trialStates/frameFlip.html" class="param" title="called every frame to flip the buffers.">.pldaps.trialStates.frameFlip</a>)
+</div><div id="_line0123" class="line">0123 
+</div><div id="_line0124" class="line">0124 
+</div><div id="_line0125" class="line">0125         tfh(p, p.trial<a href="../../Parameters/pldaps/trialStates/frameFlip.html" class="param" title="called every frame to flip the buffers.">.pldaps.trialStates.frameFlip</a>);
+</div><div id="_line0126" class="line">0126         <span class="comment">%advance to next frame</span>
+</div><div id="_line0127" class="line">0127         <a href="#_sub1" class="code" title="subsetTimeAndFrameState">setTimeAndFrameState</a>(p,p.trial<a href="../../Parameters/pldaps/trialStates/frameUpdate.html" class="param" title="called every frame to update input.">.pldaps.trialStates.frameUpdate</a>);           
+</div><div id="_line0128" class="line">0128         p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a> = p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a> + 1;  <span class="comment">% update frame index</span>
+</div><div id="_line0129" class="line">0129     <span class="keyword">end</span> <span class="comment">%while Trial running</span>
+</div><div id="_line0130" class="line">0130 
+</div><div id="_line0131" class="line">0131     <span class="keyword">if</span> p.trial<a href="../../Parameters/pldaps/maxPriority.html" class="param" title="Switch to PTB to maxpriority during the trial? See MaxPriority('?')">.pldaps.maxPriority</a>
+</div><div id="_line0132" class="line">0132         newPriority=Priority;
+</div><div id="_line0133" class="line">0133         <span class="keyword">if</span> round(oldPriority) ~= round(newPriority)
+</div><div id="_line0134" class="line">0134             Priority(oldPriority);
+</div><div id="_line0135" class="line">0135         <span class="keyword">end</span>
+</div><div id="_line0136" class="line">0136         <span class="keyword">if</span> round(newPriority)&lt;maxPriority
+</div><div id="_line0137" class="line">0137             warning(<span class="string">'pldaps:runTrial'</span>,<span class="string">'Thread priority was degraded by operating system during the trial.'</span>)
+</div><div id="_line0138" class="line">0138         <span class="keyword">end</span>
+</div><div id="_line0139" class="line">0139     <span class="keyword">end</span>
+</div><div id="_line0140" class="line">0140     
+</div><div id="_line0141" class="line">0141     tfh(p, p.trial<a href="../../Parameters/pldaps/trialStates/trialCleanUpandSave.html" class="param" title="called at the end of the trial.">.pldaps.trialStates.trialCleanUpandSave</a>);
+</div><div id="_line0142" class="line">0142 
+</div><div id="_line0143" class="line">0143 <span class="keyword">end</span> <span class="comment">%runTrial</span>
+</div><div id="_line0144" class="line">0144     
+</div><div id="_line0145" class="line">0145 <a name="_sub1" href="#_subfunctions" class="code">function setTimeAndFrameState(p,state)</a>
+</div><div id="_line0146" class="line">0146         p.trial<a href="../../Parameters/ttime.html" class="param" title="">.ttime</a> = GetSecs - p.trial<a href="../../Parameters/trstart.html" class="param" title="">.trstart</a>;
+</div><div id="_line0147" class="line">0147         p.trial<a href="../../Parameters/remainingFrameTime.html" class="param" title="">.remainingFrameTime</a>=p.trial<a href="../../Parameters/nextFrameTime.html" class="param" title="">.nextFrameTime</a>-p.trial<a href="../../Parameters/ttime.html" class="param" title="">.ttime</a>;
+</div><div id="_line0148" class="line">0148         p.trial<a href="../../Parameters/timing/frameStateChangeTimes.html" class="param" title="">.timing.frameStateChangeTimes</a>(p.trial<a href="../../Parameters/currentFrameState.html" class="param" title="">.currentFrameState</a>,p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>)=p.trial<a href="../../Parameters/ttime.html" class="param" title="">.ttime</a>-p.trial<a href="../../Parameters/nextFrameTime.html" class="param" title="">.nextFrameTime</a>+p.trial<a href="../../Parameters/display/ifi.html" class="param" title="">.display.ifi</a>;
+</div><div id="_line0149" class="line">0149         p.trial<a href="../../Parameters/currentFrameState.html" class="param" title="">.currentFrameState</a>=state;        
+</div><div id="_line0150" class="line">0150 <span class="keyword">end</span>
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

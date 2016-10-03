@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of world2deg</title>
+  <meta name="keywords" content="world2deg">
+  <meta name="description" content="world2deg    convert from world coordinates to degrees of visual angle">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">PLDAPS</a> &gt; <a href="index.html">@pldaps</a> &gt; world2deg.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/@pldaps&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>world2deg
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>world2deg    convert from world coordinates to degrees of visual angle</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [xy,z] = world2deg(p,xy,z) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">world2deg    convert from world coordinates to degrees of visual angle
+ calculates the degrees of visual angle for an array of world coordinates
+ taking the depence of x and y degrees into account (i.e. that the
+ distance of the position e.g. y increases when x is large
+
+ [xy,z] = px2deg(p,xy,z)
+ p is a pldaps class or a struct with the field p.trial.display.viewdist
+ p.trial.display.px2w
+ xy is a [2 x N] array of x and y world coordinates
+ z (optional) is the viewing distance, which is assumed to be the orthogonal
+               distance of the observer to the screen and  defaults to 
+               p.trial.display.viewdist if not provided.
+ the result is
+ xy, a [2 x N] array of world coordinates and the optical output
+ z, [1 x N] vector of distances to those locations
+
+         xy=atand(xy/dv.trial.display.viewdist);</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="pldaps.html" class="code" title="function p = pldaps(varargin)">@pldaps/pldaps</a>	pldaps    main class for PLDAPS (Plexon Datapixx PsychToolbox) version 4.1</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../Parameters/display/viewdist.html" class="code" title="screend distance to the observer">.display.viewdist:</a>	
+        <a href="#_line0022" class="code"}">22 </a>screend distance to the observer</li></ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function [xy,z] = world2deg(p,xy,z)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%world2deg    convert from world coordinates to degrees of visual angle</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">% calculates the degrees of visual angle for an array of world coordinates</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% taking the depence of x and y degrees into account (i.e. that the</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% distance of the position e.g. y increases when x is large</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">%</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% [xy,z] = px2deg(p,xy,z)</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">% p is a pldaps class or a struct with the field p.trial.display.viewdist</span>
+</div><div id="_line0009" class="line">0009                 <span class="comment">% p.trial.display.px2w</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">% xy is a [2 x N] array of x and y world coordinates</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">% z (optional) is the viewing distance, which is assumed to be the orthogonal</span>
+</div><div id="_line0012" class="line">0012 <span class="comment">%               distance of the observer to the screen and  defaults to</span>
+</div><div id="_line0013" class="line">0013 <span class="comment">%               p.trial.display.viewdist if not provided.</span>
+</div><div id="_line0014" class="line">0014 <span class="comment">% the result is</span>
+</div><div id="_line0015" class="line">0015 <span class="comment">% xy, a [2 x N] array of world coordinates and the optical output</span>
+</div><div id="_line0016" class="line">0016 <span class="comment">% z, [1 x N] vector of distances to those locations</span>
+</div><div id="_line0017" class="line">0017 <span class="comment">%</span>
+</div><div id="_line0018" class="line">0018 <span class="comment">%         xy=atand(xy/dv.trial.display.viewdist);</span>
+</div><div id="_line0019" class="line">0019     warning(<span class="string">'pldaps:deg2px'</span>,<span class="string">'consider switching to the faster pds.deg2px'</span>);
+</div><div id="_line0020" class="line">0020     
+</div><div id="_line0021" class="line">0021     <span class="keyword">if</span>(nargin&lt;3)
+</div><div id="_line0022" class="line">0022         z=p.trial<a href="../../Parameters/display/viewdist.html" class="param" title="screend distance to the observer">.display.viewdist</a>;
+</div><div id="_line0023" class="line">0023     <span class="keyword">end</span>
+</div><div id="_line0024" class="line">0024    
+</div><div id="_line0025" class="line">0025     <span class="comment">%% caculate radius to tmp variable if requested</span>
+</div><div id="_line0026" class="line">0026     <span class="keyword">if</span>(nargout&gt;1) <span class="comment">%radius output requested</span>
+</div><div id="_line0027" class="line">0027         r=sum(xy.^2 + 0.5*z.^2);      <span class="comment">%calculate radius/distance from viewer</span>
+</div><div id="_line0028" class="line">0028     <span class="keyword">end</span>
+</div><div id="_line0029" class="line">0029     
+</div><div id="_line0030" class="line">0030     <span class="comment">%% do the actual conversion</span>
+</div><div id="_line0031" class="line">0031     <span class="keyword">if</span>(nargin&gt;2 &amp;&amp; size(z,2)~=1)
+</div><div id="_line0032" class="line">0032         xy=atand(xy./sqrt(flipud(xy).^2+[z;z].^2));
+</div><div id="_line0033" class="line">0033     <span class="keyword">else</span>
+</div><div id="_line0034" class="line">0034         xy=atand(xy./sqrt(flipud(xy).^2+z.^2));
+</div><div id="_line0035" class="line">0035     <span class="keyword">end</span>
+</div><div id="_line0036" class="line">0036      
+</div><div id="_line0037" class="line">0037     <span class="comment">%%copy over z</span>
+</div><div id="_line0038" class="line">0038     <span class="keyword">if</span>(nargout&gt;1) <span class="comment">%radius output requested</span>
+</div><div id="_line0039" class="line">0039         z=r;
+</div><div id="_line0040" class="line">0040     <span class="keyword">end</span>
+</div><div id="_line0041" class="line">0041 <span class="keyword">end</span>
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

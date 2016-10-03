@@ -1,0 +1,426 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of openScreen</title>
+  <meta name="keywords" content="openScreen">
+  <meta name="description" content="openScreen    opens PsychImaging Window with preferences set for special">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">PLDAPS</a> &gt; <a href="index.html">@pldaps</a> &gt; openScreen.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/@pldaps&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>openScreen
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>openScreen    opens PsychImaging Window with preferences set for special</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function p = openScreen(p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">openScreen    opens PsychImaging Window with preferences set for special
+              decives like datapixx.
+
+ required fields
+ p.defaultParameters.display.
+   stereoMode      [double] -  0 is no stereo
+   normalizeColor  [boolean] - 1 normalized color range on PTB screen
+   useOverlay      [double]  - 0,1,2 opens different overlay windows
+                             - 0=no overlay, 1=datapixx, 2=software
+   stereoFlip      [string]  - 'left', 'right', or [] flips one stereo
+                               image for the planar screen
+   colorclamp      [boolean] - 1 clamps color between 0 and 1
+   scrnNum         [double]  - number of screen to open
+   sourceFactorNew [string]  - see Screen Blendfunction?
+   destinationFactorNew      - see Screen Blendfunction?
+   widthcm
+   heightcm
+   viewdist
+   bgColor</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../PLDAPS/SupportFunctions/Utils/defaultColors.html" class="code" title="function p = defaultColors(p)">defaultColors</a>	p = defaultColors(p)</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="replay.html" class="code" title="function p = replay(p,input)">@pldaps/replay</a>	replay    replay a previously recorded experiment on screen</li><li><a href="run.html" class="code" title="function p = run(p)">@pldaps/run</a>	run    run a new experiment for a previuously created pldaps class</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../Parameters/datapixx/use.html" class="code" title="enable control of VPixx devices">.datapixx.use:</a>	
+        <a href="#_line0061" class="code"}">61 </a>    <a href="#_line0149" class="code"}">149 </a>enable control of VPixx devices</li><li><a href="../../Parameters/display/bgColor.html" class="code" title="background color. Can be changed during trial">.display.bgColor:</a>	
+        <a href="#_line0114" class="code"}">114 </a>    <a href="#_line0116" class="code"}">116 </a>    <a href="#_line0206" class="code"}">206 </a>background color. Can be changed during trial</li><li><a href="../../Parameters/display/colorclamp.html" class="code" title="clampt colors to [0-1] range. Typically not necessary">.display.colorclamp:</a>	
+        <a href="#_line0251" class="code"}">251 </a>clampt colors to [0-1] range. Typically not necessary</li><li><a href="../../Parameters/display/ctr.html" class="code" title="">.display.ctr:</a>	
+        <a href="#_line0158" class="code"}">158 </a></li><li><a href="../../Parameters/display/destinationFactorNew.html" class="code" title="Blending mode">.display.destinationFactorNew:</a>	
+        <a href="#_line0278" class="code"}">278 </a>    <a href="#_line0280" class="code"}">280 </a>Blending mode</li><li><a href="../../Parameters/display/forceLinearGamma.html" class="code" title="force a linear gamma table at the end of screen initiation.">.display.forceLinearGamma:</a>	
+        <a href="#_line0282" class="code"}">282 </a>force a linear gamma table at the end of screen initiation.</li><li><a href="../../Parameters/display/frate.html" class="code" title="">.display.frate:</a>	
+        <a href="#_line0269" class="code"}">269 </a></li><li><a href="../../Parameters/display/gamma/index.html" class="code" title="">.display.gamma:</a>	
+        <a href="#_line0235" class="code"}">235 </a>    <a href="#_line0236" class="code"}">236 </a>    <a href="#_line0238" class="code"}">238 </a>    <a href="#_line0243" class="code"}">243 </a></li><li><a href="../../Parameters/display/gamma/power.html" class="code" title="">.display.gamma.power:</a>	
+        <a href="#_line0240" class="code"}">240 </a></li><li><a href="../../Parameters/display/gamma/table.html" class="code" title="">.display.gamma.table:</a>	
+        <a href="#_line0237" class="code"}">237 </a></li><li><a href="../../Parameters/display/heightcm.html" class="code" title=" height of the visible screen in cm">.display.heightcm:</a>	
+        <a href="#_line0131" class="code"}">131 </a> height of the visible screen in cm</li><li><a href="../../Parameters/display/info/GLSupportsTexturesUpToBpc.html" class="code" title="">.display.info.GLSupportsTexturesUpToBpc:</a>	
+        <a href="#_line0185" class="code"}">185 </a>    <a href="#_line0188" class="code"}">188 </a></li><li><a href="../../Parameters/display/lookupstexs.html" class="code" title="">.display.lookupstexs:</a>	
+        <a href="#_line0216" class="code"}">216 </a>    <a href="#_line0217" class="code"}">217 </a></li><li><a href="../../Parameters/display/ltheta.html" class="code" title="">.display.ltheta:</a>	
+        <a href="#_line0139" class="code"}">139 </a></li><li><a href="../../Parameters/display/movie/index.html" class="code" title="optinal create of videos, typically used during replay">.display.movie:</a>	
+        <a href="#_line0261" class="code"}">261 </a>optinal create of videos, typically used during replay</li><li><a href="../../Parameters/display/movie/create.html" class="code" title="toggle movie creation">.display.movie.create:</a>	
+        <a href="#_line0260" class="code"}">260 </a>toggle movie creation</li><li><a href="../../Parameters/display/normalizeColor.html" class="code" title="use colors in [0-1] range. Often implied by other setting anyway">.display.normalizeColor:</a>	
+        <a href="#_line0050" class="code"}">50 </a>use colors in [0-1] range. Often implied by other setting anyway</li><li><a href="../../Parameters/display/overlayptr.html" class="code" title="">.display.overlayptr:</a>	
+        <a href="#_line0168" class="code"}">168 </a></li><li><a href="../../Parameters/display/overlaytex.html" class="code" title="">.display.overlaytex:</a>	
+        <a href="#_line0173" class="code"}">173 </a>    <a href="#_line0215" class="code"}">215 </a></li><li><a href="../../Parameters/display/pHeight.html" class="code" title="">.display.pHeight:</a>	
+        <a href="#_line0134" class="code"}">134 </a>    <a href="#_line0135" class="code"}">135 </a>    <a href="#_line0164" class="code"}">164 </a>    <a href="#_line0205" class="code"}">205 </a></li><li><a href="../../Parameters/display/pWidth.html" class="code" title="">.display.pWidth:</a>	
+        <a href="#_line0134" class="code"}">134 </a>    <a href="#_line0135" class="code"}">135 </a>    <a href="#_line0157" class="code"}">157 </a>    <a href="#_line0164" class="code"}">164 </a>    <a href="#_line0205" class="code"}">205 </a></li><li><a href="../../Parameters/display/ptr.html" class="code" title="">.display.ptr:</a>	
+        <a href="#_line0122" class="code"}">122 </a>    <a href="#_line0123" class="code"}">123 </a>    <a href="#_line0125" class="code"}">125 </a>    <a href="#_line0143" class="code"}">143 </a>    <a href="#_line0144" class="code"}">144 </a>    <a href="#_line0145" class="code"}">145 </a>    <a href="#_line0150" class="code"}">150 </a>    <a href="#_line0153" class="code"}">153 </a>    <a href="#_line0163" class="code"}">163 </a>    <a href="#_line0164" class="code"}">164 </a>    <a href="#_line0165" class="code"}">165 </a>    <a href="#_line0168" class="code"}">168 </a>    <a href="#_line0180" class="code"}">180 </a>    <a href="#_line0222" class="code"}">222 </a>    <a href="#_line0223" class="code"}">223 </a>    <a href="#_line0224" class="code"}">224 </a>    <a href="#_line0226" class="code"}">226 </a>    <a href="#_line0237" class="code"}">237 </a>    <a href="#_line0240" class="code"}">240 </a>    <a href="#_line0243" class="code"}">243 </a>    <a href="#_line0256" class="code"}">256 </a>    <a href="#_line0280" class="code"}">280 </a>    <a href="#_line0283" class="code"}">283 </a>    <a href="#_line0287" class="code"}">287 </a></li><li><a href="../../Parameters/display/screenSize.html" class="code" title="size of the window to create pixels in, leave empty for fullscreen">.display.screenSize:</a>	
+        <a href="#_line0116" class="code"}">116 </a>size of the window to create pixels in, leave empty for fullscreen</li><li><a href="../../Parameters/display/scrnNum.html" class="code" title="screen numer for fullscreen display">.display.scrnNum:</a>	
+        <a href="#_line0114" class="code"}">114 </a>    <a href="#_line0116" class="code"}">116 </a>screen numer for fullscreen display</li><li><a href="../../Parameters/display/shader.html" class="code" title="">.display.shader:</a>	
+        <a href="#_line0201" class="code"}">201 </a>    <a href="#_line0202" class="code"}">202 </a>    <a href="#_line0203" class="code"}">203 </a>    <a href="#_line0205" class="code"}">205 </a>    <a href="#_line0207" class="code"}">207 </a>    <a href="#_line0208" class="code"}">208 </a>    <a href="#_line0209" class="code"}">209 </a>    <a href="#_line0223" class="code"}">223 </a></li><li><a href="../../Parameters/display/sourceFactorNew.html" class="code" title="Blending mode">.display.sourceFactorNew:</a>	
+        <a href="#_line0278" class="code"}">278 </a>    <a href="#_line0280" class="code"}">280 </a>Blending mode</li><li><a href="../../Parameters/display/stereoFlip.html" class="code" title="check before use if supported">.display.stereoFlip:</a>	
+        <a href="#_line0084" class="code"}">84 </a>    <a href="#_line0091" class="code"}">91 </a>check before use if supported</li><li><a href="../../Parameters/display/stereoMode.html" class="code" title="check before use if supported">.display.stereoMode:</a>	
+        <a href="#_line0044" class="code"}">44 </a>    <a href="#_line0044" class="code"}">44 </a>    <a href="#_line0114" class="code"}">114 </a>    <a href="#_line0116" class="code"}">116 </a>check before use if supported</li><li><a href="../../Parameters/display/useOverlay.html" class="code" title="create an overlay pointer.">.display.useOverlay:</a>	
+        <a href="#_line0070" class="code"}">70 </a>    <a href="#_line0148" class="code"}">148 </a>    <a href="#_line0155" class="code"}">155 </a>create an overlay pointer.</li><li><a href="../../Parameters/display/viewdist.html" class="code" title="screend distance to the observer">.display.viewdist:</a>	
+        <a href="#_line0045" class="code"}">45 </a>    <a href="#_line0047" class="code"}">47 </a>    <a href="#_line0132" class="code"}">132 </a>    <a href="#_line0133" class="code"}">133 </a>screend distance to the observer</li><li><a href="../../Parameters/display/wHeight.html" class="code" title="">.display.wHeight:</a>	
+        <a href="#_line0133" class="code"}">133 </a>    <a href="#_line0134" class="code"}">134 </a>    <a href="#_line0135" class="code"}">135 </a></li><li><a href="../../Parameters/display/wWidth.html" class="code" title="">.display.wWidth:</a>	
+        <a href="#_line0132" class="code"}">132 </a>    <a href="#_line0134" class="code"}">134 </a>    <a href="#_line0135" class="code"}">135 </a></li><li><a href="../../Parameters/display/width.html" class="code" title="">.display.width:</a>	
+        <a href="#_line0121" class="code"}">121 </a></li><li><a href="../../Parameters/display/widthcm.html" class="code" title=" width  of the visible screen in cm">.display.widthcm:</a>	
+        <a href="#_line0045" class="code"}">45 </a>    <a href="#_line0047" class="code"}">47 </a>    <a href="#_line0130" class="code"}">130 </a> width  of the visible screen in cm</li><li><a href="../../Parameters/display/winRect.html" class="code" title="">.display.winRect:</a>	
+        <a href="#_line0121" class="code"}">121 </a>    <a href="#_line0124" class="code"}">124 </a>    <a href="#_line0124" class="code"}">124 </a>    <a href="#_line0128" class="code"}">128 </a>    <a href="#_line0128" class="code"}">128 </a>    <a href="#_line0129" class="code"}">129 </a>    <a href="#_line0129" class="code"}">129 </a></li><li><a href="../../Parameters/session/dir.html" class="code" title="">.session.dir:</a>	
+        <a href="#_line0266" class="code"}">266 </a></li><li><a href="../../Parameters/session/file.html" class="code" title="">.session.file:</a>	
+        <a href="#_line0263" class="code"}">263 </a></li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../Parameters/display/ctr.html" class="code" title="">.display.ctr:</a>
+        <a href="#_line0124" class="code"}">124 </a>    <a href="#_line0158" class="code"}">158 </a></li><li><a href="../../Parameters/display/dHeight.html" class="code" title="">.display.dHeight:</a>
+        <a href="#_line0133" class="code"}">133 </a></li><li><a href="../../Parameters/display/dWidth.html" class="code" title="">.display.dWidth:</a>
+        <a href="#_line0132" class="code"}">132 </a></li><li><a href="../../Parameters/display/frate.html" class="code" title="">.display.frate:</a>
+        <a href="#_line0122" class="code"}">122 </a></li><li><a href="../../Parameters/display/ifi.html" class="code" title="">.display.ifi:</a>
+        <a href="#_line0123" class="code"}">123 </a></li><li><a href="../../Parameters/display/info/index.html" class="code" title="">.display.info:</a>
+        <a href="#_line0125" class="code"}">125 </a></li><li><a href="../../Parameters/display/internalFormat.html" class="code" title="">.display.internalFormat:</a>
+        <a href="#_line0187" class="code"}">187 </a>    <a href="#_line0191" class="code"}">191 </a>    <a href="#_line0195" class="code"}">195 </a></li><li><a href="../../Parameters/display/lookupstexs.html" class="code" title="">.display.lookupstexs:</a>
+        <a href="#_line0199" class="code"}">199 </a></li><li><a href="../../Parameters/display/ltheta.html" class="code" title="">.display.ltheta:</a>
+        <a href="#_line0138" class="code"}">138 </a></li><li><a href="../../Parameters/display/movie/index.html" class="code" title="optinal create of videos, typically used during replay">.display.movie:</a>
+        <a href="#_line0272" class="code"}">272 </a>optinal create of videos, typically used during replay</li><li><a href="../../Parameters/display/overlayptr.html" class="code" title="">.display.overlayptr:</a>
+        <a href="#_line0150" class="code"}">150 </a>    <a href="#_line0153" class="code"}">153 </a>    <a href="#_line0164" class="code"}">164 </a>    <a href="#_line0226" class="code"}">226 </a></li><li><a href="../../Parameters/display/overlaytex.html" class="code" title="">.display.overlaytex:</a>
+        <a href="#_line0168" class="code"}">168 </a></li><li><a href="../../Parameters/display/pHeight.html" class="code" title="">.display.pHeight:</a>
+        <a href="#_line0129" class="code"}">129 </a></li><li><a href="../../Parameters/display/pWidth.html" class="code" title="">.display.pWidth:</a>
+        <a href="#_line0128" class="code"}">128 </a>    <a href="#_line0157" class="code"}">157 </a></li><li><a href="../../Parameters/display/ppd.html" class="code" title="">.display.ppd:</a>
+        <a href="#_line0121" class="code"}">121 </a></li><li><a href="../../Parameters/display/ptr.html" class="code" title="">.display.ptr:</a>
+        <a href="#_line0117" class="code"}">117 </a></li><li><a href="../../Parameters/display/px2w.html" class="code" title="">.display.px2w:</a>
+        <a href="#_line0135" class="code"}">135 </a></li><li><a href="../../Parameters/display/rtheta.html" class="code" title="">.display.rtheta:</a>
+        <a href="#_line0139" class="code"}">139 </a></li><li><a href="../../Parameters/display/scr_rot.html" class="code" title="">.display.scr_rot:</a>
+        <a href="#_line0140" class="code"}">140 </a></li><li><a href="../../Parameters/display/shader.html" class="code" title="">.display.shader:</a>
+        <a href="#_line0183" class="code"}">183 </a></li><li><a href="../../Parameters/display/t0.html" class="code" title="">.display.t0:</a>
+        <a href="#_line0287" class="code"}">287 </a></li><li><a href="../../Parameters/display/w2px.html" class="code" title="">.display.w2px:</a>
+        <a href="#_line0134" class="code"}">134 </a></li><li><a href="../../Parameters/display/wHeight.html" class="code" title="">.display.wHeight:</a>
+        <a href="#_line0131" class="code"}">131 </a></li><li><a href="../../Parameters/display/wWidth.html" class="code" title="">.display.wWidth:</a>
+        <a href="#_line0130" class="code"}">130 </a></li><li><a href="../../Parameters/display/width.html" class="code" title="">.display.width:</a>
+        <a href="#_line0045" class="code"}">45 </a>    <a href="#_line0047" class="code"}">47 </a></li><li><a href="../../Parameters/display/winRect.html" class="code" title="">.display.winRect:</a>
+        <a href="#_line0118" class="code"}">118 </a></li></ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function p = openScreen(p)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%openScreen    opens PsychImaging Window with preferences set for special</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%              decives like datapixx.</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">%</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% required fields</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% p.defaultParameters.display.</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">%   stereoMode      [double] -  0 is no stereo</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">%   normalizeColor  [boolean] - 1 normalized color range on PTB screen</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">%   useOverlay      [double]  - 0,1,2 opens different overlay windows</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">%                             - 0=no overlay, 1=datapixx, 2=software</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">%   stereoFlip      [string]  - 'left', 'right', or [] flips one stereo</span>
+</div><div id="_line0012" class="line">0012 <span class="comment">%                               image for the planar screen</span>
+</div><div id="_line0013" class="line">0013 <span class="comment">%   colorclamp      [boolean] - 1 clamps color between 0 and 1</span>
+</div><div id="_line0014" class="line">0014 <span class="comment">%   scrnNum         [double]  - number of screen to open</span>
+</div><div id="_line0015" class="line">0015 <span class="comment">%   sourceFactorNew [string]  - see Screen Blendfunction?</span>
+</div><div id="_line0016" class="line">0016 <span class="comment">%   destinationFactorNew      - see Screen Blendfunction?</span>
+</div><div id="_line0017" class="line">0017 <span class="comment">%   widthcm</span>
+</div><div id="_line0018" class="line">0018 <span class="comment">%   heightcm</span>
+</div><div id="_line0019" class="line">0019 <span class="comment">%   viewdist</span>
+</div><div id="_line0020" class="line">0020 <span class="comment">%   bgColor</span>
+</div><div id="_line0021" class="line">0021 
+</div><div id="_line0022" class="line">0022 <span class="comment">% 12/12/2013 jly wrote it   Mostly taken from Init_StereoDispPI without any</span>
+</div><div id="_line0023" class="line">0023 <span class="comment">%                           of the switch-case in the front for each rig.</span>
+</div><div id="_line0024" class="line">0024 <span class="comment">%                           This assumes you have set up your display</span>
+</div><div id="_line0025" class="line">0025 <span class="comment">%                           struct before calling.</span>
+</div><div id="_line0026" class="line">0026 <span class="comment">% 01/20/2014 jly update     Updated help text and added default arguments.</span>
+</div><div id="_line0027" class="line">0027 <span class="comment">%                           Created a distinct variable to separate</span>
+</div><div id="_line0028" class="line">0028 <span class="comment">%                           colorclamp and normalize color.</span>
+</div><div id="_line0029" class="line">0029 <span class="comment">% 05/2015    jk  update     changed for use with version 4.1</span>
+</div><div id="_line0030" class="line">0030 <span class="comment">%                           moved default parameters to the</span>
+</div><div id="_line0031" class="line">0031 <span class="comment">%                           pldapsClassDefaultParameters</span>
+</div><div id="_line0032" class="line">0032 
+</div><div id="_line0033" class="line">0033 
+</div><div id="_line0034" class="line">0034 InitializeMatlabOpenGL(0,0); <span class="comment">%second 0: debug level =0 for speed</span>
+</div><div id="_line0035" class="line">0035 <span class="comment">% prevent splash screen</span>
+</div><div id="_line0036" class="line">0036 Screen(<span class="string">'Preference'</span>,<span class="string">'VisualDebugLevel'</span>,3);
+</div><div id="_line0037" class="line">0037 <span class="comment">% Initiate Psych Imaging screen configs</span>
+</div><div id="_line0038" class="line">0038 PsychImaging(<span class="string">'PrepareConfiguration'</span>);
+</div><div id="_line0039" class="line">0039 
+</div><div id="_line0040" class="line">0040 <span class="comment">%% Setup Psych Imaging</span>
+</div><div id="_line0041" class="line">0041 <span class="comment">% Add appropriate tasks to psych imaging pipeline</span>
+</div><div id="_line0042" class="line">0042 
+</div><div id="_line0043" class="line">0043 <span class="comment">% set the size of the screen</span>
+</div><div id="_line0044" class="line">0044 <span class="keyword">if</span> p.trial<a href="../../Parameters/display/stereoMode.html" class="param" title="check before use if supported">.display.stereoMode</a> &gt;= 6 || p.trial<a href="../../Parameters/display/stereoMode.html" class="param" title="check before use if supported">.display.stereoMode</a> &lt;=1
+</div><div id="_line0045" class="line">0045     p.trial<a href="../../Parameters/display/width.html" class="param" title="">.display.width</a> = 2*atand(p.trial<a href="../../Parameters/display/widthcm.html" class="param" title=" width  of the visible screen in cm">.display.widthcm</a>/2/p.trial<a href="../../Parameters/display/viewdist.html" class="param" title="screend distance to the observer">.display.viewdist</a>);
+</div><div id="_line0046" class="line">0046 <span class="keyword">else</span>
+</div><div id="_line0047" class="line">0047     p.trial<a href="../../Parameters/display/width.html" class="param" title="">.display.width</a> = 2*atand((p.trial<a href="../../Parameters/display/widthcm.html" class="param" title=" width  of the visible screen in cm">.display.widthcm</a>/4)/p.trial<a href="../../Parameters/display/viewdist.html" class="param" title="screend distance to the observer">.display.viewdist</a>);
+</div><div id="_line0048" class="line">0048 <span class="keyword">end</span>
+</div><div id="_line0049" class="line">0049 
+</div><div id="_line0050" class="line">0050 <span class="keyword">if</span> p.trial<a href="../../Parameters/display/normalizeColor.html" class="param" title="use colors in [0-1] range. Often implied by other setting anyway">.display.normalizeColor</a> == 1
+</div><div id="_line0051" class="line">0051     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0052" class="line">0052     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0053" class="line">0053     disp(<span class="string">'Turning on Normalized High res Color Range'</span>)
+</div><div id="_line0054" class="line">0054     disp(<span class="string">'Sets all displays to use color range from 0-1 (e.g. NOT 0-255)'</span>)
+</div><div id="_line0055" class="line">0055     disp(<span class="string">'Potential danger: this fxn sets color range to unclamped...don''t'</span>)
+</div><div id="_line0056" class="line">0056     disp(<span class="string">'know if this will cause issue. TBC 12-18-2012'</span>)
+</div><div id="_line0057" class="line">0057     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0058" class="line">0058     PsychImaging(<span class="string">'AddTask'</span>, <span class="string">'General'</span>, <span class="string">'NormalizedHighresColorRange'</span>);
+</div><div id="_line0059" class="line">0059 <span class="keyword">end</span>
+</div><div id="_line0060" class="line">0060 
+</div><div id="_line0061" class="line">0061 <span class="keyword">if</span> p.trial<a href="../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a>
+</div><div id="_line0062" class="line">0062     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0063" class="line">0063     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0064" class="line">0064     disp(<span class="string">'Adds flags for UseDataPixx'</span>)
+</div><div id="_line0065" class="line">0065     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0066" class="line">0066     <span class="comment">% Tell PTB we are using Datapixx</span>
+</div><div id="_line0067" class="line">0067     PsychImaging(<span class="string">'AddTask'</span>, <span class="string">'General'</span>, <span class="string">'UseDataPixx'</span>);
+</div><div id="_line0068" class="line">0068     PsychImaging(<span class="string">'AddTask'</span>, <span class="string">'General'</span>, <span class="string">'FloatingPoint32Bit'</span>,<span class="string">'disableDithering'</span>,1);
+</div><div id="_line0069" class="line">0069     
+</div><div id="_line0070" class="line">0070     <span class="keyword">if</span> p.trial<a href="../../Parameters/display/useOverlay.html" class="param" title="create an overlay pointer.">.display.useOverlay</a>==1
+</div><div id="_line0071" class="line">0071         <span class="comment">% Turn on the overlay</span>
+</div><div id="_line0072" class="line">0072         disp(<span class="string">'Using overlay window (EnableDataPixxM16OutputWithOverlay)'</span>)
+</div><div id="_line0073" class="line">0073         disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0074" class="line">0074         PsychImaging(<span class="string">'AddTask'</span>, <span class="string">'General'</span>, <span class="string">'EnableDataPixxM16OutputWithOverlay'</span>);
+</div><div id="_line0075" class="line">0075     <span class="keyword">end</span>
+</div><div id="_line0076" class="line">0076 <span class="keyword">else</span>
+</div><div id="_line0077" class="line">0077 <span class="comment">%     disp('****************************************************************')</span>
+</div><div id="_line0078" class="line">0078 <span class="comment">%     disp('****************************************************************')</span>
+</div><div id="_line0079" class="line">0079 <span class="comment">%     disp('No overlay window')</span>
+</div><div id="_line0080" class="line">0080 <span class="comment">%     disp('****************************************************************')</span>
+</div><div id="_line0081" class="line">0081     PsychImaging(<span class="string">'AddTask'</span>, <span class="string">'General'</span>, <span class="string">'FloatingPoint32BitIfPossible'</span>);
+</div><div id="_line0082" class="line">0082 <span class="keyword">end</span>
+</div><div id="_line0083" class="line">0083 
+</div><div id="_line0084" class="line">0084 <span class="keyword">if</span> strcmp(p.trial<a href="../../Parameters/display/stereoFlip.html" class="param" title="check before use if supported">.display.stereoFlip</a>,<span class="string">'right'</span>);
+</div><div id="_line0085" class="line">0085     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0086" class="line">0086     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0087" class="line">0087     disp(<span class="string">'Setting stereo mode for use with planar'</span>)
+</div><div id="_line0088" class="line">0088     disp(<span class="string">'Flipping the RIGHT monitor to be a mirror image'</span>)
+</div><div id="_line0089" class="line">0089     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0090" class="line">0090     PsychImaging(<span class="string">'AddTask'</span>, <span class="string">'RightView'</span>, <span class="string">'FlipHorizontal'</span>);
+</div><div id="_line0091" class="line">0091 <span class="keyword">elseif</span> strcmp(p.trial<a href="../../Parameters/display/stereoFlip.html" class="param" title="check before use if supported">.display.stereoFlip</a>,<span class="string">'left'</span>)
+</div><div id="_line0092" class="line">0092     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0093" class="line">0093     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0094" class="line">0094     disp(<span class="string">'Setting stereo mode for use with planar'</span>)
+</div><div id="_line0095" class="line">0095     disp(<span class="string">'Flipping the LEFT monitor to be a mirror image'</span>)
+</div><div id="_line0096" class="line">0096     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0097" class="line">0097     PsychImaging(<span class="string">'AddTask'</span>, <span class="string">'LeftView'</span>, <span class="string">'FlipHorizontal'</span>);
+</div><div id="_line0098" class="line">0098 <span class="keyword">end</span>
+</div><div id="_line0099" class="line">0099 
+</div><div id="_line0100" class="line">0100 <span class="comment">% fancy gamma table for each screen</span>
+</div><div id="_line0101" class="line">0101 <span class="comment">% if 2 gamma tables</span>
+</div><div id="_line0102" class="line">0102 <span class="comment">% PsychImaging('AddTask', 'LeftView', 'DisplayColorCorrection', 'LookupTable');</span>
+</div><div id="_line0103" class="line">0103 <span class="comment">% PsychImaging('AddTask', 'RightView', 'DisplayColorCorrection', 'LookupTable');</span>
+</div><div id="_line0104" class="line">0104 <span class="comment">% end</span>
+</div><div id="_line0105" class="line">0105 disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0106" class="line">0106 disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0107" class="line">0107 disp(<span class="string">'Adding DisplayColorCorrection LookUpTable to FinalFormatting'</span>)
+</div><div id="_line0108" class="line">0108 disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0109" class="line">0109 PsychImaging(<span class="string">'AddTask'</span>, <span class="string">'FinalFormatting'</span>, <span class="string">'DisplayColorCorrection'</span>, <span class="string">'LookupTable'</span>);
+</div><div id="_line0110" class="line">0110 
+</div><div id="_line0111" class="line">0111 <span class="comment">%% Open double-buffered onscreen window with the requested stereo mode</span>
+</div><div id="_line0112" class="line">0112 disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0113" class="line">0113 disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0114" class="line">0114 fprintf(<span class="string">'Opening screen %d with background %02.2f in stereo mode %d\r'</span>, p.trial<a href="../../Parameters/display/scrnNum.html" class="param" title="screen numer for fullscreen display">.display.scrnNum</a>, p.trial<a href="../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>(1), p.trial<a href="../../Parameters/display/stereoMode.html" class="param" title="check before use if supported">.display.stereoMode</a>)
+</div><div id="_line0115" class="line">0115 disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0116" class="line">0116 [ptr, winRect]=PsychImaging(<span class="string">'OpenWindow'</span>, p.trial<a href="../../Parameters/display/scrnNum.html" class="param" title="screen numer for fullscreen display">.display.scrnNum</a>, p.trial<a href="../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>, p.trial<a href="../../Parameters/display/screenSize.html" class="param" title="size of the window to create pixels in, leave empty for fullscreen">.display.screenSize</a>, [], [], p.trial<a href="../../Parameters/display/stereoMode.html" class="param" title="check before use if supported">.display.stereoMode</a>, 0);
+</div><div id="_line0117" class="line">0117 p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>=ptr;
+</div><div id="_line0118" class="line">0118 p.trial<a href="../../Parameters/display/winRect.html" class="param" title="">.display.winRect</a>=winRect;
+</div><div id="_line0119" class="line">0119 
+</div><div id="_line0120" class="line">0120 <span class="comment">%% Set some basic variables about the display</span>
+</div><div id="_line0121" class="line">0121 p.trial<a href="../../Parameters/display/ppd.html" class="param" title="">.display.ppd</a> = p.trial<a href="../../Parameters/display/winRect.html" class="param" title="">.display.winRect</a>(3)/p.trial<a href="../../Parameters/display/width.html" class="param" title="">.display.width</a>; <span class="comment">% calculate pixels per degree</span>
+</div><div id="_line0122" class="line">0122 p.trial<a href="../../Parameters/display/frate.html" class="param" title="">.display.frate</a> = round(1/Screen(<span class="string">'GetFlipInterval'</span>,p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>));   <span class="comment">% frame rate (in Hz)</span>
+</div><div id="_line0123" class="line">0123 p.trial<a href="../../Parameters/display/ifi.html" class="param" title="">.display.ifi</a>=Screen(<span class="string">'GetFlipInterval'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>);               <span class="comment">% Inter-frame interval (frame rate in seconds)</span>
+</div><div id="_line0124" class="line">0124 p.trial<a href="../../Parameters/display/ctr.html" class="param" title="">.display.ctr</a> = [p.trial<a href="../../Parameters/display/winRect.html" class="param" title="">.display.winRect</a>(3:4),p.trial<a href="../../Parameters/display/winRect.html" class="param" title="">.display.winRect</a>(3:4)]./2 - 0.5;          <span class="comment">% Rect defining screen center</span>
+</div><div id="_line0125" class="line">0125 p.trial<a href="../../Parameters/display/info/index.html" class="param" title="">.display.info</a> = Screen(<span class="string">'GetWindowInfo'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>);              <span class="comment">% Record a bunch of general display settings</span>
+</div><div id="_line0126" class="line">0126 
+</div><div id="_line0127" class="line">0127 <span class="comment">%% some more</span>
+</div><div id="_line0128" class="line">0128 p.trial<a href="../../Parameters/display/pWidth.html" class="param" title="">.display.pWidth</a>=p.trial<a href="../../Parameters/display/winRect.html" class="param" title="">.display.winRect</a>(3)-p.trial<a href="../../Parameters/display/winRect.html" class="param" title="">.display.winRect</a>(1);
+</div><div id="_line0129" class="line">0129 p.trial<a href="../../Parameters/display/pHeight.html" class="param" title="">.display.pHeight</a>=p.trial<a href="../../Parameters/display/winRect.html" class="param" title="">.display.winRect</a>(4)-p.trial<a href="../../Parameters/display/winRect.html" class="param" title="">.display.winRect</a>(2);
+</div><div id="_line0130" class="line">0130 p.trial<a href="../../Parameters/display/wWidth.html" class="param" title="">.display.wWidth</a>=p.trial<a href="../../Parameters/display/widthcm.html" class="param" title=" width  of the visible screen in cm">.display.widthcm</a>;
+</div><div id="_line0131" class="line">0131 p.trial<a href="../../Parameters/display/wHeight.html" class="param" title="">.display.wHeight</a>=p.trial<a href="../../Parameters/display/heightcm.html" class="param" title=" height of the visible screen in cm">.display.heightcm</a>;
+</div><div id="_line0132" class="line">0132 p.trial<a href="../../Parameters/display/dWidth.html" class="param" title="">.display.dWidth</a> = atand(p.trial<a href="../../Parameters/display/wWidth.html" class="param" title="">.display.wWidth</a>/2 / p.trial<a href="../../Parameters/display/viewdist.html" class="param" title="screend distance to the observer">.display.viewdist</a>)*2;
+</div><div id="_line0133" class="line">0133 p.trial<a href="../../Parameters/display/dHeight.html" class="param" title="">.display.dHeight</a> = atand(p.trial<a href="../../Parameters/display/wHeight.html" class="param" title="">.display.wHeight</a>/2 / p.trial<a href="../../Parameters/display/viewdist.html" class="param" title="screend distance to the observer">.display.viewdist</a>)*2;
+</div><div id="_line0134" class="line">0134 p.trial<a href="../../Parameters/display/w2px.html" class="param" title="">.display.w2px</a>=[p.trial<a href="../../Parameters/display/pWidth.html" class="param" title="">.display.pWidth</a>/p.trial<a href="../../Parameters/display/wWidth.html" class="param" title="">.display.wWidth</a>; p.trial<a href="../../Parameters/display/pHeight.html" class="param" title="">.display.pHeight</a>/p.trial<a href="../../Parameters/display/wHeight.html" class="param" title="">.display.wHeight</a>];
+</div><div id="_line0135" class="line">0135 p.trial<a href="../../Parameters/display/px2w.html" class="param" title="">.display.px2w</a>=[p.trial<a href="../../Parameters/display/wWidth.html" class="param" title="">.display.wWidth</a>/p.trial<a href="../../Parameters/display/pWidth.html" class="param" title="">.display.pWidth</a>; p.trial<a href="../../Parameters/display/wHeight.html" class="param" title="">.display.wHeight</a>/p.trial<a href="../../Parameters/display/pHeight.html" class="param" title="">.display.pHeight</a>];
+</div><div id="_line0136" class="line">0136 
+</div><div id="_line0137" class="line">0137 <span class="comment">% Set screen rotation</span>
+</div><div id="_line0138" class="line">0138 p.trial<a href="../../Parameters/display/ltheta.html" class="param" title="">.display.ltheta</a> = 0.00*pi;                                    <span class="comment">% Screen rotation to adjust for mirrors</span>
+</div><div id="_line0139" class="line">0139 p.trial<a href="../../Parameters/display/rtheta.html" class="param" title="">.display.rtheta</a> = -p.trial<a href="../../Parameters/display/ltheta.html" class="param" title="">.display.ltheta</a>;
+</div><div id="_line0140" class="line">0140 p.trial<a href="../../Parameters/display/scr_rot.html" class="param" title="">.display.scr_rot</a> = 0;                                         <span class="comment">% Screen Rotation for opponency conditions</span>
+</div><div id="_line0141" class="line">0141 
+</div><div id="_line0142" class="line">0142 <span class="comment">% Make text clean</span>
+</div><div id="_line0143" class="line">0143 Screen(<span class="string">'TextFont'</span>,p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>,<span class="string">'Helvetica'</span>);
+</div><div id="_line0144" class="line">0144 Screen(<span class="string">'TextSize'</span>,p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>,16);
+</div><div id="_line0145" class="line">0145 Screen(<span class="string">'TextStyle'</span>,p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>,1);
+</div><div id="_line0146" class="line">0146 
+</div><div id="_line0147" class="line">0147 <span class="comment">%% Assign overlay pointer</span>
+</div><div id="_line0148" class="line">0148 <span class="keyword">if</span> p.trial<a href="../../Parameters/display/useOverlay.html" class="param" title="create an overlay pointer.">.display.useOverlay</a>==1
+</div><div id="_line0149" class="line">0149     <span class="keyword">if</span> p.trial<a href="../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a>
+</div><div id="_line0150" class="line">0150         p.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a> = PsychImaging(<span class="string">'GetOverlayWindow'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>); <span class="comment">% , dv.params.bgColor);</span>
+</div><div id="_line0151" class="line">0151     <span class="keyword">else</span>
+</div><div id="_line0152" class="line">0152         warning(<span class="string">'pldaps:openScreen'</span>, <span class="string">'Datapixx Overlay requested but datapixx disabled. No Dual head overlay availiable!'</span>)
+</div><div id="_line0153" class="line">0153         p.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a> = p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>;
+</div><div id="_line0154" class="line">0154     <span class="keyword">end</span>
+</div><div id="_line0155" class="line">0155 <span class="keyword">elseif</span> p.trial<a href="../../Parameters/display/useOverlay.html" class="param" title="create an overlay pointer.">.display.useOverlay</a>==2
+</div><div id="_line0156" class="line">0156     <span class="comment">% if using a software overlay, adjust the window size to be half</span>
+</div><div id="_line0157" class="line">0157     p.trial<a href="../../Parameters/display/pWidth.html" class="param" title="">.display.pWidth</a>=p.trial<a href="../../Parameters/display/pWidth.html" class="param" title="">.display.pWidth</a>/2;
+</div><div id="_line0158" class="line">0158     p.trial<a href="../../Parameters/display/ctr.html" class="param" title="">.display.ctr</a>([1 3])=p.trial<a href="../../Parameters/display/ctr.html" class="param" title="">.display.ctr</a>([1 3])/2;
+</div><div id="_line0159" class="line">0159     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0160" class="line">0160     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0161" class="line">0161     disp(<span class="string">'Using software overlay window'</span>)
+</div><div id="_line0162" class="line">0162     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0163" class="line">0163     Screen(<span class="string">'ColorRange'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, 255)
+</div><div id="_line0164" class="line">0164     p.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a>=Screen(<span class="string">'OpenOffscreenWindow'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, 0, [0 0 p.trial<a href="../../Parameters/display/pWidth.html" class="param" title="">.display.pWidth</a> p.trial<a href="../../Parameters/display/pHeight.html" class="param" title="">.display.pHeight</a>], 8, 32);
+</div><div id="_line0165" class="line">0165     Screen(<span class="string">'ColorRange'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, 1);
+</div><div id="_line0166" class="line">0166     
+</div><div id="_line0167" class="line">0167     <span class="comment">% Retrieve low-level OpenGl texture handle to the window:</span>
+</div><div id="_line0168" class="line">0168     p.trial<a href="../../Parameters/display/overlaytex.html" class="param" title="">.display.overlaytex</a> = Screen(<span class="string">'GetOpenGLTexture'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, p.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a>);
+</div><div id="_line0169" class="line">0169     
+</div><div id="_line0170" class="line">0170     <span class="comment">% Disable bilinear filtering on this texture - always use</span>
+</div><div id="_line0171" class="line">0171     <span class="comment">% nearest neighbour sampling to avoid interpolation artifacts</span>
+</div><div id="_line0172" class="line">0172     <span class="comment">% in color index image for clut indexing:</span>
+</div><div id="_line0173" class="line">0173     glBindTexture(GL.TEXTURE_RECTANGLE_EXT, p.trial<a href="../../Parameters/display/overlaytex.html" class="param" title="">.display.overlaytex</a>);
+</div><div id="_line0174" class="line">0174     glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+</div><div id="_line0175" class="line">0175     glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+</div><div id="_line0176" class="line">0176     glBindTexture(GL.TEXTURE_RECTANGLE_EXT, 0);
+</div><div id="_line0177" class="line">0177 
+</div><div id="_line0178" class="line">0178     <span class="comment">%% get information of current processing chain</span>
+</div><div id="_line0179" class="line">0179     debuglevel = 1;
+</div><div id="_line0180" class="line">0180     [icmShaders, icmIdString, icmConfig] = PsychColorCorrection(<span class="string">'GetCompiledShaders'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, debuglevel);
+</div><div id="_line0181" class="line">0181 
+</div><div id="_line0182" class="line">0182     pathtopldaps=which(<span class="string">'pldaps.m'</span>);
+</div><div id="_line0183" class="line">0183     p.trial<a href="../../Parameters/display/shader.html" class="param" title="">.display.shader</a> = LoadGLSLProgramFromFiles(fullfile(pathtopldaps, <span class="string">'..'</span>, <span class="string">'..'</span>, <span class="string">'SupportFunctions'</span>, <span class="string">'Utils'</span>, <span class="string">'overlay_shader.frag'</span>),2,icmShaders);
+</div><div id="_line0184" class="line">0184 
+</div><div id="_line0185" class="line">0185     <span class="keyword">if</span> p.trial<a href="../../Parameters/display/info/GLSupportsTexturesUpToBpc.html" class="param" title="">.display.info.GLSupportsTexturesUpToBpc</a> &gt;= 32
+</div><div id="_line0186" class="line">0186         <span class="comment">% Full 32 bits single precision float:</span>
+</div><div id="_line0187" class="line">0187         p.trial<a href="../../Parameters/display/internalFormat.html" class="param" title="">.display.internalFormat</a> = GL.LUMINANCE_FLOAT32_APPLE;
+</div><div id="_line0188" class="line">0188     <span class="keyword">elseif</span> p.trial<a href="../../Parameters/display/info/GLSupportsTexturesUpToBpc.html" class="param" title="">.display.info.GLSupportsTexturesUpToBpc</a> &gt;= 16
+</div><div id="_line0189" class="line">0189         <span class="comment">% No float32 textures:</span>
+</div><div id="_line0190" class="line">0190         <span class="comment">% Choose 16 bpc float textures:</span>
+</div><div id="_line0191" class="line">0191         p.trial<a href="../../Parameters/display/internalFormat.html" class="param" title="">.display.internalFormat</a> = GL.LUMINANCE_FLOAT16_APPLE;
+</div><div id="_line0192" class="line">0192     <span class="keyword">else</span>
+</div><div id="_line0193" class="line">0193         <span class="comment">% No support for &gt; 8 bpc textures at all and/or no need for</span>
+</div><div id="_line0194" class="line">0194         <span class="comment">% more than 8 bpc precision or range. Choose 8 bpc texture:</span>
+</div><div id="_line0195" class="line">0195         p.trial<a href="../../Parameters/display/internalFormat.html" class="param" title="">.display.internalFormat</a> = GL.LUMINANCE;
+</div><div id="_line0196" class="line">0196     <span class="keyword">end</span>
+</div><div id="_line0197" class="line">0197 
+</div><div id="_line0198" class="line">0198     <span class="comment">%create look up textures</span>
+</div><div id="_line0199" class="line">0199     p.trial<a href="../../Parameters/display/lookupstexs.html" class="param" title="">.display.lookupstexs</a>=glGenTextures(2);
+</div><div id="_line0200" class="line">0200     <span class="comment">%% set variables in the shader</span>
+</div><div id="_line0201" class="line">0201     glUseProgram(p.trial<a href="../../Parameters/display/shader.html" class="param" title="">.display.shader</a>);
+</div><div id="_line0202" class="line">0202     glUniform1i(glGetUniformLocation(p.trial<a href="../../Parameters/display/shader.html" class="param" title="">.display.shader</a>,<span class="string">'lookup1'</span>),3);
+</div><div id="_line0203" class="line">0203     glUniform1i(glGetUniformLocation(p.trial<a href="../../Parameters/display/shader.html" class="param" title="">.display.shader</a>,<span class="string">'lookup2'</span>),4);
+</div><div id="_line0204" class="line">0204 
+</div><div id="_line0205" class="line">0205     glUniform2f(glGetUniformLocation(p.trial<a href="../../Parameters/display/shader.html" class="param" title="">.display.shader</a>, <span class="string">'res'</span>), p.trial<a href="../../Parameters/display/pWidth.html" class="param" title="">.display.pWidth</a>, p.trial<a href="../../Parameters/display/pHeight.html" class="param" title="">.display.pHeight</a>);
+</div><div id="_line0206" class="line">0206     bgColor=p.trial<a href="../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>;
+</div><div id="_line0207" class="line">0207     glUniform3f(glGetUniformLocation(p.trial<a href="../../Parameters/display/shader.html" class="param" title="">.display.shader</a>, <span class="string">'transparencycolor'</span>), bgColor(1), bgColor(2), bgColor(3));
+</div><div id="_line0208" class="line">0208     glUniform1i(glGetUniformLocation(p.trial<a href="../../Parameters/display/shader.html" class="param" title="">.display.shader</a>, <span class="string">'overlayImage'</span>), 1);
+</div><div id="_line0209" class="line">0209     glUniform1i(glGetUniformLocation(p.trial<a href="../../Parameters/display/shader.html" class="param" title="">.display.shader</a>, <span class="string">'Image'</span>), 0);
+</div><div id="_line0210" class="line">0210     glUseProgram(0);
+</div><div id="_line0211" class="line">0211 
+</div><div id="_line0212" class="line">0212     <span class="comment">%% assign the overlay texture as the input 1 (which mapps to 'overlayImage' as set above)</span>
+</div><div id="_line0213" class="line">0213     <span class="comment">% It gets passed to the HookFunction call.</span>
+</div><div id="_line0214" class="line">0214     <span class="comment">% Input 0 is the main pointer by default.</span>
+</div><div id="_line0215" class="line">0215     pString = sprintf(<span class="string">'TEXTURERECT2D(1)=%i '</span>, p.trial<a href="../../Parameters/display/overlaytex.html" class="param" title="">.display.overlaytex</a>);
+</div><div id="_line0216" class="line">0216     pString = [pString sprintf(<span class="string">'TEXTURERECT2D(3)=%i '</span>, p.trial<a href="../../Parameters/display/lookupstexs.html" class="param" title="">.display.lookupstexs</a>(1))];
+</div><div id="_line0217" class="line">0217     pString = [pString sprintf(<span class="string">'TEXTURERECT2D(4)=%i '</span>, p.trial<a href="../../Parameters/display/lookupstexs.html" class="param" title="">.display.lookupstexs</a>(2))];
+</div><div id="_line0218" class="line">0218     
+</div><div id="_line0219" class="line">0219     <span class="comment">%add information to the current processing chain</span>
+</div><div id="_line0220" class="line">0220     idString = sprintf(<span class="string">'Overlay Shader : %s'</span>, icmIdString);
+</div><div id="_line0221" class="line">0221     pString  = [ pString icmConfig ];
+</div><div id="_line0222" class="line">0222     Screen(<span class="string">'HookFunction'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, <span class="string">'Reset'</span>, <span class="string">'FinalOutputFormattingBlit'</span>);
+</div><div id="_line0223" class="line">0223     Screen(<span class="string">'HookFunction'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, <span class="string">'AppendShader'</span>, <span class="string">'FinalOutputFormattingBlit'</span>, idString, p.trial<a href="../../Parameters/display/shader.html" class="param" title="">.display.shader</a>, pString);
+</div><div id="_line0224" class="line">0224     PsychColorCorrection(<span class="string">'ApplyPostGLSLLinkSetup'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, <span class="string">'FinalFormatting'</span>);
+</div><div id="_line0225" class="line">0225 <span class="keyword">else</span>
+</div><div id="_line0226" class="line">0226     p.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a> = p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>;
+</div><div id="_line0227" class="line">0227 <span class="keyword">end</span>
+</div><div id="_line0228" class="line">0228 
+</div><div id="_line0229" class="line">0229 <span class="comment">% % Set gamma lookup table</span>
+</div><div id="_line0230" class="line">0230 <span class="keyword">if</span> isField(p.trial, <span class="string">'display.gamma'</span>)
+</div><div id="_line0231" class="line">0231     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0232" class="line">0232     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0233" class="line">0233     disp(<span class="string">'Loading gamma correction'</span>)
+</div><div id="_line0234" class="line">0234     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0235" class="line">0235     <span class="keyword">if</span> isstruct(p.trial<a href="../../Parameters/display/gamma/index.html" class="param" title="">.display.gamma</a>)
+</div><div id="_line0236" class="line">0236         <span class="keyword">if</span> isfield(p.trial<a href="../../Parameters/display/gamma/index.html" class="param" title="">.display.gamma</a>, <span class="string">'table'</span>)
+</div><div id="_line0237" class="line">0237             PsychColorCorrection(<span class="string">'SetLookupTable'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, p.trial<a href="../../Parameters/display/gamma/table.html" class="param" title="">.display.gamma.table</a>, <span class="string">'FinalFormatting'</span>);
+</div><div id="_line0238" class="line">0238         <span class="keyword">elseif</span> isfield(p.trial<a href="../../Parameters/display/gamma/index.html" class="param" title="">.display.gamma</a>, <span class="string">'power'</span>)
+</div><div id="_line0239" class="line">0239             PsychImaging(<span class="string">'AddTask'</span>, <span class="string">'FinalFormatting'</span>, <span class="string">'DisplayColorCorrection'</span>, <span class="string">'SimpleGamma'</span>);
+</div><div id="_line0240" class="line">0240             PsychColorCorrection(<span class="string">'SetEncodingGamma'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, p.trial<a href="../../Parameters/display/gamma/power.html" class="param" title="">.display.gamma.power</a>, <span class="string">'FinalFormatting'</span>);
+</div><div id="_line0241" class="line">0241         <span class="keyword">end</span>
+</div><div id="_line0242" class="line">0242     <span class="keyword">else</span>
+</div><div id="_line0243" class="line">0243         PsychColorCorrection(<span class="string">'SetEncodingGamma'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, p.trial<a href="../../Parameters/display/gamma/index.html" class="param" title="">.display.gamma</a>, <span class="string">'FinalFormatting'</span>);
+</div><div id="_line0244" class="line">0244     <span class="keyword">end</span>
+</div><div id="_line0245" class="line">0245 <span class="keyword">else</span>
+</div><div id="_line0246" class="line">0246     <span class="comment">%set a linear gamma</span>
+</div><div id="_line0247" class="line">0247     PsychColorCorrection(<span class="string">'SetLookupTable'</span>, ptr, linspace(0,1,256)'*[1, 1, 1], <span class="string">'FinalFormatting'</span>);
+</div><div id="_line0248" class="line">0248 <span class="keyword">end</span>
+</div><div id="_line0249" class="line">0249 
+</div><div id="_line0250" class="line">0250 <span class="comment">% % This seems redundant. Is it necessary?</span>
+</div><div id="_line0251" class="line">0251 <span class="keyword">if</span> p.trial<a href="../../Parameters/display/colorclamp.html" class="param" title="clampt colors to [0-1] range. Typically not necessary">.display.colorclamp</a> == 1
+</div><div id="_line0252" class="line">0252     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0253" class="line">0253     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0254" class="line">0254     disp(<span class="string">'clamping color range'</span>)
+</div><div id="_line0255" class="line">0255     disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0256" class="line">0256     Screen(<span class="string">'ColorRange'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, 1, 0);
+</div><div id="_line0257" class="line">0257 <span class="keyword">end</span>
+</div><div id="_line0258" class="line">0258 
+</div><div id="_line0259" class="line">0259 <span class="comment">%% Setup movie creation if desired</span>
+</div><div id="_line0260" class="line">0260 <span class="keyword">if</span> p.trial<a href="../../Parameters/display/movie/create.html" class="param" title="toggle movie creation">.display.movie.create</a>
+</div><div id="_line0261" class="line">0261     movie=p.trial<a href="../../Parameters/display/movie/index.html" class="param" title="optinal create of videos, typically used during replay">.display.movie</a>;
+</div><div id="_line0262" class="line">0262     <span class="keyword">if</span> isempty(movie.file)
+</div><div id="_line0263" class="line">0263         movie.file=p.trial<a href="../../Parameters/session/file.html" class="param" title="">.session.file</a>(1:end-4);
+</div><div id="_line0264" class="line">0264     <span class="keyword">end</span>
+</div><div id="_line0265" class="line">0265     <span class="keyword">if</span> isempty(movie.dir)
+</div><div id="_line0266" class="line">0266         movie.dir=p.trial<a href="../../Parameters/session/dir.html" class="param" title="">.session.dir</a>;
+</div><div id="_line0267" class="line">0267     <span class="keyword">end</span>
+</div><div id="_line0268" class="line">0268     <span class="keyword">if</span> isempty(movie.frameRate)
+</div><div id="_line0269" class="line">0269         movie.frameRate = p.trial<a href="../../Parameters/display/frate.html" class="param" title="">.display.frate</a>;
+</div><div id="_line0270" class="line">0270     <span class="keyword">end</span>
+</div><div id="_line0271" class="line">0271     movie.ptr = Screen(<span class="string">'CreateMovie'</span>, ptr, [movie.dir filesep movie.file <span class="string">'.avi'</span>], movie.width,movie.height,movie.frameRate,movie.options);
+</div><div id="_line0272" class="line">0272     p.trial<a href="../../Parameters/display/movie/index.html" class="param" title="optinal create of videos, typically used during replay">.display.movie</a>=movie;
+</div><div id="_line0273" class="line">0273 <span class="keyword">end</span>
+</div><div id="_line0274" class="line">0274 
+</div><div id="_line0275" class="line">0275 <span class="comment">%% Set up alpha-blending for smooth (anti-aliased) drawing</span>
+</div><div id="_line0276" class="line">0276 disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0277" class="line">0277 disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0278" class="line">0278 fprintf(<span class="string">'Setting Blend Function to %s,%s\r'</span>, p.trial<a href="../../Parameters/display/sourceFactorNew.html" class="param" title="Blending mode">.display.sourceFactorNew</a>, p.trial<a href="../../Parameters/display/destinationFactorNew.html" class="param" title="Blending mode">.display.destinationFactorNew</a>);
+</div><div id="_line0279" class="line">0279 disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0280" class="line">0280 Screen(<span class="string">'BlendFunction'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, p.trial<a href="../../Parameters/display/sourceFactorNew.html" class="param" title="Blending mode">.display.sourceFactorNew</a>, p.trial<a href="../../Parameters/display/destinationFactorNew.html" class="param" title="Blending mode">.display.destinationFactorNew</a>);  <span class="comment">% alpha blending for anti-aliased dots</span>
+</div><div id="_line0281" class="line">0281 
+</div><div id="_line0282" class="line">0282 <span class="keyword">if</span> p.trial<a href="../../Parameters/display/forceLinearGamma.html" class="param" title="force a linear gamma table at the end of screen initiation.">.display.forceLinearGamma</a> <span class="comment">%does't really belong here, but need it before the first flip....</span>
+</div><div id="_line0283" class="line">0283     LoadIdentityClut(p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>);
+</div><div id="_line0284" class="line">0284 <span class="keyword">end</span>
+</div><div id="_line0285" class="line">0285 
+</div><div id="_line0286" class="line">0286 p=<a href="../../PLDAPS/SupportFunctions/Utils/defaultColors.html" class="code" title="function p = defaultColors(p)">defaultColors</a>(p); <span class="comment">% load the default CLUTs -- this is useful for opening overlay window in pds.datapixx.init</span>
+</div><div id="_line0287" class="line">0287 p.trial<a href="../../Parameters/display/t0.html" class="param" title="">.display.t0</a> = Screen(<span class="string">'Flip'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>);
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

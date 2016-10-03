@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of setup</title>
+  <meta name="keywords" content="setup">
+  <meta name="description" content="pds.git.setup   retrieves and stores git info about relevant directories">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">+pds</a> &gt; <a href="index.html">+git</a> &gt; setup.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/+pds/+git&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>setup
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>pds.git.setup   retrieves and stores git info about relevant directories</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function p = setup(p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">pds.git.setup   retrieves and stores git info about relevant directories
+
+ gets and eylink time estimate and send a TRIALSTART message to eyelink
+ sets up the git information about the used code.
+ at the moment this hold all changes of the PLDAPS and huklabBasics repo
+ should probably change to something more specific.
+
+ p = pds.git.setup(p)
+
+ 05/2014 jk wrote it</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="git.html" class="code" title="function result = git(varargin)">pds.git.git</a>	A thin MATLAB wrapper for Git.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../PLDAPS/@pldaps/replay.html" class="code" title="function p = replay(p,input)">@pldaps/replay</a>	replay    replay a previously recorded experiment on screen</li><li><a href="../../../PLDAPS/@pldaps/run.html" class="code" title="function p = run(p)">@pldaps/run</a>	run    run a new experiment for a previuously created pldaps class</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../../Parameters/git/use.html" class="code" title="toggle of of git module">.git.use:</a>	
+        <a href="#_line0013" class="code"}">13 </a>toggle of of git module</li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../../Parameters/git/huklabBasics/diff.html" class="code" title="">.git.huklabBasics.diff:</a>
+        <a href="#_line0028" class="code"}">28 </a></li><li><a href="../../../Parameters/git/huklabBasics/revision.html" class="code" title="">.git.huklabBasics.revision:</a>
+        <a href="#_line0029" class="code"}">29 </a></li><li><a href="../../../Parameters/git/huklabBasics/status.html" class="code" title="">.git.huklabBasics.status:</a>
+        <a href="#_line0027" class="code"}">27 </a></li><li><a href="../../../Parameters/git/pldaps/diff.html" class="code" title="">.git.pldaps.diff:</a>
+        <a href="#_line0021" class="code"}">21 </a></li><li><a href="../../../Parameters/git/pldaps/revision.html" class="code" title="">.git.pldaps.revision:</a>
+        <a href="#_line0022" class="code"}">22 </a></li><li><a href="../../../Parameters/git/pldaps/status.html" class="code" title="">.git.pldaps.status:</a>
+        <a href="#_line0020" class="code"}">20 </a></li></ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function p = setup(p)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%pds.git.setup   retrieves and stores git info about relevant directories</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% gets and eylink time estimate and send a TRIALSTART message to eyelink</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% sets up the git information about the used code.</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% at the moment this hold all changes of the PLDAPS and huklabBasics repo</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% should probably change to something more specific.</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">%</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">% p = pds.git.setup(p)</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">%</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">% 05/2014 jk wrote it</span>
+</div><div id="_line0012" class="line">0012 
+</div><div id="_line0013" class="line">0013 <span class="keyword">if</span> ~isField(p.defaultParameters,<span class="string">'git.use'</span>) || ~p.defaultParameters<a href="../../../Parameters/git/use.html" class="param" title="toggle of of git module">.git.use</a>
+</div><div id="_line0014" class="line">0014     <span class="keyword">return</span>
+</div><div id="_line0015" class="line">0015 <span class="keyword">end</span>
+</div><div id="_line0016" class="line">0016 
+</div><div id="_line0017" class="line">0017 pldapspath=which(<span class="string">'pldaps'</span>);
+</div><div id="_line0018" class="line">0018 pldapspath=pldapspath(1:end-length(<span class="string">'/@pldaps/pldaps.m'</span>));
+</div><div id="_line0019" class="line">0019 
+</div><div id="_line0020" class="line">0020 p.defaultParameters<a href="../../../Parameters/git/pldaps/status.html" class="param" title="">.git.pldaps.status</a> = <a href="pds.git.git.html" class="code" title="function result = git(varargin)">pds.git.git</a>([<span class="string">'-C '</span> pldapspath <span class="string">' status'</span>]);
+</div><div id="_line0021" class="line">0021 p.defaultParameters<a href="../../../Parameters/git/pldaps/diff.html" class="param" title="">.git.pldaps.diff</a> = <a href="pds.git.git.html" class="code" title="function result = git(varargin)">pds.git.git</a>([<span class="string">'-C '</span> pldapspath <span class="string">' diff'</span>]);
+</div><div id="_line0022" class="line">0022 p.defaultParameters<a href="../../../Parameters/git/pldaps/revision.html" class="param" title="">.git.pldaps.revision</a> =<a href="pds.git.git.html" class="code" title="function result = git(varargin)">pds.git.git</a>([<span class="string">'-C '</span>  pldapspath <span class="string">' rev-parse HEAD'</span>]);
+</div><div id="_line0023" class="line">0023 
+</div><div id="_line0024" class="line">0024 huklabpath=which(<span class="string">'defaultTrialVariables'</span>);
+</div><div id="_line0025" class="line">0025 huklabpath=huklabpath(1:end-length(<span class="string">'/defaultTrialVariables.m'</span>));
+</div><div id="_line0026" class="line">0026 
+</div><div id="_line0027" class="line">0027 p.defaultParameters<a href="../../../Parameters/git/huklabBasics/status.html" class="param" title="">.git.huklabBasics.status</a> = <a href="pds.git.git.html" class="code" title="function result = git(varargin)">pds.git.git</a>([<span class="string">'-C '</span> huklabpath <span class="string">' status'</span>]);
+</div><div id="_line0028" class="line">0028 p.defaultParameters<a href="../../../Parameters/git/huklabBasics/diff.html" class="param" title="">.git.huklabBasics.diff</a> = <a href="pds.git.git.html" class="code" title="function result = git(varargin)">pds.git.git</a>([<span class="string">'-C '</span> huklabpath <span class="string">' diff'</span>]);
+</div><div id="_line0029" class="line">0029 p.defaultParameters<a href="../../../Parameters/git/huklabBasics/revision.html" class="param" title="">.git.huklabBasics.revision</a> =<a href="pds.git.git.html" class="code" title="function result = git(varargin)">pds.git.git</a>([<span class="string">'-C '</span>  huklabpath <span class="string">' rev-parse HEAD'</span>]);
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

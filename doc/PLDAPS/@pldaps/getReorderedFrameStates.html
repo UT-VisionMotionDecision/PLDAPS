@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getReorderedFrameStates</title>
+  <meta name="keywords" content="getReorderedFrameStates">
+  <meta name="description" content="find all frame states:">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">PLDAPS</a> &gt; <a href="index.html">@pldaps</a> &gt; getReorderedFrameStates.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/@pldaps&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>getReorderedFrameStates
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>find all frame states:</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [stateValue, stateName] = getReorderedFrameStates(trialStates,moduleRequestedStates) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">find all frame states:</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="pldaps.html" class="code" title="function p = pldaps(varargin)">@pldaps/pldaps</a>	pldaps    main class for PLDAPS (Plexon Datapixx PsychToolbox) version 4.1</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+</ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function [stateValue, stateName] = getReorderedFrameStates(trialStates,moduleRequestedStates)</a>
+</div><div id="_line0002" class="line">0002       <span class="comment">%find all frame states:</span>
+</div><div id="_line0003" class="line">0003       stateValue=struct2cell(trialStates);
+</div><div id="_line0004" class="line">0004       stateValue=[stateValue{:}];
+</div><div id="_line0005" class="line">0005       stateName=fieldnames(trialStates);
+</div><div id="_line0006" class="line">0006       stateRequested=cellfun(@(x) any(moduleRequestedStates.(x)),stateName)';
+</div><div id="_line0007" class="line">0007 
+</div><div id="_line0008" class="line">0008       stateName(stateValue&lt;=0 | ~stateRequested)=[];
+</div><div id="_line0009" class="line">0009       stateValue(stateValue&lt;=0 | ~stateRequested)=[];
+</div><div id="_line0010" class="line">0010 
+</div><div id="_line0011" class="line">0011       [stateValue, stateValueIndecies]=sort(stateValue);
+</div><div id="_line0012" class="line">0012       stateName=stateName(stateValueIndecies);
+</div><div id="_line0013" class="line">0013       
+</div><div id="_line0014" class="line">0014 <span class="comment">%trial states that are not in a frame are negative, just to allow both</span>
+</div><div id="_line0015" class="line">0015 <span class="comment">% to be more independent</span>
+</div><div id="_line0016" class="line">0016 <span class="comment">%     p.trial.pldaps.trialStates.trialSetup=-1;</span>
+</div><div id="_line0017" class="line">0017 <span class="comment">%     p.trial.pldaps.trialStates.trialPrepare=-2;</span>
+</div><div id="_line0018" class="line">0018 <span class="comment">%     p.trial.pldaps.trialStates.trialCleanUpandSave=-3;</span>
+</div><div id="_line0019" class="line">0019 <span class="comment">%</span>
+</div><div id="_line0020" class="line">0020 <span class="comment">%     p.trial.pldaps.trialStates.experimentPostOpenScreen=-4;</span>
+</div><div id="_line0021" class="line">0021 <span class="comment">%     p.trial.pldaps.trialStates.experimentPreOpenScreen=-5;</span>
+</div><div id="_line0022" class="line">0022 <span class="comment">%     p.trial.pldaps.trialStates.experimentCleanUp=-6;</span>
+</div><div id="_line0023" class="line">0023 <span class="comment">%     p.trial.pldaps.trialStates.experimentAfterTrials=-7;</span>
+</div><div id="_line0024" class="line">0024 <span class="comment">%</span>
+</div><div id="_line0025" class="line">0025 <span class="comment">%positive states will be called in order of their value</span>
+</div><div id="_line0026" class="line">0026 <span class="comment">%</span>
+</div><div id="_line0027" class="line">0027 <span class="comment">%     %default order is:</span>
+</div><div id="_line0028" class="line">0028 <span class="comment">%</span>
+</div><div id="_line0029" class="line">0029 <span class="comment">%     %get current eyepostion, curser position or keypresses</span>
+</div><div id="_line0030" class="line">0030 <span class="comment">%     p.trial.pldaps.trialStates.frameUpdate=1;</span>
+</div><div id="_line0031" class="line">0031 <span class="comment">%</span>
+</div><div id="_line0032" class="line">0032 <span class="comment">%     %here you can prepare all drawing, e.g. have the dots move</span>
+</div><div id="_line0033" class="line">0033 <span class="comment">%     %if you need to update to the latest e.g. eyeposition</span>
+</div><div id="_line0034" class="line">0034 <span class="comment">%     %you can still do that later, this could be all expected heavy</span>
+</div><div id="_line0035" class="line">0035 <span class="comment">%     %calculations</span>
+</div><div id="_line0036" class="line">0036 <span class="comment">%     p.trial.pldaps.trialStates.framePrepareDrawing=2;</span>
+</div><div id="_line0037" class="line">0037 <span class="comment">%</span>
+</div><div id="_line0038" class="line">0038 <span class="comment">%     %once you know you've calculated the final image, draw it</span>
+</div><div id="_line0039" class="line">0039 <span class="comment">%     p.trial.pldaps.trialStates.frameDraw=3;</span>
+</div><div id="_line0040" class="line">0040 <span class="comment">%</span>
+</div><div id="_line0041" class="line">0041 <span class="comment">%     %!removed for now!</span>
+</div><div id="_line0042" class="line">0042 <span class="comment">%     p.trial.pldaps.trialStates.frameIdlePreLastDraw=-Inf;%4;</span>
+</div><div id="_line0043" class="line">0043 <span class="comment">%     %if there is something that needs updating. here is a fucntion to do it</span>
+</div><div id="_line0044" class="line">0044 <span class="comment">%     %as late as possible</span>
+</div><div id="_line0045" class="line">0045 <span class="comment">%</span>
+</div><div id="_line0046" class="line">0046 <span class="comment">%     %!removed for now!</span>
+</div><div id="_line0047" class="line">0047 <span class="comment">%     p.trial.pldaps.trialStates.frameDrawTimecritical=-Inf;%5;</span>
+</div><div id="_line0048" class="line">0048 <span class="comment">%     %if this function is not used, drawingFinished will be called after</span>
+</div><div id="_line0049" class="line">0049 <span class="comment">%     %frameDraw is done, otherwise drawingFinished will not be called</span>
+</div><div id="_line0050" class="line">0050 <span class="comment">%</span>
+</div><div id="_line0051" class="line">0051 <span class="comment">%     p.trial.pldaps.trialStates.frameDrawingFinished=6;</span>
+</div><div id="_line0052" class="line">0052 <span class="comment">%</span>
+</div><div id="_line0053" class="line">0053 <span class="comment">%     %!removed for now!</span>
+</div><div id="_line0054" class="line">0054 <span class="comment">%     %this function gets called once everything got drawn, until it's time</span>
+</div><div id="_line0055" class="line">0055 <span class="comment">%     %to expect (and do) the flip</span>
+</div><div id="_line0056" class="line">0056 <span class="comment">%     p.trial.pldaps.trialStates.frameIdlePostDraw=-Inf;%7;</span>
+</div><div id="_line0057" class="line">0057 <span class="comment">%</span>
+</div><div id="_line0058" class="line">0058 <span class="comment">%     %do the flip (or when async) record the time</span>
+</div><div id="_line0059" class="line">0059 <span class="comment">%     p.trial.pldaps.trialStates.frameFlip=8;</span>
+</div><div id="_line0060" class="line">0060     
+</div><div id="_line0061" class="line">0061 <span class="keyword">end</span>
+</div><div id="_line0062" class="line">0062     
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

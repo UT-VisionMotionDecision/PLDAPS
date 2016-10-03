@@ -73,6 +73,8 @@ kb.KPsvnKey = KbName('7');
 kb.KPeitKey = KbName('8');
 kb.KPninKey = KbName('9');
 kb.KPzerKey = KbName('0');
+kb.plusKey  = KbName('=+');
+kb.minusKey = KbName('-_');
 
 
 if scan && isMac

@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of runModularTrial</title>
+  <meta name="keywords" content="runModularTrial">
+  <meta name="description" content="runModularTrial    runs a single Trial by calling the functions defined in">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">PLDAPS</a> &gt; <a href="index.html">@pldaps</a> &gt; runModularTrial.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/@pldaps&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>runModularTrial
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>runModularTrial    runs a single Trial by calling the functions defined in</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function p = runModularTrial(p, replay) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">runModularTrial    runs a single Trial by calling the functions defined in 
+            their substruct (found by pldaps.getModules) and the function
+            defined in p.trial.pldaps.trialFunction through different states
+
+ 03/2013 jly   Wrote hyperflow
+ 03/2014 jk    Used jly's code to get the PLDAPS structure and frame it into a class
+               might change to ASYNC buffer flipping. but won't for now.
+ 03/2016 jk    modular version</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="getModules.html" class="code" title="function [modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p)">@pldaps/getModules</a>	add a requested Order: from -Inf allways first to 0 Default to after</li><li><a href="replay.html" class="code" title="function p = replay(p,input)">@pldaps/replay</a>	replay    replay a previously recorded experiment on screen</li><li><a href="runStateforModules.html" class="code" title="function runStateforModules(p,state,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs)">@pldaps/runStateforModules</a>	using cellfun might be slower than a for loop and does not guaranty</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../Parameters/display/ifi.html" class="code" title="">.display.ifi:</a>	
+        <a href="#_line0052" class="code"}">52 </a>    <a href="#_line0059" class="code"}">59 </a>    <a href="#_line0064" class="code"}">64 </a></li><li><a href="../../Parameters/flagNextTrial.html" class="code" title="">.flagNextTrial:</a>	
+        <a href="#_line0047" class="code"}">47 </a></li><li><a href="../../Parameters/iFrame.html" class="code" title="">.iFrame:</a>	
+        <a href="#_line0059" class="code"}">59 </a>    <a href="#_line0068" class="code"}">68 </a></li><li><a href="../../Parameters/nextFrameTime.html" class="code" title="">.nextFrameTime:</a>	
+        <a href="#_line0059" class="code"}">59 </a>    <a href="#_line0063" class="code"}">63 </a>    <a href="#_line0064" class="code"}">64 </a></li><li><a href="../../Parameters/pldaps/iTrial.html" class="code" title="trial number. cannot be changed by the user">.pldaps.iTrial:</a>	
+        <a href="#_line0059" class="code"}">59 </a>trial number. cannot be changed by the user</li><li><a href="../../Parameters/pldaps/maxPriority.html" class="code" title="Switch to PTB to maxpriority during the trial? See MaxPriority('?')">.pldaps.maxPriority:</a>	
+        <a href="#_line0033" class="code"}">33 </a>    <a href="#_line0071" class="code"}">71 </a>Switch to PTB to maxpriority during the trial? See MaxPriority('?')</li><li><a href="../../Parameters/pldaps/quit.html" class="code" title="control expeiment during a trial.">.pldaps.quit:</a>	
+        <a href="#_line0047" class="code"}">47 </a>control expeiment during a trial.</li><li><a href="../../Parameters/pldaps/trialStates/index.html" class="code" title="The states that an experiment runs through">.pldaps.trialStates:</a>	
+        <a href="#_line0027" class="code"}">27 </a>The states that an experiment runs through</li><li><a href="../../Parameters/stimulus/timeLastFrame.html" class="code" title="">.stimulus.timeLastFrame:</a>	
+        <a href="#_line0052" class="code"}">52 </a></li><li><a href="../../Parameters/trstart.html" class="code" title="">.trstart:</a>	
+        <a href="#_line0061" class="code"}">61 </a></li><li><a href="../../Parameters/ttime.html" class="code" title="">.ttime:</a>	
+        <a href="#_line0063" class="code"}">63 </a>    <a href="#_line0064" class="code"}">64 </a></li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../Parameters/iFrame.html" class="code" title="">.iFrame:</a>
+        <a href="#_line0064" class="code"}">64 </a>    <a href="#_line0068" class="code"}">68 </a></li><li><a href="../../Parameters/nextFrameTime.html" class="code" title="">.nextFrameTime:</a>
+        <a href="#_line0052" class="code"}">52 </a></li><li><a href="../../Parameters/remainingFrameTime.html" class="code" title="">.remainingFrameTime:</a>
+        <a href="#_line0063" class="code"}">63 </a></li><li><a href="../../Parameters/timing/frameStateChangeTimes.html" class="code" title="">.timing.frameStateChangeTimes:</a>
+        <a href="#_line0064" class="code"}">64 </a></li><li><a href="../../Parameters/ttime.html" class="code" title="">.ttime:</a>
+        <a href="#_line0059" class="code"}">59 </a>    <a href="#_line0061" class="code"}">61 </a></li></ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function p = runModularTrial(p, replay)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%runModularTrial    runs a single Trial by calling the functions defined in</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%            their substruct (found by pldaps.getModules) and the function</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">%            defined in p.trial.pldaps.trialFunction through different states</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">%</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% 03/2013 jly   Wrote hyperflow</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% 03/2014 jk    Used jly's code to get the PLDAPS structure and frame it into a class</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">%               might change to ASYNC buffer flipping. but won't for now.</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">% 03/2016 jk    modular version</span>
+</div><div id="_line0010" class="line">0010 
+</div><div id="_line0011" class="line">0011     <span class="comment">%replay from this side is faily easy, just need to set the ttime</span>
+</div><div id="_line0012" class="line">0012     <span class="comment">%(current time in trial). User must still replace frameUpdate functions</span>
+</div><div id="_line0013" class="line">0013     <span class="comment">%to copy the correct data for the other states to use.</span>
+</div><div id="_line0014" class="line">0014     <span class="keyword">if</span> nargin&lt;2
+</div><div id="_line0015" class="line">0015         <a href="replay.html" class="code" title="function p = replay(p,input)">replay</a>=false;
+</div><div id="_line0016" class="line">0016     <span class="keyword">end</span>
+</div><div id="_line0017" class="line">0017 
+</div><div id="_line0018" class="line">0018     <span class="comment">%get all functionHandles that we want to use</span>
+</div><div id="_line0019" class="line">0019     [modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = <a href="getModules.html" class="code" title="function [modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p)">getModules</a>(p);
+</div><div id="_line0020" class="line">0020 
+</div><div id="_line0021" class="line">0021     <span class="comment">%order the framestates that we will iterate through each trial by their value</span>
+</div><div id="_line0022" class="line">0022     <span class="comment">% only positive states are frame states. And they will be called in</span>
+</div><div id="_line0023" class="line">0023     <span class="comment">% order of the value. Check comments in pldaps.getReorderedFrameStates</span>
+</div><div id="_line0024" class="line">0024     <span class="comment">% for explanations of the default states</span>
+</div><div id="_line0025" class="line">0025     <span class="comment">% negative states are special states outside of a frame (trial,</span>
+</div><div id="_line0026" class="line">0026     <span class="comment">% experiment, etc)</span>
+</div><div id="_line0027" class="line">0027     [stateValue, stateName] = p.getReorderedFrameStates(p.trial<a href="../../Parameters/pldaps/trialStates/index.html" class="param" title="The states that an experiment runs through">.pldaps.trialStates</a>,moduleRequestedStates);
+</div><div id="_line0028" class="line">0028     nStates=length(stateValue);
+</div><div id="_line0029" class="line">0029 
+</div><div id="_line0030" class="line">0030     <a href="runStateforModules.html" class="code" title="function runStateforModules(p,state,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs)">runStateforModules</a>(p,<span class="string">'trialSetup'</span>,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+</div><div id="_line0031" class="line">0031 
+</div><div id="_line0032" class="line">0032     <span class="comment">%switch to high priority mode</span>
+</div><div id="_line0033" class="line">0033     <span class="keyword">if</span> p.trial<a href="../../Parameters/pldaps/maxPriority.html" class="param" title="Switch to PTB to maxpriority during the trial? See MaxPriority('?')">.pldaps.maxPriority</a>
+</div><div id="_line0034" class="line">0034         oldPriority=Priority;
+</div><div id="_line0035" class="line">0035         maxPriority=MaxPriority(<span class="string">'GetSecs'</span>);
+</div><div id="_line0036" class="line">0036         <span class="keyword">if</span> oldPriority &lt; maxPriority
+</div><div id="_line0037" class="line">0037                 Priority(maxPriority);
+</div><div id="_line0038" class="line">0038         <span class="keyword">end</span>
+</div><div id="_line0039" class="line">0039     <span class="keyword">end</span>
+</div><div id="_line0040" class="line">0040 
+</div><div id="_line0041" class="line">0041     <span class="comment">%will be called just before the trial starts for time critical calls to</span>
+</div><div id="_line0042" class="line">0042     <span class="comment">%start data aquisition</span>
+</div><div id="_line0043" class="line">0043     <a href="runStateforModules.html" class="code" title="function runStateforModules(p,state,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs)">runStateforModules</a>(p,<span class="string">'trialPrepare'</span>,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+</div><div id="_line0044" class="line">0044 
+</div><div id="_line0045" class="line">0045     <span class="comment">%%% MAIN WHILE LOOP %%%</span>
+</div><div id="_line0046" class="line">0046     <span class="comment">%-------------------------------------------------------------------------%</span>
+</div><div id="_line0047" class="line">0047     <span class="keyword">while</span> ~p.trial<a href="../../Parameters/flagNextTrial.html" class="param" title="">.flagNextTrial</a> &amp;&amp; p.trial<a href="../../Parameters/pldaps/quit.html" class="param" title="control expeiment during a trial.">.pldaps.quit</a> == 0
+</div><div id="_line0048" class="line">0048         <span class="comment">%go through one frame by calling the modules with the different states.</span>
+</div><div id="_line0049" class="line">0049         <span class="comment">%Save the times each state is finished.</span>
+</div><div id="_line0050" class="line">0050 
+</div><div id="_line0051" class="line">0051         <span class="comment">%time of the estimated next flip</span>
+</div><div id="_line0052" class="line">0052         p.trial<a href="../../Parameters/nextFrameTime.html" class="param" title="">.nextFrameTime</a> = p.trial<a href="../../Parameters/stimulus/timeLastFrame.html" class="param" title="">.stimulus.timeLastFrame</a>+p.trial<a href="../../Parameters/display/ifi.html" class="param" title="">.display.ifi</a>;
+</div><div id="_line0053" class="line">0053 
+</div><div id="_line0054" class="line">0054         <span class="comment">%iterate through frame states</span>
+</div><div id="_line0055" class="line">0055         <span class="keyword">for</span> iState=1:nStates
+</div><div id="_line0056" class="line">0056             <a href="runStateforModules.html" class="code" title="function runStateforModules(p,state,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs)">runStateforModules</a>(p,stateName{iState},modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+</div><div id="_line0057" class="line">0057 
+</div><div id="_line0058" class="line">0058             <span class="keyword">if</span> <a href="replay.html" class="code" title="function p = replay(p,input)">replay</a>
+</div><div id="_line0059" class="line">0059                 p.trial<a href="../../Parameters/ttime.html" class="param" title="">.ttime</a>=p.data{p.trial<a href="../../Parameters/pldaps/iTrial.html" class="param" title="trial number. cannot be changed by the user">.pldaps.iTrial</a>}.timing.frameStateChangeTimes(iState,p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>)+ p.trial<a href="../../Parameters/nextFrameTime.html" class="param" title="">.nextFrameTime</a>-p.trial<a href="../../Parameters/display/ifi.html" class="param" title="">.display.ifi</a>;
+</div><div id="_line0060" class="line">0060             <span class="keyword">else</span>
+</div><div id="_line0061" class="line">0061                 p.trial<a href="../../Parameters/ttime.html" class="param" title="">.ttime</a> = GetSecs - p.trial<a href="../../Parameters/trstart.html" class="param" title="">.trstart</a>;
+</div><div id="_line0062" class="line">0062             <span class="keyword">end</span>
+</div><div id="_line0063" class="line">0063             p.trial<a href="../../Parameters/remainingFrameTime.html" class="param" title="">.remainingFrameTime</a>=p.trial<a href="../../Parameters/nextFrameTime.html" class="param" title="">.nextFrameTime</a>-p.trial<a href="../../Parameters/ttime.html" class="param" title="">.ttime</a>;
+</div><div id="_line0064" class="line">0064             p.trial<a href="../../Parameters/timing/frameStateChangeTimes.html" class="param" title="">.timing.frameStateChangeTimes</a>(iState,p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>)=p.trial<a href="../../Parameters/ttime.html" class="param" title="">.ttime</a>-p.trial<a href="../../Parameters/nextFrameTime.html" class="param" title="">.nextFrameTime</a>+p.trial<a href="../../Parameters/display/ifi.html" class="param" title="">.display.ifi</a>;
+</div><div id="_line0065" class="line">0065         <span class="keyword">end</span>
+</div><div id="_line0066" class="line">0066 
+</div><div id="_line0067" class="line">0067         <span class="comment">%advance to next frame, update frame index</span>
+</div><div id="_line0068" class="line">0068         p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a> = p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a> + 1;
+</div><div id="_line0069" class="line">0069     <span class="keyword">end</span> <span class="comment">%while Trial running</span>
+</div><div id="_line0070" class="line">0070 
+</div><div id="_line0071" class="line">0071     <span class="keyword">if</span> p.trial<a href="../../Parameters/pldaps/maxPriority.html" class="param" title="Switch to PTB to maxpriority during the trial? See MaxPriority('?')">.pldaps.maxPriority</a>
+</div><div id="_line0072" class="line">0072         newPriority=Priority;
+</div><div id="_line0073" class="line">0073         <span class="keyword">if</span> round(oldPriority) ~= round(newPriority)
+</div><div id="_line0074" class="line">0074             Priority(oldPriority);
+</div><div id="_line0075" class="line">0075         <span class="keyword">end</span>
+</div><div id="_line0076" class="line">0076         <span class="keyword">if</span> round(newPriority)&lt;maxPriority
+</div><div id="_line0077" class="line">0077             warning(<span class="string">'pldaps:runTrial'</span>,<span class="string">'Thread priority was degraded by operating system during the trial.'</span>)
+</div><div id="_line0078" class="line">0078         <span class="keyword">end</span>
+</div><div id="_line0079" class="line">0079     <span class="keyword">end</span>
+</div><div id="_line0080" class="line">0080 
+</div><div id="_line0081" class="line">0081     <a href="runStateforModules.html" class="code" title="function runStateforModules(p,state,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs)">runStateforModules</a>(p,<span class="string">'trialCleanUpandSave'</span>,modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+</div><div id="_line0082" class="line">0082 
+</div><div id="_line0083" class="line">0083 <span class="keyword">end</span> <span class="comment">%runModularTrial</span>
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

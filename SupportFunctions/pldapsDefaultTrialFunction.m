@@ -232,7 +232,7 @@ end
              p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
          end
          
-         if(p.trial.datapixx.use && p.trial.display.useOverlay)
+         if p.trial.display.overlayptr ~= p.trial.display.ptr
             Screen('FillRect', p.trial.display.overlayptr,0);
          end
 

@@ -7,7 +7,7 @@ function p=openephys(p,state,name)
 
             %make sure we have access to zeroMQ
             if ~exist('zeroMQrr')==3 %#ok<EXIST>
-                error('pds:openephys','zeroMQrr not found. Get the wrapper at https://github.com/open-ephys/GUI/tree/master/Resources/Matlab and add the mex file to your Matlab path');
+                error('pds:openephys','zeroMQrr not found. Get the wrapper at https://github.com/open-ephys/plugin-GUI/tree/master/Resources/Matlab and add the mex file to your Matlab path');
             end
             %
             p.trial.(name).address='100.2.1.1';

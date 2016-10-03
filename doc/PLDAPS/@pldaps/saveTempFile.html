@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of saveTempFile</title>
+  <meta name="keywords" content="saveTempFile">
+  <meta name="description" content="saveTempFile    save the data from a single Trial to a file in a TEMP">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">PLDAPS</a> &gt; <a href="index.html">@pldaps</a> &gt; saveTempFile.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/@pldaps&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>saveTempFile
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>saveTempFile    save the data from a single Trial to a file in a TEMP</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function result = saveTempFile(p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">saveTempFile    save the data from a single Trial to a file in a TEMP
+                folder
+ result = saveTempFile(p)</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="run.html" class="code" title="function p = run(p)">@pldaps/run</a>	run    run a new experiment for a previuously created pldaps class</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../Parameters/pldaps/iTrial.html" class="code" title="trial number. cannot be changed by the user">.pldaps.iTrial:</a>	
+        <a href="#_line0006" class="code"}">6 </a>    <a href="#_line0020" class="code"}">20 </a>    <a href="#_line0020" class="code"}">20 </a>trial number. cannot be changed by the user</li><li><a href="../../Parameters/pldaps/nosave.html" class="code" title="disables saving of data when true. see .pldaps.save for more control">.pldaps.nosave:</a>	
+        <a href="#_line0005" class="code"}">5 </a>disables saving of data when true. see .pldaps.save for more control</li><li><a href="../../Parameters/pldaps/save/trialTempfiles.html" class="code" title="save temp files with the data from each trial?">.pldaps.save.trialTempfiles:</a>	
+        <a href="#_line0005" class="code"}">5 </a>save temp files with the data from each trial?</li><li><a href="../../Parameters/session/dir.html" class="code" title="">.session.dir:</a>	
+        <a href="#_line0008" class="code"}">8 </a>    <a href="#_line0011" class="code"}">11 </a>    <a href="#_line0013" class="code"}">13 </a>    <a href="#_line0020" class="code"}">20 </a>    <a href="#_line0022" class="code"}">22 </a></li><li><a href="../../Parameters/session/file.html" class="code" title="">.session.file:</a>	
+        <a href="#_line0020" class="code"}">20 </a>    <a href="#_line0020" class="code"}">20 </a></li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../Parameters/pldaps/quit.html" class="code" title="control expeiment during a trial.">.pldaps.quit:</a>
+        <a href="#_line0014" class="code"}">14 </a>control expeiment during a trial.</li></ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function result = saveTempFile(p)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%saveTempFile    save the data from a single Trial to a file in a TEMP</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%                folder</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% result = saveTempFile(p)</span>
+</div><div id="_line0005" class="line">0005 <span class="keyword">if</span> ~p.trial<a href="../../Parameters/pldaps/nosave.html" class="param" title="disables saving of data when true. see .pldaps.save for more control">.pldaps.nosave</a> &amp;&amp; p.trial<a href="../../Parameters/pldaps/save/trialTempfiles.html" class="param" title="save temp files with the data from each trial?">.pldaps.save.trialTempfiles</a>
+</div><div id="_line0006" class="line">0006     evalc([<span class="string">'trial'</span> num2str(p.trial<a href="../../Parameters/pldaps/iTrial.html" class="param" title="trial number. cannot be changed by the user">.pldaps.iTrial</a>) <span class="string">'= p.trial'</span>]);
+</div><div id="_line0007" class="line">0007 
+</div><div id="_line0008" class="line">0008     <span class="keyword">if</span> ~exist([p.trial<a href="../../Parameters/session/dir.html" class="param" title="">.session.dir</a> filesep <span class="string">'TEMP'</span>],<span class="string">'dir'</span>)
+</div><div id="_line0009" class="line">0009         warning(<span class="string">'pldaps:saveTempFile'</span>,<span class="string">'TEMP directory in data directory does not exist, trying to create it'</span>)
+</div><div id="_line0010" class="line">0010         <span class="keyword">try</span>
+</div><div id="_line0011" class="line">0011             mkdir(fullfile(p.trial<a href="../../Parameters/session/dir.html" class="param" title="">.session.dir</a>,<span class="string">'TEMP'</span>));
+</div><div id="_line0012" class="line">0012         <span class="keyword">catch</span> result
+</div><div id="_line0013" class="line">0013             warning(<span class="string">'pldaps:saveTempFile'</span>,<span class="string">'Failed creating TEMP directory in %s'</span>,p.trial<a href="../../Parameters/session/dir.html" class="param" title="">.session.dir</a>)
+</div><div id="_line0014" class="line">0014             p.trial<a href="../../Parameters/pldaps/quit.html" class="param" title="control expeiment during a trial.">.pldaps.quit</a> = 2;
+</div><div id="_line0015" class="line">0015             <span class="keyword">return</span>;
+</div><div id="_line0016" class="line">0016         <span class="keyword">end</span>
+</div><div id="_line0017" class="line">0017     <span class="keyword">end</span>
+</div><div id="_line0018" class="line">0018     <span class="keyword">try</span>  
+</div><div id="_line0019" class="line">0019         result=[];
+</div><div id="_line0020" class="line">0020         save(fullfile(p.trial<a href="../../Parameters/session/dir.html" class="param" title="">.session.dir</a>,<span class="string">'TEMP'</span>,[p.trial<a href="../../Parameters/session/file.html" class="param" title="">.session.file</a>(1:end-4) num2str(p.trial<a href="../../Parameters/pldaps/iTrial.html" class="param" title="trial number. cannot be changed by the user">.pldaps.iTrial</a>) p.trial<a href="../../Parameters/session/file.html" class="param" title="">.session.file</a>(end-3:end)]),[<span class="string">'trial'</span> num2str(p.trial<a href="../../Parameters/pldaps/iTrial.html" class="param" title="trial number. cannot be changed by the user">.pldaps.iTrial</a>)]);
+</div><div id="_line0021" class="line">0021     <span class="keyword">catch</span> result
+</div><div id="_line0022" class="line">0022          warning(<span class="string">'pldaps:saveTempFile'</span>,<span class="string">'Failed to save temp file in %s'</span>,[p.trial<a href="../../Parameters/session/dir.html" class="param" title="">.session.dir</a> filesep <span class="string">'TEMP'</span>])
+</div><div id="_line0023" class="line">0023     <span class="keyword">end</span>
+</div><div id="_line0024" class="line">0024 <span class="keyword">end</span>
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

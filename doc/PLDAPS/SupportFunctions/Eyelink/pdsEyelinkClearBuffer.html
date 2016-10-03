@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of pdsEyelinkClearBuffer</title>
+  <meta name="keywords" content="pdsEyelinkClearBuffer">
+  <meta name="description" content="[drained, samplesIn, eventsIn] = pdsEyelinkClearBuffer(drained)">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">SupportFunctions</a> &gt; <a href="index.html">Eyelink</a> &gt; pdsEyelinkClearBuffer.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/SupportFunctions/Eyelink&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>pdsEyelinkClearBuffer
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>[drained, samplesIn, eventsIn] = pdsEyelinkClearBuffer(drained)</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function [drained, samplesIn, eventsIn] = pdsEyelinkClearBuffer(drained) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> [drained, samplesIn, eventsIn] = pdsEyelinkClearBuffer(drained)    
+
+ pdsEyelinkClearBuffer clears values from the eyelink buffer. Should be
+ run before each trial starts. 
+ INPUTS
+       drained     - boolean for whether buffer has been drained
+ OUTPUTS
+       drained     - modified boolean
+       samplesIn   - samples recorded from buffer
+       eventsIn    - events recorded from buffer</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+</ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function [drained, samplesIn, eventsIn] = pdsEyelinkClearBuffer(drained)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">% [drained, samplesIn, eventsIn] = pdsEyelinkClearBuffer(drained)</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% pdsEyelinkClearBuffer clears values from the eyelink buffer. Should be</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% run before each trial starts.</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% INPUTS</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">%       drained     - boolean for whether buffer has been drained</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">% OUTPUTS</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">%       drained     - modified boolean</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">%       samplesIn   - samples recorded from buffer</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">%       eventsIn    - events recorded from buffer</span>
+</div><div id="_line0012" class="line">0012 
+</div><div id="_line0013" class="line">0013 <span class="comment">% 12/2013 jly   wrote it</span>
+</div><div id="_line0014" class="line">0014 
+</div><div id="_line0015" class="line">0015 <span class="keyword">while</span> ~drained
+</div><div id="_line0016" class="line">0016     [samplesIn, eventsIn, drained] = Eyelink(<span class="string">'GetQueuedData'</span>);
+</div><div id="_line0017" class="line">0017     
+</div><div id="_line0018" class="line">0018     <span class="comment">% Workaround - only continue if samplesIn and eventsIn were</span>
+</div><div id="_line0019" class="line">0019     <span class="comment">% empty</span>
+</div><div id="_line0020" class="line">0020     <span class="keyword">if</span> ~isempty(samplesIn) || ~isempty(eventsIn)
+</div><div id="_line0021" class="line">0021         drained = false;
+</div><div id="_line0022" class="line">0022     <span class="keyword">end</span>
+</div><div id="_line0023" class="line">0023 <span class="keyword">end</span>
+</div><div id="_line0024" class="line">0024 drained = false;
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

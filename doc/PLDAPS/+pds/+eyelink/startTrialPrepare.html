@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of startTrialPrepare</title>
+  <meta name="keywords" content="startTrialPrepare">
+  <meta name="description" content="pds.eyelink.startTrialPrepare   prepare the next trial">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">+pds</a> &gt; <a href="index.html">+eyelink</a> &gt; startTrialPrepare.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/+pds/+eyelink&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>startTrialPrepare
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>pds.eyelink.startTrialPrepare   prepare the next trial</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function p = startTrialPrepare(p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">pds.eyelink.startTrialPrepare   prepare the next trial
+
+ gets and eylink time estimate and send a TRIALSTART message to eyelink
+
+ p = startTrialPrepare(p)</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="getPreciseTime.html" class="code" title="function out=getPreciseTime(optMinwinThreshold,maxTimeThreshold,syncmode)">pds.eyelink.getPreciseTime</a>	pds.eyelink.getPreciseTime    get a rough estimate about the eyelink time</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../PLDAPS/SupportFunctions/pldapsDefaultTrialFunction.html" class="code" title="function pldapsDefaultTrialFunction(p,state)">pldapsDefaultTrialFunction</a>	</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../../Parameters/eyelink/use.html" class="code" title="use the eyelink moduke">.eyelink.use:</a>	
+        <a href="#_line0008" class="code"}">8 </a>use the eyelink moduke</li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../../Parameters/timing/eyelinkStartTime.html" class="code" title="">.timing.eyelinkStartTime:</a>
+        <a href="#_line0009" class="code"}">9 </a></li></ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function p = startTrialPrepare(p)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%pds.eyelink.startTrialPrepare   prepare the next trial</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% gets and eylink time estimate and send a TRIALSTART message to eyelink</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">%</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% p = startTrialPrepare(p)</span>
+</div><div id="_line0007" class="line">0007 
+</div><div id="_line0008" class="line">0008 <span class="keyword">if</span> p.trial<a href="../../../Parameters/eyelink/use.html" class="param" title="use the eyelink moduke">.eyelink.use</a>
+</div><div id="_line0009" class="line">0009     p.trial<a href="../../../Parameters/timing/eyelinkStartTime.html" class="param" title="">.timing.eyelinkStartTime</a> = <a href="pds.eyelink.getPreciseTime.html" class="code" title="function out=getPreciseTime(optMinwinThreshold,maxTimeThreshold,syncmode)">pds.eyelink.getPreciseTime</a>(6.5e-5,0.1,2);
+</div><div id="_line0010" class="line">0010     Eyelink(<span class="string">'message'</span>, <span class="string">'TRIALSTART'</span>);
+</div><div id="_line0011" class="line">0011 <span class="keyword">end</span>
+</div><div id="_line0012" class="line">0012  
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
