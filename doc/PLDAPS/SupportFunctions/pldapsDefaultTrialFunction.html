@@ -1,0 +1,684 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of pldapsDefaultTrialFunction</title>
+  <meta name="keywords" content="pldapsDefaultTrialFunction">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">PLDAPS</a> &gt; <a href="index.html">SupportFunctions</a> &gt; pldapsDefaultTrialFunction.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/SupportFunctions&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>pldapsDefaultTrialFunction
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function pldapsDefaultTrialFunction(p,state) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../PLDAPS/+pds/+audio/clearBuffer.html" class="code" title="function clearBuffer(p)">pds.audio.clearBuffer</a>	pds.audio.clearBuffer(p)    stops audio output of files setup with pds.audio.setup(p)</li><li><a href="../../PLDAPS/+pds/+behavior/+reward/cleanUpandSave.html" class="code" title="function p = cleanUpandSave(p)">pds.behavior.reward.cleanUpandSave</a>	pds.behavior.reward.cleanUpandSave(p)    clean up after a trial</li><li><a href="../../PLDAPS/+pds/+behavior/+reward/give.html" class="code" title="function p = give(p, amount)">pds.behavior.reward.give</a>	pds.behavior.reward.give(p, amount)    give a certaim amount of reward</li><li><a href="../../PLDAPS/+pds/+behavior/+reward/trialSetup.html" class="code" title="function p = trialSetup(p)">pds.behavior.reward.trialSetup</a>	pds.behavior.reward.trialSetup(p)    allocate memory for use during the trial</li><li><a href="../../PLDAPS/+pds/+datapixx/+adc/cleanUpandSave.html" class="code" title="function p = cleanUpandSave(p)">pds.datapixx.adc.cleanUpandSave</a>	pds.datapixx.adc.prepareTrial    clean up after the trial</li><li><a href="../../PLDAPS/+pds/+datapixx/+adc/getData.html" class="code" title="function p = getData(p)">pds.datapixx.adc.getData</a>	pds.datapixx.adc.getData    getData from the Datapixx buffer</li><li><a href="../../PLDAPS/+pds/+datapixx/+adc/trialSetup.html" class="code" title="function p = trialSetup(p)">pds.datapixx.adc.trialSetup</a>	pds.datapixx.adc.trialSetup    setup everything for a trial</li><li><a href="../../PLDAPS/+pds/+datapixx/flipBit.html" class="code" title="function timings=flipBit(bit,trial)">pds.datapixx.flipBit</a>	pds.datapixx.flipBit    flip a bit on the digital out of the Datapixx</li><li><a href="../../PLDAPS/+pds/+datapixx/strobe.html" class="code" title="function timings=strobe(lowWord,highWord)">pds.datapixx.strobe</a>	pds.datapixx.strobe    strobes a 16 Bit word from the datapixx</li><li><a href="../../PLDAPS/+pds/+eyelink/getQueue.html" class="code" title="function p = getQueue(p)">pds.eyelink.getQueue</a>	pds.eyelink.getQueue    get data samples from eyelink</li><li><a href="../../PLDAPS/+pds/+eyelink/saveQueue.html" class="code" title="function [Q, rowId] = saveQueue(p)">pds.eyelink.saveQueue</a>	pds.eyelink.saveQueue    prunes unused samples and unneeded fields</li><li><a href="../../PLDAPS/+pds/+eyelink/startTrial.html" class="code" title="function p = startTrial(p)">pds.eyelink.startTrial</a>	pds.eyelink.startTrial    allocate and clear buffer for the next trial</li><li><a href="../../PLDAPS/+pds/+eyelink/startTrialPrepare.html" class="code" title="function p = startTrialPrepare(p)">pds.eyelink.startTrialPrepare</a>	pds.eyelink.startTrialPrepare   prepare the next trial</li><li><a href="../../PLDAPS/+pds/+keyboard/clearBuffer.html" class="code" title="function p = clearBuffer(p)">pds.keyboard.clearBuffer</a>	pds.git.clearBuffer   clear the keyboard queue</li><li><a href="../../PLDAPS/+pds/+pldaps/+draw/screenPlot.html" class="code" title="function screenPlot(sf, x,y, color, linetype, downSample)">pds.pldaps.draw.screenPlot</a>	</li><li><a href="../../PLDAPS/+pds/+plexon/+spikeserver/getSpikes.html" class="code" title="function [p, spikes] = getSpikes(p)">pds.plexon.spikeserver.getSpikes</a>	pds.plexon.spikeserver.getSpikes   get data from the spikeserver</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../PLDAPS/testsuite/eyelinkTimingTest.html" class="code" title="function p=eyelinkTimingTest(p,state)">eyelinkTimingTest</a>	eyelinkTimingTest    pldaps trial state function to test the time delay of the eyelink system with</li><li><a href="../../PLDAPS/testsuite/eyelinkTimingTestDigital.html" class="code" title="function p=eyelinkTimingTestDigital(p,state)">eyelinkTimingTestDigital</a>	eyelinkTimingTest    pldaps trial state function to test the time delay of the eyelink system with</li><li><a href="../../PLDAPS/testsuite/screenTimingTest.html" class="code" title="function p=screenTimingTest(p,state)">screenTimingTest</a>	screenTimingTest    screenTimingTest is a pldaps stimulus to test the physical delay of the onset of a stimulus on the screen to</li><li><a href="../../PLDAPS/tutorial/plain.html" class="code" title="function p=plain(p,state)">plain</a>	plain    a plain stimulus file for use with a pldaps class. This file</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../Parameters/datapixx/use.html" class="code" title="enable control of VPixx devices">.datapixx.use:</a>	
+        <a href="#_line0263" class="code"}">263 </a>    <a href="#_line0341" class="code"}">341 </a>    <a href="#_line0370" class="code"}">370 </a>    <a href="#_line0379" class="code"}">379 </a>    <a href="#_line0404" class="code"}">404 </a>    <a href="#_line0417" class="code"}">417 </a>enable control of VPixx devices</li><li><a href="../../Parameters/display/bgColor.html" class="code" title="background color. Can be changed during trial">.display.bgColor:</a>	
+        <a href="#_line0128" class="code"}">128 </a>    <a href="#_line0129" class="code"}">129 </a>    <a href="#_line0130" class="code"}">130 </a>    <a href="#_line0230" class="code"}">230 </a>    <a href="#_line0231" class="code"}">231 </a>    <a href="#_line0232" class="code"}">232 </a>    <a href="#_line0390" class="code"}">390 </a>    <a href="#_line0391" class="code"}">391 </a>background color. Can be changed during trial</li><li><a href="../../Parameters/display/clut/blackbg.html" class="code" title="">.display.clut.blackbg:</a>	
+        <a href="#_line0147" class="code"}">147 </a>    <a href="#_line0149" class="code"}">149 </a>    <a href="#_line0151" class="code"}">151 </a></li><li><a href="../../Parameters/display/clut/cursor.html" class="code" title="">.display.clut.cursor:</a>	
+        <a href="#_line0166" class="code"}">166 </a></li><li><a href="../../Parameters/display/clut/eyepos.html" class="code" title="">.display.clut.eyepos:</a>	
+        <a href="#_line0162" class="code"}">162 </a></li><li><a href="../../Parameters/display/clut/redbg.html" class="code" title="">.display.clut.redbg:</a>	
+        <a href="#_line0153" class="code"}">153 </a></li><li><a href="../../Parameters/display/clut/window.html" class="code" title="">.display.clut.window:</a>	
+        <a href="#_line0134" class="code"}">134 </a></li><li><a href="../../Parameters/display/ctr.html" class="code" title="">.display.ctr:</a>	
+        <a href="#_line0134" class="code"}">134 </a></li><li><a href="../../Parameters/display/frate.html" class="code" title="">.display.frate:</a>	
+        <a href="#_line0212" class="code"}">212 </a>    <a href="#_line0213" class="code"}">213 </a></li><li><a href="../../Parameters/display/ifi.html" class="code" title="">.display.ifi:</a>	
+        <a href="#_line0145" class="code"}">145 </a>    <a href="#_line0147" class="code"}">147 </a>    <a href="#_line0147" class="code"}">147 </a>    <a href="#_line0149" class="code"}">149 </a>    <a href="#_line0306" class="code"}">306 </a>    <a href="#_line0312" class="code"}">312 </a></li><li><a href="../../Parameters/display/movie/create.html" class="code" title="toggle movie creation">.display.movie.create:</a>	
+        <a href="#_line0208" class="code"}">208 </a>toggle movie creation</li><li><a href="../../Parameters/display/movie/frameRate.html" class="code" title="frame rate of the movie.">.display.movie.frameRate:</a>	
+        <a href="#_line0212" class="code"}">212 </a>    <a href="#_line0213" class="code"}">213 </a>frame rate of the movie.</li><li><a href="../../Parameters/display/movie/ptr.html" class="code" title="">.display.movie.ptr:</a>	
+        <a href="#_line0220" class="code"}">220 </a></li><li><a href="../../Parameters/display/overlayptr.html" class="code" title="">.display.overlayptr:</a>	
+        <a href="#_line0134" class="code"}">134 </a>    <a href="#_line0161" class="code"}">161 </a>    <a href="#_line0165" class="code"}">165 </a>    <a href="#_line0235" class="code"}">235 </a>    <a href="#_line0236" class="code"}">236 </a>    <a href="#_line0310" class="code"}">310 </a></li><li><a href="../../Parameters/display/pHeight.html" class="code" title="">.display.pHeight:</a>	
+        <a href="#_line0308" class="code"}">308 </a></li><li><a href="../../Parameters/display/pWidth.html" class="code" title="">.display.pWidth:</a>	
+        <a href="#_line0308" class="code"}">308 </a></li><li><a href="../../Parameters/display/ptr.html" class="code" title="">.display.ptr:</a>	
+        <a href="#_line0129" class="code"}">129 </a>    <a href="#_line0174" class="code"}">174 </a>    <a href="#_line0191" class="code"}">191 </a>    <a href="#_line0206" class="code"}">206 </a>    <a href="#_line0220" class="code"}">220 </a>    <a href="#_line0231" class="code"}">231 </a>    <a href="#_line0235" class="code"}">235 </a>    <a href="#_line0390" class="code"}">390 </a>    <a href="#_line0393" class="code"}">393 </a>    <a href="#_line0403" class="code"}">403 </a></li><li><a href="../../Parameters/display/w2px.html" class="code" title="">.display.w2px:</a>	
+        <a href="#_line0308" class="code"}">308 </a>    <a href="#_line0309" class="code"}">309 </a></li><li><a href="../../Parameters/event/TRIALEND.html" class="code" title="">.event.TRIALEND:</a>	
+        <a href="#_line0418" class="code"}">418 </a></li><li><a href="../../Parameters/event/TRIALSTART.html" class="code" title="">.event.TRIALSTART:</a>	
+        <a href="#_line0381" class="code"}">381 </a></li><li><a href="../../Parameters/eyeX.html" class="code" title="">.eyeX:</a>	
+        <a href="#_line0161" class="code"}">161 </a></li><li><a href="../../Parameters/eyeY.html" class="code" title="">.eyeY:</a>	
+        <a href="#_line0161" class="code"}">161 </a></li><li><a href="../../Parameters/eyelink/events.html" class="code" title="">.eyelink.events:</a>	
+        <a href="#_line0490" class="code"}">490 </a>    <a href="#_line0490" class="code"}">490 </a></li><li><a href="../../Parameters/eyelink/use.html" class="code" title="use the eyelink moduke">.eyelink.use:</a>	
+        <a href="#_line0486" class="code"}">486 </a>use the eyelink moduke</li><li><a href="../../Parameters/iFrame.html" class="code" title="">.iFrame:</a>	
+        <a href="#_line0048" class="code"}">48 </a>    <a href="#_line0138" class="code"}">138 </a>    <a href="#_line0141" class="code"}">141 </a>    <a href="#_line0141" class="code"}">141 </a>    <a href="#_line0169" class="code"}">169 </a>    <a href="#_line0172" class="code"}">172 </a>    <a href="#_line0213" class="code"}">213 </a>    <a href="#_line0239" class="code"}">239 </a>    <a href="#_line0482" class="code"}">482 </a>    <a href="#_line0483" class="code"}">483 </a></li><li><a href="../../Parameters/keyboard/codes/dKey.html" class="code" title="">.keyboard.codes.dKey:</a>	
+        <a href="#_line0079" class="code"}">79 </a></li><li><a href="../../Parameters/keyboard/codes/mKey.html" class="code" title="">.keyboard.codes.mKey:</a>	
+        <a href="#_line0057" class="code"}">57 </a></li><li><a href="../../Parameters/keyboard/codes/pKey.html" class="code" title="">.keyboard.codes.pKey:</a>	
+        <a href="#_line0069" class="code"}">69 </a></li><li><a href="../../Parameters/keyboard/codes/qKey.html" class="code" title="">.keyboard.codes.qKey:</a>	
+        <a href="#_line0073" class="code"}">73 </a></li><li><a href="../../Parameters/keyboard/firstPressQ.html" class="code" title="">.keyboard.firstPressQ:</a>	
+        <a href="#_line0050" class="code"}">50 </a>    <a href="#_line0056" class="code"}">56 </a>    <a href="#_line0057" class="code"}">57 </a>    <a href="#_line0069" class="code"}">69 </a>    <a href="#_line0073" class="code"}">73 </a>    <a href="#_line0079" class="code"}">79 </a></li><li><a href="../../Parameters/keyboard/nCodes.html" class="code" title="">.keyboard.nCodes:</a>	
+        <a href="#_line0275" class="code"}">275 </a>    <a href="#_line0276" class="code"}">276 </a>    <a href="#_line0277" class="code"}">277 </a>    <a href="#_line0278" class="code"}">278 </a></li><li><a href="../../Parameters/keyboard/pressedQ.html" class="code" title="">.keyboard.pressedQ:</a>	
+        <a href="#_line0044" class="code"}">44 </a>    <a href="#_line0049" class="code"}">49 </a></li><li><a href="../../Parameters/keyboard/samples.html" class="code" title="">.keyboard.samples:</a>	
+        <a href="#_line0046" class="code"}">46 </a></li><li><a href="../../Parameters/mouse/cursorSamples.html" class="code" title="">.mouse.cursorSamples:</a>	
+        <a href="#_line0098" class="code"}">98 </a>    <a href="#_line0099" class="code"}">99 </a>    <a href="#_line0102" class="code"}">102 </a>    <a href="#_line0103" class="code"}">103 </a>    <a href="#_line0165" class="code"}">165 </a></li><li><a href="../../Parameters/mouse/samples.html" class="code" title="">.mouse.samples:</a>	
+        <a href="#_line0092" class="code"}">92 </a>    <a href="#_line0098" class="code"}">98 </a>    <a href="#_line0099" class="code"}">99 </a>    <a href="#_line0101" class="code"}">101 </a>    <a href="#_line0101" class="code"}">101 </a>    <a href="#_line0165" class="code"}">165 </a></li><li><a href="../../Parameters/mouse/use.html" class="code" title="collect and store mouse positions">.mouse.use:</a>	
+        <a href="#_line0090" class="code"}">90 </a>    <a href="#_line0164" class="code"}">164 </a>    <a href="#_line0281" class="code"}">281 </a>    <a href="#_line0434" class="code"}">434 </a>collect and store mouse positions</li><li><a href="../../Parameters/mouse/useAsEyepos.html" class="code" title="toggle use of mouse to set eyeX and eyeY">.mouse.useAsEyepos:</a>	
+        <a href="#_line0096" class="code"}">96 </a>toggle use of mouse to set eyeX and eyeY</li><li><a href="../../Parameters/pldaps/draw/cursor/use.html" class="code" title="enable drawing of the mouse cursor.">.pldaps.draw.cursor.use:</a>	
+        <a href="#_line0164" class="code"}">164 </a>enable drawing of the mouse cursor.</li><li><a href="../../Parameters/pldaps/draw/eyepos/use.html" class="code" title="enable drawing of the eye position.">.pldaps.draw.eyepos.use:</a>	
+        <a href="#_line0160" class="code"}">160 </a>enable drawing of the eye position.</li><li><a href="../../Parameters/pldaps/draw/framerate/data.html" class="code" title="">.pldaps.draw.framerate.data:</a>	
+        <a href="#_line0140" class="code"}">140 </a>    <a href="#_line0145" class="code"}">145 </a>    <a href="#_line0153" class="code"}">153 </a></li><li><a href="../../Parameters/pldaps/draw/framerate/location.html" class="code" title="location (XY) of the plot in degrees of visual angle.">.pldaps.draw.framerate.location:</a>	
+        <a href="#_line0308" class="code"}">308 </a>location (XY) of the plot in degrees of visual angle.</li><li><a href="../../Parameters/pldaps/draw/framerate/nFrames.html" class="code" title="">.pldaps.draw.framerate.nFrames:</a>	
+        <a href="#_line0153" class="code"}">153 </a>    <a href="#_line0307" class="code"}">307 </a>    <a href="#_line0311" class="code"}">311 </a></li><li><a href="../../Parameters/pldaps/draw/framerate/nSeconds.html" class="code" title="number of seconds to show the history for">.pldaps.draw.framerate.nSeconds:</a>	
+        <a href="#_line0306" class="code"}">306 </a>number of seconds to show the history for</li><li><a href="../../Parameters/pldaps/draw/framerate/sf/index.html" class="code" title="">.pldaps.draw.framerate.sf:</a>	
+        <a href="#_line0147" class="code"}">147 </a>    <a href="#_line0149" class="code"}">149 </a>    <a href="#_line0151" class="code"}">151 </a>    <a href="#_line0153" class="code"}">153 </a></li><li><a href="../../Parameters/pldaps/draw/framerate/sf/xlims.html" class="code" title="">.pldaps.draw.framerate.sf.xlims:</a>	
+        <a href="#_line0147" class="code"}">147 </a>    <a href="#_line0149" class="code"}">149 </a>    <a href="#_line0151" class="code"}">151 </a></li><li><a href="../../Parameters/pldaps/draw/framerate/show.html" class="code" title="draw the framerate. need use to be enabled as well">.pldaps.draw.framerate.show:</a>	
+        <a href="#_line0143" class="code"}">143 </a>draw the framerate. need use to be enabled as well</li><li><a href="../../Parameters/pldaps/draw/framerate/size.html" class="code" title="size (XY) of the plot in degrees of visual angle.">.pldaps.draw.framerate.size:</a>	
+        <a href="#_line0309" class="code"}">309 </a>size (XY) of the plot in degrees of visual angle.</li><li><a href="../../Parameters/pldaps/draw/framerate/use.html" class="code" title="set to true to collect data needed to show framerate.">.pldaps.draw.framerate.use:</a>	
+        <a href="#_line0138" class="code"}">138 </a>    <a href="#_line0305" class="code"}">305 </a>set to true to collect data needed to show framerate.</li><li><a href="../../Parameters/pldaps/draw/grid/tick_line_matrix.html" class="code" title="">.pldaps.draw.grid.tick_line_matrix:</a>	
+        <a href="#_line0134" class="code"}">134 </a></li><li><a href="../../Parameters/pldaps/draw/grid/use.html" class="code" title="enable drawing of the grid">.pldaps.draw.grid.use:</a>	
+        <a href="#_line0133" class="code"}">133 </a>enable drawing of the grid</li><li><a href="../../Parameters/pldaps/draw/photodiode/dataEnd.html" class="code" title="">.pldaps.draw.photodiode.dataEnd:</a>	
+        <a href="#_line0173" class="code"}">173 </a></li><li><a href="../../Parameters/pldaps/draw/photodiode/everyXFrames.html" class="code" title="will be shown every nth frame">.pldaps.draw.photodiode.everyXFrames:</a>	
+        <a href="#_line0169" class="code"}">169 </a>will be shown every nth frame</li><li><a href="../../Parameters/pldaps/draw/photodiode/rect.html" class="code" title="">.pldaps.draw.photodiode.rect:</a>	
+        <a href="#_line0174" class="code"}">174 </a></li><li><a href="../../Parameters/pldaps/draw/photodiode/use.html" class="code" title="enable drawing the photodione square">.pldaps.draw.photodiode.use:</a>	
+        <a href="#_line0169" class="code"}">169 </a>    <a href="#_line0249" class="code"}">249 </a>    <a href="#_line0421" class="code"}">421 </a>enable drawing the photodione square</li><li><a href="../../Parameters/pldaps/experimentAfterTrialsFunction.html" class="code" title="a function to be called after each trial.">.pldaps.experimentAfterTrialsFunction:</a>	
+        <a href="#_line0030" class="code"}">30 </a>    <a href="#_line0031" class="code"}">31 </a>a function to be called after each trial.</li><li><a href="../../Parameters/pldaps/eyeposMovAv.html" class="code" title="average the eyeposition (.eyeX and .eyeY) over this many samples.">.pldaps.eyeposMovAv:</a>	
+        <a href="#_line0097" class="code"}">97 </a>    <a href="#_line0101" class="code"}">101 </a>average the eyeposition (.eyeX and .eyeY) over this many samples.</li><li><a href="../../Parameters/pldaps/iTrial.html" class="code" title="trial number. cannot be changed by the user">.pldaps.iTrial:</a>	
+        <a href="#_line0381" class="code"}">381 </a>    <a href="#_line0418" class="code"}">418 </a>    <a href="#_line0479" class="code"}">479 </a>trial number. cannot be changed by the user</li><li><a href="../../Parameters/pldaps/lastBgColor.html" class="code" title="">.pldaps.lastBgColor:</a>	
+        <a href="#_line0128" class="code"}">128 </a>    <a href="#_line0230" class="code"}">230 </a></li><li><a href="../../Parameters/pldaps/maxFrames.html" class="code" title="">.pldaps.maxFrames:</a>	
+        <a href="#_line0246" class="code"}">246 </a>    <a href="#_line0247" class="code"}">247 </a>    <a href="#_line0250" class="code"}">250 </a>    <a href="#_line0271" class="code"}">271 </a>    <a href="#_line0272" class="code"}">272 </a>    <a href="#_line0274" class="code"}">274 </a>    <a href="#_line0275" class="code"}">275 </a>    <a href="#_line0276" class="code"}">276 </a>    <a href="#_line0277" class="code"}">277 </a>    <a href="#_line0278" class="code"}">278 </a>    <a href="#_line0283" class="code"}">283 </a>    <a href="#_line0284" class="code"}">284 </a>    <a href="#_line0285" class="code"}">285 </a></li><li><a href="../../Parameters/pldaps/trialStates/experimentAfterTrials.html" class="code" title="called after each trial.">.pldaps.trialStates.experimentAfterTrials:</a>	
+        <a href="#_line0029" class="code"}">29 </a>called after each trial.</li><li><a href="../../Parameters/pldaps/trialStates/frameDraw.html" class="code" title="called every frame for drawing command.">.pldaps.trialStates.frameDraw:</a>	
+        <a href="#_line0008" class="code"}">8 </a>called every frame for drawing command.</li><li><a href="../../Parameters/pldaps/trialStates/frameDrawingFinished.html" class="code" title="called every frame after drawing.">.pldaps.trialStates.frameDrawingFinished:</a>	
+        <a href="#_line0014" class="code"}">14 </a>called every frame after drawing.</li><li><a href="../../Parameters/pldaps/trialStates/frameFlip.html" class="code" title="called every frame to flip the buffers.">.pldaps.trialStates.frameFlip:</a>	
+        <a href="#_line0018" class="code"}">18 </a>called every frame to flip the buffers.</li><li><a href="../../Parameters/pldaps/trialStates/framePrepareDrawing.html" class="code" title="called every frame to prepare drawing.">.pldaps.trialStates.framePrepareDrawing:</a>	
+        <a href="#_line0006" class="code"}">6 </a>called every frame to prepare drawing.</li><li><a href="../../Parameters/pldaps/trialStates/frameUpdate.html" class="code" title="called every frame to update input.">.pldaps.trialStates.frameUpdate:</a>	
+        <a href="#_line0004" class="code"}">4 </a>called every frame to update input.</li><li><a href="../../Parameters/pldaps/trialStates/trialCleanUpandSave.html" class="code" title="called at the end of the trial.">.pldaps.trialStates.trialCleanUpandSave:</a>	
+        <a href="#_line0026" class="code"}">26 </a>called at the end of the trial.</li><li><a href="../../Parameters/pldaps/trialStates/trialPrepare.html" class="code" title="called before each trial for synchronization">.pldaps.trialStates.trialPrepare:</a>	
+        <a href="#_line0024" class="code"}">24 </a>called before each trial for synchronization</li><li><a href="../../Parameters/pldaps/trialStates/trialSetup.html" class="code" title="called before each trial for data allocation.">.pldaps.trialStates.trialSetup:</a>	
+        <a href="#_line0022" class="code"}">22 </a>called before each trial for data allocation.</li><li><a href="../../Parameters/plexon/spikeserver/use.html" class="code" title="toggle use of our plexon spikeserver">.plexon.spikeserver.use:</a>	
+        <a href="#_line0452" class="code"}">452 </a>toggle use of our plexon spikeserver</li><li><a href="../../Parameters/stimulus/eyeW.html" class="code" title="">.stimulus.eyeW:</a>	
+        <a href="#_line0162" class="code"}">162 </a>    <a href="#_line0166" class="code"}">166 </a></li><li><a href="../../Parameters/timing/flipTimes.html" class="code" title="">.timing.flipTimes:</a>	
+        <a href="#_line0141" class="code"}">141 </a>    <a href="#_line0141" class="code"}">141 </a>    <a href="#_line0239" class="code"}">239 </a>    <a href="#_line0482" class="code"}">482 </a></li><li><a href="../../Parameters/timing/frameStateChangeTimes.html" class="code" title="">.timing.frameStateChangeTimes:</a>	
+        <a href="#_line0483" class="code"}">483 </a></li><li><a href="../../Parameters/trstart.html" class="code" title="">.trstart:</a>	
+        <a href="#_line0239" class="code"}">239 </a>    <a href="#_line0395" class="code"}">395 </a>    <a href="#_line0397" class="code"}">397 </a>    <a href="#_line0407" class="code"}">407 </a></li><li><a href="../../Parameters/ttime.html" class="code" title="">.ttime:</a>	
+        <a href="#_line0172" class="code"}">172 </a>    <a href="#_line0398" class="code"}">398 </a></li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../Parameters/datapixx/datapixxstoptime.html" class="code" title="">.datapixx.datapixxstoptime:</a>
+        <a href="#_line0405" class="code"}">405 </a></li><li><a href="../../Parameters/datapixx/unique_number_time.html" class="code" title="">.datapixx.unique_number_time:</a>
+        <a href="#_line0372" class="code"}">372 </a></li><li><a href="../../Parameters/eyeX.html" class="code" title="">.eyeX:</a>
+        <a href="#_line0098" class="code"}">98 </a>    <a href="#_line0102" class="code"}">102 </a></li><li><a href="../../Parameters/eyeY.html" class="code" title="">.eyeY:</a>
+        <a href="#_line0099" class="code"}">99 </a>    <a href="#_line0103" class="code"}">103 </a></li><li><a href="../../Parameters/eyelink/events.html" class="code" title="">.eyelink.events:</a>
+        <a href="#_line0490" class="code"}">490 </a></li><li><a href="../../Parameters/eyelink/sampleIds.html" class="code" title="">.eyelink.sampleIds:</a>
+        <a href="#_line0489" class="code"}">489 </a></li><li><a href="../../Parameters/eyelink/samples.html" class="code" title="">.eyelink.samples:</a>
+        <a href="#_line0488" class="code"}">488 </a></li><li><a href="../../Parameters/framePostLastDrawIdleCount.html" class="code" title="">.framePostLastDrawIdleCount:</a>
+        <a href="#_line0241" class="code"}">241 </a></li><li><a href="../../Parameters/framePreLastDrawIdleCount.html" class="code" title="">.framePreLastDrawIdleCount:</a>
+        <a href="#_line0240" class="code"}">240 </a></li><li><a href="../../Parameters/iFrame.html" class="code" title="">.iFrame:</a>
+        <a href="#_line0206" class="code"}">206 </a>    <a href="#_line0403" class="code"}">403 </a></li><li><a href="../../Parameters/keyboard/firstPressQ.html" class="code" title="">.keyboard.firstPressQ:</a>
+        <a href="#_line0042" class="code"}">42 </a></li><li><a href="../../Parameters/keyboard/firstPressSamples.html" class="code" title="">.keyboard.firstPressSamples:</a>
+        <a href="#_line0050" class="code"}">50 </a>    <a href="#_line0275" class="code"}">275 </a>    <a href="#_line0444" class="code"}">444 </a></li><li><a href="../../Parameters/keyboard/firstReleaseSamples.html" class="code" title="">.keyboard.firstReleaseSamples:</a>
+        <a href="#_line0051" class="code"}">51 </a>    <a href="#_line0276" class="code"}">276 </a>    <a href="#_line0445" class="code"}">445 </a></li><li><a href="../../Parameters/keyboard/lastPressSamples.html" class="code" title="">.keyboard.lastPressSamples:</a>
+        <a href="#_line0052" class="code"}">52 </a>    <a href="#_line0277" class="code"}">277 </a>    <a href="#_line0446" class="code"}">446 </a></li><li><a href="../../Parameters/keyboard/lastReleaseSamples.html" class="code" title="">.keyboard.lastReleaseSamples:</a>
+        <a href="#_line0053" class="code"}">53 </a>    <a href="#_line0278" class="code"}">278 </a>    <a href="#_line0447" class="code"}">447 </a></li><li><a href="../../Parameters/keyboard/pressedQ.html" class="code" title="">.keyboard.pressedQ:</a>
+        <a href="#_line0042" class="code"}">42 </a></li><li><a href="../../Parameters/keyboard/pressedSamples.html" class="code" title="">.keyboard.pressedSamples:</a>
+        <a href="#_line0049" class="code"}">49 </a>    <a href="#_line0274" class="code"}">274 </a>    <a href="#_line0443" class="code"}">443 </a></li><li><a href="../../Parameters/keyboard/samples.html" class="code" title="">.keyboard.samples:</a>
+        <a href="#_line0046" class="code"}">46 </a>    <a href="#_line0047" class="code"}">47 </a>    <a href="#_line0048" class="code"}">48 </a>    <a href="#_line0049" class="code"}">49 </a>    <a href="#_line0050" class="code"}">50 </a>    <a href="#_line0051" class="code"}">51 </a>    <a href="#_line0052" class="code"}">52 </a>    <a href="#_line0053" class="code"}">53 </a>    <a href="#_line0270" class="code"}">270 </a>    <a href="#_line0441" class="code"}">441 </a>    <a href="#_line0442" class="code"}">442 </a>    <a href="#_line0443" class="code"}">443 </a>    <a href="#_line0444" class="code"}">444 </a>    <a href="#_line0445" class="code"}">445 </a>    <a href="#_line0446" class="code"}">446 </a>    <a href="#_line0447" class="code"}">447 </a></li><li><a href="../../Parameters/keyboard/samplesFrames.html" class="code" title="">.keyboard.samplesFrames:</a>
+        <a href="#_line0048" class="code"}">48 </a>    <a href="#_line0272" class="code"}">272 </a>    <a href="#_line0442" class="code"}">442 </a></li><li><a href="../../Parameters/keyboard/samplesTimes.html" class="code" title="">.keyboard.samplesTimes:</a>
+        <a href="#_line0047" class="code"}">47 </a>    <a href="#_line0271" class="code"}">271 </a>    <a href="#_line0441" class="code"}">441 </a></li><li><a href="../../Parameters/mouse/buttonPressSamples.html" class="code" title="">.mouse.buttonPressSamples:</a>
+        <a href="#_line0095" class="code"}">95 </a>    <a href="#_line0284" class="code"}">284 </a>    <a href="#_line0436" class="code"}">436 </a></li><li><a href="../../Parameters/mouse/cursorSamples.html" class="code" title="">.mouse.cursorSamples:</a>
+        <a href="#_line0094" class="code"}">94 </a>    <a href="#_line0283" class="code"}">283 </a>    <a href="#_line0435" class="code"}">435 </a></li><li><a href="../../Parameters/mouse/samples.html" class="code" title="">.mouse.samples:</a>
+        <a href="#_line0092" class="code"}">92 </a>    <a href="#_line0093" class="code"}">93 </a>    <a href="#_line0094" class="code"}">94 </a>    <a href="#_line0095" class="code"}">95 </a>    <a href="#_line0286" class="code"}">286 </a>    <a href="#_line0435" class="code"}">435 </a>    <a href="#_line0436" class="code"}">436 </a>    <a href="#_line0437" class="code"}">437 </a></li><li><a href="../../Parameters/mouse/samplesTimes.html" class="code" title="">.mouse.samplesTimes:</a>
+        <a href="#_line0093" class="code"}">93 </a>    <a href="#_line0285" class="code"}">285 </a>    <a href="#_line0437" class="code"}">437 </a></li><li><a href="../../Parameters/pldaps/draw/framerate/data.html" class="code" title="">.pldaps.draw.framerate.data:</a>
+        <a href="#_line0140" class="code"}">140 </a>    <a href="#_line0141" class="code"}">141 </a>    <a href="#_line0307" class="code"}">307 </a></li><li><a href="../../Parameters/pldaps/draw/framerate/nFrames.html" class="code" title="">.pldaps.draw.framerate.nFrames:</a>
+        <a href="#_line0306" class="code"}">306 </a></li><li><a href="../../Parameters/pldaps/draw/framerate/sf/index.html" class="code" title="">.pldaps.draw.framerate.sf:</a>
+        <a href="#_line0315" class="code"}">315 </a></li><li><a href="../../Parameters/pldaps/draw/framerate/sf/ylims.html" class="code" title="">.pldaps.draw.framerate.sf.ylims:</a>
+        <a href="#_line0145" class="code"}">145 </a></li><li><a href="../../Parameters/pldaps/draw/photodiode/dataEnd.html" class="code" title="">.pldaps.draw.photodiode.dataEnd:</a>
+        <a href="#_line0172" class="code"}">172 </a>    <a href="#_line0173" class="code"}">173 </a>    <a href="#_line0251" class="code"}">251 </a>    <a href="#_line0422" class="code"}">422 </a></li><li><a href="../../Parameters/pldaps/lastBgColor.html" class="code" title="">.pldaps.lastBgColor:</a>
+        <a href="#_line0130" class="code"}">130 </a>    <a href="#_line0232" class="code"}">232 </a>    <a href="#_line0391" class="code"}">391 </a></li><li><a href="../../Parameters/pldaps/quit.html" class="code" title="control expeiment during a trial.">.pldaps.quit:</a>
+        <a href="#_line0070" class="code"}">70 </a>    <a href="#_line0077" class="code"}">77 </a>control expeiment during a trial.</li><li><a href="../../Parameters/plexon/spikeserver/spikeCount.html" class="code" title="">.plexon.spikeserver.spikeCount:</a>
+        <a href="#_line0297" class="code"}">297 </a></li><li><a href="../../Parameters/stimulus/timeLastFrame.html" class="code" title="">.stimulus.timeLastFrame:</a>
+        <a href="#_line0239" class="code"}">239 </a>    <a href="#_line0395" class="code"}">395 </a></li><li><a href="../../Parameters/timing/datapixxPreciseTime.html" class="code" title="">.timing.datapixxPreciseTime:</a>
+        <a href="#_line0265" class="code"}">265 </a></li><li><a href="../../Parameters/timing/datapixxStartTime.html" class="code" title="">.timing.datapixxStartTime:</a>
+        <a href="#_line0380" class="code"}">380 </a></li><li><a href="../../Parameters/timing/datapixxTRIALEND.html" class="code" title="">.timing.datapixxTRIALEND:</a>
+        <a href="#_line0418" class="code"}">418 </a></li><li><a href="../../Parameters/timing/datapixxTRIALSTART.html" class="code" title="">.timing.datapixxTRIALSTART:</a>
+        <a href="#_line0381" class="code"}">381 </a></li><li><a href="../../Parameters/timing/flipTimes.html" class="code" title="">.timing.flipTimes:</a>
+        <a href="#_line0206" class="code"}">206 </a>    <a href="#_line0246" class="code"}">246 </a>    <a href="#_line0403" class="code"}">403 </a>    <a href="#_line0482" class="code"}">482 </a></li><li><a href="../../Parameters/timing/frameStateChangeTimes.html" class="code" title="">.timing.frameStateChangeTimes:</a>
+        <a href="#_line0247" class="code"}">247 </a>    <a href="#_line0483" class="code"}">483 </a></li><li><a href="../../Parameters/timing/photodiodeTimes.html" class="code" title="">.timing.photodiodeTimes:</a>
+        <a href="#_line0172" class="code"}">172 </a>    <a href="#_line0250" class="code"}">250 </a>    <a href="#_line0422" class="code"}">422 </a></li><li><a href="../../Parameters/timing/syncTimeDuration.html" class="code" title="">.timing.syncTimeDuration:</a>
+        <a href="#_line0398" class="code"}">398 </a></li><li><a href="../../Parameters/trialend.html" class="code" title="">.trialend:</a>
+        <a href="#_line0407" class="code"}">407 </a></li><li><a href="../../Parameters/trialnumber.html" class="code" title="">.trialnumber:</a>
+        <a href="#_line0479" class="code"}">479 </a></li><li><a href="../../Parameters/trstart.html" class="code" title="">.trstart:</a>
+        <a href="#_line0394" class="code"}">394 </a></li><li><a href="../../Parameters/ttime.html" class="code" title="">.ttime:</a>
+        <a href="#_line0397" class="code"}">397 </a></li><li><a href="../../Parameters/unique_number.html" class="code" title="">.unique_number:</a>
+        <a href="#_line0375" class="code"}">375 </a></li></ul>
+<!-- parameterreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">frameUpdate</a></li><li><a href="#_sub2" class="code">frameDraw</a></li><li><a href="#_sub3" class="code">frameDrawingFinished</a></li><li><a href="#_sub4" class="code">frameFlip</a></li><li><a href="#_sub5" class="code">trialSetup</a></li><li><a href="#_sub6" class="code">trialPrepare</a></li><li><a href="#_sub7" class="code">cleanUpandSave</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function pldapsDefaultTrialFunction(p,state)</a>
+</div><div id="_line0002" class="line">0002     <span class="keyword">switch</span> state
+</div><div id="_line0003" class="line">0003         <span class="comment">%frameStates</span>
+</div><div id="_line0004" class="line">0004         <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/frameUpdate.html" class="param" title="called every frame to update input.">.pldaps.trialStates.frameUpdate</a>
+</div><div id="_line0005" class="line">0005             <a href="#_sub1" class="code" title="subframeUpdate">frameUpdate</a>(p);
+</div><div id="_line0006" class="line">0006         <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/framePrepareDrawing.html" class="param" title="called every frame to prepare drawing.">.pldaps.trialStates.framePrepareDrawing</a> 
+</div><div id="_line0007" class="line">0007         <span class="comment">%    framePrepareDrawing(p);</span>
+</div><div id="_line0008" class="line">0008         <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/frameDraw.html" class="param" title="called every frame for drawing command.">.pldaps.trialStates.frameDraw</a>
+</div><div id="_line0009" class="line">0009             <a href="#_sub2" class="code" title="subframeDraw">frameDraw</a>(p);
+</div><div id="_line0010" class="line">0010         <span class="comment">%case p.trial.pldaps.trialStates.frameIdlePreLastDraw</span>
+</div><div id="_line0011" class="line">0011         <span class="comment">%    frameIdlePreLastDraw(p);</span>
+</div><div id="_line0012" class="line">0012         <span class="comment">%case p.trial.pldaps.trialStates.frameDrawTimecritical;</span>
+</div><div id="_line0013" class="line">0013         <span class="comment">%    drawTimecritical(p);</span>
+</div><div id="_line0014" class="line">0014         <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/frameDrawingFinished.html" class="param" title="called every frame after drawing.">.pldaps.trialStates.frameDrawingFinished</a>;
+</div><div id="_line0015" class="line">0015             <a href="#_sub3" class="code" title="subframeDrawingFinished">frameDrawingFinished</a>(p);
+</div><div id="_line0016" class="line">0016         <span class="comment">%case p.trial.pldaps.trialStates.frameIdlePostDraw;</span>
+</div><div id="_line0017" class="line">0017         <span class="comment">%    frameIdlePostDraw(p);</span>
+</div><div id="_line0018" class="line">0018         <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/frameFlip.html" class="param" title="called every frame to flip the buffers.">.pldaps.trialStates.frameFlip</a>; 
+</div><div id="_line0019" class="line">0019             <a href="#_sub4" class="code" title="subframeFlip">frameFlip</a>(p);
+</div><div id="_line0020" class="line">0020             
+</div><div id="_line0021" class="line">0021         <span class="comment">%trialStates</span>
+</div><div id="_line0022" class="line">0022         <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/trialSetup.html" class="param" title="called before each trial for data allocation.">.pldaps.trialStates.trialSetup</a>
+</div><div id="_line0023" class="line">0023             <a href="#_sub5" class="code" title="subtrialSetup">trialSetup</a>(p);
+</div><div id="_line0024" class="line">0024         <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/trialPrepare.html" class="param" title="called before each trial for synchronization">.pldaps.trialStates.trialPrepare</a>
+</div><div id="_line0025" class="line">0025             <a href="#_sub6" class="code" title="subtrialPrepare">trialPrepare</a>(p);
+</div><div id="_line0026" class="line">0026         <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/trialCleanUpandSave.html" class="param" title="called at the end of the trial.">.pldaps.trialStates.trialCleanUpandSave</a>
+</div><div id="_line0027" class="line">0027             <a href="#_sub7" class="code" title="subcleanUpandSave">cleanUpandSave</a>(p);
+</div><div id="_line0028" class="line">0028         <span class="comment">%only availiable if p.trial.pldaps.trialMasterFunction = 'runModularTrial'</span>
+</div><div id="_line0029" class="line">0029         <span class="keyword">case</span> p.trial<a href="../../Parameters/pldaps/trialStates/experimentAfterTrials.html" class="param" title="called after each trial.">.pldaps.trialStates.experimentAfterTrials</a>
+</div><div id="_line0030" class="line">0030             <span class="keyword">if</span> ~isempty(p.trial<a href="../../Parameters/pldaps/experimentAfterTrialsFunction.html" class="param" title="a function to be called after each trial.">.pldaps.experimentAfterTrialsFunction</a>)
+</div><div id="_line0031" class="line">0031                h=str2func(p.trial<a href="../../Parameters/pldaps/experimentAfterTrialsFunction.html" class="param" title="a function to be called after each trial.">.pldaps.experimentAfterTrialsFunction</a>);
+</div><div id="_line0032" class="line">0032                h(p, state)
+</div><div id="_line0033" class="line">0033             <span class="keyword">end</span>
+</div><div id="_line0034" class="line">0034     <span class="keyword">end</span>
+</div><div id="_line0035" class="line">0035 <span class="keyword">end</span>
+</div><div id="_line0036" class="line">0036 <span class="comment">%%% get inputs and check behavior%%%</span>
+</div><div id="_line0037" class="line">0037 <span class="comment">%---------------------------------------------------------------------%</span>
+</div><div id="_line0038" class="line">0038     <a name="_sub1" href="#_subfunctions" class="code">function frameUpdate(p)   </a>
+</div><div id="_line0039" class="line">0039         <span class="comment">%%TODO: add buffer for Keyboard presses, nouse position and clicks.</span>
+</div><div id="_line0040" class="line">0040         
+</div><div id="_line0041" class="line">0041         <span class="comment">%Keyboard</span>
+</div><div id="_line0042" class="line">0042         [p.trial<a href="../../Parameters/keyboard/pressedQ.html" class="param" title="">.keyboard.pressedQ</a>, p.trial<a href="../../Parameters/keyboard/firstPressQ.html" class="param" title="">.keyboard.firstPressQ</a>, firstRelease, lastPress, lastRelease]=KbQueueCheck(); <span class="comment">% fast</span>
+</div><div id="_line0043" class="line">0043         
+</div><div id="_line0044" class="line">0044         <span class="keyword">if</span> p.trial<a href="../../Parameters/keyboard/pressedQ.html" class="param" title="">.keyboard.pressedQ</a> || any(firstRelease)
+</div><div id="_line0045" class="line">0045     <span class="comment">%         [p.trial.keyboard.pressedQ,  p.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast</span>
+</div><div id="_line0046" class="line">0046             p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a> = p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>+1;
+</div><div id="_line0047" class="line">0047             p.trial<a href="../../Parameters/keyboard/samplesTimes.html" class="param" title="">.keyboard.samplesTimes</a>(p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>)=GetSecs;
+</div><div id="_line0048" class="line">0048             p.trial<a href="../../Parameters/keyboard/samplesFrames.html" class="param" title="">.keyboard.samplesFrames</a>(p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>)=p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>;
+</div><div id="_line0049" class="line">0049             p.trial<a href="../../Parameters/keyboard/pressedSamples.html" class="param" title="">.keyboard.pressedSamples</a>(:,p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>)=p.trial<a href="../../Parameters/keyboard/pressedQ.html" class="param" title="">.keyboard.pressedQ</a>;
+</div><div id="_line0050" class="line">0050             p.trial<a href="../../Parameters/keyboard/firstPressSamples.html" class="param" title="">.keyboard.firstPressSamples</a>(:,p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>)=p.trial<a href="../../Parameters/keyboard/firstPressQ.html" class="param" title="">.keyboard.firstPressQ</a>;
+</div><div id="_line0051" class="line">0051             p.trial<a href="../../Parameters/keyboard/firstReleaseSamples.html" class="param" title="">.keyboard.firstReleaseSamples</a>(:,p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>)=firstRelease;
+</div><div id="_line0052" class="line">0052             p.trial<a href="../../Parameters/keyboard/lastPressSamples.html" class="param" title="">.keyboard.lastPressSamples</a>(:,p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>)=lastPress;
+</div><div id="_line0053" class="line">0053             p.trial<a href="../../Parameters/keyboard/lastReleaseSamples.html" class="param" title="">.keyboard.lastReleaseSamples</a>(:,p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>)=lastRelease;
+</div><div id="_line0054" class="line">0054         <span class="keyword">end</span>        
+</div><div id="_line0055" class="line">0055         
+</div><div id="_line0056" class="line">0056         <span class="keyword">if</span> any(p.trial<a href="../../Parameters/keyboard/firstPressQ.html" class="param" title="">.keyboard.firstPressQ</a>)
+</div><div id="_line0057" class="line">0057             <span class="keyword">if</span>  p.trial<a href="../../Parameters/keyboard/firstPressQ.html" class="param" title="">.keyboard.firstPressQ</a>(p.trial<a href="../../Parameters/keyboard/codes/mKey.html" class="param" title="">.keyboard.codes.mKey</a>)
+</div><div id="_line0058" class="line">0058                   <a href="../../PLDAPS/+pds/+behavior/+reward/pds.behavior.reward.give.html" class="code" title="function p = give(p, amount)">pds.behavior.reward.give</a>(p);
+</div><div id="_line0059" class="line">0059 <span class="comment">%                 if p.trial.datapixx.use</span>
+</div><div id="_line0060" class="line">0060 <span class="comment">%                     pds.datapixx.analogOut(p.trial.stimulus.rewardTime)</span>
+</div><div id="_line0061" class="line">0061 <span class="comment">%                     pds.datapixx.flipBit(p.trial.event.REWARD,p.trial.pldaps.iTrial);</span>
+</div><div id="_line0062" class="line">0062 <span class="comment">%                 end</span>
+</div><div id="_line0063" class="line">0063 <span class="comment">%     %             p.trial.ttime = GetSecs - p.trial.trstart;</span>
+</div><div id="_line0064" class="line">0064 <span class="comment">%                 p.trial.stimulus.timeReward(:,p.trial.stimulus.iReward) = [p.trial.ttime p.trial.stimulus.rewardTime];</span>
+</div><div id="_line0065" class="line">0065 <span class="comment">%                 p.trial.stimulus.iReward = p.trial.stimulus.iReward + 1;</span>
+</div><div id="_line0066" class="line">0066 <span class="comment">%                 PsychPortAudio('Start', p.trial.sound.reward);</span>
+</div><div id="_line0067" class="line">0067     <span class="comment">%         elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.uKey)   % U = user selected targets</span>
+</div><div id="_line0068" class="line">0068     <span class="comment">%             p.trial.targUser = 1;</span>
+</div><div id="_line0069" class="line">0069             <span class="keyword">elseif</span>  p.trial<a href="../../Parameters/keyboard/firstPressQ.html" class="param" title="">.keyboard.firstPressQ</a>(p.trial<a href="../../Parameters/keyboard/codes/pKey.html" class="param" title="">.keyboard.codes.pKey</a>)   <span class="comment">% P = pause</span>
+</div><div id="_line0070" class="line">0070                 p.trial<a href="../../Parameters/pldaps/quit.html" class="param" title="control expeiment during a trial.">.pldaps.quit</a> = 1;
+</div><div id="_line0071" class="line">0071                 ShowCursor;
+</div><div id="_line0072" class="line">0072     <span class="comment">%             Screen('Flip', p.trial.display.ptr);</span>
+</div><div id="_line0073" class="line">0073             <span class="keyword">elseif</span>  p.trial<a href="../../Parameters/keyboard/firstPressQ.html" class="param" title="">.keyboard.firstPressQ</a>(p.trial<a href="../../Parameters/keyboard/codes/qKey.html" class="param" title="">.keyboard.codes.qKey</a>) <span class="comment">% Q = quit</span>
+</div><div id="_line0074" class="line">0074     <span class="comment">%             Screen('Flip', p.trial.display.ptr);</span>
+</div><div id="_line0075" class="line">0075     <span class="comment">%             p = pdsEyelinkFinish(p);</span>
+</div><div id="_line0076" class="line">0076     <span class="comment">%             PDS.timing.timestamplog = PsychDataPixx('GetTimestampLog', 1);</span>
+</div><div id="_line0077" class="line">0077                 p.trial<a href="../../Parameters/pldaps/quit.html" class="param" title="control expeiment during a trial.">.pldaps.quit</a> = 2;
+</div><div id="_line0078" class="line">0078                 ShowCursor
+</div><div id="_line0079" class="line">0079             <span class="keyword">elseif</span>  p.trial<a href="../../Parameters/keyboard/firstPressQ.html" class="param" title="">.keyboard.firstPressQ</a>(p.trial<a href="../../Parameters/keyboard/codes/dKey.html" class="param" title="">.keyboard.codes.dKey</a>) <span class="comment">% d=debug</span>
+</div><div id="_line0080" class="line">0080                     disp(<span class="string">'stepped into debugger. Type return to start first trial...'</span>)
+</div><div id="_line0081" class="line">0081                     keyboard <span class="comment">%#ok&lt;MCKBD&gt;</span>
+</div><div id="_line0082" class="line">0082     <span class="comment">%             dbstop if warning opticflow:debugger_requested;</span>
+</div><div id="_line0083" class="line">0083     <span class="comment">%             warning on opticflow:debugger_requested;</span>
+</div><div id="_line0084" class="line">0084     <span class="comment">%             warning('opticflow:debugger_requested','At your service!');</span>
+</div><div id="_line0085" class="line">0085     <span class="comment">%             warning off opticflow:debugger_requested;</span>
+</div><div id="_line0086" class="line">0086     <span class="comment">%             dbclear if warning opticflow:debugger_requested;</span>
+</div><div id="_line0087" class="line">0087             <span class="keyword">end</span>   
+</div><div id="_line0088" class="line">0088         <span class="keyword">end</span>
+</div><div id="_line0089" class="line">0089         <span class="comment">% get mouse/eyetracker data</span>
+</div><div id="_line0090" class="line">0090         <span class="keyword">if</span> p.trial<a href="../../Parameters/mouse/use.html" class="param" title="collect and store mouse positions">.mouse.use</a>
+</div><div id="_line0091" class="line">0091             [cursorX,cursorY,isMouseButtonDown] = GetMouse(); <span class="comment">% ktz - added isMouseButtonDown, 28Mar2013</span>
+</div><div id="_line0092" class="line">0092             p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a> = p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a>+1;
+</div><div id="_line0093" class="line">0093             p.trial<a href="../../Parameters/mouse/samplesTimes.html" class="param" title="">.mouse.samplesTimes</a>(p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a>)=GetSecs;
+</div><div id="_line0094" class="line">0094             p.trial<a href="../../Parameters/mouse/cursorSamples.html" class="param" title="">.mouse.cursorSamples</a>(1:2,p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a>) = [cursorX;cursorY];
+</div><div id="_line0095" class="line">0095             p.trial<a href="../../Parameters/mouse/buttonPressSamples.html" class="param" title="">.mouse.buttonPressSamples</a>(:,p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a>) = isMouseButtonDown';
+</div><div id="_line0096" class="line">0096             <span class="keyword">if</span>(p.trial<a href="../../Parameters/mouse/useAsEyepos.html" class="param" title="toggle use of mouse to set eyeX and eyeY">.mouse.useAsEyepos</a>) 
+</div><div id="_line0097" class="line">0097                 <span class="keyword">if</span> p.trial<a href="../../Parameters/pldaps/eyeposMovAv.html" class="param" title="average the eyeposition (.eyeX and .eyeY) over this many samples.">.pldaps.eyeposMovAv</a>==1
+</div><div id="_line0098" class="line">0098                     p.trial<a href="../../Parameters/eyeX.html" class="param" title="">.eyeX</a> = p.trial<a href="../../Parameters/mouse/cursorSamples.html" class="param" title="">.mouse.cursorSamples</a>(1,p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a>);
+</div><div id="_line0099" class="line">0099                     p.trial<a href="../../Parameters/eyeY.html" class="param" title="">.eyeY</a> = p.trial<a href="../../Parameters/mouse/cursorSamples.html" class="param" title="">.mouse.cursorSamples</a>(2,p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a>);
+</div><div id="_line0100" class="line">0100                 <span class="keyword">else</span>
+</div><div id="_line0101" class="line">0101                     mInds=(p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a>-p.trial<a href="../../Parameters/pldaps/eyeposMovAv.html" class="param" title="average the eyeposition (.eyeX and .eyeY) over this many samples.">.pldaps.eyeposMovAv</a>+1):p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a>;
+</div><div id="_line0102" class="line">0102                     p.trial<a href="../../Parameters/eyeX.html" class="param" title="">.eyeX</a> = mean(p.trial<a href="../../Parameters/mouse/cursorSamples.html" class="param" title="">.mouse.cursorSamples</a>(1,mInds));
+</div><div id="_line0103" class="line">0103                     p.trial<a href="../../Parameters/eyeY.html" class="param" title="">.eyeY</a> = mean(p.trial<a href="../../Parameters/mouse/cursorSamples.html" class="param" title="">.mouse.cursorSamples</a>(2,mInds));
+</div><div id="_line0104" class="line">0104                 <span class="keyword">end</span>
+</div><div id="_line0105" class="line">0105             <span class="keyword">end</span>
+</div><div id="_line0106" class="line">0106         <span class="keyword">end</span>
+</div><div id="_line0107" class="line">0107         <span class="comment">%get analogData from Datapixx</span>
+</div><div id="_line0108" class="line">0108         <a href="../../PLDAPS/+pds/+datapixx/+adc/pds.datapixx.adc.getData.html" class="code" title="function p = getData(p)">pds.datapixx.adc.getData</a>(p);
+</div><div id="_line0109" class="line">0109         <span class="comment">%get eyelink data</span>
+</div><div id="_line0110" class="line">0110         <a href="../../PLDAPS/+pds/+eyelink/pds.eyelink.getQueue.html" class="code" title="function p = getQueue(p)">pds.eyelink.getQueue</a>(p); 
+</div><div id="_line0111" class="line">0111         <span class="comment">%get plexon spikes</span>
+</div><div id="_line0112" class="line">0112 <span class="comment">%         pds.plexon.spikeserver.getSpikes(p);</span>
+</div><div id="_line0113" class="line">0113     <span class="keyword">end</span> <span class="comment">%frameUpdate</span>
+</div><div id="_line0114" class="line">0114 <span class="comment">%</span>
+</div><div id="_line0115" class="line">0115 <span class="comment">%     function framePrepareDrawing(p)</span>
+</div><div id="_line0116" class="line">0116 <span class="comment">%     end %framePrepareDrawing</span>
+</div><div id="_line0117" class="line">0117 
+</div><div id="_line0118" class="line">0118     <span class="comment">%% frameDraw</span>
+</div><div id="_line0119" class="line">0119     <a name="_sub2" href="#_subfunctions" class="code">function frameDraw(p)</a>
+</div><div id="_line0120" class="line">0120         <span class="comment">%this holds the code to draw some stuff to the overlay (using</span>
+</div><div id="_line0121" class="line">0121         <span class="comment">%switches, like the grid, the eye Position, etc</span>
+</div><div id="_line0122" class="line">0122         
+</div><div id="_line0123" class="line">0123         <span class="comment">%consider moving this stuff to an earlier timepoint, to allow GPU</span>
+</div><div id="_line0124" class="line">0124         <span class="comment">%to crunch on this before the real stuff gets added.</span>
+</div><div id="_line0125" class="line">0125         
+</div><div id="_line0126" class="line">0126         <span class="comment">%did the background color change? Usually already applied after</span>
+</div><div id="_line0127" class="line">0127         <span class="comment">%frameFlip, but make sure we're not missing anything</span>
+</div><div id="_line0128" class="line">0128         <span class="keyword">if</span> any(p.trial<a href="../../Parameters/pldaps/lastBgColor.html" class="param" title="">.pldaps.lastBgColor</a>~=p.trial<a href="../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>)
+</div><div id="_line0129" class="line">0129             Screen(<span class="string">'FillRect'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>,p.trial<a href="../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>);
+</div><div id="_line0130" class="line">0130             p.trial<a href="../../Parameters/pldaps/lastBgColor.html" class="param" title="">.pldaps.lastBgColor</a> = p.trial<a href="../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>;
+</div><div id="_line0131" class="line">0131         <span class="keyword">end</span>
+</div><div id="_line0132" class="line">0132         
+</div><div id="_line0133" class="line">0133         <span class="keyword">if</span> p.trial<a href="../../Parameters/pldaps/draw/grid/use.html" class="param" title="enable drawing of the grid">.pldaps.draw.grid.use</a>
+</div><div id="_line0134" class="line">0134             Screen(<span class="string">'DrawLines'</span>,p.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a>,p.trial<a href="../../Parameters/pldaps/draw/grid/tick_line_matrix.html" class="param" title="">.pldaps.draw.grid.tick_line_matrix</a>,1,p.trial<a href="../../Parameters/display/clut/window.html" class="param" title="">.display.clut.window</a>,p.trial<a href="../../Parameters/display/ctr.html" class="param" title="">.display.ctr</a>(1:2));
+</div><div id="_line0135" class="line">0135         <span class="keyword">end</span>
+</div><div id="_line0136" class="line">0136         
+</div><div id="_line0137" class="line">0137         <span class="comment">%draw a history of fast inter frame intervals</span>
+</div><div id="_line0138" class="line">0138         <span class="keyword">if</span> p.trial<a href="../../Parameters/pldaps/draw/framerate/use.html" class="param" title="set to true to collect data needed to show framerate.">.pldaps.draw.framerate.use</a> &amp;&amp; p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>&gt;2
+</div><div id="_line0139" class="line">0139             <span class="comment">%update data</span>
+</div><div id="_line0140" class="line">0140             p.trial<a href="../../Parameters/pldaps/draw/framerate/data.html" class="param" title="">.pldaps.draw.framerate.data</a>=circshift(p.trial<a href="../../Parameters/pldaps/draw/framerate/data.html" class="param" title="">.pldaps.draw.framerate.data</a>,-1);
+</div><div id="_line0141" class="line">0141             p.trial<a href="../../Parameters/pldaps/draw/framerate/data.html" class="param" title="">.pldaps.draw.framerate.data</a>(end)=p.trial<a href="../../Parameters/timing/flipTimes.html" class="param" title="">.timing.flipTimes</a>(1,p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>-1)-p.trial<a href="../../Parameters/timing/flipTimes.html" class="param" title="">.timing.flipTimes</a>(1,p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>-2);
+</div><div id="_line0142" class="line">0142             <span class="comment">%plot</span>
+</div><div id="_line0143" class="line">0143             <span class="keyword">if</span> p.trial<a href="../../Parameters/pldaps/draw/framerate/show.html" class="param" title="draw the framerate. need use to be enabled as well">.pldaps.draw.framerate.show</a> 
+</div><div id="_line0144" class="line">0144                 <span class="comment">%adjust y limit</span>
+</div><div id="_line0145" class="line">0145                 p.trial<a href="../../Parameters/pldaps/draw/framerate/sf/ylims.html" class="param" title="">.pldaps.draw.framerate.sf.ylims</a>=[0 max(max(p.trial<a href="../../Parameters/pldaps/draw/framerate/data.html" class="param" title="">.pldaps.draw.framerate.data</a>), 2*p.trial<a href="../../Parameters/display/ifi.html" class="param" title="">.display.ifi</a>)];
+</div><div id="_line0146" class="line">0146                 <span class="comment">%current ifi is solid black</span>
+</div><div id="_line0147" class="line">0147                 <a href="../../PLDAPS/+pds/+pldaps/+draw/pds.pldaps.draw.screenPlot.html" class="code" title="function screenPlot(sf, x,y, color, linetype, downSample)">pds.pldaps.draw.screenPlot</a>(p.trial<a href="../../Parameters/pldaps/draw/framerate/sf/index.html" class="param" title="">.pldaps.draw.framerate.sf</a>, p.trial<a href="../../Parameters/pldaps/draw/framerate/sf/xlims.html" class="param" title="">.pldaps.draw.framerate.sf.xlims</a>, [p.trial<a href="../../Parameters/display/ifi.html" class="param" title="">.display.ifi</a> p.trial<a href="../../Parameters/display/ifi.html" class="param" title="">.display.ifi</a>], p.trial<a href="../../Parameters/display/clut/blackbg.html" class="param" title="">.display.clut.blackbg</a>, <span class="string">'-'</span>);
+</div><div id="_line0148" class="line">0148                 <span class="comment">%2 ifi reference is 5 black dots</span>
+</div><div id="_line0149" class="line">0149                 <a href="../../PLDAPS/+pds/+pldaps/+draw/pds.pldaps.draw.screenPlot.html" class="code" title="function screenPlot(sf, x,y, color, linetype, downSample)">pds.pldaps.draw.screenPlot</a>(p.trial<a href="../../Parameters/pldaps/draw/framerate/sf/index.html" class="param" title="">.pldaps.draw.framerate.sf</a>, p.trial<a href="../../Parameters/pldaps/draw/framerate/sf/xlims.html" class="param" title="">.pldaps.draw.framerate.sf.xlims</a>(2)*(0:0.25:1), ones(1,5)*2*p.trial<a href="../../Parameters/display/ifi.html" class="param" title="">.display.ifi</a>, p.trial<a href="../../Parameters/display/clut/blackbg.html" class="param" title="">.display.clut.blackbg</a>, <span class="string">'.'</span>);
+</div><div id="_line0150" class="line">0150                 <span class="comment">%0 ifi reference is 5 black dots</span>
+</div><div id="_line0151" class="line">0151                 <a href="../../PLDAPS/+pds/+pldaps/+draw/pds.pldaps.draw.screenPlot.html" class="code" title="function screenPlot(sf, x,y, color, linetype, downSample)">pds.pldaps.draw.screenPlot</a>(p.trial<a href="../../Parameters/pldaps/draw/framerate/sf/index.html" class="param" title="">.pldaps.draw.framerate.sf</a>, p.trial<a href="../../Parameters/pldaps/draw/framerate/sf/xlims.html" class="param" title="">.pldaps.draw.framerate.sf.xlims</a>(2)*(0:0.25:1), zeros(1,5), p.trial<a href="../../Parameters/display/clut/blackbg.html" class="param" title="">.display.clut.blackbg</a>, <span class="string">'.'</span>);
+</div><div id="_line0152" class="line">0152                 <span class="comment">%data are red dots</span>
+</div><div id="_line0153" class="line">0153                 <a href="../../PLDAPS/+pds/+pldaps/+draw/pds.pldaps.draw.screenPlot.html" class="code" title="function screenPlot(sf, x,y, color, linetype, downSample)">pds.pldaps.draw.screenPlot</a>(p.trial<a href="../../Parameters/pldaps/draw/framerate/sf/index.html" class="param" title="">.pldaps.draw.framerate.sf</a>, 1:p.trial<a href="../../Parameters/pldaps/draw/framerate/nFrames.html" class="param" title="">.pldaps.draw.framerate.nFrames</a>, p.trial<a href="../../Parameters/pldaps/draw/framerate/data.html" class="param" title="">.pldaps.draw.framerate.data</a>', p.trial<a href="../../Parameters/display/clut/redbg.html" class="param" title="">.display.clut.redbg</a>, <span class="string">'.'</span>);
+</div><div id="_line0154" class="line">0154             <span class="keyword">end</span>
+</div><div id="_line0155" class="line">0155          <span class="keyword">end</span>
+</div><div id="_line0156" class="line">0156         
+</div><div id="_line0157" class="line">0157          <span class="comment">%draw the eyepositon to the second srceen only</span>
+</div><div id="_line0158" class="line">0158          <span class="comment">%move the color and size parameters to</span>
+</div><div id="_line0159" class="line">0159          <span class="comment">%p.trial.pldaps.draw.eyepos?</span>
+</div><div id="_line0160" class="line">0160          <span class="keyword">if</span> p.trial<a href="../../Parameters/pldaps/draw/eyepos/use.html" class="param" title="enable drawing of the eye position.">.pldaps.draw.eyepos.use</a>
+</div><div id="_line0161" class="line">0161             Screen(<span class="string">'Drawdots'</span>,  p.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a>, [p.trial<a href="../../Parameters/eyeX.html" class="param" title="">.eyeX</a> p.trial<a href="../../Parameters/eyeY.html" class="param" title="">.eyeY</a>]', <span class="keyword">...</span>
+</div><div id="_line0162" class="line">0162             p.trial<a href="../../Parameters/stimulus/eyeW.html" class="param" title="">.stimulus.eyeW</a>, p.trial<a href="../../Parameters/display/clut/eyepos.html" class="param" title="">.display.clut.eyepos</a>, [0 0],0);
+</div><div id="_line0163" class="line">0163          <span class="keyword">end</span>
+</div><div id="_line0164" class="line">0164          <span class="keyword">if</span> p.trial<a href="../../Parameters/mouse/use.html" class="param" title="collect and store mouse positions">.mouse.use</a> &amp;&amp; p.trial<a href="../../Parameters/pldaps/draw/cursor/use.html" class="param" title="enable drawing of the mouse cursor.">.pldaps.draw.cursor.use</a>
+</div><div id="_line0165" class="line">0165             Screen(<span class="string">'Drawdots'</span>,  p.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a>,  p.trial<a href="../../Parameters/mouse/cursorSamples.html" class="param" title="">.mouse.cursorSamples</a>(1:2,p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a>), <span class="keyword">...</span>
+</div><div id="_line0166" class="line">0166             p.trial<a href="../../Parameters/stimulus/eyeW.html" class="param" title="">.stimulus.eyeW</a>, p.trial<a href="../../Parameters/display/clut/cursor.html" class="param" title="">.display.clut.cursor</a>, [0 0],0);
+</div><div id="_line0167" class="line">0167          <span class="keyword">end</span>
+</div><div id="_line0168" class="line">0168          
+</div><div id="_line0169" class="line">0169          <span class="keyword">if</span> p.trial<a href="../../Parameters/pldaps/draw/photodiode/use.html" class="param" title="enable drawing the photodione square">.pldaps.draw.photodiode.use</a> &amp;&amp; mod(p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>, p.trial<a href="../../Parameters/pldaps/draw/photodiode/everyXFrames.html" class="param" title="will be shown every nth frame">.pldaps.draw.photodiode.everyXFrames</a>) == 0
+</div><div id="_line0170" class="line">0170 <span class="comment">%             photodiodecolor = p.trial.display.clut.window;</span>
+</div><div id="_line0171" class="line">0171             photodiodecolor = [1 1 1];
+</div><div id="_line0172" class="line">0172             p.trial<a href="../../Parameters/timing/photodiodeTimes.html" class="param" title="">.timing.photodiodeTimes</a>(:,p.trial<a href="../../Parameters/pldaps/draw/photodiode/dataEnd.html" class="param" title="">.pldaps.draw.photodiode.dataEnd</a>) = [p.trial<a href="../../Parameters/ttime.html" class="param" title="">.ttime</a> p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>];
+</div><div id="_line0173" class="line">0173             p.trial<a href="../../Parameters/pldaps/draw/photodiode/dataEnd.html" class="param" title="">.pldaps.draw.photodiode.dataEnd</a>=p.trial<a href="../../Parameters/pldaps/draw/photodiode/dataEnd.html" class="param" title="">.pldaps.draw.photodiode.dataEnd</a>+1;
+</div><div id="_line0174" class="line">0174             Screen(<span class="string">'FillRect'</span>,  p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>,photodiodecolor, p.trial<a href="../../Parameters/pldaps/draw/photodiode/rect.html" class="param" title="">.pldaps.draw.photodiode.rect</a>');
+</div><div id="_line0175" class="line">0175         <span class="keyword">end</span>
+</div><div id="_line0176" class="line">0176     <span class="keyword">end</span> <span class="comment">%frameDraw</span>
+</div><div id="_line0177" class="line">0177 
+</div><div id="_line0178" class="line">0178     <span class="comment">%% frameIdlePreLastDraw</span>
+</div><div id="_line0179" class="line">0179 <span class="comment">%     function frameIdlePreLastDraw(p)</span>
+</div><div id="_line0180" class="line">0180 <span class="comment">%         %only execute once, since this is the only part atm, this is done at 0</span>
+</div><div id="_line0181" class="line">0181 <span class="comment">%         if p.trial.framePreLastDrawIdleCount==0</span>
+</div><div id="_line0182" class="line">0182 <span class="comment">%         else %if no one stepped in to execute we might as well skip to the next stage</span>
+</div><div id="_line0183" class="line">0183 <span class="comment">%             p.trial.currentFrameState=p.trial.pldaps.trialStates.frameDrawTimecritical;</span>
+</div><div id="_line0184" class="line">0184 <span class="comment">%         end</span>
+</div><div id="_line0185" class="line">0185 <span class="comment">%     end %frameIdlePreLastDraw</span>
+</div><div id="_line0186" class="line">0186 
+</div><div id="_line0187" class="line">0187 <span class="comment">%     function drawTimecritical(p)</span>
+</div><div id="_line0188" class="line">0188 <span class="comment">%     end %drawTimecritical</span>
+</div><div id="_line0189" class="line">0189 
+</div><div id="_line0190" class="line">0190     <a name="_sub3" href="#_subfunctions" class="code">function frameDrawingFinished(p)</a>
+</div><div id="_line0191" class="line">0191         Screen(<span class="string">'DrawingFinished'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>,0,0);
+</div><div id="_line0192" class="line">0192 <span class="comment">%         Screen('DrawingFinished', p.trial.display.overlayptr);</span>
+</div><div id="_line0193" class="line">0193         <span class="comment">%if we're going async, we'd probably do the flip call here, right? but</span>
+</div><div id="_line0194" class="line">0194         <span class="comment">%could also do it in the flip either way.</span>
+</div><div id="_line0195" class="line">0195     <span class="keyword">end</span> <span class="comment">%frameDrawingFinished</span>
+</div><div id="_line0196" class="line">0196 
+</div><div id="_line0197" class="line">0197 <span class="comment">%     function frameIdlePostDraw(p)</span>
+</div><div id="_line0198" class="line">0198 <span class="comment">%         if p.trial.framePostLastDrawIdleCount==0</span>
+</div><div id="_line0199" class="line">0199 <span class="comment">%         else</span>
+</div><div id="_line0200" class="line">0200 <span class="comment">%             p.trial.currentFrameState=p.trial.pldaps.trialStates.frameFlip;</span>
+</div><div id="_line0201" class="line">0201 <span class="comment">%         end</span>
+</div><div id="_line0202" class="line">0202 <span class="comment">%     end %frameIdlePostDraw</span>
+</div><div id="_line0203" class="line">0203 
+</div><div id="_line0204" class="line">0204     <a name="_sub4" href="#_subfunctions" class="code">function frameFlip(p)</a>
+</div><div id="_line0205" class="line">0205 <span class="comment">%       if mod(p.trial.iFrame,3)==1</span>
+</div><div id="_line0206" class="line">0206          p.trial<a href="../../Parameters/timing/flipTimes.html" class="param" title="">.timing.flipTimes</a>(:,p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>) = deal(Screen(<span class="string">'Flip'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>,0));
+</div><div id="_line0207" class="line">0207 <span class="comment">%       end</span>
+</div><div id="_line0208" class="line">0208          <span class="keyword">if</span> p.trial<a href="../../Parameters/display/movie/create.html" class="param" title="toggle movie creation">.display.movie.create</a>
+</div><div id="_line0209" class="line">0209              <span class="comment">%we should skip every nth frame depending on the ration of</span>
+</div><div id="_line0210" class="line">0210              <span class="comment">%frame rates, or increase every nth frameduration by 1 every</span>
+</div><div id="_line0211" class="line">0211              <span class="comment">%nth frame</span>
+</div><div id="_line0212" class="line">0212              <span class="keyword">if</span> p.trial<a href="../../Parameters/display/frate.html" class="param" title="">.display.frate</a> &gt; p.trial<a href="../../Parameters/display/movie/frameRate.html" class="param" title="frame rate of the movie.">.display.movie.frameRate</a>
+</div><div id="_line0213" class="line">0213                  thisframe = mod(p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>, p.trial<a href="../../Parameters/display/frate.html" class="param" title="">.display.frate</a>/p.trial<a href="../../Parameters/display/movie/frameRate.html" class="param" title="frame rate of the movie.">.display.movie.frameRate</a>)&gt;0;
+</div><div id="_line0214" class="line">0214              <span class="keyword">else</span>
+</div><div id="_line0215" class="line">0215                  thisframe=true;
+</div><div id="_line0216" class="line">0216              <span class="keyword">end</span>
+</div><div id="_line0217" class="line">0217 
+</div><div id="_line0218" class="line">0218              <span class="keyword">if</span> thisframe
+</div><div id="_line0219" class="line">0219                  frameDuration=1;
+</div><div id="_line0220" class="line">0220                  Screen(<span class="string">'AddFrameToMovie'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>,[],[],p.trial<a href="../../Parameters/display/movie/ptr.html" class="param" title="">.display.movie.ptr</a>, frameDuration);
+</div><div id="_line0221" class="line">0221              <span class="keyword">end</span>
+</div><div id="_line0222" class="line">0222          <span class="keyword">end</span>
+</div><div id="_line0223" class="line">0223                   
+</div><div id="_line0224" class="line">0224          <span class="comment">%did the background color change?</span>
+</div><div id="_line0225" class="line">0225          <span class="comment">%we're doing it here to make sure we don't overwrite anything</span>
+</div><div id="_line0226" class="line">0226          <span class="comment">%but this tyically causes a one frame delay until it's applied</span>
+</div><div id="_line0227" class="line">0227          <span class="comment">%i.e. when it's set in frame n, it changes when frame n+1 flips</span>
+</div><div id="_line0228" class="line">0228          <span class="comment">%otherwise we could trust users not to draw before</span>
+</div><div id="_line0229" class="line">0229          <span class="comment">%frameDraw, but we'll check again at frameDraw to be sure</span>
+</div><div id="_line0230" class="line">0230          <span class="keyword">if</span> any(p.trial<a href="../../Parameters/pldaps/lastBgColor.html" class="param" title="">.pldaps.lastBgColor</a>~=p.trial<a href="../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>)
+</div><div id="_line0231" class="line">0231              Screen(<span class="string">'FillRect'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>,p.trial<a href="../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>);
+</div><div id="_line0232" class="line">0232              p.trial<a href="../../Parameters/pldaps/lastBgColor.html" class="param" title="">.pldaps.lastBgColor</a> = p.trial<a href="../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>;
+</div><div id="_line0233" class="line">0233          <span class="keyword">end</span>
+</div><div id="_line0234" class="line">0234          
+</div><div id="_line0235" class="line">0235          <span class="keyword">if</span> p.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a> ~= p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>
+</div><div id="_line0236" class="line">0236             Screen(<span class="string">'FillRect'</span>, p.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a>,0);
+</div><div id="_line0237" class="line">0237          <span class="keyword">end</span>
+</div><div id="_line0238" class="line">0238 
+</div><div id="_line0239" class="line">0239          p.trial<a href="../../Parameters/stimulus/timeLastFrame.html" class="param" title="">.stimulus.timeLastFrame</a> = p.trial<a href="../../Parameters/timing/flipTimes.html" class="param" title="">.timing.flipTimes</a>(1,p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>)-p.trial<a href="../../Parameters/trstart.html" class="param" title="">.trstart</a>;
+</div><div id="_line0240" class="line">0240          p.trial<a href="../../Parameters/framePreLastDrawIdleCount.html" class="param" title="">.framePreLastDrawIdleCount</a>=0;
+</div><div id="_line0241" class="line">0241          p.trial<a href="../../Parameters/framePostLastDrawIdleCount.html" class="param" title="">.framePostLastDrawIdleCount</a>=0;
+</div><div id="_line0242" class="line">0242     <span class="keyword">end</span> <span class="comment">%frameFlip</span>
+</div><div id="_line0243" class="line">0243 
+</div><div id="_line0244" class="line">0244     <a name="_sub5" href="#_subfunctions" class="code">function trialSetup(p)</a>
+</div><div id="_line0245" class="line">0245         
+</div><div id="_line0246" class="line">0246         p.trial<a href="../../Parameters/timing/flipTimes.html" class="param" title="">.timing.flipTimes</a>       = zeros(4,p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>);
+</div><div id="_line0247" class="line">0247         p.trial<a href="../../Parameters/timing/frameStateChangeTimes.html" class="param" title="">.timing.frameStateChangeTimes</a>=nan(9,p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>);
+</div><div id="_line0248" class="line">0248         
+</div><div id="_line0249" class="line">0249         <span class="keyword">if</span>(p.trial<a href="../../Parameters/pldaps/draw/photodiode/use.html" class="param" title="enable drawing the photodione square">.pldaps.draw.photodiode.use</a>)
+</div><div id="_line0250" class="line">0250             p.trial<a href="../../Parameters/timing/photodiodeTimes.html" class="param" title="">.timing.photodiodeTimes</a>=nan(2,p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>);
+</div><div id="_line0251" class="line">0251             p.trial<a href="../../Parameters/pldaps/draw/photodiode/dataEnd.html" class="param" title="">.pldaps.draw.photodiode.dataEnd</a>=1;
+</div><div id="_line0252" class="line">0252         <span class="keyword">end</span>
+</div><div id="_line0253" class="line">0253         
+</div><div id="_line0254" class="line">0254         <span class="comment">%these are things that are specific to subunits as eyelink,</span>
+</div><div id="_line0255" class="line">0255         <span class="comment">%datapixx, mouse and should probabbly be in separarte functions,</span>
+</div><div id="_line0256" class="line">0256         <span class="comment">%but I have no logic/structure for that atm.</span>
+</div><div id="_line0257" class="line">0257         
+</div><div id="_line0258" class="line">0258         <span class="comment">%setup analogData collection from Datapixx</span>
+</div><div id="_line0259" class="line">0259         <a href="../../PLDAPS/+pds/+datapixx/+adc/pds.datapixx.adc.trialSetup.html" class="code" title="function p = trialSetup(p)">pds.datapixx.adc.trialSetup</a>(p);
+</div><div id="_line0260" class="line">0260         
+</div><div id="_line0261" class="line">0261         <span class="comment">%call PsychDataPixx('GetPreciseTime') to make sure the clocks stay</span>
+</div><div id="_line0262" class="line">0262         <span class="comment">%synced</span>
+</div><div id="_line0263" class="line">0263         <span class="keyword">if</span> p.trial<a href="../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a>
+</div><div id="_line0264" class="line">0264             [getsecs, boxsecs, confidence] = PsychDataPixx(<span class="string">'GetPreciseTime'</span>);
+</div><div id="_line0265" class="line">0265             p.trial<a href="../../Parameters/timing/datapixxPreciseTime.html" class="param" title="">.timing.datapixxPreciseTime</a>(1:3) = [getsecs, boxsecs, confidence];
+</div><div id="_line0266" class="line">0266         <span class="keyword">end</span>
+</div><div id="_line0267" class="line">0267         
+</div><div id="_line0268" class="line">0268         <span class="comment">%setup a fields for the keyboard data</span>
+</div><div id="_line0269" class="line">0269 <span class="comment">%         [~, firstPress]=KbQueueCheck();</span>
+</div><div id="_line0270" class="line">0270         p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a> = 0;
+</div><div id="_line0271" class="line">0271         p.trial<a href="../../Parameters/keyboard/samplesTimes.html" class="param" title="">.keyboard.samplesTimes</a>=zeros(1,round(p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>*1.1));
+</div><div id="_line0272" class="line">0272         p.trial<a href="../../Parameters/keyboard/samplesFrames.html" class="param" title="">.keyboard.samplesFrames</a>=zeros(1,round(p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>*1.1));
+</div><div id="_line0273" class="line">0273 <span class="comment">%         p.trial.keyboard.keyPressSamples = zeros(length(firstPressQ),round(p.trial.pldaps.maxFrames*1.1));</span>
+</div><div id="_line0274" class="line">0274         p.trial<a href="../../Parameters/keyboard/pressedSamples.html" class="param" title="">.keyboard.pressedSamples</a>=false(1,round(p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>*1.1));
+</div><div id="_line0275" class="line">0275         p.trial<a href="../../Parameters/keyboard/firstPressSamples.html" class="param" title="">.keyboard.firstPressSamples</a> = zeros(p.trial<a href="../../Parameters/keyboard/nCodes.html" class="param" title="">.keyboard.nCodes</a>,round(p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>*1.1));
+</div><div id="_line0276" class="line">0276         p.trial<a href="../../Parameters/keyboard/firstReleaseSamples.html" class="param" title="">.keyboard.firstReleaseSamples</a> = zeros(p.trial<a href="../../Parameters/keyboard/nCodes.html" class="param" title="">.keyboard.nCodes</a>,round(p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>*1.1));
+</div><div id="_line0277" class="line">0277         p.trial<a href="../../Parameters/keyboard/lastPressSamples.html" class="param" title="">.keyboard.lastPressSamples</a> = zeros(p.trial<a href="../../Parameters/keyboard/nCodes.html" class="param" title="">.keyboard.nCodes</a>,round(p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>*1.1));
+</div><div id="_line0278" class="line">0278         p.trial<a href="../../Parameters/keyboard/lastReleaseSamples.html" class="param" title="">.keyboard.lastReleaseSamples</a> = zeros(p.trial<a href="../../Parameters/keyboard/nCodes.html" class="param" title="">.keyboard.nCodes</a>,round(p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>*1.1));
+</div><div id="_line0279" class="line">0279         
+</div><div id="_line0280" class="line">0280         <span class="comment">%setup a fields for the mouse data</span>
+</div><div id="_line0281" class="line">0281         <span class="keyword">if</span> p.trial<a href="../../Parameters/mouse/use.html" class="param" title="collect and store mouse positions">.mouse.use</a>
+</div><div id="_line0282" class="line">0282             [~,~,isMouseButtonDown] = GetMouse(); 
+</div><div id="_line0283" class="line">0283             p.trial<a href="../../Parameters/mouse/cursorSamples.html" class="param" title="">.mouse.cursorSamples</a> = zeros(2,round(round(p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>*1.1)));
+</div><div id="_line0284" class="line">0284             p.trial<a href="../../Parameters/mouse/buttonPressSamples.html" class="param" title="">.mouse.buttonPressSamples</a> = zeros(length(isMouseButtonDown),round(round(p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>*1.1)));
+</div><div id="_line0285" class="line">0285             p.trial<a href="../../Parameters/mouse/samplesTimes.html" class="param" title="">.mouse.samplesTimes</a>=zeros(1,round(round(p.trial<a href="../../Parameters/pldaps/maxFrames.html" class="param" title="">.pldaps.maxFrames</a>*1.1)));
+</div><div id="_line0286" class="line">0286             p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a> = 0;
+</div><div id="_line0287" class="line">0287         <span class="keyword">end</span>
+</div><div id="_line0288" class="line">0288         
+</div><div id="_line0289" class="line">0289         <span class="comment">%%% Eyelink Toolbox Setup %%%</span>
+</div><div id="_line0290" class="line">0290         <span class="comment">%-------------------------------------------------------------------------%</span>
+</div><div id="_line0291" class="line">0291         <span class="comment">% preallocate for all eye samples and event data from the eyelink</span>
+</div><div id="_line0292" class="line">0292         <a href="../../PLDAPS/+pds/+eyelink/pds.eyelink.startTrial.html" class="code" title="function p = startTrial(p)">pds.eyelink.startTrial</a>(p);
+</div><div id="_line0293" class="line">0293         
+</div><div id="_line0294" class="line">0294         <span class="comment">%%% Spike server</span>
+</div><div id="_line0295" class="line">0295         <span class="comment">%-------------------------------------------------------------------------%</span>
+</div><div id="_line0296" class="line">0296 <span class="comment">%         [p,spikes] = pds.plexon.spikeserver.getSpikes(p); %what are we dowing with the spikes???</span>
+</div><div id="_line0297" class="line">0297         p.trial<a href="../../Parameters/plexon/spikeserver/spikeCount.html" class="param" title="">.plexon.spikeserver.spikeCount</a>=0;
+</div><div id="_line0298" class="line">0298         <a href="../../PLDAPS/+pds/+plexon/+spikeserver/pds.plexon.spikeserver.getSpikes.html" class="code" title="function [p, spikes] = getSpikes(p)">pds.plexon.spikeserver.getSpikes</a>(p); <span class="comment">%save all spikes that arrives in the inter trial interval</span>
+</div><div id="_line0299" class="line">0299 
+</div><div id="_line0300" class="line">0300         
+</div><div id="_line0301" class="line">0301         <span class="comment">%%% prepare reward system</span>
+</div><div id="_line0302" class="line">0302         <a href="../../PLDAPS/+pds/+behavior/+reward/pds.behavior.reward.trialSetup.html" class="code" title="function p = trialSetup(p)">pds.behavior.reward.trialSetup</a>(p);
+</div><div id="_line0303" class="line">0303         
+</div><div id="_line0304" class="line">0304         <span class="comment">%%% prepare to plot framerate history on screen</span>
+</div><div id="_line0305" class="line">0305         <span class="keyword">if</span> p.trial<a href="../../Parameters/pldaps/draw/framerate/use.html" class="param" title="set to true to collect data needed to show framerate.">.pldaps.draw.framerate.use</a>           
+</div><div id="_line0306" class="line">0306             p.trial<a href="../../Parameters/pldaps/draw/framerate/nFrames.html" class="param" title="">.pldaps.draw.framerate.nFrames</a>=round(p.trial<a href="../../Parameters/pldaps/draw/framerate/nSeconds.html" class="param" title="number of seconds to show the history for">.pldaps.draw.framerate.nSeconds</a>/p.trial<a href="../../Parameters/display/ifi.html" class="param" title="">.display.ifi</a>);
+</div><div id="_line0307" class="line">0307             p.trial<a href="../../Parameters/pldaps/draw/framerate/data.html" class="param" title="">.pldaps.draw.framerate.data</a>=zeros(p.trial<a href="../../Parameters/pldaps/draw/framerate/nFrames.html" class="param" title="">.pldaps.draw.framerate.nFrames</a>,1); <span class="comment">%holds the data</span>
+</div><div id="_line0308" class="line">0308             sf.startPos=round(p.trial<a href="../../Parameters/display/w2px.html" class="param" title="">.display.w2px</a>'.*p.trial<a href="../../Parameters/pldaps/draw/framerate/location.html" class="param" title="location (XY) of the plot in degrees of visual angle.">.pldaps.draw.framerate.location</a> + [p.trial<a href="../../Parameters/display/pWidth.html" class="param" title="">.display.pWidth</a>/2 p.trial<a href="../../Parameters/display/pHeight.html" class="param" title="">.display.pHeight</a>/2]);
+</div><div id="_line0309" class="line">0309             sf.size=p.trial<a href="../../Parameters/display/w2px.html" class="param" title="">.display.w2px</a>'.*p.trial<a href="../../Parameters/pldaps/draw/framerate/size.html" class="param" title="size (XY) of the plot in degrees of visual angle.">.pldaps.draw.framerate.size</a>;    
+</div><div id="_line0310" class="line">0310             sf.window=p.trial<a href="../../Parameters/display/overlayptr.html" class="param" title="">.display.overlayptr</a>;
+</div><div id="_line0311" class="line">0311             sf.xlims=[1 p.trial<a href="../../Parameters/pldaps/draw/framerate/nFrames.html" class="param" title="">.pldaps.draw.framerate.nFrames</a>];
+</div><div id="_line0312" class="line">0312             sf.ylims=  [0 2*p.trial<a href="../../Parameters/display/ifi.html" class="param" title="">.display.ifi</a>];
+</div><div id="_line0313" class="line">0313             sf.linetype=<span class="string">'-'</span>;
+</div><div id="_line0314" class="line">0314             
+</div><div id="_line0315" class="line">0315             p.trial<a href="../../Parameters/pldaps/draw/framerate/sf/index.html" class="param" title="">.pldaps.draw.framerate.sf</a>=sf;
+</div><div id="_line0316" class="line">0316         <span class="keyword">end</span>
+</div><div id="_line0317" class="line">0317 
+</div><div id="_line0318" class="line">0318 <span class="comment">%         %setup assignemnt of eyeposition data to eyeX and eyeY</span>
+</div><div id="_line0319" class="line">0319 <span class="comment">%         %first create the S structs for subsref.</span>
+</div><div id="_line0320" class="line">0320 <span class="comment">%         % Got a big WTF on your face? read up on subsref, subsasgn and substruct</span>
+</div><div id="_line0321" class="line">0321 <span class="comment">%         % we need this to dynamically access data deep inside a multilevel struct</span>
+</div><div id="_line0322" class="line">0322 <span class="comment">%         % without using eval.</span>
+</div><div id="_line0323" class="line">0323 <span class="comment">%         % different approach: have it set by the data collectors</span>
+</div><div id="_line0324" class="line">0324 <span class="comment">%         % themselves?</span>
+</div><div id="_line0325" class="line">0325      
+</div><div id="_line0326" class="line">0326         
+</div><div id="_line0327" class="line">0327     <span class="keyword">end</span> <span class="comment">%trialSetup</span>
+</div><div id="_line0328" class="line">0328     
+</div><div id="_line0329" class="line">0329     <a name="_sub6" href="#_subfunctions" class="code">function trialPrepare(p)     </a>
+</div><div id="_line0330" class="line">0330 
+</div><div id="_line0331" class="line">0331         <span class="comment">%%% setup PsychPortAudio %%%</span>
+</div><div id="_line0332" class="line">0332         <span class="comment">%-------------------------------------------------------------------------%</span>
+</div><div id="_line0333" class="line">0333         <span class="comment">% we use the PsychPortAudio pipeline to give auditory feedback because it</span>
+</div><div id="_line0334" class="line">0334         <span class="comment">% has less timing issues than Beeper.m -- Beeper freezes flips as long as</span>
+</div><div id="_line0335" class="line">0335         <span class="comment">% it is producing sound whereas PsychPortAudio loads a wav file into the</span>
+</div><div id="_line0336" class="line">0336         <span class="comment">% buffer and can call it instantly without wasting much compute time.</span>
+</div><div id="_line0337" class="line">0337         <a href="../../PLDAPS/+pds/+audio/pds.audio.clearBuffer.html" class="code" title="function clearBuffer(p)">pds.audio.clearBuffer</a>(p)
+</div><div id="_line0338" class="line">0338 
+</div><div id="_line0339" class="line">0339 
+</div><div id="_line0340" class="line">0340 <span class="comment">%TODO        %do we need this?</span>
+</div><div id="_line0341" class="line">0341         <span class="keyword">if</span> p.trial<a href="../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a>
+</div><div id="_line0342" class="line">0342             Datapixx RegWrRd;
+</div><div id="_line0343" class="line">0343         <span class="keyword">end</span>
+</div><div id="_line0344" class="line">0344         
+</div><div id="_line0345" class="line">0345 
+</div><div id="_line0346" class="line">0346 
+</div><div id="_line0347" class="line">0347         <span class="comment">%%% Initalize Keyboard %%%</span>
+</div><div id="_line0348" class="line">0348         <span class="comment">%-------------------------------------------------------------------------%</span>
+</div><div id="_line0349" class="line">0349         <a href="../../PLDAPS/+pds/+keyboard/pds.keyboard.clearBuffer.html" class="code" title="function p = clearBuffer(p)">pds.keyboard.clearBuffer</a>(p);
+</div><div id="_line0350" class="line">0350         
+</div><div id="_line0351" class="line">0351         <span class="comment">%%% Eyelink Toolbox Setup %%%</span>
+</div><div id="_line0352" class="line">0352         <span class="comment">%-------------------------------------------------------------------------%</span>
+</div><div id="_line0353" class="line">0353         <span class="comment">% preallocate for all eye samples and event data from the eyelink</span>
+</div><div id="_line0354" class="line">0354         <a href="../../PLDAPS/+pds/+eyelink/pds.eyelink.startTrialPrepare.html" class="code" title="function p = startTrialPrepare(p)">pds.eyelink.startTrialPrepare</a>(p);
+</div><div id="_line0355" class="line">0355 
+</div><div id="_line0356" class="line">0356 
+</div><div id="_line0357" class="line">0357         <span class="comment">%%% START OF TRIAL TIMING %%</span>
+</div><div id="_line0358" class="line">0358         <span class="comment">%-------------------------------------------------------------------------%</span>
+</div><div id="_line0359" class="line">0359         <span class="comment">% record start of trial in Datapixx, Mac &amp; Plexon</span>
+</div><div id="_line0360" class="line">0360         <span class="comment">% each device has a separate clock</span>
+</div><div id="_line0361" class="line">0361 
+</div><div id="_line0362" class="line">0362         <span class="comment">% At the beginning of each trial, strobe a unique number to the plexon</span>
+</div><div id="_line0363" class="line">0363         <span class="comment">% through the Datapixx to identify each trial. Often the Stimulus display</span>
+</div><div id="_line0364" class="line">0364         <span class="comment">% will be running for many trials before the recording begins so this lets</span>
+</div><div id="_line0365" class="line">0365         <span class="comment">% the plexon rig sync up its first trial with whatever trial number is on</span>
+</div><div id="_line0366" class="line">0366         <span class="comment">% for stimulus display.</span>
+</div><div id="_line0367" class="line">0367         <span class="comment">% SYNC clocks</span>
+</div><div id="_line0368" class="line">0368 <span class="comment">%TODO move into a pds.plexon.startTrial(p) file. Also just sent the data along the trialStart flax, or a  least after?</span>
+</div><div id="_line0369" class="line">0369         clocktime = fix(clock);
+</div><div id="_line0370" class="line">0370         <span class="keyword">if</span> p.trial<a href="../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a>
+</div><div id="_line0371" class="line">0371             <span class="keyword">for</span> ii = 1:6
+</div><div id="_line0372" class="line">0372                 p.trial<a href="../../Parameters/datapixx/unique_number_time.html" class="param" title="">.datapixx.unique_number_time</a>(ii,:)=<a href="../../PLDAPS/+pds/+datapixx/pds.datapixx.strobe.html" class="code" title="function timings=strobe(lowWord,highWord)">pds.datapixx.strobe</a>(clocktime(ii));
+</div><div id="_line0373" class="line">0373             <span class="keyword">end</span>
+</div><div id="_line0374" class="line">0374         <span class="keyword">end</span>
+</div><div id="_line0375" class="line">0375         p.trial<a href="../../Parameters/unique_number.html" class="param" title="">.unique_number</a> = clocktime;    <span class="comment">% trial identifier</span>
+</div><div id="_line0376" class="line">0376         
+</div><div id="_line0377" class="line">0377         <span class="comment">%TODO move into a pds.plexon.startTrial(p) file? Or is this a generic</span>
+</div><div id="_line0378" class="line">0378 <span class="comment">%datapixx thing? not really....</span>
+</div><div id="_line0379" class="line">0379         <span class="keyword">if</span> p.trial<a href="../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a>
+</div><div id="_line0380" class="line">0380             p.trial<a href="../../Parameters/timing/datapixxStartTime.html" class="param" title="">.timing.datapixxStartTime</a> = Datapixx(<span class="string">'Gettime'</span>);
+</div><div id="_line0381" class="line">0381             p.trial<a href="../../Parameters/timing/datapixxTRIALSTART.html" class="param" title="">.timing.datapixxTRIALSTART</a> = <a href="../../PLDAPS/+pds/+datapixx/pds.datapixx.flipBit.html" class="code" title="function timings=flipBit(bit,trial)">pds.datapixx.flipBit</a>(p.trial<a href="../../Parameters/event/TRIALSTART.html" class="param" title="">.event.TRIALSTART</a>,p.trial<a href="../../Parameters/pldaps/iTrial.html" class="param" title="trial number. cannot be changed by the user">.pldaps.iTrial</a>);  <span class="comment">% start of trial (Plexon)</span>
+</div><div id="_line0382" class="line">0382         <span class="keyword">end</span>
+</div><div id="_line0383" class="line">0383         
+</div><div id="_line0384" class="line">0384 <span class="comment">%%check reconstruction</span>
+</div><div id="_line0385" class="line">0385         <span class="comment">%old</span>
+</div><div id="_line0386" class="line">0386 <span class="comment">%                 p.trial.trstart = GetSecs;</span>
+</div><div id="_line0387" class="line">0387         <span class="comment">%new</span>
+</div><div id="_line0388" class="line">0388 
+</div><div id="_line0389" class="line">0389         <span class="comment">%ensure background color is correct</span>
+</div><div id="_line0390" class="line">0390         Screen(<span class="string">'FillRect'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>,p.trial<a href="../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>);
+</div><div id="_line0391" class="line">0391         p.trial<a href="../../Parameters/pldaps/lastBgColor.html" class="param" title="">.pldaps.lastBgColor</a> = p.trial<a href="../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>;
+</div><div id="_line0392" class="line">0392          
+</div><div id="_line0393" class="line">0393         vblTime = Screen(<span class="string">'Flip'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>,0); 
+</div><div id="_line0394" class="line">0394         p.trial<a href="../../Parameters/trstart.html" class="param" title="">.trstart</a> = vblTime;
+</div><div id="_line0395" class="line">0395         p.trial<a href="../../Parameters/stimulus/timeLastFrame.html" class="param" title="">.stimulus.timeLastFrame</a>=vblTime-p.trial<a href="../../Parameters/trstart.html" class="param" title="">.trstart</a>;
+</div><div id="_line0396" class="line">0396 
+</div><div id="_line0397" class="line">0397         p.trial<a href="../../Parameters/ttime.html" class="param" title="">.ttime</a>  = GetSecs - p.trial<a href="../../Parameters/trstart.html" class="param" title="">.trstart</a>;
+</div><div id="_line0398" class="line">0398         p.trial<a href="../../Parameters/timing/syncTimeDuration.html" class="param" title="">.timing.syncTimeDuration</a> = p.trial<a href="../../Parameters/ttime.html" class="param" title="">.ttime</a>;
+</div><div id="_line0399" class="line">0399     <span class="keyword">end</span> <span class="comment">%trialPrepare</span>
+</div><div id="_line0400" class="line">0400 
+</div><div id="_line0401" class="line">0401     <a name="_sub7" href="#_subfunctions" class="code">function p = cleanUpandSave(p)</a>
+</div><div id="_line0402" class="line">0402 <span class="comment">%TODO move to pds.datapixx.cleanUpandSave</span>
+</div><div id="_line0403" class="line">0403         [p.trial<a href="../../Parameters/timing/flipTimes.html" class="param" title="">.timing.flipTimes</a>(:,p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>)] = deal(Screen(<span class="string">'Flip'</span>, p.trial<a href="../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>));
+</div><div id="_line0404" class="line">0404         <span class="keyword">if</span> p.trial<a href="../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a>
+</div><div id="_line0405" class="line">0405             p.trial<a href="../../Parameters/datapixx/datapixxstoptime.html" class="param" title="">.datapixx.datapixxstoptime</a> = Datapixx(<span class="string">'GetTime'</span>);
+</div><div id="_line0406" class="line">0406         <span class="keyword">end</span>
+</div><div id="_line0407" class="line">0407         p.trial<a href="../../Parameters/trialend.html" class="param" title="">.trialend</a> = GetSecs- p.trial<a href="../../Parameters/trstart.html" class="param" title="">.trstart</a>;
+</div><div id="_line0408" class="line">0408 
+</div><div id="_line0409" class="line">0409 <span class="comment">%         [p.trial.timing.flipTimes(:,p.trial.iFrame)] = deal(Screen('Flip', p.trial.display.ptr));</span>
+</div><div id="_line0410" class="line">0410 
+</div><div id="_line0411" class="line">0411         <span class="comment">%do a last frameUpdate</span>
+</div><div id="_line0412" class="line">0412         <a href="#_sub1" class="code" title="subframeUpdate">frameUpdate</a>(p)
+</div><div id="_line0413" class="line">0413         
+</div><div id="_line0414" class="line">0414 <span class="comment">%TODO move to pds.datapixx.cleanUpandSave</span>
+</div><div id="_line0415" class="line">0415         <span class="comment">%clean up analogData collection from Datapixx</span>
+</div><div id="_line0416" class="line">0416         <a href="../../PLDAPS/+pds/+datapixx/+adc/pds.datapixx.adc.cleanUpandSave.html" class="code" title="function p = cleanUpandSave(p)">pds.datapixx.adc.cleanUpandSave</a>(p);
+</div><div id="_line0417" class="line">0417          <span class="keyword">if</span> p.trial<a href="../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a>
+</div><div id="_line0418" class="line">0418             p.trial<a href="../../Parameters/timing/datapixxTRIALEND.html" class="param" title="">.timing.datapixxTRIALEND</a> = <a href="../../PLDAPS/+pds/+datapixx/pds.datapixx.flipBit.html" class="code" title="function timings=flipBit(bit,trial)">pds.datapixx.flipBit</a>(p.trial<a href="../../Parameters/event/TRIALEND.html" class="param" title="">.event.TRIALEND</a>,p.trial<a href="../../Parameters/pldaps/iTrial.html" class="param" title="trial number. cannot be changed by the user">.pldaps.iTrial</a>);  <span class="comment">% start of trial (Plexon)</span>
+</div><div id="_line0419" class="line">0419         <span class="keyword">end</span>
+</div><div id="_line0420" class="line">0420         
+</div><div id="_line0421" class="line">0421         <span class="keyword">if</span>(p.trial<a href="../../Parameters/pldaps/draw/photodiode/use.html" class="param" title="enable drawing the photodione square">.pldaps.draw.photodiode.use</a>)
+</div><div id="_line0422" class="line">0422             p.trial<a href="../../Parameters/timing/photodiodeTimes.html" class="param" title="">.timing.photodiodeTimes</a>(:,p.trial<a href="../../Parameters/pldaps/draw/photodiode/dataEnd.html" class="param" title="">.pldaps.draw.photodiode.dataEnd</a>:end)=[];
+</div><div id="_line0423" class="line">0423         <span class="keyword">end</span>
+</div><div id="_line0424" class="line">0424         <span class="comment">% if isfield(p, 'dp') % FIX ME</span>
+</div><div id="_line0425" class="line">0425         <span class="comment">%     p.dp = pds.datapixx.adcStop(p.dp);</span>
+</div><div id="_line0426" class="line">0426         <span class="comment">% end</span>
+</div><div id="_line0427" class="line">0427 
+</div><div id="_line0428" class="line">0428         <span class="comment">%% Flush KbQueue %%%</span>
+</div><div id="_line0429" class="line">0429         KbQueueStop();
+</div><div id="_line0430" class="line">0430         KbQueueFlush();
+</div><div id="_line0431" class="line">0431 
+</div><div id="_line0432" class="line">0432         <span class="comment">%will this crash when more samples where created than preallocated?</span>
+</div><div id="_line0433" class="line">0433         <span class="comment">% mouse input</span>
+</div><div id="_line0434" class="line">0434         <span class="keyword">if</span> p.trial<a href="../../Parameters/mouse/use.html" class="param" title="collect and store mouse positions">.mouse.use</a>
+</div><div id="_line0435" class="line">0435             p.trial<a href="../../Parameters/mouse/cursorSamples.html" class="param" title="">.mouse.cursorSamples</a>(:,p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a>+1:end) = [];
+</div><div id="_line0436" class="line">0436             p.trial<a href="../../Parameters/mouse/buttonPressSamples.html" class="param" title="">.mouse.buttonPressSamples</a>(:,p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a>+1:end) = [];
+</div><div id="_line0437" class="line">0437             p.trial<a href="../../Parameters/mouse/samplesTimes.html" class="param" title="">.mouse.samplesTimes</a>(:,p.trial<a href="../../Parameters/mouse/samples.html" class="param" title="">.mouse.samples</a>+1:end) = [];
+</div><div id="_line0438" class="line">0438         <span class="keyword">end</span>
+</div><div id="_line0439" class="line">0439         
+</div><div id="_line0440" class="line">0440 <span class="comment">%         p.trial.keyboard.keyPressSamples(:,p.trial.keyboard.samples+1:end) = [];</span>
+</div><div id="_line0441" class="line">0441         p.trial<a href="../../Parameters/keyboard/samplesTimes.html" class="param" title="">.keyboard.samplesTimes</a>(:,p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>+1:end) = [];
+</div><div id="_line0442" class="line">0442         p.trial<a href="../../Parameters/keyboard/samplesFrames.html" class="param" title="">.keyboard.samplesFrames</a>(:,p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>+1:end) = [];
+</div><div id="_line0443" class="line">0443         p.trial<a href="../../Parameters/keyboard/pressedSamples.html" class="param" title="">.keyboard.pressedSamples</a>(:,p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>+1:end) = [];
+</div><div id="_line0444" class="line">0444         p.trial<a href="../../Parameters/keyboard/firstPressSamples.html" class="param" title="">.keyboard.firstPressSamples</a>(:,p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>+1:end) = [];
+</div><div id="_line0445" class="line">0445         p.trial<a href="../../Parameters/keyboard/firstReleaseSamples.html" class="param" title="">.keyboard.firstReleaseSamples</a>(:,p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>+1:end) = [];
+</div><div id="_line0446" class="line">0446         p.trial<a href="../../Parameters/keyboard/lastPressSamples.html" class="param" title="">.keyboard.lastPressSamples</a>(:,p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>+1:end) = [];
+</div><div id="_line0447" class="line">0447         p.trial<a href="../../Parameters/keyboard/lastReleaseSamples.html" class="param" title="">.keyboard.lastReleaseSamples</a>(:,p.trial<a href="../../Parameters/keyboard/samples.html" class="param" title="">.keyboard.samples</a>+1:end) = [];
+</div><div id="_line0448" class="line">0448 
+</div><div id="_line0449" class="line">0449 <span class="comment">%TODO move to pds.plexon.cleanUpandSave</span>
+</div><div id="_line0450" class="line">0450         <span class="comment">% Get spike server spikes</span>
+</div><div id="_line0451" class="line">0451         <span class="comment">%---------------------------------------------------------------------%</span>
+</div><div id="_line0452" class="line">0452         <span class="keyword">if</span> p.trial<a href="../../Parameters/plexon/spikeserver/use.html" class="param" title="toggle use of our plexon spikeserver">.plexon.spikeserver.use</a>
+</div><div id="_line0453" class="line">0453             <span class="keyword">try</span>
+</div><div id="_line0454" class="line">0454                 <a href="../../PLDAPS/+pds/+plexon/+spikeserver/pds.plexon.spikeserver.getSpikes.html" class="code" title="function [p, spikes] = getSpikes(p)">pds.plexon.spikeserver.getSpikes</a>(p);
+</div><div id="_line0455" class="line">0455             <span class="keyword">catch</span> me
+</div><div id="_line0456" class="line">0456                 disp(me.message)
+</div><div id="_line0457" class="line">0457             <span class="keyword">end</span>
+</div><div id="_line0458" class="line">0458         <span class="keyword">end</span>
+</div><div id="_line0459" class="line">0459 <span class="comment">%             end</span>
+</div><div id="_line0460" class="line">0460 <span class="comment">%             try</span>
+</div><div id="_line0461" class="line">0461 <span class="comment">%                 [p, p.trial.plexon.spikeserver.spikes] = pds.plexon.spikeserver.getSpikes(p);</span>
+</div><div id="_line0462" class="line">0462 <span class="comment">%</span>
+</div><div id="_line0463" class="line">0463 <span class="comment">%                 if ~isempty(p.trial.spikeserver.spikes)</span>
+</div><div id="_line0464" class="line">0464 <span class="comment">%                     plbit = p.trial.event.TRIALSTART + 2;</span>
+</div><div id="_line0465" class="line">0465 <span class="comment">%                     t0 = find(p.trial.spikeserver.spikes(:,1) == 4 &amp; p.trial.spikeserver.spikes(:,2) == plbit, 1, 'first');</span>
+</div><div id="_line0466" class="line">0466 <span class="comment">%                     p.trial.plexon.spikeserver.spikes(:,4) = p.trial.plexon.spikeserver.spikes(:,4) - p.trial.plexon.spikeserver.spikes(t0,4);</span>
+</div><div id="_line0467" class="line">0467 <span class="comment">% %                     PDS.spikes{p.j} = spikes;</span>
+</div><div id="_line0468" class="line">0468 <span class="comment">%                 else</span>
+</div><div id="_line0469" class="line">0469 <span class="comment">% %                     PDS.spikes{p.j} = []; % zeros size of spike matrix</span>
+</div><div id="_line0470" class="line">0470 <span class="comment">%                     fprintf('No spikes. Check if server is running\r')</span>
+</div><div id="_line0471" class="line">0471 <span class="comment">%                 end</span>
+</div><div id="_line0472" class="line">0472 <span class="comment">%</span>
+</div><div id="_line0473" class="line">0473 <span class="comment">%             catch me</span>
+</div><div id="_line0474" class="line">0474 <span class="comment">%                 disp(me.message)</span>
+</div><div id="_line0475" class="line">0475 <span class="comment">%             end</span>
+</div><div id="_line0476" class="line">0476 <span class="comment">%         end</span>
+</div><div id="_line0477" class="line">0477         <span class="comment">%---------------------------------------------------------------------%</span>
+</div><div id="_line0478" class="line">0478 
+</div><div id="_line0479" class="line">0479         p.trial<a href="../../Parameters/trialnumber.html" class="param" title="">.trialnumber</a>   = p.trial<a href="../../Parameters/pldaps/iTrial.html" class="param" title="trial number. cannot be changed by the user">.pldaps.iTrial</a>;
+</div><div id="_line0480" class="line">0480 
+</div><div id="_line0481" class="line">0481         <span class="comment">% system timing</span>
+</div><div id="_line0482" class="line">0482         p.trial<a href="../../Parameters/timing/flipTimes.html" class="param" title="">.timing.flipTimes</a>      = p.trial<a href="../../Parameters/timing/flipTimes.html" class="param" title="">.timing.flipTimes</a>(:,1:p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>);
+</div><div id="_line0483" class="line">0483         p.trial<a href="../../Parameters/timing/frameStateChangeTimes.html" class="param" title="">.timing.frameStateChangeTimes</a>    = p.trial<a href="../../Parameters/timing/frameStateChangeTimes.html" class="param" title="">.timing.frameStateChangeTimes</a>(:,1:p.trial<a href="../../Parameters/iFrame.html" class="param" title="">.iFrame</a>-1);
+</div><div id="_line0484" class="line">0484      
+</div><div id="_line0485" class="line">0485 <span class="comment">%TODO move to pds.eyelink.cleanUpandSave</span>
+</div><div id="_line0486" class="line">0486         <span class="keyword">if</span> p.trial<a href="../../Parameters/eyelink/use.html" class="param" title="use the eyelink moduke">.eyelink.use</a>
+</div><div id="_line0487" class="line">0487             [Q, rowId] = <a href="../../PLDAPS/+pds/+eyelink/pds.eyelink.saveQueue.html" class="code" title="function [Q, rowId] = saveQueue(p)">pds.eyelink.saveQueue</a>(p);
+</div><div id="_line0488" class="line">0488             p.trial<a href="../../Parameters/eyelink/samples.html" class="param" title="">.eyelink.samples</a> = Q;
+</div><div id="_line0489" class="line">0489             p.trial<a href="../../Parameters/eyelink/sampleIds.html" class="param" title="">.eyelink.sampleIds</a> = rowId; <span class="comment">% I overwrite everytime because PDStrialTemps get saved after every trial if we for some unforseen reason ever need this for each trial</span>
+</div><div id="_line0490" class="line">0490             p.trial<a href="../../Parameters/eyelink/events.html" class="param" title="">.eyelink.events</a>   = p.trial<a href="../../Parameters/eyelink/events.html" class="param" title="">.eyelink.events</a>(:,~isnan(p.trial<a href="../../Parameters/eyelink/events.html" class="param" title="">.eyelink.events</a>(1,:)));
+</div><div id="_line0491" class="line">0491         <span class="keyword">end</span>
+</div><div id="_line0492" class="line">0492 
+</div><div id="_line0493" class="line">0493         
+</div><div id="_line0494" class="line">0494        <span class="comment">%reward system</span>
+</div><div id="_line0495" class="line">0495        <a href="../../PLDAPS/+pds/+behavior/+reward/pds.behavior.reward.cleanUpandSave.html" class="code" title="function p = cleanUpandSave(p)">pds.behavior.reward.cleanUpandSave</a>(p);
+</div><div id="_line0496" class="line">0496        
+</div><div id="_line0497" class="line">0497         <span class="comment">% Update Scope</span>
+</div><div id="_line0498" class="line">0498     <span class="comment">%     try</span>
+</div><div id="_line0499" class="line">0499     <span class="comment">%         pdsScopeUpdate(PDS,p.j)</span>
+</div><div id="_line0500" class="line">0500     <span class="comment">%     catch</span>
+</div><div id="_line0501" class="line">0501     <span class="comment">%         disp('error updating scope')</span>
+</div><div id="_line0502" class="line">0502     <span class="comment">%     end</span>
+</div><div id="_line0503" class="line">0503 
+</div><div id="_line0504" class="line">0504     <span class="keyword">end</span> <span class="comment">%cleanUpandSave</span>
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

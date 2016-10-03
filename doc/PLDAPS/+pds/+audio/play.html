@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of play</title>
+  <meta name="keywords" content="play">
+  <meta name="description" content="pds.audio.play(p,sound_name,repeats) play the sound associated with the">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">+pds</a> &gt; <a href="index.html">+audio</a> &gt; play.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/+pds/+audio&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>play
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>pds.audio.play(p,sound_name,repeats) play the sound associated with the</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function p = play(p,sound_name,repeats) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">pds.audio.play(p,sound_name,repeats) play the sound associated with the
+name sound_name repeats number of times
+
+  In pds.audio.setup the tones in beepsounds were loaded and the handles
+  to the virtual sound devices were stored in p.trial.sound.wavfiles as a
+  series of fields which here we can reference as
+  p.trial.sound.wavfiles.(sound_name)
+
+  For now this function will do the following: First stop any sounds
+  currently playing on the device. Second play the desired sound.
+
+  NOTE:  this function is currently very simple, but one could, if
+  desired, add more complicated capabilities such as superimposing sounds
+  or using schedules for the sounds much like DataPixx output schedules.
+
+  Lee Lovejoy
+  ll2833@columbia.edu
+  August 2016</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../../Parameters/sound/index.html" class="code" title="contol sound playback">.sound:</a>	
+        <a href="#_line0027" class="code"}">27 </a>contol sound playback</li><li><a href="../../../Parameters/sound/wavfiles.html" class="code" title="">.sound.wavfiles:</a>	
+        <a href="#_line0026" class="code"}">26 </a></li></ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function p = play(p,sound_name,repeats)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%pds.audio.play(p,sound_name,repeats) play the sound associated with the</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%name sound_name repeats number of times</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">%</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">%  In pds.audio.setup the tones in beepsounds were loaded and the handles</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">%  to the virtual sound devices were stored in p.trial.sound.wavfiles as a</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">%  series of fields which here we can reference as</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">%  p.trial.sound.wavfiles.(sound_name)</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">%</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">%  For now this function will do the following: First stop any sounds</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">%  currently playing on the device. Second play the desired sound.</span>
+</div><div id="_line0012" class="line">0012 <span class="comment">%</span>
+</div><div id="_line0013" class="line">0013 <span class="comment">%  NOTE:  this function is currently very simple, but one could, if</span>
+</div><div id="_line0014" class="line">0014 <span class="comment">%  desired, add more complicated capabilities such as superimposing sounds</span>
+</div><div id="_line0015" class="line">0015 <span class="comment">%  or using schedules for the sounds much like DataPixx output schedules.</span>
+</div><div id="_line0016" class="line">0016 <span class="comment">%</span>
+</div><div id="_line0017" class="line">0017 <span class="comment">%  Lee Lovejoy</span>
+</div><div id="_line0018" class="line">0018 <span class="comment">%  ll2833@columbia.edu</span>
+</div><div id="_line0019" class="line">0019 <span class="comment">%  August 2016</span>
+</div><div id="_line0020" class="line">0020 
+</div><div id="_line0021" class="line">0021 <span class="keyword">if</span>(nargin&lt;3)
+</div><div id="_line0022" class="line">0022     repeats = 1;
+</div><div id="_line0023" class="line">0023 <span class="keyword">end</span>
+</div><div id="_line0024" class="line">0024 
+</div><div id="_line0025" class="line">0025 <span class="comment">%  Virtual device handle</span>
+</div><div id="_line0026" class="line">0026 [~,name] = fileparts(p.trial<a href="../../../Parameters/sound/wavfiles.html" class="param" title="">.sound.wavfiles</a>.(sound_name));
+</div><div id="_line0027" class="line">0027 pahandle = p.trial<a href="../../../Parameters/sound/index.html" class="param" title="contol sound playback">.sound</a>.(name);
+</div><div id="_line0028" class="line">0028 
+</div><div id="_line0029" class="line">0029 <span class="comment">%  Find out if there is currently a sound playing on that device</span>
+</div><div id="_line0030" class="line">0030 status = PsychPortAudio(<span class="string">'GetStatus'</span>,pahandle);
+</div><div id="_line0031" class="line">0031 
+</div><div id="_line0032" class="line">0032 <span class="comment">%  If there is a sound playing then stop it.</span>
+</div><div id="_line0033" class="line">0033 <span class="keyword">if</span>(status.Active~=0)
+</div><div id="_line0034" class="line">0034     PsychPortAudio(<span class="string">'Stop'</span>,pahandle);
+</div><div id="_line0035" class="line">0035 <span class="keyword">end</span>
+</div><div id="_line0036" class="line">0036 
+</div><div id="_line0037" class="line">0037 <span class="comment">%  Play the requested sound repeats number of times</span>
+</div><div id="_line0038" class="line">0038 <span class="keyword">if</span>(isinf(repeats))
+</div><div id="_line0039" class="line">0039     repeats = 0;
+</div><div id="_line0040" class="line">0040 <span class="keyword">end</span>
+</div><div id="_line0041" class="line">0041 PsychPortAudio(<span class="string">'Start'</span>,pahandle,repeats);
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of nanread</title>
+  <meta name="keywords" content="nanread">
+  <meta name="description" content="res=regexp(a,'----------- (?&lt;day&gt;\d{1,2})\s+(?&lt;month&gt;\w+)\s+(?&lt;year&gt;\d+)\s+(?&lt;hour&gt;\d+):(?&lt;minute&gt;\d+):(?&lt;second&gt;\d+)\s-----------\s', 'names')">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">SupportFunctions</a> &gt; <a href="index.html">SpikeServer</a> &gt; nanread.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/SupportFunctions/SpikeServer&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>nanread
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>res=regexp(a,'----------- (?&lt;day&gt;\d{1,2})\s+(?&lt;month&gt;\w+)\s+(?&lt;year&gt;\d+)\s+(?&lt;hour&gt;\d+):(?&lt;minute&gt;\d+):(?&lt;second&gt;\d+)\s-----------\s', 'names')</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function [dat, pos]= nanread(filename) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> res=regexp(a,'----------- (?&lt;day&gt;\d{1,2})\s+(?&lt;month&gt;\w+)\s+(?&lt;year&gt;\d+)\s+(?&lt;hour&gt;\d+):(?&lt;minute&gt;\d+):(?&lt;second&gt;\d+)\s-----------\s', 'names')
+ 
+ 
+ res=regexp(a,'----------- (?&lt;day&gt;\d{1,2})\s+(?&lt;month&gt;\w+)\s+(?&lt;year&gt;\d+)\s+(?&lt;hour&gt;\d+):(?&lt;minute&gt;\d+):(?&lt;second&gt;\d+)\s-----------\s+(?&lt;driveNr&gt;\w+)\s+(?&lt;drivePos&gt;\d+.\d+)\s+', 'names')
+ 
+ res=regexp(a,'----------- (?&lt;day&gt;\d{1,2})\s+(?&lt;month&gt;\w+)\s+(?&lt;year&gt;\d+)\s+(?&lt;hour&gt;\d+):(?&lt;minute&gt;\d+):(?&lt;second&gt;\d+)\s-----------\s+(?&lt;driveNr&gt;\w+)\s+(?&lt;drivePos&gt;\d+.\d+)\s+', 'names')
+ lastlength=1;</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="spikeserver.html" class="code" title="function [] = spikeserver(port, eventsonly, continuous)">spikeserver</a>	[] = spikeserver(port, eventsonly)</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+</ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function [dat, pos]= nanread(filename)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">% res=regexp(a,'----------- (?&lt;day&gt;\d{1,2})\s+(?&lt;month&gt;\w+)\s+(?&lt;year&gt;\d+)\s+(?&lt;hour&gt;\d+):(?&lt;minute&gt;\d+):(?&lt;second&gt;\d+)\s-----------\s', 'names')</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">%</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% res=regexp(a,'----------- (?&lt;day&gt;\d{1,2})\s+(?&lt;month&gt;\w+)\s+(?&lt;year&gt;\d+)\s+(?&lt;hour&gt;\d+):(?&lt;minute&gt;\d+):(?&lt;second&gt;\d+)\s-----------\s+(?&lt;driveNr&gt;\w+)\s+(?&lt;drivePos&gt;\d+.\d+)\s+', 'names')</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">%</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% res=regexp(a,'----------- (?&lt;day&gt;\d{1,2})\s+(?&lt;month&gt;\w+)\s+(?&lt;year&gt;\d+)\s+(?&lt;hour&gt;\d+):(?&lt;minute&gt;\d+):(?&lt;second&gt;\d+)\s-----------\s+(?&lt;driveNr&gt;\w+)\s+(?&lt;drivePos&gt;\d+.\d+)\s+', 'names')</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">% lastlength=1;</span>
+</div><div id="_line0009" class="line">0009 saveNANDrivePositions();
+</div><div id="_line0010" class="line">0010 a=fileread(filename);
+</div><div id="_line0011" class="line">0011 <span class="comment">% newlength=length(a);</span>
+</div><div id="_line0012" class="line">0012 <span class="comment">% a=a(lastlength:end);</span>
+</div><div id="_line0013" class="line">0013 [dates, dateInds]=regexp(a,<span class="string">'----------- (?&lt;day&gt;\d{1,2})\s+(?&lt;month&gt;\w+)\s+(?&lt;year&gt;\d+)\s+(?&lt;hour&gt;\d+):(?&lt;minute&gt;\d+):(?&lt;second&gt;\d+)\s-----------\s+\w_'</span>, <span class="string">'names'</span>,<span class="string">'start'</span>);
+</div><div id="_line0014" class="line">0014 [drivespositions, drivesposInds]=regexp(a,<span class="string">'(?&lt;driveNr&gt;\w_)\s+(?&lt;drivePos&gt;-?\d+.\d{3,3})\s+\d?\s*'</span>, <span class="string">'names'</span>,<span class="string">'start'</span>);
+</div><div id="_line0015" class="line">0015 <span class="keyword">if</span> ~isempty(dates)
+</div><div id="_line0016" class="line">0016     dat=dates(end);
+</div><div id="_line0017" class="line">0017     pos=drivespositions(drivesposInds&gt;dateInds(end));
+</div><div id="_line0018" class="line">0018 <span class="keyword">else</span>
+</div><div id="_line0019" class="line">0019     dat=[];
+</div><div id="_line0020" class="line">0020     pos=[];
+</div><div id="_line0021" class="line">0021 <span class="keyword">end</span>
+</div><div id="_line0022" class="line">0022 
+</div><div id="_line0023" class="line">0023 <span class="comment">% fid=fopen(filename,'w');</span>
+</div><div id="_line0024" class="line">0024 <span class="comment">% fwrite(fid,[]);</span>
+</div><div id="_line0025" class="line">0025 <span class="comment">% fclose(fid);</span>
+</div><div id="_line0026" class="line">0026 <span class="comment">% lastlength=newlength;</span>
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

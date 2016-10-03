@@ -1,0 +1,265 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of distinguishable_colors</title>
+  <meta name="keywords" content="distinguishable_colors">
+  <meta name="description" content="DISTINGUISHABLE_COLORS: pick colors that are maximally perceptually distinct">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">@params</a> &gt; <a href="index.html">private</a> &gt; distinguishable_colors.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/@params/private&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>distinguishable_colors
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>DISTINGUISHABLE_COLORS: pick colors that are maximally perceptually distinct</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function colors = distinguishable_colors(n_colors,bg,func) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> DISTINGUISHABLE_COLORS: pick colors that are maximally perceptually distinct
+
+ When plotting a set of lines, you may want to distinguish them by color.
+ By default, Matlab chooses a small set of colors and cycles among them,
+ and so if you have more than a few lines there will be confusion about
+ which line is which. To fix this problem, one would want to be able to
+ pick a much larger set of distinct colors, where the number of colors
+ equals or exceeds the number of lines you want to plot. Because our
+ ability to distinguish among colors has limits, one should choose these
+ colors to be &quot;maximally perceptually distinguishable.&quot;
+
+ This function generates a set of colors which are distinguishable
+ by reference to the &quot;Lab&quot; color space, which more closely matches
+ human color perception than RGB. Given an initial large list of possible
+ colors, it iteratively chooses the entry in the list that is farthest (in
+ Lab space) from all previously-chosen entries. While this &quot;greedy&quot;
+ algorithm does not yield a global maximum, it is simple and efficient.
+ Moreover, the sequence of colors is consistent no matter how many you
+ request, which facilitates the users' ability to learn the color order
+ and avoids major changes in the appearance of plots when adding or
+ removing lines.
+
+ Syntax:
+   colors = distinguishable_colors(n_colors)
+ Specify the number of colors you want as a scalar, n_colors. This will
+ generate an n_colors-by-3 matrix, each row representing an RGB
+ color triple. If you don't precisely know how many you will need in
+ advance, there is no harm (other than execution time) in specifying
+ slightly more than you think you will need.
+
+   colors = distinguishable_colors(n_colors,bg)
+ This syntax allows you to specify the background color, to make sure that
+ your colors are also distinguishable from the background. Default value
+ is white. bg may be specified as an RGB triple or as one of the standard
+ &quot;ColorSpec&quot; strings. You can even specify multiple colors:
+     bg = {'w','k'}
+ or
+     bg = [1 1 1; 0 0 0]
+ will only produce colors that are distinguishable from both white and
+ black.
+
+   colors = distinguishable_colors(n_colors,bg,rgb2labfunc)
+ By default, distinguishable_colors uses the image processing toolbox's
+ color conversion functions makecform and applycform. Alternatively, you
+ can supply your own color conversion function.
+
+ Example:
+   c = distinguishable_colors(25);
+   figure
+   image(reshape(c,[1 size(c)]))
+
+ Example using the file exchange's 'colorspace':
+   func = @(x) colorspace('RGB-&gt;Lab',x);
+   c = distinguishable_colors(25,'w',func);</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../PLDAPS/@params/structviewer.html" class="code" title="function varargout = structviewer(varargin)">@params/structviewer</a>	structviewer Application M-file for structviewer.fig</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+</ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">parsecolor</a></li><li><a href="#_sub2" class="code">colorstr2rgb</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function colors = distinguishable_colors(n_colors,bg,func)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">% DISTINGUISHABLE_COLORS: pick colors that are maximally perceptually distinct</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">%</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% When plotting a set of lines, you may want to distinguish them by color.</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% By default, Matlab chooses a small set of colors and cycles among them,</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% and so if you have more than a few lines there will be confusion about</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% which line is which. To fix this problem, one would want to be able to</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">% pick a much larger set of distinct colors, where the number of colors</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">% equals or exceeds the number of lines you want to plot. Because our</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">% ability to distinguish among colors has limits, one should choose these</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">% colors to be &quot;maximally perceptually distinguishable.&quot;</span>
+</div><div id="_line0012" class="line">0012 <span class="comment">%</span>
+</div><div id="_line0013" class="line">0013 <span class="comment">% This function generates a set of colors which are distinguishable</span>
+</div><div id="_line0014" class="line">0014 <span class="comment">% by reference to the &quot;Lab&quot; color space, which more closely matches</span>
+</div><div id="_line0015" class="line">0015 <span class="comment">% human color perception than RGB. Given an initial large list of possible</span>
+</div><div id="_line0016" class="line">0016 <span class="comment">% colors, it iteratively chooses the entry in the list that is farthest (in</span>
+</div><div id="_line0017" class="line">0017 <span class="comment">% Lab space) from all previously-chosen entries. While this &quot;greedy&quot;</span>
+</div><div id="_line0018" class="line">0018 <span class="comment">% algorithm does not yield a global maximum, it is simple and efficient.</span>
+</div><div id="_line0019" class="line">0019 <span class="comment">% Moreover, the sequence of colors is consistent no matter how many you</span>
+</div><div id="_line0020" class="line">0020 <span class="comment">% request, which facilitates the users' ability to learn the color order</span>
+</div><div id="_line0021" class="line">0021 <span class="comment">% and avoids major changes in the appearance of plots when adding or</span>
+</div><div id="_line0022" class="line">0022 <span class="comment">% removing lines.</span>
+</div><div id="_line0023" class="line">0023 <span class="comment">%</span>
+</div><div id="_line0024" class="line">0024 <span class="comment">% Syntax:</span>
+</div><div id="_line0025" class="line">0025 <span class="comment">%   colors = distinguishable_colors(n_colors)</span>
+</div><div id="_line0026" class="line">0026 <span class="comment">% Specify the number of colors you want as a scalar, n_colors. This will</span>
+</div><div id="_line0027" class="line">0027 <span class="comment">% generate an n_colors-by-3 matrix, each row representing an RGB</span>
+</div><div id="_line0028" class="line">0028 <span class="comment">% color triple. If you don't precisely know how many you will need in</span>
+</div><div id="_line0029" class="line">0029 <span class="comment">% advance, there is no harm (other than execution time) in specifying</span>
+</div><div id="_line0030" class="line">0030 <span class="comment">% slightly more than you think you will need.</span>
+</div><div id="_line0031" class="line">0031 <span class="comment">%</span>
+</div><div id="_line0032" class="line">0032 <span class="comment">%   colors = distinguishable_colors(n_colors,bg)</span>
+</div><div id="_line0033" class="line">0033 <span class="comment">% This syntax allows you to specify the background color, to make sure that</span>
+</div><div id="_line0034" class="line">0034 <span class="comment">% your colors are also distinguishable from the background. Default value</span>
+</div><div id="_line0035" class="line">0035 <span class="comment">% is white. bg may be specified as an RGB triple or as one of the standard</span>
+</div><div id="_line0036" class="line">0036 <span class="comment">% &quot;ColorSpec&quot; strings. You can even specify multiple colors:</span>
+</div><div id="_line0037" class="line">0037 <span class="comment">%     bg = {'w','k'}</span>
+</div><div id="_line0038" class="line">0038 <span class="comment">% or</span>
+</div><div id="_line0039" class="line">0039 <span class="comment">%     bg = [1 1 1; 0 0 0]</span>
+</div><div id="_line0040" class="line">0040 <span class="comment">% will only produce colors that are distinguishable from both white and</span>
+</div><div id="_line0041" class="line">0041 <span class="comment">% black.</span>
+</div><div id="_line0042" class="line">0042 <span class="comment">%</span>
+</div><div id="_line0043" class="line">0043 <span class="comment">%   colors = distinguishable_colors(n_colors,bg,rgb2labfunc)</span>
+</div><div id="_line0044" class="line">0044 <span class="comment">% By default, distinguishable_colors uses the image processing toolbox's</span>
+</div><div id="_line0045" class="line">0045 <span class="comment">% color conversion functions makecform and applycform. Alternatively, you</span>
+</div><div id="_line0046" class="line">0046 <span class="comment">% can supply your own color conversion function.</span>
+</div><div id="_line0047" class="line">0047 <span class="comment">%</span>
+</div><div id="_line0048" class="line">0048 <span class="comment">% Example:</span>
+</div><div id="_line0049" class="line">0049 <span class="comment">%   c = distinguishable_colors(25);</span>
+</div><div id="_line0050" class="line">0050 <span class="comment">%   figure</span>
+</div><div id="_line0051" class="line">0051 <span class="comment">%   image(reshape(c,[1 size(c)]))</span>
+</div><div id="_line0052" class="line">0052 <span class="comment">%</span>
+</div><div id="_line0053" class="line">0053 <span class="comment">% Example using the file exchange's 'colorspace':</span>
+</div><div id="_line0054" class="line">0054 <span class="comment">%   func = @(x) colorspace('RGB-&gt;Lab',x);</span>
+</div><div id="_line0055" class="line">0055 <span class="comment">%   c = distinguishable_colors(25,'w',func);</span>
+</div><div id="_line0056" class="line">0056 
+</div><div id="_line0057" class="line">0057 <span class="comment">% Copyright 2010-2011 by Timothy E. Holy</span>
+</div><div id="_line0058" class="line">0058 
+</div><div id="_line0059" class="line">0059   <span class="comment">% Parse the inputs</span>
+</div><div id="_line0060" class="line">0060   <span class="keyword">if</span> (nargin &lt; 2)
+</div><div id="_line0061" class="line">0061     bg = [1 1 1];  <span class="comment">% default white background</span>
+</div><div id="_line0062" class="line">0062   <span class="keyword">else</span>
+</div><div id="_line0063" class="line">0063     <span class="keyword">if</span> iscell(bg)
+</div><div id="_line0064" class="line">0064       <span class="comment">% User specified a list of colors as a cell aray</span>
+</div><div id="_line0065" class="line">0065       bgc = bg;
+</div><div id="_line0066" class="line">0066       <span class="keyword">for</span> i = 1:length(bgc)
+</div><div id="_line0067" class="line">0067     bgc{i} = <a href="#_sub1" class="code" title="subparsecolor">parsecolor</a>(bgc{i});
+</div><div id="_line0068" class="line">0068       <span class="keyword">end</span>
+</div><div id="_line0069" class="line">0069       bg = cat(1,bgc{:});
+</div><div id="_line0070" class="line">0070     <span class="keyword">else</span>
+</div><div id="_line0071" class="line">0071       <span class="comment">% User specified a numeric array of colors (n-by-3)</span>
+</div><div id="_line0072" class="line">0072       bg = <a href="#_sub1" class="code" title="subparsecolor">parsecolor</a>(bg);
+</div><div id="_line0073" class="line">0073     <span class="keyword">end</span>
+</div><div id="_line0074" class="line">0074   <span class="keyword">end</span>
+</div><div id="_line0075" class="line">0075   
+</div><div id="_line0076" class="line">0076   <span class="comment">% Generate a sizable number of RGB triples. This represents our space of</span>
+</div><div id="_line0077" class="line">0077   <span class="comment">% possible choices. By starting in RGB space, we ensure that all of the</span>
+</div><div id="_line0078" class="line">0078   <span class="comment">% colors can be generated by the monitor.</span>
+</div><div id="_line0079" class="line">0079   n_grid = 30;  <span class="comment">% number of grid divisions along each axis in RGB space</span>
+</div><div id="_line0080" class="line">0080   x = linspace(0,1,n_grid);
+</div><div id="_line0081" class="line">0081   [R,G,B] = ndgrid(x,x,x);
+</div><div id="_line0082" class="line">0082   rgb = [R(:) G(:) B(:)];
+</div><div id="_line0083" class="line">0083   <span class="keyword">if</span> (n_colors &gt; size(rgb,1)/3)
+</div><div id="_line0084" class="line">0084     error(<span class="string">'You can''t readily distinguish that many colors'</span>);
+</div><div id="_line0085" class="line">0085   <span class="keyword">end</span>
+</div><div id="_line0086" class="line">0086   
+</div><div id="_line0087" class="line">0087   <span class="comment">% Convert to Lab color space, which more closely represents human</span>
+</div><div id="_line0088" class="line">0088   <span class="comment">% perception</span>
+</div><div id="_line0089" class="line">0089   <span class="keyword">if</span> (nargin &gt; 2)
+</div><div id="_line0090" class="line">0090     lab = func(rgb);
+</div><div id="_line0091" class="line">0091     bglab = func(bg);
+</div><div id="_line0092" class="line">0092   <span class="keyword">else</span>
+</div><div id="_line0093" class="line">0093     C = makecform(<span class="string">'srgb2lab'</span>);
+</div><div id="_line0094" class="line">0094     lab = applycform(rgb,C);
+</div><div id="_line0095" class="line">0095     bglab = applycform(bg,C);
+</div><div id="_line0096" class="line">0096   <span class="keyword">end</span>
+</div><div id="_line0097" class="line">0097 
+</div><div id="_line0098" class="line">0098   <span class="comment">% If the user specified multiple background colors, compute distances</span>
+</div><div id="_line0099" class="line">0099   <span class="comment">% from the candidate colors to the background colors</span>
+</div><div id="_line0100" class="line">0100   mindist2 = inf(size(rgb,1),1);
+</div><div id="_line0101" class="line">0101   <span class="keyword">for</span> i = 1:size(bglab,1)-1
+</div><div id="_line0102" class="line">0102     dX = bsxfun(@minus,lab,bglab(i,:)); <span class="comment">% displacement all colors from bg</span>
+</div><div id="_line0103" class="line">0103     dist2 = sum(dX.^2,2);  <span class="comment">% square distance</span>
+</div><div id="_line0104" class="line">0104     mindist2 = min(dist2,mindist2);  <span class="comment">% dist2 to closest previously-chosen color</span>
+</div><div id="_line0105" class="line">0105   <span class="keyword">end</span>
+</div><div id="_line0106" class="line">0106   
+</div><div id="_line0107" class="line">0107   <span class="comment">% Iteratively pick the color that maximizes the distance to the nearest</span>
+</div><div id="_line0108" class="line">0108   <span class="comment">% already-picked color</span>
+</div><div id="_line0109" class="line">0109   colors = zeros(n_colors,3);
+</div><div id="_line0110" class="line">0110   lastlab = bglab(<span class="keyword">end</span>,:);   <span class="comment">% initialize by making the &quot;previous&quot; color equal to background</span>
+</div><div id="_line0111" class="line">0111   <span class="keyword">for</span> i = 1:n_colors
+</div><div id="_line0112" class="line">0112     dX = bsxfun(@minus,lab,lastlab); <span class="comment">% displacement of last from all colors on list</span>
+</div><div id="_line0113" class="line">0113     dist2 = sum(dX.^2,2);  <span class="comment">% square distance</span>
+</div><div id="_line0114" class="line">0114     mindist2 = min(dist2,mindist2);  <span class="comment">% dist2 to closest previously-chosen color</span>
+</div><div id="_line0115" class="line">0115     [~,index] = max(mindist2);  <span class="comment">% find the entry farthest from all previously-chosen colors</span>
+</div><div id="_line0116" class="line">0116     colors(i,:) = rgb(index,:);  <span class="comment">% save for output</span>
+</div><div id="_line0117" class="line">0117     lastlab = lab(index,:);  <span class="comment">% prepare for next iteration</span>
+</div><div id="_line0118" class="line">0118   <span class="keyword">end</span>
+</div><div id="_line0119" class="line">0119 <span class="keyword">end</span>
+</div><div id="_line0120" class="line">0120 
+</div><div id="_line0121" class="line">0121 <a name="_sub1" href="#_subfunctions" class="code">function c = parsecolor(s)</a>
+</div><div id="_line0122" class="line">0122   <span class="keyword">if</span> ischar(s)
+</div><div id="_line0123" class="line">0123     c = <a href="#_sub2" class="code" title="subcolorstr2rgb">colorstr2rgb</a>(s);
+</div><div id="_line0124" class="line">0124   <span class="keyword">elseif</span> isnumeric(s) &amp;&amp; size(s,2) == 3
+</div><div id="_line0125" class="line">0125     c = s;
+</div><div id="_line0126" class="line">0126   <span class="keyword">else</span>
+</div><div id="_line0127" class="line">0127     error(<span class="string">'MATLAB:InvalidColorSpec'</span>,<span class="string">'Color specification cannot be parsed.'</span>);
+</div><div id="_line0128" class="line">0128   <span class="keyword">end</span>
+</div><div id="_line0129" class="line">0129 <span class="keyword">end</span>
+</div><div id="_line0130" class="line">0130 
+</div><div id="_line0131" class="line">0131 <a name="_sub2" href="#_subfunctions" class="code">function c = colorstr2rgb(c)</a>
+</div><div id="_line0132" class="line">0132   <span class="comment">% Convert a color string to an RGB value.</span>
+</div><div id="_line0133" class="line">0133   <span class="comment">% This is cribbed from Matlab's whitebg function.</span>
+</div><div id="_line0134" class="line">0134   <span class="comment">% Why don't they make this a stand-alone function?</span>
+</div><div id="_line0135" class="line">0135   rgbspec = [1 0 0;0 1 0;0 0 1;1 1 1;0 1 1;1 0 1;1 1 0;0 0 0];
+</div><div id="_line0136" class="line">0136   cspec = <span class="string">'rgbwcmyk'</span>;
+</div><div id="_line0137" class="line">0137   k = find(cspec==c(1));
+</div><div id="_line0138" class="line">0138   <span class="keyword">if</span> isempty(k)
+</div><div id="_line0139" class="line">0139     error(<span class="string">'MATLAB:InvalidColorString'</span>,<span class="string">'Unknown color string.'</span>);
+</div><div id="_line0140" class="line">0140   <span class="keyword">end</span>
+</div><div id="_line0141" class="line">0141   <span class="keyword">if</span> k~=3 || length(c)==1,
+</div><div id="_line0142" class="line">0142     c = rgbspec(k,:);
+</div><div id="_line0143" class="line">0143   <span class="keyword">elseif</span> length(c)&gt;2,
+</div><div id="_line0144" class="line">0144     <span class="keyword">if</span> strcmpi(c(1:3),<span class="string">'bla'</span>)
+</div><div id="_line0145" class="line">0145       c = [0 0 0];
+</div><div id="_line0146" class="line">0146     <span class="keyword">elseif</span> strcmpi(c(1:3),<span class="string">'blu'</span>)
+</div><div id="_line0147" class="line">0147       c = [0 0 1];
+</div><div id="_line0148" class="line">0148     <span class="keyword">else</span>
+</div><div id="_line0149" class="line">0149       error(<span class="string">'MATLAB:UnknownColorString'</span>, <span class="string">'Unknown color string.'</span>);
+</div><div id="_line0150" class="line">0150     <span class="keyword">end</span>
+</div><div id="_line0151" class="line">0151   <span class="keyword">end</span>
+</div><div id="_line0152" class="line">0152 <span class="keyword">end</span>
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

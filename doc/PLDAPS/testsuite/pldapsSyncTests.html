@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of pldapsSyncTests</title>
+  <meta name="keywords" content="pldapsSyncTests">
+  <meta name="description" content="pldapsSyncTests   a script with commands to test the best datapixx timing options">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">PLDAPS</a> &gt; <a href="index.html">testsuite</a> &gt; pldapsSyncTests.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/testsuite&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>pldapsSyncTests
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>pldapsSyncTests   a script with commands to test the best datapixx timing options</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">pldapsSyncTests   a script with commands to test the best datapixx timing options
+                  for your system
+ By default PsychDatapixx estimates the time delay between the computer
+ and datapixx for 0.5 seconds. On many systems there is no benefit of soing this for such a long time.
+ this script is menat to help find good parameters
+ for three parameters are syncmode,optMinwinThreshold and maxDuration. I
+ will always use syncmode 2, default is 1 I think. check edit
+ PsychDatapixx and search for GetPreciseTime for details</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../PLDAPS/createRigPrefs.html" class="code" title="function outStruct=createRigPrefs(additionalSettings)">createRigPrefs</a>	CreateRigPrefspdsBeginExperimentcreate preferences stored as matlab preferences</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+</ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <span class="comment">%pldapsSyncTests   a script with commands to test the best datapixx timing options</span>
+</div><div id="_line0002" class="line">0002 <span class="comment">%                  for your system</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">% By default PsychDatapixx estimates the time delay between the computer</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">% and datapixx for 0.5 seconds. On many systems there is no benefit of soing this for such a long time.</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% this script is menat to help find good parameters</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% for three parameters are syncmode,optMinwinThreshold and maxDuration. I</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% will always use syncmode 2, default is 1 I think. check edit</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">% PsychDatapixx and search for GetPreciseTime for details</span>
+</div><div id="_line0009" class="line">0009 
+</div><div id="_line0010" class="line">0010 <span class="comment">%%test datapixx timing</span>
+</div><div id="_line0011" class="line">0011 PsychDataPixx(<span class="string">'open'</span>);
+</div><div id="_line0012" class="line">0012 <span class="keyword">global</span> dpx;
+</div><div id="_line0013" class="line">0013 dpx.syncmode=2; <span class="comment">%1,2,3</span>
+</div><div id="_line0014" class="line">0014 
+</div><div id="_line0015" class="line">0015 
+</div><div id="_line0016" class="line">0016 <span class="comment">%% first test how much better your delay estimate get's when you increase the measurement time</span>
+</div><div id="_line0017" class="line">0017 p=zeros(500,1);
+</div><div id="_line0018" class="line">0018 
+</div><div id="_line0019" class="line">0019 dpx.optMinwinThreshold=0;
+</div><div id="_line0020" class="line">0020 <span class="keyword">for</span> n=1:500
+</div><div id="_line0021" class="line">0021 
+</div><div id="_line0022" class="line">0022     dpx.maxDuration=n/1000;
+</div><div id="_line0023" class="line">0023 
+</div><div id="_line0024" class="line">0024     [~, ~, p(n,1)] = PsychDataPixx(<span class="string">'GetPreciseTime'</span>);
+</div><div id="_line0025" class="line">0025 <span class="keyword">end</span>
+</div><div id="_line0026" class="line">0026 
+</div><div id="_line0027" class="line">0027 figure(1)
+</div><div id="_line0028" class="line">0028 plot((1:500)/1000,p)
+</div><div id="_line0029" class="line">0029 xlabel(<span class="string">'time / s'</span>);
+</div><div id="_line0030" class="line">0030 ylabel(<span class="string">'precision / s'</span>);
+</div><div id="_line0031" class="line">0031 drawnow;
+</div><div id="_line0032" class="line">0032 savefig(gcf,<span class="string">'PDMinDurationTest'</span>)
+</div><div id="_line0033" class="line">0033 
+</div><div id="_line0034" class="line">0034 <span class="comment">%% next how long it takes to typically reach the observed values.</span>
+</div><div id="_line0035" class="line">0035 <span class="comment">% We set a maxduration to some value. This is only relevant for for the</span>
+</div><div id="_line0036" class="line">0036 <span class="comment">% high precision estimate, that might not get reached in that time</span>
+</div><div id="_line0037" class="line">0037 dpx.maxDuration=0.1;
+</div><div id="_line0038" class="line">0038 t=zeros(41,100);
+</div><div id="_line0039" class="line">0039 
+</div><div id="_line0040" class="line">0040 steps=min(p):(max(p)-min(p))/40:max(p);
+</div><div id="_line0041" class="line">0041 
+</div><div id="_line0042" class="line">0042 <span class="keyword">for</span> n=1:21
+</div><div id="_line0043" class="line">0043 
+</div><div id="_line0044" class="line">0044 dpx.optMinwinThreshold=steps(n);
+</div><div id="_line0045" class="line">0045 
+</div><div id="_line0046" class="line">0046     <span class="keyword">for</span> j=1:100
+</div><div id="_line0047" class="line">0047         tic;[getsecs, boxsecs, confidence] = PsychDataPixx(<span class="string">'GetPreciseTime'</span>);t(n,j)=toc*1000;
+</div><div id="_line0048" class="line">0048     <span class="keyword">end</span>
+</div><div id="_line0049" class="line">0049 <span class="keyword">end</span>
+</div><div id="_line0050" class="line">0050 
+</div><div id="_line0051" class="line">0051 figure(2)
+</div><div id="_line0052" class="line">0052 plot(steps,mean(t,2))
+</div><div id="_line0053" class="line">0053 hold on;
+</div><div id="_line0054" class="line">0054 plot(steps,mean(t,2)+std(t,0,2),<span class="string">'--'</span>);
+</div><div id="_line0055" class="line">0055 ylabel(<span class="string">'time / s'</span>);
+</div><div id="_line0056" class="line">0056 xlabel(<span class="string">'precision / s'</span>);
+</div><div id="_line0057" class="line">0057 savefig(gcf,<span class="string">'PDOptMinThresholdTest'</span>)
+</div><div id="_line0058" class="line">0058 keyboard;
+</div><div id="_line0059" class="line">0059 
+</div><div id="_line0060" class="line">0060     t=zeros(1,1000);
+</div><div id="_line0061" class="line">0061     <span class="keyword">for</span> j=1:1000
+</div><div id="_line0062" class="line">0062         tic;[getsecs, boxsecs, confidence] = PsychDataPixx(<span class="string">'GetPreciseTime'</span>);t(j)=toc*1000;
+</div><div id="_line0063" class="line">0063     <span class="keyword">end</span>
+</div><div id="_line0064" class="line">0064     
+</div><div id="_line0065" class="line">0065     hist(t)
+</div><div id="_line0066" class="line">0066     
+</div><div id="_line0067" class="line">0067 <span class="comment">%%choose a threshold. I'd got for a precision threshold not a time one, but</span>
+</div><div id="_line0068" class="line">0068 <span class="comment">%%it probbbaly dosn't matter.</span>
+</div><div id="_line0069" class="line">0069 
+</div><div id="_line0070" class="line">0070 <span class="comment">%syncmode 1: It uses the time the datapixx functions returns as estimate of</span>
+</div><div id="_line0071" class="line">0071 <span class="comment">%the comuter time. this is the default</span>
+</div><div id="_line0072" class="line">0072 <span class="comment">%syncmode 0: Same but used the time the datapixx function is entered</span>
+</div><div id="_line0073" class="line">0073 <span class="comment">%syncmode 2: Uses the average of 1 and 3</span>
+</div><div id="_line0074" class="line">0074 a.datapixx.GetPreciseTime.syncmode=[]; <span class="comment">%1,2,3</span>
+</div><div id="_line0075" class="line">0075 a.datapixx.GetPreciseTime.maxDuration=[];
+</div><div id="_line0076" class="line">0076 a.datapixx.GetPreciseTime.optMinwinThreshold=[];
+</div><div id="_line0077" class="line">0077 
+</div><div id="_line0078" class="line">0078 <span class="comment">%this is what I would choose on one setup</span>
+</div><div id="_line0079" class="line">0079 a.datapixx.GetPreciseTime.syncmode=2; <span class="comment">%1,2,3</span>
+</div><div id="_line0080" class="line">0080 a.datapixx.GetPreciseTime.maxDuration=0.02;<span class="comment">%0.01;%or take a time form figure 1 where the result seems very stable, e.g. 0.1s in my case</span>
+</div><div id="_line0081" class="line">0081 a.datapixx.GetPreciseTime.optMinwinThreshold=1.6e-4;<span class="comment">%6.5e-5;%choose a threshold that seems relatively sufficient, i.e. look at figure 2</span>
+</div><div id="_line0082" class="line">0082 
+</div><div id="_line0083" class="line">0083 <span class="comment">%now call createRigPrefs and set your prefrerred values as defaults (or</span>
+</div><div id="_line0084" class="line">0084 <span class="comment">%don't)</span>
+</div><div id="_line0085" class="line">0085 <a href="../../PLDAPS/createRigPrefs.html" class="code" title="function outStruct=createRigPrefs(additionalSettings)">createRigPrefs</a>(a)
+</div><div id="_line0086" class="line">0086 
+</div><div id="_line0087" class="line">0087 <span class="comment">% doesnt help much. eyelink time estimate is always inacrurate, very variable (roughly +- 0.6 ms) due to</span>
+</div><div id="_line0088" class="line">0088 <span class="comment">% the way sr research handles timing.</span>
+</div><div id="_line0089" class="line">0089 <span class="comment">% %% now do the same for eyelink</span>
+</div><div id="_line0090" class="line">0090 <span class="comment">% Eyelink('Initialize');</span>
+</div><div id="_line0091" class="line">0091 <span class="comment">% p=zeros(500,1);</span>
+</div><div id="_line0092" class="line">0092 <span class="comment">%</span>
+</div><div id="_line0093" class="line">0093 <span class="comment">% optMinwinThreshold=0;</span>
+</div><div id="_line0094" class="line">0094 <span class="comment">% for n=1:500</span>
+</div><div id="_line0095" class="line">0095 <span class="comment">%</span>
+</div><div id="_line0096" class="line">0096 <span class="comment">%     maxDuration=n/1000;</span>
+</div><div id="_line0097" class="line">0097 <span class="comment">%</span>
+</div><div id="_line0098" class="line">0098 <span class="comment">%     [~, ~, p(n,1)] = pds.eyelink.getPreciseTime(optMinwinThreshold,maxDuration);</span>
+</div><div id="_line0099" class="line">0099 <span class="comment">% end</span>
+</div><div id="_line0100" class="line">0100 <span class="comment">%</span>
+</div><div id="_line0101" class="line">0101 <span class="comment">% figure(1)</span>
+</div><div id="_line0102" class="line">0102 <span class="comment">% plot((1:500)/1000,p)</span>
+</div><div id="_line0103" class="line">0103 <span class="comment">% xlabel('time / s');</span>
+</div><div id="_line0104" class="line">0104 <span class="comment">% ylabel('precision / s');</span>
+</div><div id="_line0105" class="line">0105 <span class="comment">% drawnow;</span>
+</div><div id="_line0106" class="line">0106 <span class="comment">%</span>
+</div><div id="_line0107" class="line">0107 <span class="comment">% maxDuration=0.5;</span>
+</div><div id="_line0108" class="line">0108 <span class="comment">% t=zeros(21,100);</span>
+</div><div id="_line0109" class="line">0109 <span class="comment">%</span>
+</div><div id="_line0110" class="line">0110 <span class="comment">% steps=min(p):(max(p)-min(p))/20:max(p);</span>
+</div><div id="_line0111" class="line">0111 <span class="comment">%</span>
+</div><div id="_line0112" class="line">0112 <span class="comment">% for n=1:21</span>
+</div><div id="_line0113" class="line">0113 <span class="comment">%</span>
+</div><div id="_line0114" class="line">0114 <span class="comment">% optMinwinThreshold=steps(n);%(5+0.1*(n-1))*1e-5;</span>
+</div><div id="_line0115" class="line">0115 <span class="comment">%</span>
+</div><div id="_line0116" class="line">0116 <span class="comment">%     for j=1:100</span>
+</div><div id="_line0117" class="line">0117 <span class="comment">%         tic;[getsecs, boxsecs, confidence] = pds.eyelink.getPreciseTime(optMinwinThreshold,maxDuration);t(n,j)=toc*1000;</span>
+</div><div id="_line0118" class="line">0118 <span class="comment">%     end</span>
+</div><div id="_line0119" class="line">0119 <span class="comment">% end</span>
+</div><div id="_line0120" class="line">0120 <span class="comment">%</span>
+</div><div id="_line0121" class="line">0121 <span class="comment">% % hist(t',0:100)</span>
+</div><div id="_line0122" class="line">0122 <span class="comment">% figure(2)</span>
+</div><div id="_line0123" class="line">0123 <span class="comment">% plot(steps,mean(t,2))</span>
+</div><div id="_line0124" class="line">0124 <span class="comment">% hold on;</span>
+</div><div id="_line0125" class="line">0125 <span class="comment">% plot(steps,mean(t,2)+std(t,0,2),'--');</span>
+</div><div id="_line0126" class="line">0126 <span class="comment">% ylabel('time / s');</span>
+</div><div id="_line0127" class="line">0127 <span class="comment">% xlabel('precision / s');</span>
+</div><div id="_line0128" class="line">0128 
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

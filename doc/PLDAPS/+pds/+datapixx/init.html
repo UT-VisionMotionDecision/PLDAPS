@@ -1,0 +1,317 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of init</title>
+  <meta name="keywords" content="init">
+  <meta name="description" content="pds.datapixx.init    initialize Datapixx at the beginning of an experiment.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">PLDAPS</a> &gt; <a href="../index.html">+pds</a> &gt; <a href="index.html">+datapixx</a> &gt; init.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/+pds/+datapixx&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>init
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>pds.datapixx.init    initialize Datapixx at the beginning of an experiment.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function p =  init(p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">pds.datapixx.init    initialize Datapixx at the beginning of an experiment.
+ p =  pds.datapixx.init(p)
+
+ pds.datapixx.init is a function that intializes the DATAPIXX, preparing it for
+ experiments. Critically, the PSYCHIMAGING calls sets up the dual CLUTS
+ (Color Look Up Table) for two screens.  These two CLUTS are in the
+ p.trial.display substruct
+ INPUTS
+       p.trial [struct] - main pldaps display variables structure
+           .dispplay [struct] - required display
+               .ptr         - pointer to open PTB window
+               .useOverlay  - (0,1,2) for whether to use CLUT overlay
+                       0 - no overlay
+                       1 - Datapixx overlay (if datapixx.use is off, draws
+                                             overlay version)
+                       2 - Software overlay (requires stereomode setup)
+               .gamma.table - required ( can be a linear gamma table )
+               .humanCLUT   [256 x 3] human color look up table
+               .monkeyCLUT  [256 x 3] monkey color look up table
+ OUTPUTS
+       p [modified]
+           .trial.display.overlayptr - pointer to overlay window added
+
+           if useOverlay == 1, pds.datapixx.init opens an overlay pointer
+           with p.trial.display.monkeyCLUT as the color look up table for one
+           datapixx monitor and p.trial.display.humanCLUT for the other monitor.
+
+ Datapixx is Opened and set to default settings for PLDAPS</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../PLDAPS/+pds/+datapixx/+adc/start.html" class="code" title="function p = start(p)">pds.datapixx.adc.start</a>	pds.datapixx.adc.prepareTrial    start continuous datapixx data aquisition</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../../PLDAPS/@pldaps/replay.html" class="code" title="function p = replay(p,input)">@pldaps/replay</a>	replay    replay a previously recorded experiment on screen</li><li><a href="../../../PLDAPS/@pldaps/run.html" class="code" title="function p = run(p)">@pldaps/run</a>	run    run a new experiment for a previuously created pldaps class</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../../Parameters/datapixx/GetPreciseTime/maxDuration.html" class="code" title="maximum duration in seconds to wait for a good estimate">.datapixx.GetPreciseTime.maxDuration:</a>	
+        <a href="#_line0057" class="code"}">57 </a>maximum duration in seconds to wait for a good estimate</li><li><a href="../../../Parameters/datapixx/GetPreciseTime/optMinwinThreshold.html" class="code" title="Minimum Threshold that defines a good estimate to end before maxDuration">.datapixx.GetPreciseTime.optMinwinThreshold:</a>	
+        <a href="#_line0060" class="code"}">60 </a>Minimum Threshold that defines a good estimate to end before maxDuration</li><li><a href="../../../Parameters/datapixx/GetPreciseTime/syncmode.html" class="code" title="syncmode. accepted values are 1,2,3">.datapixx.GetPreciseTime.syncmode:</a>	
+        <a href="#_line0054" class="code"}">54 </a>syncmode. accepted values are 1,2,3</li><li><a href="../../../Parameters/datapixx/LogOnsetTimestampLevel.html" class="code" title="Get and Store a the time each frame arrived at the VPixx device.">.datapixx.LogOnsetTimestampLevel:</a>	
+        <a href="#_line0049" class="code"}">49 </a>Get and Store a the time each frame arrived at the VPixx device.</li><li><a href="../../../Parameters/datapixx/enablePropixxCeilingMount.html" class="code" title="ProPixx: enableCeilingMount (flip image vertically)">.datapixx.enablePropixxCeilingMount:</a>	
+        <a href="#_line0077" class="code"}">77 </a>ProPixx: enableCeilingMount (flip image vertically)</li><li><a href="../../../Parameters/datapixx/enablePropixxRearProjection.html" class="code" title="ProPixx: enableRearProjection (flip image horizontally)">.datapixx.enablePropixxRearProjection:</a>	
+        <a href="#_line0071" class="code"}">71 </a>ProPixx: enableRearProjection (flip image horizontally)</li><li><a href="../../../Parameters/datapixx/use.html" class="code" title="enable control of VPixx devices">.datapixx.use:</a>	
+        <a href="#_line0038" class="code"}">38 </a>    <a href="#_line0101" class="code"}">101 </a>enable control of VPixx devices</li><li><a href="../../../Parameters/display/bgColor.html" class="code" title="background color. Can be changed during trial">.display.bgColor:</a>	
+        <a href="#_line0113" class="code"}">113 </a>    <a href="#_line0115" class="code"}">115 </a>    <a href="#_line0166" class="code"}">166 </a>background color. Can be changed during trial</li><li><a href="../../../Parameters/display/gamma/table.html" class="code" title="">.display.gamma.table:</a>	
+        <a href="#_line0115" class="code"}">115 </a>    <a href="#_line0136" class="code"}">136 </a></li><li><a href="../../../Parameters/display/humanCLUT.html" class="code" title="">.display.humanCLUT:</a>	
+        <a href="#_line0122" class="code"}">122 </a>    <a href="#_line0124" class="code"}">124 </a>    <a href="#_line0170" class="code"}">170 </a>    <a href="#_line0172" class="code"}">172 </a>    <a href="#_line0190" class="code"}">190 </a>    <a href="#_line0191" class="code"}">191 </a></li><li><a href="../../../Parameters/display/internalFormat.html" class="code" title="">.display.internalFormat:</a>	
+        <a href="#_line0192" class="code"}">192 </a>    <a href="#_line0209" class="code"}">209 </a></li><li><a href="../../../Parameters/display/lookupstexs.html" class="code" title="">.display.lookupstexs:</a>	
+        <a href="#_line0177" class="code"}">177 </a>    <a href="#_line0196" class="code"}">196 </a></li><li><a href="../../../Parameters/display/monkeyCLUT.html" class="code" title="">.display.monkeyCLUT:</a>	
+        <a href="#_line0122" class="code"}">122 </a>    <a href="#_line0124" class="code"}">124 </a>    <a href="#_line0170" class="code"}">170 </a>    <a href="#_line0172" class="code"}">172 </a></li><li><a href="../../../Parameters/display/ptr.html" class="code" title="">.display.ptr:</a>	
+        <a href="#_line0161" class="code"}">161 </a></li><li><a href="../../../Parameters/display/shader.html" class="code" title="">.display.shader:</a>	
+        <a href="#_line0167" class="code"}">167 </a></li><li><a href="../../../Parameters/display/switchOverlayCLUTs.html" class="code" title="switch olverlay colors bewteen experimentor and subject view">.display.switchOverlayCLUTs:</a>	
+        <a href="#_line0121" class="code"}">121 </a>    <a href="#_line0169" class="code"}">169 </a>switch olverlay colors bewteen experimentor and subject view</li><li><a href="../../../Parameters/display/useOverlay.html" class="code" title="create an overlay pointer.">.display.useOverlay:</a>	
+        <a href="#_line0100" class="code"}">100 </a>    <a href="#_line0163" class="code"}">163 </a>create an overlay pointer.</li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../../Parameters/datapixx/info/DatapixxFirmwareRevision.html" class="code" title="">.datapixx.info.DatapixxFirmwareRevision:</a>
+        <a href="#_line0084" class="code"}">84 </a></li><li><a href="../../../Parameters/datapixx/info/DatapixxRamSize.html" class="code" title="">.datapixx.info.DatapixxRamSize:</a>
+        <a href="#_line0085" class="code"}">85 </a></li></ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function p =  init(p)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">%pds.datapixx.init    initialize Datapixx at the beginning of an experiment.</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">% p =  pds.datapixx.init(p)</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">%</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% pds.datapixx.init is a function that intializes the DATAPIXX, preparing it for</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% experiments. Critically, the PSYCHIMAGING calls sets up the dual CLUTS</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">% (Color Look Up Table) for two screens.  These two CLUTS are in the</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">% p.trial.display substruct</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">% INPUTS</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">%       p.trial [struct] - main pldaps display variables structure</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">%           .dispplay [struct] - required display</span>
+</div><div id="_line0012" class="line">0012 <span class="comment">%               .ptr         - pointer to open PTB window</span>
+</div><div id="_line0013" class="line">0013 <span class="comment">%               .useOverlay  - (0,1,2) for whether to use CLUT overlay</span>
+</div><div id="_line0014" class="line">0014 <span class="comment">%                       0 - no overlay</span>
+</div><div id="_line0015" class="line">0015 <span class="comment">%                       1 - Datapixx overlay (if datapixx.use is off, draws</span>
+</div><div id="_line0016" class="line">0016 <span class="comment">%                                             overlay version)</span>
+</div><div id="_line0017" class="line">0017 <span class="comment">%                       2 - Software overlay (requires stereomode setup)</span>
+</div><div id="_line0018" class="line">0018 <span class="comment">%               .gamma.table - required ( can be a linear gamma table )</span>
+</div><div id="_line0019" class="line">0019 <span class="comment">%               .humanCLUT   [256 x 3] human color look up table</span>
+</div><div id="_line0020" class="line">0020 <span class="comment">%               .monkeyCLUT  [256 x 3] monkey color look up table</span>
+</div><div id="_line0021" class="line">0021 <span class="comment">% OUTPUTS</span>
+</div><div id="_line0022" class="line">0022 <span class="comment">%       p [modified]</span>
+</div><div id="_line0023" class="line">0023 <span class="comment">%           .trial.display.overlayptr - pointer to overlay window added</span>
+</div><div id="_line0024" class="line">0024 <span class="comment">%</span>
+</div><div id="_line0025" class="line">0025 <span class="comment">%           if useOverlay == 1, pds.datapixx.init opens an overlay pointer</span>
+</div><div id="_line0026" class="line">0026 <span class="comment">%           with p.trial.display.monkeyCLUT as the color look up table for one</span>
+</div><div id="_line0027" class="line">0027 <span class="comment">%           datapixx monitor and p.trial.display.humanCLUT for the other monitor.</span>
+</div><div id="_line0028" class="line">0028 <span class="comment">%</span>
+</div><div id="_line0029" class="line">0029 <span class="comment">% Datapixx is Opened and set to default settings for PLDAPS</span>
+</div><div id="_line0030" class="line">0030 
+</div><div id="_line0031" class="line">0031 
+</div><div id="_line0032" class="line">0032 <span class="comment">% 2011       kme wrote it</span>
+</div><div id="_line0033" class="line">0033 <span class="comment">% 12/03/2013 jly reboot for version 3</span>
+</div><div id="_line0034" class="line">0034 <span class="comment">% 2014       adapt to version 4.1</span>
+</div><div id="_line0035" class="line">0035 <span class="comment">% 2016       jly add software overlay</span>
+</div><div id="_line0036" class="line">0036 <span class="keyword">global</span> dpx GL;
+</div><div id="_line0037" class="line">0037 
+</div><div id="_line0038" class="line">0038 <span class="keyword">if</span> p.trial<a href="../../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a>
+</div><div id="_line0039" class="line">0039     
+</div><div id="_line0040" class="line">0040     <span class="keyword">if</span> ~Datapixx(<span class="string">'IsReady'</span>)
+</div><div id="_line0041" class="line">0041         Datapixx(<span class="string">'Open'</span>);
+</div><div id="_line0042" class="line">0042     <span class="keyword">end</span>
+</div><div id="_line0043" class="line">0043     
+</div><div id="_line0044" class="line">0044     <span class="comment">% From help PsychDataPixx:</span>
+</div><div id="_line0045" class="line">0045     <span class="comment">% Timestamping is disabled by default (mode == 0), as it incurs a bit of</span>
+</div><div id="_line0046" class="line">0046     <span class="comment">% computational overhead to acquire and log timestamps, typically up to 2-3</span>
+</div><div id="_line0047" class="line">0047     <span class="comment">% msecs of extra time per 'Flip' command.</span>
+</div><div id="_line0048" class="line">0048     <span class="comment">% Buffer is collected at the end of the expeiment!</span>
+</div><div id="_line0049" class="line">0049     PsychDataPixx(<span class="string">'LogOnsetTimestamps'</span>,p.trial<a href="../../../Parameters/datapixx/LogOnsetTimestampLevel.html" class="param" title="Get and Store a the time each frame arrived at the VPixx device.">.datapixx.LogOnsetTimestampLevel</a>);<span class="comment">%2</span>
+</div><div id="_line0050" class="line">0050     PsychDataPixx(<span class="string">'ClearTimestampLog'</span>);
+</div><div id="_line0051" class="line">0051     
+</div><div id="_line0052" class="line">0052     <span class="comment">%set getPreciseTime options, see testsuite/pldapsTimingTests for</span>
+</div><div id="_line0053" class="line">0053     <span class="comment">%details</span>
+</div><div id="_line0054" class="line">0054     <span class="keyword">if</span> ~isempty(p.trial<a href="../../../Parameters/datapixx/GetPreciseTime/syncmode.html" class="param" title="syncmode. accepted values are 1,2,3">.datapixx.GetPreciseTime.syncmode</a>)
+</div><div id="_line0055" class="line">0055         dpx.syncmode=2; <span class="comment">%1,2,3</span>
+</div><div id="_line0056" class="line">0056     <span class="keyword">end</span>
+</div><div id="_line0057" class="line">0057     <span class="keyword">if</span> ~isempty(p.trial<a href="../../../Parameters/datapixx/GetPreciseTime/maxDuration.html" class="param" title="maximum duration in seconds to wait for a good estimate">.datapixx.GetPreciseTime.maxDuration</a>)
+</div><div id="_line0058" class="line">0058         dpx.maxDuration=0.02;
+</div><div id="_line0059" class="line">0059     <span class="keyword">end</span>
+</div><div id="_line0060" class="line">0060     <span class="keyword">if</span> ~isempty(p.trial<a href="../../../Parameters/datapixx/GetPreciseTime/optMinwinThreshold.html" class="param" title="Minimum Threshold that defines a good estimate to end before maxDuration">.datapixx.GetPreciseTime.optMinwinThreshold</a>)
+</div><div id="_line0061" class="line">0061         dpx.optMinwinThreshold=6.5e-5;
+</div><div id="_line0062" class="line">0062     <span class="keyword">end</span>
+</div><div id="_line0063" class="line">0063     
+</div><div id="_line0064" class="line">0064     <span class="keyword">if</span> Datapixx(<span class="string">'IsPropixx'</span>)
+</div><div id="_line0065" class="line">0065         <span class="comment">%this might not work reliably</span>
+</div><div id="_line0066" class="line">0066         <span class="keyword">if</span> ~Datapixx(<span class="string">'IsPropixxAwake'</span>)
+</div><div id="_line0067" class="line">0067             Datapixx(<span class="string">'SetPropixxAwake'</span>);
+</div><div id="_line0068" class="line">0068         <span class="keyword">end</span>
+</div><div id="_line0069" class="line">0069         Datapixx(<span class="string">'EnablePropixxLampLed'</span>);
+</div><div id="_line0070" class="line">0070         
+</div><div id="_line0071" class="line">0071         <span class="keyword">if</span> p.trial<a href="../../../Parameters/datapixx/enablePropixxRearProjection.html" class="param" title="ProPixx: enableRearProjection (flip image horizontally)">.datapixx.enablePropixxRearProjection</a>
+</div><div id="_line0072" class="line">0072             Datapixx(<span class="string">'EnablePropixxRearProjection'</span>);
+</div><div id="_line0073" class="line">0073         <span class="keyword">else</span>
+</div><div id="_line0074" class="line">0074             Datapixx(<span class="string">'DisablePropixxRearProjection'</span>);
+</div><div id="_line0075" class="line">0075         <span class="keyword">end</span>
+</div><div id="_line0076" class="line">0076         
+</div><div id="_line0077" class="line">0077         <span class="keyword">if</span> p.trial<a href="../../../Parameters/datapixx/enablePropixxCeilingMount.html" class="param" title="ProPixx: enableCeilingMount (flip image vertically)">.datapixx.enablePropixxCeilingMount</a>
+</div><div id="_line0078" class="line">0078             Datapixx(<span class="string">'EnablePropixxCeilingMount'</span>);
+</div><div id="_line0079" class="line">0079         <span class="keyword">else</span>
+</div><div id="_line0080" class="line">0080             Datapixx(<span class="string">'DisablePropixxCeilingMount'</span>);
+</div><div id="_line0081" class="line">0081         <span class="keyword">end</span>
+</div><div id="_line0082" class="line">0082     <span class="keyword">end</span>
+</div><div id="_line0083" class="line">0083     
+</div><div id="_line0084" class="line">0084     p.trial<a href="../../../Parameters/datapixx/info/DatapixxFirmwareRevision.html" class="param" title="">.datapixx.info.DatapixxFirmwareRevision</a> = Datapixx(<span class="string">'GetFirmwareRev'</span>);
+</div><div id="_line0085" class="line">0085     p.trial<a href="../../../Parameters/datapixx/info/DatapixxRamSize.html" class="param" title="">.datapixx.info.DatapixxRamSize</a> = Datapixx(<span class="string">'GetRamSize'</span>);
+</div><div id="_line0086" class="line">0086        
+</div><div id="_line0087" class="line">0087     <span class="comment">%%% Open Datapixx and get ready for data aquisition %%%</span>
+</div><div id="_line0088" class="line">0088     Datapixx(<span class="string">'StopAllSchedules'</span>);
+</div><div id="_line0089" class="line">0089     Datapixx(<span class="string">'DisableDinDebounce'</span>);
+</div><div id="_line0090" class="line">0090     Datapixx(<span class="string">'EnableAdcFreeRunning'</span>);
+</div><div id="_line0091" class="line">0091     Datapixx(<span class="string">'SetDinLog'</span>);
+</div><div id="_line0092" class="line">0092     Datapixx(<span class="string">'StartDinLog'</span>);
+</div><div id="_line0093" class="line">0093     Datapixx(<span class="string">'SetDoutValues'</span>,0);
+</div><div id="_line0094" class="line">0094     Datapixx(<span class="string">'RegWrRd'</span>);
+</div><div id="_line0095" class="line">0095     
+</div><div id="_line0096" class="line">0096     <span class="comment">%start adc data collection if requested</span>
+</div><div id="_line0097" class="line">0097     <a href="../../../PLDAPS/+pds/+datapixx/+adc/pds.datapixx.adc.start.html" class="code" title="function p = start(p)">pds.datapixx.adc.start</a>(p);
+</div><div id="_line0098" class="line">0098 <span class="keyword">end</span>
+</div><div id="_line0099" class="line">0099 
+</div><div id="_line0100" class="line">0100 <span class="keyword">if</span> p.trial<a href="../../../Parameters/display/useOverlay.html" class="param" title="create an overlay pointer.">.display.useOverlay</a>==1 <span class="comment">% Datapixx overlay</span>
+</div><div id="_line0101" class="line">0101     <span class="keyword">if</span> p.trial<a href="../../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a>
+</div><div id="_line0102" class="line">0102         disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0103" class="line">0103         disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0104" class="line">0104         disp(<span class="string">'Adding Overlay Pointer'</span>)
+</div><div id="_line0105" class="line">0105         disp(<span class="string">'Combining color look up tables that can be found in'</span>)
+</div><div id="_line0106" class="line">0106         disp(<span class="string">'dv.disp.humanCLUT and dv.disp.monkeyCLUT'</span>)
+</div><div id="_line0107" class="line">0107         disp(<span class="string">'****************************************************************'</span>)
+</div><div id="_line0108" class="line">0108         
+</div><div id="_line0109" class="line">0109         <span class="comment">%check if transparant color is availiable? but how? firmware versions</span>
+</div><div id="_line0110" class="line">0110         <span class="comment">%differ between all machines...hmm, instead:</span>
+</div><div id="_line0111" class="line">0111         <span class="comment">%Set the transparancy color to the background color. Could set it</span>
+</div><div id="_line0112" class="line">0112         <span class="comment">%to anything, but we'll use this to maximize backward compatibility</span>
+</div><div id="_line0113" class="line">0113         bgColor=p.trial<a href="../../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>;
+</div><div id="_line0114" class="line">0114         <span class="keyword">if</span> isField(p.trial, <span class="string">'display.gamma.table'</span>)
+</div><div id="_line0115" class="line">0115             bgColor = interp1(linspace(0,1,256),p.trial<a href="../../../Parameters/display/gamma/table.html" class="param" title="">.display.gamma.table</a>(:,1), p.trial<a href="../../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>);
+</div><div id="_line0116" class="line">0116         <span class="keyword">end</span>
+</div><div id="_line0117" class="line">0117         Datapixx(<span class="string">'SetVideoClutTransparencyColor'</span>, bgColor);
+</div><div id="_line0118" class="line">0118         Datapixx(<span class="string">'EnableVideoClutTransparencyColorMode'</span>);
+</div><div id="_line0119" class="line">0119         Datapixx(<span class="string">'RegWr'</span>);
+</div><div id="_line0120" class="line">0120         
+</div><div id="_line0121" class="line">0121         <span class="keyword">if</span> p.trial<a href="../../../Parameters/display/switchOverlayCLUTs.html" class="param" title="switch olverlay colors bewteen experimentor and subject view">.display.switchOverlayCLUTs</a>
+</div><div id="_line0122" class="line">0122             combinedClut = [p.trial<a href="../../../Parameters/display/humanCLUT.html" class="param" title="">.display.humanCLUT</a>; p.trial<a href="../../../Parameters/display/monkeyCLUT.html" class="param" title="">.display.monkeyCLUT</a>];
+</div><div id="_line0123" class="line">0123         <span class="keyword">else</span>
+</div><div id="_line0124" class="line">0124             combinedClut = [p.trial<a href="../../../Parameters/display/monkeyCLUT.html" class="param" title="">.display.monkeyCLUT</a>; p.trial<a href="../../../Parameters/display/humanCLUT.html" class="param" title="">.display.humanCLUT</a>];
+</div><div id="_line0125" class="line">0125         <span class="keyword">end</span>
+</div><div id="_line0126" class="line">0126         <span class="comment">%%% Gamma correction for dual CLUT %%%</span>
+</div><div id="_line0127" class="line">0127         <span class="comment">% check if gamma correction has been run on the window pointer</span>
+</div><div id="_line0128" class="line">0128         <span class="keyword">if</span> isField(p.trial, <span class="string">'display.gamma.table'</span>)
+</div><div id="_line0129" class="line">0129             <span class="comment">% get size of the combiend CLUT. It should be 512 x 3 (two 256 x 3 CLUTS</span>
+</div><div id="_line0130" class="line">0130             <span class="comment">% on top of eachother).</span>
+</div><div id="_line0131" class="line">0131             sc = size(combinedClut);
+</div><div id="_line0132" class="line">0132             
+</div><div id="_line0133" class="line">0133             <span class="comment">% use sc to make a vector of 8-bit color steps from 0-1</span>
+</div><div id="_line0134" class="line">0134             x = linspace(0,1,sc(1)/2);
+</div><div id="_line0135" class="line">0135             <span class="comment">% use the gamma table to lookup what the values should be</span>
+</div><div id="_line0136" class="line">0136             y = interp1(x,p.trial<a href="../../../Parameters/display/gamma/table.html" class="param" title="">.display.gamma.table</a>(:,1), combinedClut(:));
+</div><div id="_line0137" class="line">0137             <span class="comment">% reshape the combined clut back to 512 x 3</span>
+</div><div id="_line0138" class="line">0138             combinedClut = reshape(y, sc);
+</div><div id="_line0139" class="line">0139         <span class="keyword">end</span>
+</div><div id="_line0140" class="line">0140 
+</div><div id="_line0141" class="line">0141         <span class="comment">% WARNING about LoadNormalizedGammaTable from Mario Kleiner:</span>
+</div><div id="_line0142" class="line">0142         <span class="comment">% &quot;Not needed, possibly harmful:</span>
+</div><div id="_line0143" class="line">0143         <span class="comment">% The PsychImaging() setup code already calls LoadIdentityClut()</span>
+</div><div id="_line0144" class="line">0144         <span class="comment">% which loads a proper gamma table. Depending on operating system</span>
+</div><div id="_line0145" class="line">0145         <span class="comment">% and gpu the tables need to differ a bit to compensate for driver</span>
+</div><div id="_line0146" class="line">0146         <span class="comment">% bugs. The LoadIdentityClut routine knows a couple of different</span>
+</div><div id="_line0147" class="line">0147         <span class="comment">% tables for different buggy systems. The automatic test code in</span>
+</div><div id="_line0148" class="line">0148         <span class="comment">% BitsPlusIdentityClutTest and BitsPlusImagingPipelinetest also</span>
+</div><div id="_line0149" class="line">0149         <span class="comment">% loads an identity lut via LoadIdentityClut and tests if that lut</span>
+</div><div id="_line0150" class="line">0150         <span class="comment">% is working correctly for your gpu ? and tries to auto-fix that lut</span>
+</div><div id="_line0151" class="line">0151         <span class="comment">% via an automatic optimization procedure if it isn?t correct. With</span>
+</div><div id="_line0152" class="line">0152         <span class="comment">% your ?LoadNormalized?? command you are overwriting that optimal</span>
+</div><div id="_line0153" class="line">0153         <span class="comment">% and tested lut, so you could add distortions to the video signal</span>
+</div><div id="_line0154" class="line">0154         <span class="comment">% that is sent to the datapixx. A wrong lut could even erroneously</span>
+</div><div id="_line0155" class="line">0155         <span class="comment">% trigger display dithering and add random imperceptible noise to</span>
+</div><div id="_line0156" class="line">0156         <span class="comment">% the displayed image ? at least that is what i observed on my</span>
+</div><div id="_line0157" class="line">0157         <span class="comment">% MacBookPro with ati graphics under os/x 10.4.11.?</span>
+</div><div id="_line0158" class="line">0158         <span class="comment">% (posted on Psychtoolbox forum, 3/9/2010)</span>
+</div><div id="_line0159" class="line">0159         <span class="comment">%</span>
+</div><div id="_line0160" class="line">0160         <span class="comment">% We don't seem to have this problem - jake 12/04/13</span>
+</div><div id="_line0161" class="line">0161         Screen(<span class="string">'LoadNormalizedGammaTable'</span>, p.trial<a href="../../../Parameters/display/ptr.html" class="param" title="">.display.ptr</a>, combinedClut, 2);
+</div><div id="_line0162" class="line">0162     <span class="keyword">end</span>
+</div><div id="_line0163" class="line">0163 <span class="keyword">elseif</span> p.trial<a href="../../../Parameters/display/useOverlay.html" class="param" title="create an overlay pointer.">.display.useOverlay</a>==2 <span class="comment">% software overlay</span>
+</div><div id="_line0164" class="line">0164 
+</div><div id="_line0165" class="line">0165     <span class="comment">%assign transparency color</span>
+</div><div id="_line0166" class="line">0166     bgColor=p.trial<a href="../../../Parameters/display/bgColor.html" class="param" title="background color. Can be changed during trial">.display.bgColor</a>;
+</div><div id="_line0167" class="line">0167     glUniform3f(glGetUniformLocation(p.trial<a href="../../../Parameters/display/shader.html" class="param" title="">.display.shader</a>, <span class="string">'transparencycolor'</span>), bgColor(1), bgColor(2), bgColor(3));
+</div><div id="_line0168" class="line">0168     
+</div><div id="_line0169" class="line">0169     <span class="keyword">if</span> p.trial<a href="../../../Parameters/display/switchOverlayCLUTs.html" class="param" title="switch olverlay colors bewteen experimentor and subject view">.display.switchOverlayCLUTs</a>
+</div><div id="_line0170" class="line">0170         combinedClut = [p.trial<a href="../../../Parameters/display/humanCLUT.html" class="param" title="">.display.humanCLUT</a>; p.trial<a href="../../../Parameters/display/monkeyCLUT.html" class="param" title="">.display.monkeyCLUT</a>];
+</div><div id="_line0171" class="line">0171     <span class="keyword">else</span>
+</div><div id="_line0172" class="line">0172         combinedClut = [p.trial<a href="../../../Parameters/display/monkeyCLUT.html" class="param" title="">.display.monkeyCLUT</a>; p.trial<a href="../../../Parameters/display/humanCLUT.html" class="param" title="">.display.humanCLUT</a>];
+</div><div id="_line0173" class="line">0173     <span class="keyword">end</span>
+</div><div id="_line0174" class="line">0174 
+</div><div id="_line0175" class="line">0175     <span class="comment">% assign values to look up textures</span>
+</div><div id="_line0176" class="line">0176     <span class="comment">% Bind relevant texture object:</span>
+</div><div id="_line0177" class="line">0177     glBindTexture(GL.TEXTURE_RECTANGLE_EXT, p.trial<a href="../../../Parameters/display/lookupstexs.html" class="param" title="">.display.lookupstexs</a>(1));
+</div><div id="_line0178" class="line">0178     <span class="comment">% Set filters properly: Want nearest neighbour filtering, ie., no filtering</span>
+</div><div id="_line0179" class="line">0179     <span class="comment">% at all. We'll do our own linear filtering in the ICM shader. This way</span>
+</div><div id="_line0180" class="line">0180     <span class="comment">% we can provide accelerated linear interpolation on all GPU's with all</span>
+</div><div id="_line0181" class="line">0181     <span class="comment">% texture formats, even if GPU's are old:</span>
+</div><div id="_line0182" class="line">0182     glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+</div><div id="_line0183" class="line">0183     glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
+</div><div id="_line0184" class="line">0184     <span class="comment">% Want clamp-to-edge behaviour to saturate at minimum and maximum</span>
+</div><div id="_line0185" class="line">0185     <span class="comment">% intensity value, and to make sure that a pure-luminance 1 row clut is</span>
+</div><div id="_line0186" class="line">0186     <span class="comment">% properly &quot;replicated&quot; to all three color channels in rgb modes:</span>
+</div><div id="_line0187" class="line">0187     glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+</div><div id="_line0188" class="line">0188     glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+</div><div id="_line0189" class="line">0189     <span class="comment">% Assign lookuptable data to texture:</span>
+</div><div id="_line0190" class="line">0190     n=size(p.trial<a href="../../../Parameters/display/humanCLUT.html" class="param" title="">.display.humanCLUT</a>, 1);
+</div><div id="_line0191" class="line">0191     m=size(p.trial<a href="../../../Parameters/display/humanCLUT.html" class="param" title="">.display.humanCLUT</a>, 2);
+</div><div id="_line0192" class="line">0192     glTexImage2D(GL.TEXTURE_RECTANGLE_EXT, 0, p.trial<a href="../../../Parameters/display/internalFormat.html" class="param" title="">.display.internalFormat</a>,n,m, 0,GL.LUMINANCE, GL.FLOAT, single(combinedClut(1:n,:)));
+</div><div id="_line0193" class="line">0193     glBindTexture(GL.TEXTURE_RECTANGLE_EXT, 0);
+</div><div id="_line0194" class="line">0194 
+</div><div id="_line0195" class="line">0195     <span class="comment">%#2</span>
+</div><div id="_line0196" class="line">0196     glBindTexture(GL.TEXTURE_RECTANGLE_EXT, p.trial<a href="../../../Parameters/display/lookupstexs.html" class="param" title="">.display.lookupstexs</a>(2));
+</div><div id="_line0197" class="line">0197     <span class="comment">% Set filters properly: Want nearest neighbour filtering, ie., no filtering</span>
+</div><div id="_line0198" class="line">0198     <span class="comment">% at all. We'll do our own linear filtering in the ICM shader. This way</span>
+</div><div id="_line0199" class="line">0199     <span class="comment">% we can provide accelerated linear interpolation on all GPU's with all</span>
+</div><div id="_line0200" class="line">0200     <span class="comment">% texture formats, even if GPU's are old:</span>
+</div><div id="_line0201" class="line">0201     glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+</div><div id="_line0202" class="line">0202     glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
+</div><div id="_line0203" class="line">0203     <span class="comment">% Want clamp-to-edge behaviour to saturate at minimum and maximum</span>
+</div><div id="_line0204" class="line">0204     <span class="comment">% intensity value, and to make sure that a pure-luminance 1 row clut is</span>
+</div><div id="_line0205" class="line">0205     <span class="comment">% properly &quot;replicated&quot; to all three color channels in rgb modes:</span>
+</div><div id="_line0206" class="line">0206     glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+</div><div id="_line0207" class="line">0207     glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+</div><div id="_line0208" class="line">0208     <span class="comment">% Assign lookuptable data to texture:</span>
+</div><div id="_line0209" class="line">0209     glTexImage2D(GL.TEXTURE_RECTANGLE_EXT, 0, p.trial<a href="../../../Parameters/display/internalFormat.html" class="param" title="">.display.internalFormat</a>, n, m, 0, GL.LUMINANCE, GL.FLOAT, single(combinedClut(n+1:<span class="keyword">end</span>,:)));
+</div><div id="_line0210" class="line">0210     glBindTexture(GL.TEXTURE_RECTANGLE_EXT, 0);
+</div><div id="_line0211" class="line">0211 <span class="keyword">end</span>
+</div><div id="_line0212" class="line">0212 
+</div><div id="_line0213" class="line">0213 
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

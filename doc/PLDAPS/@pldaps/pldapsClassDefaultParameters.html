@@ -1,0 +1,238 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of pldapsClassDefaultParameters</title>
+  <meta name="keywords" content="pldapsClassDefaultParameters">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">PLDAPS</a> &gt; <a href="index.html">@pldaps</a> &gt; pldapsClassDefaultParameters.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/@pldaps&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>pldapsClassDefaultParameters
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function s=pldapsClassDefaultParameters(s) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="pldaps.html" class="code" title="function p = pldaps(varargin)">@pldaps/pldaps</a>	pldaps    main class for PLDAPS (Plexon Datapixx PsychToolbox) version 4.1</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+</ul>
+This function assigns these parameters:
+<ul>
+</ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001 <a name="_sub0" href="#_subfunctions" class="code">function s=pldapsClassDefaultParameters(s)</a>
+</div><div id="_line0002" class="line">0002  <span class="keyword">if</span> nargin&lt;1
+</div><div id="_line0003" class="line">0003     s=struct;
+</div><div id="_line0004" class="line">0004  <span class="keyword">end</span>
+</div><div id="_line0005" class="line">0005 
+</div><div id="_line0006" class="line">0006 <span class="comment">%s.    .</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">%s.    behavior.</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">%s.    behavior.    reward.</span>
+</div><div id="_line0009" class="line">0009  s.    behavior.    reward.    defaultAmount = 0.0500;
+</div><div id="_line0010" class="line">0010 
+</div><div id="_line0011" class="line">0011 <span class="comment">%s.    datapixx.</span>
+</div><div id="_line0012" class="line">0012  s.    datapixx.    enablePropixxCeilingMount = false;
+</div><div id="_line0013" class="line">0013  s.    datapixx.    enablePropixxRearProjection = false;
+</div><div id="_line0014" class="line">0014  s.    datapixx.    LogOnsetTimestampLevel = 2;
+</div><div id="_line0015" class="line">0015  s.    datapixx.    use = true;
+</div><div id="_line0016" class="line">0016  s.    datapixx.    useAsEyepos = false;
+</div><div id="_line0017" class="line">0017  s.    datapixx.    useForReward = false;
+</div><div id="_line0018" class="line">0018 
+</div><div id="_line0019" class="line">0019 <span class="comment">%s.    datapixx.    adc.</span>
+</div><div id="_line0020" class="line">0020  s.    datapixx.    adc.    bufferAddress = [ ];
+</div><div id="_line0021" class="line">0021  s.    datapixx.    adc.    channelGains = 1;
+</div><div id="_line0022" class="line">0022  s.    datapixx.    adc.    channelMapping = <span class="string">'datapixx.adc.data'</span>;
+</div><div id="_line0023" class="line">0023  s.    datapixx.    adc.    channelModes = 0;
+</div><div id="_line0024" class="line">0024  s.    datapixx.    adc.    channelOffsets = 0;
+</div><div id="_line0025" class="line">0025  s.    datapixx.    adc.    channels = [ ];
+</div><div id="_line0026" class="line">0026  s.    datapixx.    adc.    maxSamples = 0;
+</div><div id="_line0027" class="line">0027  s.    datapixx.    adc.    numBufferFrames = 600000;
+</div><div id="_line0028" class="line">0028  s.    datapixx.    adc.    srate = 1000;
+</div><div id="_line0029" class="line">0029  s.    datapixx.    adc.    startDelay = 0;
+</div><div id="_line0030" class="line">0030  s.    datapixx.    adc.    XEyeposChannel = [ ];
+</div><div id="_line0031" class="line">0031  s.    datapixx.    adc.    YEyeposChannel = [ ];
+</div><div id="_line0032" class="line">0032 
+</div><div id="_line0033" class="line">0033 <span class="comment">%s.    datapixx.    GetPreciseTime.</span>
+</div><div id="_line0034" class="line">0034  s.    datapixx.    GetPreciseTime.    maxDuration = [ ];
+</div><div id="_line0035" class="line">0035  s.    datapixx.    GetPreciseTime.    optMinwinThreshold = [ ];
+</div><div id="_line0036" class="line">0036  s.    datapixx.    GetPreciseTime.    syncmode = [ ];
+</div><div id="_line0037" class="line">0037 
+</div><div id="_line0038" class="line">0038 <span class="comment">%s.    display.</span>
+</div><div id="_line0039" class="line">0039  s.    display.    bgColor = [ 0.5000    0.5000    0.5000 ];
+</div><div id="_line0040" class="line">0040  s.    display.    colorclamp = 0;
+</div><div id="_line0041" class="line">0041  s.    display.    destinationFactorNew = <span class="string">'GL_ONE_MINUS_SRC_ALPHA'</span>;
+</div><div id="_line0042" class="line">0042  s.    display.    displayName = <span class="string">'defaultScreenParameters'</span>;
+</div><div id="_line0043" class="line">0043  s.    display.    forceLinearGamma = false;
+</div><div id="_line0044" class="line">0044  s.    display.    heightcm = 45;
+</div><div id="_line0045" class="line">0045  s.    display.    normalizeColor = 0;
+</div><div id="_line0046" class="line">0046  s.    display.    screenSize = [ ];
+</div><div id="_line0047" class="line">0047  s.    display.    scrnNum = 0;
+</div><div id="_line0048" class="line">0048  s.    display.    sourceFactorNew = <span class="string">'GL_SRC_ALPHA'</span>;
+</div><div id="_line0049" class="line">0049  s.    display.    stereoFlip = [ ];
+</div><div id="_line0050" class="line">0050  s.    display.    stereoMode = 0;
+</div><div id="_line0051" class="line">0051  s.    display.    switchOverlayCLUTs = false;
+</div><div id="_line0052" class="line">0052  s.    display.    useOverlay = 1;
+</div><div id="_line0053" class="line">0053  s.    display.    viewdist = 57;
+</div><div id="_line0054" class="line">0054  s.    display.    widthcm = 63;
+</div><div id="_line0055" class="line">0055 
+</div><div id="_line0056" class="line">0056 <span class="comment">%s.    display.    movie.</span>
+</div><div id="_line0057" class="line">0057  s.    display.    movie.    create = false;
+</div><div id="_line0058" class="line">0058  s.    display.    movie.    dir = [ ];
+</div><div id="_line0059" class="line">0059  s.    display.    movie.    file = [ ];
+</div><div id="_line0060" class="line">0060  s.    display.    movie.    frameRate = [ ];
+</div><div id="_line0061" class="line">0061  s.    display.    movie.    height = [ ];
+</div><div id="_line0062" class="line">0062  s.    display.    movie.    options = <span class="string">':CodecType=x264enc :EncodingQuality=1.0'</span>;
+</div><div id="_line0063" class="line">0063  s.    display.    movie.    width = [ ];
+</div><div id="_line0064" class="line">0064 
+</div><div id="_line0065" class="line">0065 <span class="comment">%s.    eyelink.</span>
+</div><div id="_line0066" class="line">0066  s.    eyelink.    buffereventlength = 30;
+</div><div id="_line0067" class="line">0067  s.    eyelink.    buffersamplelength = 31;
+</div><div id="_line0068" class="line">0068  s.    eyelink.    calibration_matrix = [ ];
+</div><div id="_line0069" class="line">0069  s.    eyelink.    collectQueue = true;
+</div><div id="_line0070" class="line">0070  s.    eyelink.    custom_calibration = false;
+</div><div id="_line0071" class="line">0071  s.    eyelink.    custom_calibrationScale = 0.2500;
+</div><div id="_line0072" class="line">0072  s.    eyelink.    saveEDF = false;
+</div><div id="_line0073" class="line">0073  s.    eyelink.    use = true;
+</div><div id="_line0074" class="line">0074  s.    eyelink.    useAsEyepos = true;
+</div><div id="_line0075" class="line">0075  s.    eyelink.    useRawData = false;
+</div><div id="_line0076" class="line">0076 
+</div><div id="_line0077" class="line">0077 <span class="comment">%s.    git.</span>
+</div><div id="_line0078" class="line">0078  s.    git.    use = false;
+</div><div id="_line0079" class="line">0079 
+</div><div id="_line0080" class="line">0080 <span class="comment">%s.    mouse.</span>
+</div><div id="_line0081" class="line">0081  s.    mouse.    use = true;
+</div><div id="_line0082" class="line">0082  s.    mouse.    useAsEyepos = false;
+</div><div id="_line0083" class="line">0083 
+</div><div id="_line0084" class="line">0084 <span class="comment">%s.    newEraSyringePump.</span>
+</div><div id="_line0085" class="line">0085  s.    newEraSyringePump.    alarmMode = 1;
+</div><div id="_line0086" class="line">0086  s.    newEraSyringePump.    allowNewDiameter = false;
+</div><div id="_line0087" class="line">0087  s.    newEraSyringePump.    diameter = 38;
+</div><div id="_line0088" class="line">0088  s.    newEraSyringePump.    lowNoiseMode = 0;
+</div><div id="_line0089" class="line">0089  s.    newEraSyringePump.    port = <span class="string">'/dev/cu.usbserial'</span>;
+</div><div id="_line0090" class="line">0090  s.    newEraSyringePump.    rate = 2900;
+</div><div id="_line0091" class="line">0091  s.    newEraSyringePump.    triggerMode = <span class="string">'T2'</span>;
+</div><div id="_line0092" class="line">0092  s.    newEraSyringePump.    use = false;
+</div><div id="_line0093" class="line">0093  s.    newEraSyringePump.    volumeUnits = <span class="string">'ML'</span>;
+</div><div id="_line0094" class="line">0094 
+</div><div id="_line0095" class="line">0095 <span class="comment">%s.    pldaps.</span>
+</div><div id="_line0096" class="line">0096  s.    pldaps.    experimentAfterTrialsFunction = [ ];
+</div><div id="_line0097" class="line">0097  s.    pldaps.    eyeposMovAv = 1;
+</div><div id="_line0098" class="line">0098  s.    pldaps.    finish = Inf;
+</div><div id="_line0099" class="line">0099  s.    pldaps.    goodtrial = 0;
+</div><div id="_line0100" class="line">0100  s.    pldaps.    iTrial = 1;
+</div><div id="_line0101" class="line">0101  s.    pldaps.    maxPriority = true;
+</div><div id="_line0102" class="line">0102  s.    pldaps.    maxTrialLength = 300;
+</div><div id="_line0103" class="line">0103  s.    pldaps.    nosave = false;
+</div><div id="_line0104" class="line">0104  s.    pldaps.    pass = false;
+</div><div id="_line0105" class="line">0105  s.    pldaps.    quit = 0;
+</div><div id="_line0106" class="line">0106  s.    pldaps.    trialMasterFunction = <span class="string">'runTrial'</span>;
+</div><div id="_line0107" class="line">0107  s.    pldaps.    useFileGUI = false;
+</div><div id="_line0108" class="line">0108  s.    pldaps.    useModularStateFunctions = false;
+</div><div id="_line0109" class="line">0109 
+</div><div id="_line0110" class="line">0110 <span class="comment">%s.    pldaps.    dirs.</span>
+</div><div id="_line0111" class="line">0111  s.    pldaps.    dirs.    data = <span class="string">'/Data'</span>;
+</div><div id="_line0112" class="line">0112  s.    pldaps.    dirs.    wavfiles = <span class="string">'~/PLDAPS/beepsounds'</span>;
+</div><div id="_line0113" class="line">0113 
+</div><div id="_line0114" class="line">0114 <span class="comment">%s.    pldaps.    draw.</span>
+</div><div id="_line0115" class="line">0115 <span class="comment">%s.    pldaps.    draw.    cursor.</span>
+</div><div id="_line0116" class="line">0116  s.    pldaps.    draw.    cursor.    use = false;
+</div><div id="_line0117" class="line">0117 
+</div><div id="_line0118" class="line">0118 <span class="comment">%s.    pldaps.    draw.    eyepos.</span>
+</div><div id="_line0119" class="line">0119  s.    pldaps.    draw.    eyepos.    use = true;
+</div><div id="_line0120" class="line">0120 
+</div><div id="_line0121" class="line">0121 <span class="comment">%s.    pldaps.    draw.    framerate.</span>
+</div><div id="_line0122" class="line">0122  s.    pldaps.    draw.    framerate.    location = [ -30   -10 ];
+</div><div id="_line0123" class="line">0123  s.    pldaps.    draw.    framerate.    nSeconds = 3;
+</div><div id="_line0124" class="line">0124  s.    pldaps.    draw.    framerate.    show = false;
+</div><div id="_line0125" class="line">0125  s.    pldaps.    draw.    framerate.    size = [ 20     5 ];
+</div><div id="_line0126" class="line">0126  s.    pldaps.    draw.    framerate.    use = false;
+</div><div id="_line0127" class="line">0127 
+</div><div id="_line0128" class="line">0128 <span class="comment">%s.    pldaps.    draw.    grid.</span>
+</div><div id="_line0129" class="line">0129  s.    pldaps.    draw.    grid.    use = true;
+</div><div id="_line0130" class="line">0130 
+</div><div id="_line0131" class="line">0131 <span class="comment">%s.    pldaps.    draw.    photodiode.</span>
+</div><div id="_line0132" class="line">0132  s.    pldaps.    draw.    photodiode.    everyXFrames = 17;
+</div><div id="_line0133" class="line">0133  s.    pldaps.    draw.    photodiode.    location = 1;
+</div><div id="_line0134" class="line">0134  s.    pldaps.    draw.    photodiode.    use = 0;
+</div><div id="_line0135" class="line">0135 
+</div><div id="_line0136" class="line">0136 <span class="comment">%s.    pldaps.    pause.</span>
+</div><div id="_line0137" class="line">0137  s.    pldaps.    pause.    preExperiment = true;
+</div><div id="_line0138" class="line">0138  s.    pldaps.    pause.    type = 1;
+</div><div id="_line0139" class="line">0139 
+</div><div id="_line0140" class="line">0140 <span class="comment">%s.    pldaps.    save.</span>
+</div><div id="_line0141" class="line">0141  s.    pldaps.    save.    initialParametersMerged = 1;
+</div><div id="_line0142" class="line">0142  s.    pldaps.    save.    mergedData = 0;
+</div><div id="_line0143" class="line">0143  s.    pldaps.    save.    trialTempfiles = 1;
+</div><div id="_line0144" class="line">0144  s.    pldaps.    save.    v73 = 0;
+</div><div id="_line0145" class="line">0145 
+</div><div id="_line0146" class="line">0146 <span class="comment">%s.    pldaps.    trialStates.</span>
+</div><div id="_line0147" class="line">0147  s.    pldaps.    trialStates.    experimentAfterTrials = -7;
+</div><div id="_line0148" class="line">0148  s.    pldaps.    trialStates.    experimentCleanUp = -6;
+</div><div id="_line0149" class="line">0149  s.    pldaps.    trialStates.    experimentPostOpenScreen = -4;
+</div><div id="_line0150" class="line">0150  s.    pldaps.    trialStates.    experimentPreOpenScreen = -5;
+</div><div id="_line0151" class="line">0151  s.    pldaps.    trialStates.    frameDraw = 3;
+</div><div id="_line0152" class="line">0152  s.    pldaps.    trialStates.    frameDrawingFinished = 6;
+</div><div id="_line0153" class="line">0153  s.    pldaps.    trialStates.    frameDrawTimecritical = -Inf;
+</div><div id="_line0154" class="line">0154  s.    pldaps.    trialStates.    frameFlip = 8;
+</div><div id="_line0155" class="line">0155  s.    pldaps.    trialStates.    frameIdlePostDraw = -Inf;
+</div><div id="_line0156" class="line">0156  s.    pldaps.    trialStates.    frameIdlePreLastDraw = -Inf;
+</div><div id="_line0157" class="line">0157  s.    pldaps.    trialStates.    framePrepareDrawing = 2;
+</div><div id="_line0158" class="line">0158  s.    pldaps.    trialStates.    frameUpdate = 1;
+</div><div id="_line0159" class="line">0159  s.    pldaps.    trialStates.    trialCleanUpandSave = -3;
+</div><div id="_line0160" class="line">0160  s.    pldaps.    trialStates.    trialPrepare = -2;
+</div><div id="_line0161" class="line">0161  s.    pldaps.    trialStates.    trialSetup = -1;
+</div><div id="_line0162" class="line">0162 
+</div><div id="_line0163" class="line">0163 <span class="comment">%s.    plexon.</span>
+</div><div id="_line0164" class="line">0164 <span class="comment">%s.    plexon.    spikeserver.</span>
+</div><div id="_line0165" class="line">0165  s.    plexon.    spikeserver.    continuous = false;
+</div><div id="_line0166" class="line">0166  s.    plexon.    spikeserver.    eventsonly = false;
+</div><div id="_line0167" class="line">0167  s.    plexon.    spikeserver.    remoteip = <span class="string">'xx.xx.xx.xx'</span>;
+</div><div id="_line0168" class="line">0168  s.    plexon.    spikeserver.    remoteport = 3333;
+</div><div id="_line0169" class="line">0169  s.    plexon.    spikeserver.    selfip = <span class="string">'xx.xx.xx.xx'</span>;
+</div><div id="_line0170" class="line">0170  s.    plexon.    spikeserver.    selfport = 3332;
+</div><div id="_line0171" class="line">0171  s.    plexon.    spikeserver.    use = 0;
+</div><div id="_line0172" class="line">0172 
+</div><div id="_line0173" class="line">0173 <span class="comment">%s.    session.</span>
+</div><div id="_line0174" class="line">0174  s.    session.    experimentFile = [ ];
+</div><div id="_line0175" class="line">0175 
+</div><div id="_line0176" class="line">0176 <span class="comment">%s.    sound.</span>
+</div><div id="_line0177" class="line">0177  s.    sound.    deviceid = [ ];
+</div><div id="_line0178" class="line">0178  s.    sound.    use = true;
+</div><div id="_line0179" class="line">0179  s.    sound.    useForReward = true;
+</div><div id="_line0180" class="line">0180 <span class="keyword">end</span>
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

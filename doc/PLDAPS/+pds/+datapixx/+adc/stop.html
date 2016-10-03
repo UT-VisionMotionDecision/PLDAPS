@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of stop</title>
+  <meta name="keywords" content="stop">
+  <meta name="description" content="stops datapixx data aquisition">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../../index.html">Home</a> &gt;  <a href="../../../index.html">PLDAPS</a> &gt; <a href="../../index.html">+pds</a> &gt; <a href="../index.html">+datapixx</a> &gt; <a href="index.html">+adc</a> &gt; stop.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../../index.html"><img alt="<" border="0" src="../../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for PLDAPS/+pds/+datapixx/+adc&nbsp;<img alt=">" border="0" src="../../../../right.png"></a></td></tr></table>-->
+
+<h1>stop
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="box"><strong>stops datapixx data aquisition</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="box"><strong>function p = stop(p) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> stops datapixx data aquisition
+ [p] = PDS.DATAPIXX.ADC.STOP(p)
+ 
+ The function should be called after AdcStart.
+ * AdcStart STARTS a continuous schedule of ADC data acquisition, stored 
+   on the datapixx buffer. 
+ * AdcStop STOPS the recording and outputs the buffered data.
+ 
+ parameters that are required by Datapixx are in the 'dp' struct.
+ INPUTS 
+   dp - struct
+    .srate - sampling rate
+
+ ??/2012    lnk    Wrote it
+ 12/12/2013 jly    Renamed to pdsDatapixxAdcStop 
+   See also PDS.DATAPIXX.ADC.START, STD, MIN, MAX, VAR, COV, MODE.
+ Typically called during cleanUpandSave
+       pldapsDefaultTrialFunction(p, p.trial.pldaps.trialStates.trialCleanUpandSave)
+
+   See also PDS.DATAPIXX.ADC.START, STD, MIN, MAX, VAR, COV, MODE.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../../matlabicon.gif)">
+<li><a href="getData.html" class="code" title="function p = getData(p)">pds.datapixx.adc.getData</a>	pds.datapixx.adc.getData    getData from the Datapixx buffer</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../../matlabicon.gif)">
+<li><a href="../../../../PLDAPS/@pldaps/replay.html" class="code" title="function p = replay(p,input)">@pldaps/replay</a>	replay    replay a previously recorded experiment on screen</li><li><a href="../../../../PLDAPS/@pldaps/run.html" class="code" title="function p = run(p)">@pldaps/run</a>	run    run a new experiment for a previuously created pldaps class</li></ul>
+<!-- crossreference -->
+
+<!-- parameterreference -->
+<h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+This function uses these parameters:
+<ul >
+<li><a href="../../../../Parameters/datapixx/adc/channels.html" class="code" title="List of channels to collect data from.">.datapixx.adc.channels:</a>	
+        <a href="#_line0028" class="code"}">28 </a>List of channels to collect data from.</li><li><a href="../../../../Parameters/datapixx/use.html" class="code" title="enable control of VPixx devices">.datapixx.use:</a>	
+        <a href="#_line0028" class="code"}">28 </a>enable control of VPixx devices</li></ul>
+This function assigns these parameters:
+<ul>
+<li><a href="../../../../Parameters/datapixx/adc/stopDatapixxPreciseTime.html" class="code" title="">.datapixx.adc.stopDatapixxPreciseTime:</a>
+        <a href="#_line0041" class="code"}">41 </a></li><li><a href="../../../../Parameters/datapixx/adc/stopDatapixxTime.html" class="code" title="">.datapixx.adc.stopDatapixxTime:</a>
+        <a href="#_line0038" class="code"}">38 </a></li><li><a href="../../../../Parameters/datapixx/adc/stopPldapsTime.html" class="code" title="">.datapixx.adc.stopPldapsTime:</a>
+        <a href="#_line0039" class="code"}">39 </a></li></ul>
+<!-- parameterreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
+<div class="fragment"><pre><div id="_line0001" class="line">0001  <a name="_sub0" href="#_subfunctions" class="code">function p = stop(p)</a>
+</div><div id="_line0002" class="line">0002 <span class="comment">% stops datapixx data aquisition</span>
+</div><div id="_line0003" class="line">0003 <span class="comment">% [p] = PDS.DATAPIXX.ADC.STOP(p)</span>
+</div><div id="_line0004" class="line">0004 <span class="comment">%</span>
+</div><div id="_line0005" class="line">0005 <span class="comment">% The function should be called after AdcStart.</span>
+</div><div id="_line0006" class="line">0006 <span class="comment">% * AdcStart STARTS a continuous schedule of ADC data acquisition, stored</span>
+</div><div id="_line0007" class="line">0007 <span class="comment">%   on the datapixx buffer.</span>
+</div><div id="_line0008" class="line">0008 <span class="comment">% * AdcStop STOPS the recording and outputs the buffered data.</span>
+</div><div id="_line0009" class="line">0009 <span class="comment">%</span>
+</div><div id="_line0010" class="line">0010 <span class="comment">% parameters that are required by Datapixx are in the 'dp' struct.</span>
+</div><div id="_line0011" class="line">0011 <span class="comment">% INPUTS</span>
+</div><div id="_line0012" class="line">0012 <span class="comment">%   dp - struct</span>
+</div><div id="_line0013" class="line">0013 <span class="comment">%    .srate - sampling rate</span>
+</div><div id="_line0014" class="line">0014 <span class="comment">%</span>
+</div><div id="_line0015" class="line">0015 <span class="comment">% ??/2012    lnk    Wrote it</span>
+</div><div id="_line0016" class="line">0016 <span class="comment">% 12/12/2013 jly    Renamed to pdsDatapixxAdcStop</span>
+</div><div id="_line0017" class="line">0017 <span class="comment">%   See also PDS.DATAPIXX.ADC.START, STD, MIN, MAX, VAR, COV, MODE.</span>
+</div><div id="_line0018" class="line">0018 <span class="comment">% Typically called during cleanUpandSave</span>
+</div><div id="_line0019" class="line">0019 <span class="comment">%       pldapsDefaultTrialFunction(p, p.trial.pldaps.trialStates.trialCleanUpandSave)</span>
+</div><div id="_line0020" class="line">0020 <span class="comment">%</span>
+</div><div id="_line0021" class="line">0021 <span class="comment">%   See also PDS.DATAPIXX.ADC.START, STD, MIN, MAX, VAR, COV, MODE.</span>
+</div><div id="_line0022" class="line">0022 
+</div><div id="_line0023" class="line">0023 <span class="comment">%TODO: why are the buffertimetags (second output of 'ReadAdcbuffer' not</span>
+</div><div id="_line0024" class="line">0024 <span class="comment">%saved??</span>
+</div><div id="_line0025" class="line">0025 <span class="comment">%according to the help, one should also use</span>
+</div><div id="_line0026" class="line">0026 <span class="comment">%Datapixx('GetAdcStatus').newBufferFrames to determine the actual number of</span>
+</div><div id="_line0027" class="line">0027 <span class="comment">%samples.</span>
+</div><div id="_line0028" class="line">0028 <span class="keyword">if</span> ~p.trial<a href="../../../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a> || isempty(p.trial<a href="../../../../Parameters/datapixx/adc/channels.html" class="param" title="List of channels to collect data from.">.datapixx.adc.channels</a>)
+</div><div id="_line0029" class="line">0029     <span class="keyword">return</span>;
+</div><div id="_line0030" class="line">0030 <span class="keyword">end</span>
+</div><div id="_line0031" class="line">0031 
+</div><div id="_line0032" class="line">0032 p = <a href="pds.datapixx.adc.getData.html" class="code" title="function p = getData(p)">pds.datapixx.adc.getData</a>(p);
+</div><div id="_line0033" class="line">0033 
+</div><div id="_line0034" class="line">0034 Datapixx(<span class="string">'StopAdcSchedule'</span>)
+</div><div id="_line0035" class="line">0035 Datapixx RegWrRd;
+</div><div id="_line0036" class="line">0036 
+</div><div id="_line0037" class="line">0037 <span class="comment">% timing:</span>
+</div><div id="_line0038" class="line">0038 p.trial<a href="../../../../Parameters/datapixx/adc/stopDatapixxTime.html" class="param" title="">.datapixx.adc.stopDatapixxTime</a> = Datapixx(<span class="string">'GetTime'</span>); <span class="comment">%GetSecs;</span>
+</div><div id="_line0039" class="line">0039 p.trial<a href="../../../../Parameters/datapixx/adc/stopPldapsTime.html" class="param" title="">.datapixx.adc.stopPldapsTime</a> = GetSecs;
+</div><div id="_line0040" class="line">0040 [getsecs, boxsecs, confidence] = PsychDataPixx(<span class="string">'GetPreciseTime'</span>);
+</div><div id="_line0041" class="line">0041 p.trial<a href="../../../../Parameters/datapixx/adc/stopDatapixxPreciseTime.html" class="param" title="">.datapixx.adc.stopDatapixxPreciseTime</a>(1:3) = [getsecs, boxsecs, confidence];
+</div></pre></div>
+<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
