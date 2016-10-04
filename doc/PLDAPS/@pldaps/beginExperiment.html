@@ -48,18 +48,18 @@ This function is called by:
 <h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 This function uses these parameters:
 <ul >
-<li><a href="../../Parameters/datapixx/use.html" class="code" title="enable control of VPixx devices">.datapixx.use:</a>	
-        <a href="#_line0023" class="code"}">23 </a>enable control of VPixx devices</li><li><a href="../../Parameters/eyelink/use.html" class="code" title="use the eyelink moduke">.eyelink.use:</a>	
-        <a href="#_line0027" class="code"}">27 </a>use the eyelink moduke</li><li><a href="../../Parameters/pldaps/version/logo.html" class="code" title="">.pldaps.version.logo:</a>	
-        <a href="#_line0017" class="code"}">17 </a></li><li><a href="../../Parameters/pldaps/version/name.html" class="code" title="">.pldaps.version.name:</a>	
-        <a href="#_line0016" class="code"}">16 </a></li></ul>
+<li><a href="../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use:</a>	
+        <a href="#_line0024" class="code"}">24 </a>enable control of VPixx devices</li><li><a href="../../Parameters/eyelink/use.html" class="param" title="use the eyelink moduke">.eyelink.use:</a>	
+        <a href="#_line0028" class="code"}">28 </a>use the eyelink moduke</li><li><a href="../../Parameters/pldaps/version/logo.html" class="param" title="">.pldaps.version.logo:</a>	
+        <a href="#_line0018" class="code"}">18 </a></li><li><a href="../../Parameters/pldaps/version/name.html" class="param" title="">.pldaps.version.name:</a>	
+        <a href="#_line0017" class="code"}">17 </a></li></ul>
 This function assigns these parameters:
 <ul>
-<li><a href="../../Parameters/datapixx/experimentStartDatapixx.html" class="code" title="">.datapixx.experimentStartDatapixx:</a>
-        <a href="#_line0024" class="code"}">24 </a></li><li><a href="../../Parameters/eyelink/experimentStartEyelink.html" class="code" title="">.eyelink.experimentStartEyelink:</a>
-        <a href="#_line0028" class="code"}">28 </a></li><li><a href="../../Parameters/pldaps/version/number.html" class="code" title="">.pldaps.version.number:</a>
-        <a href="#_line0015" class="code"}">15 </a></li><li><a href="../../Parameters/session/experimentStart.html" class="code" title="">.session.experimentStart:</a>
-        <a href="#_line0021" class="code"}">21 </a></li></ul>
+<li><a href="../../Parameters/datapixx/experimentStartDatapixx.html" class="param" title="">.datapixx.experimentStartDatapixx:</a>
+        <a href="#_line0025" class="code"}">25 </a></li><li><a href="../../Parameters/eyelink/experimentStartEyelink.html" class="param" title="">.eyelink.experimentStartEyelink:</a>
+        <a href="#_line0029" class="code"}">29 </a></li><li><a href="../../Parameters/pldaps/version/number.html" class="param" title="">.pldaps.version.number:</a>
+        <a href="#_line0016" class="code"}">16 </a></li><li><a href="../../Parameters/session/experimentStart.html" class="param" title="">.session.experimentStart:</a>
+        <a href="#_line0022" class="code"}">22 </a></li></ul>
 <!-- parameterreference -->
 
 
@@ -77,25 +77,26 @@ This function assigns these parameters:
 </div><div id="_line0010" class="line">0010 <span class="comment">% 01/2014 jly   make sure Eyelink is connected before trying to get time</span>
 </div><div id="_line0011" class="line">0011 <span class="comment">%               from it</span>
 </div><div id="_line0012" class="line">0012 <span class="comment">% 05/2015 jk    adapted it to pldaps 4.1</span>
-</div><div id="_line0013" class="line">0013 
-</div><div id="_line0014" class="line">0014 <span class="comment">%% set version. make sure to also use the git version for finer control of subversions</span>
-</div><div id="_line0015" class="line">0015 p.defaultParameters<a href="../../Parameters/pldaps/version/number.html" class="param" title="">.pldaps.version.number</a>=4.1;
-</div><div id="_line0016" class="line">0016 p.defaultParameters<a href="../../Parameters/pldaps/version/name.html" class="param" title="">.pldaps.version.name</a>=<span class="string">'casual'</span>;
-</div><div id="_line0017" class="line">0017 p.defaultParameters<a href="../../Parameters/pldaps/version/logo.html" class="param" title="">.pldaps.version.logo</a>=<span class="string">'http://www.digitalmomblog.com/wp-content/uploads/2012/06/baby-platypus.jpg'</span>;
-</div><div id="_line0018" class="line">0018 
+</div><div id="_line0013" class="line">0013 <span class="comment">% 10/2016 jk    bumped version to 4.2</span>
+</div><div id="_line0014" class="line">0014 
+</div><div id="_line0015" class="line">0015 <span class="comment">%% set version. make sure to also use the git version for finer control of subversions</span>
+</div><div id="_line0016" class="line">0016 p.defaultParameters<a href="../../Parameters/pldaps/version/number.html" class="param" title="">.pldaps.version.number</a>=4.2;
+</div><div id="_line0017" class="line">0017 p.defaultParameters<a href="../../Parameters/pldaps/version/name.html" class="param" title="">.pldaps.version.name</a>=<span class="string">'openreception'</span>;
+</div><div id="_line0018" class="line">0018 p.defaultParameters<a href="../../Parameters/pldaps/version/logo.html" class="param" title="">.pldaps.version.logo</a>=<span class="string">'http://www.digitalmomblog.com/wp-content/uploads/2012/06/baby-platypus.jpg'</span>;
 </div><div id="_line0019" class="line">0019 
-</div><div id="_line0020" class="line">0020 <span class="comment">%multiple sessions not supported for now</span>
-</div><div id="_line0021" class="line">0021 p.defaultParameters<a href="../../Parameters/session/experimentStart.html" class="param" title="">.session.experimentStart</a> = GetSecs; 
-</div><div id="_line0022" class="line">0022 
-</div><div id="_line0023" class="line">0023 <span class="keyword">if</span> p.defaultParameters<a href="../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a> &amp;&amp; Datapixx(<span class="string">'IsReady'</span>)
-</div><div id="_line0024" class="line">0024     p.defaultParameters<a href="../../Parameters/datapixx/experimentStartDatapixx.html" class="param" title="">.datapixx.experimentStartDatapixx</a> = Datapixx(<span class="string">'GetTime'</span>);
-</div><div id="_line0025" class="line">0025 <span class="keyword">end</span>
-</div><div id="_line0026" class="line">0026 
-</div><div id="_line0027" class="line">0027 <span class="keyword">if</span> p.defaultParameters<a href="../../Parameters/eyelink/use.html" class="param" title="use the eyelink moduke">.eyelink.use</a> &amp;&amp; Eyelink(<span class="string">'IsConnected'</span>)
-</div><div id="_line0028" class="line">0028     p.defaultParameters<a href="../../Parameters/eyelink/experimentStartEyelink.html" class="param" title="">.eyelink.experimentStartEyelink</a> = Eyelink(<span class="string">'TrackerTime'</span>);
-</div><div id="_line0029" class="line">0029     Eyelink(<span class="string">'message'</span>, <span class="string">'BEGINEXPERIMENT'</span>);
-</div><div id="_line0030" class="line">0030 <span class="keyword">end</span>
+</div><div id="_line0020" class="line">0020 
+</div><div id="_line0021" class="line">0021 <span class="comment">%multiple sessions not supported for now</span>
+</div><div id="_line0022" class="line">0022 p.defaultParameters<a href="../../Parameters/session/experimentStart.html" class="param" title="">.session.experimentStart</a> = GetSecs; 
+</div><div id="_line0023" class="line">0023 
+</div><div id="_line0024" class="line">0024 <span class="keyword">if</span> p.defaultParameters<a href="../../Parameters/datapixx/use.html" class="param" title="enable control of VPixx devices">.datapixx.use</a> &amp;&amp; Datapixx(<span class="string">'IsReady'</span>)
+</div><div id="_line0025" class="line">0025     p.defaultParameters<a href="../../Parameters/datapixx/experimentStartDatapixx.html" class="param" title="">.datapixx.experimentStartDatapixx</a> = Datapixx(<span class="string">'GetTime'</span>);
+</div><div id="_line0026" class="line">0026 <span class="keyword">end</span>
+</div><div id="_line0027" class="line">0027 
+</div><div id="_line0028" class="line">0028 <span class="keyword">if</span> p.defaultParameters<a href="../../Parameters/eyelink/use.html" class="param" title="use the eyelink moduke">.eyelink.use</a> &amp;&amp; Eyelink(<span class="string">'IsConnected'</span>)
+</div><div id="_line0029" class="line">0029     p.defaultParameters<a href="../../Parameters/eyelink/experimentStartEyelink.html" class="param" title="">.eyelink.experimentStartEyelink</a> = Eyelink(<span class="string">'TrackerTime'</span>);
+</div><div id="_line0030" class="line">0030     Eyelink(<span class="string">'message'</span>, <span class="string">'BEGINEXPERIMENT'</span>);
+</div><div id="_line0031" class="line">0031 <span class="keyword">end</span>
 </div></pre></div>
-<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 03-Oct-2016 21:23:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

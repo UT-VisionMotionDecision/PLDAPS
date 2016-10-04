@@ -1,10 +1,13 @@
-PLDAPS 4.1
+PLDAPS 4.2
 ==========
 
 PLexon DAtapixx PSychtoolbox - Neurophysiology experiment toolbox for MATLAB
 
-Version 4.1 incorporates some larger changes that will break previous code. 
-The new concept attempts to preserve and extend the flexibility of PLDAPS while allowing 
+Version 4.1 incorporated some larger changes that will break previous code. 
+Version 4.2 is fully compatible with 4.1 but adds a new, cleaner trial function that allows 
+for a modularization of pldaps for new software components and potentially also for stimulus interactions.
+
+In 4.1 the new concept attempts to preserve and extend the flexibility of PLDAPS while allowing 
 to reduce code multiplication when desired. 
 It is still possible to copy code, but it provides a framework that makes it unneccessary. 
 This has the advantage that bugs do not have to be fixed in many many files but just once.
@@ -20,10 +23,19 @@ a new experiment can be setup without this knowledge.
   PTB tends to be outdated.
 - For a recording rig, all basic testing should be done (e.g. VBLSyncTest with and without datapixx, etc)
 
-%% get started
+%% get started / installation
 
-To start, copy the function loadPLDAPS to a place in your path and edit the 'dirs' to include at least the 
-path to PLDAPS. Next call loadPLDAPS, so that it is included in your path.
+Create a local copy of PLDAPS by cloning the git repository and select the version 4.2 branch (openreception).
+In a terminal window, first go to the directory in which you want the PLDAPS directory to reside in.
+
+    git clone https://github.com/HukLab/PLDAPS.git
+    git checkout openreception
+
+Now start Matlab and copy the function loadPLDAPS_template.m copy the function loadPLDAPS_template.
+to a place in your path (e.g. your Matlab start folder), rename it to loadPLDAPS.m and edit the 'dirs' 
+to include at least the path you just installed PLDAPS in. 
+Now whenever you want to include PLDAPS in your path, just call
+    loadPLDAPS
 
 Framework:
 %% pldaps
