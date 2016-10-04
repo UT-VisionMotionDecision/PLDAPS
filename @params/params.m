@@ -27,27 +27,34 @@ classdef params < handle
         
         Snew1
 
+        helpStruct
         profile
     end
     
     methods 
 
         %% start new functions for new approach
-        function p=params(s,sN,active,profile)
+        function p=params(s,sN,active)
             if nargin<2
             	sN=cellfun(@(x) sprintf('level%i',x),num2cell(1:length(s)),'UniformOutput',false);
             end
             if nargin<3
             	active=true(1,length(s));
             end
-            if nargin<4
-                profile=false;
-            end
-            p.profile=profile;
+            p.profile=false;
             p=addStructs(p,s,sN,active);
  
             p.MethodsList={'view', 'setLevels','getAllLevels', 'mergeToSingleStruct','getDifferenceFromStruct','addLevels','addStructs','addNewStruct', 'getAllStructs','setLock','getParameter','fieldnames'};
             p.Snew1= substruct('.','structs','{}', {NaN});
+            
+            if isempty(p.helpStruct)
+                p.helpStruct.identifier='';
+                p.helpStruct.help='';
+                p.helpStruct.get=[];
+                p.helpStruct.set=[];
+                p.helpStruct.isNode=false;
+                p.helpStruct(1)=[];
+            end
         end %params(s,sN)
         
         % Overload fieldnames retrieval
@@ -108,12 +115,11 @@ classdef params < handle
             if p.profile
                 st=dbstack('-completenames');
                 st=st(find(~strncmp({st.name},mfilename, length(mfilename)), 1,'first'));
-                [fs.set]=deal(params.addToHelpStack([],st));
-            else
-                [fs.set]=deal([]);
+                if ~isempty(st)
+                    st=st(1);
+                    assignHelp(p,{fs.identifier}, [],repmat({st},length(fs),1) ,[]);
+                end
             end
-            [fs.get]=deal([]);
-            [fs.help]=deal('');
             
             %now merge with the current masterFlatStruct:
             if(isempty(p.flatStruct))
@@ -150,28 +156,47 @@ classdef params < handle
 
         function assignHelp(p,fieldnames, h,s,g)
             for ih=1:length(fieldnames)
-                idx = find(strcmp(fieldnames{ih},{p.flatStruct.identifier}));
+                if isempty(fieldnames{ih}) || fieldnames{ih}(1)~='.'
+                    fieldnames{ih}=['.' fieldnames{ih}];
+                end
+                idx = find(strcmp(fieldnames{ih},{p.helpStruct.identifier}));
                 if isempty(idx)
-                    warning('%s does not exist, ignoring...', fieldnames{ih});
-                    continue;
+%                     warning('%s does not exist, ignoring...', fieldnames{ih});
+%                     continue;
+                    idx=length(p.helpStruct)+1;
+                    p.helpStruct(idx).identifier=fieldnames{ih};
+                    p.helpStruct(idx).help='';
+                    p.helpStruct(idx).set=[];
+                    p.helpStruct(idx).get=[];
+                    p.helpStruct(idx).isNode=false;
+                    if ~strcmp(fieldnames{ih},'.')
+                        p.helpStruct(idx).parentLevels = strsplit(fieldnames{ih},'.');
+                        p.helpStruct(idx).parentLevels = p.helpStruct(idx).parentLevels(2:end);
+                    else
+                        p.helpStruct(idx).parentLevels={}; 
+                    end
                 end
                 if ~isempty(h) && ~isempty(h{ih})
-                    p.flatStruct(idx).help=h{ih};
+                    p.helpStruct(idx).help=h{ih};
                 end
                 if nargin>3 && ~isempty(s) && ~isempty(s{ih})
-                    p.flatStruct(idx).set=params.addToHelpStack(p.flatStruct(idx).set,s{ih});
+                    p.helpStruct(idx).set=params.addToHelpStack(p.helpStruct(idx).set,s{ih});
                 end
                 if nargin>4 && ~isempty(g) && ~isempty(g{ih})
-                    p.flatStruct(idx).get=params.addToHelpStack(p.flatStruct(idx).get,g{ih});
+                    p.helpStruct(idx).get=params.addToHelpStack(p.helpStruct(idx).get,g{ih});
                 end
             end
+            
+            isNode=num2cell(cellfun(@(x) sum(strncmp({p.helpStruct.identifier},[x '.'],length(x)+1)), {p.helpStruct.identifier})~=0);
+            isNode{strcmp('.',{p.helpStruct.identifier})}=true;
+            [p.helpStruct.isNode]=deal(isNode{:});
         end
         
         function [fieldnames,h,s,g] =retrieveHelp(p)
-            fieldnames={p.flatStruct.identifier};
-            h={p.flatStruct.help};
-            s={p.flatStruct.set};
-            g={p.flatStruct.get};
+            fieldnames={p.helpStruct.identifier};
+            h={p.helpStruct.help};
+            s={p.helpStruct.set};
+            g={p.helpStruct.get};
             remove=cellfun(@isempty,h)&cellfun(@length,s)<2&cellfun(@isempty,g);
             fieldnames(remove)=[];
             h(remove)=[];
@@ -180,32 +205,35 @@ classdef params < handle
         end
 
         function help(p, fieldname)
-            if(fieldname(1)~='.')
+            if nargin<2
+                fieldname='.';
+            end
+            if(isempty(fieldname) || fieldname(1)~='.')
                 fieldname=['.' fieldname];
             end
 
-            idx = find(strcmp(fieldname,{p.flatStruct.identifier}));
+            idx = find(strcmp(fieldname,{p.helpStruct.identifier}));
             if isempty(idx)
                 warning('%s does not exist', fieldname);
                 return;
             end
 
-            helptext=strrep(p.flatStruct(idx).help,'\n', '\n  ');
+            helptext=strrep(p.helpStruct(idx).help,'\n', '\n  ');
             fprintf(['\n<strong>%s</strong>\t ' helptext '\n'],fieldname);
-            if p.flatStruct(idx).isNode
+            if p.helpStruct(idx).isNode
                 display('  Subfields:');
                 printsubparameters(p, fieldname)
             else
                 display('  Assigned by:');
-                if ~isempty(p.flatStruct(idx).set)
-                    lengths=cellfun(@length,{p.flatStruct(idx).set.name});
+                if ~isempty(p.helpStruct(idx).set)
+                    lengths=cellfun(@length,{p.helpStruct(idx).set.name});
                     max_length=max(lengths);
-                    for is=1:length(p.flatStruct(idx).set)
-                        fprintf('\t<a href="matlab:matlab.internal.language.introspective.errorDocCallback(''%s'',''%s'')">%s</a>',p.flatStruct(idx).set(is).name,which([p.flatStruct(idx).set(is).name p.flatStruct(idx).set(is).extension]),p.flatStruct(idx).set(is).name)
+                    for is=1:length(p.helpStruct(idx).set)
+                        fprintf('\t<a href="matlab:matlab.internal.language.introspective.errorDocCallback(''%s'',''%s'')">%s</a>',p.helpStruct(idx).set(is).name,which([p.helpStruct(idx).set(is).name]),p.helpStruct(idx).set(is).name)
                         fprintf('%s\tLines: ', repmat(' ', 1,max_length-lengths(is)))
-                        for ls=1:length(p.flatStruct(idx).set(is).line)
-                            fprintf('<a href="matlab: opentoline(''%s'',%i)">%i</a>',which([p.flatStruct(idx).set(is).name]),p.flatStruct(idx).set(is).line(ls),p.flatStruct(idx).set(is).line(ls));
-                            if ls==length(p.flatStruct(idx).set(is).line)
+                        for ls=1:length(p.helpStruct(idx).set(is).line)
+                            fprintf('<a href="matlab: opentoline(''%s'',%i)">%i</a>',which([p.helpStruct(idx).set(is).name]),p.helpStruct(idx).set(is).line(ls),p.helpStruct(idx).set(is).line(ls));
+                            if ls==length(p.helpStruct(idx).set(is).line)
                                 fprintf('\n');
                             else
                                 fprintf(',');
@@ -214,15 +242,15 @@ classdef params < handle
                     end
                 end
                 display('  Used by:');
-                if ~isempty(p.flatStruct(idx).get)
-                    lengths=cellfun(@length,{p.flatStruct(idx).get.name});
+                if ~isempty(p.helpStruct(idx).get)
+                    lengths=cellfun(@length,{p.helpStruct(idx).get.name});
                     max_length=max(lengths);
-                    for is=1:length(p.flatStruct(idx).get)
-                        fprintf('\t<a href="matlab:matlab.internal.language.introspective.errorDocCallback(''%s'',''%s'')">%s</a>',p.flatStruct(idx).get(is).name,which([p.flatStruct(idx).get(is).name p.flatStruct(idx).get(is).extension]),p.flatStruct(idx).get(is).name)
+                    for is=1:length(p.helpStruct(idx).get)
+                        fprintf('\t<a href="matlab:matlab.internal.language.introspective.errorDocCallback(''%s'',''%s'')">%s</a>',p.helpStruct(idx).get(is).name,which([p.helpStruct(idx).get(is).name]),p.helpStruct(idx).get(is).name)
                         fprintf('%s\tLines: ', repmat(' ', 1,max_length-lengths(is)))
-                        for ls=1:length(p.flatStruct(idx).get(is).line)
-                            fprintf('<a href="matlab: opentoline(''%s'',%i)">%i</a>',which([p.flatStruct(idx).get(is).name]),p.flatStruct(idx).get(is).line(ls),p.flatStruct(idx).get(is).line(ls));
-                            if ls==length(p.flatStruct(idx).get(is).line)
+                        for ls=1:length(p.helpStruct(idx).get(is).line)
+                            fprintf('<a href="matlab: opentoline(''%s'',%i)">%i</a>',which([p.helpStruct(idx).get(is).name]),p.helpStruct(idx).get(is).line(ls),p.helpStruct(idx).get(is).line(ls));
+                            if ls==length(p.helpStruct(idx).get(is).line)
                                 fprintf('\n');
                             else
                                 fprintf(',');
@@ -364,13 +392,12 @@ classdef params < handle
                         id=[k{:}];
 
                         if p.profile
-                            match_location=find(strcmp({p.flatStruct.identifier},id));
                             if ~isempty(match_location)
                                 st=dbstack('-completenames');
-                                st=st(find(~strncmp({st.name},mfilename, length(mfilename)), 1,'first'));
+                                st=st(find(~strncmp({st.name},mfilename, length(mfilename)), 1,'first'));    
                                 if ~isempty(st)
                                     st=st(1);
-                                    p.flatStruct(match_location).get=params.addToHelpStack(p.flatStruct(match_location).get,st);
+                                    assignHelp(p,fieldnames, [],[],{st});
                                 end
                             end
                         end
@@ -459,13 +486,12 @@ classdef params < handle
                     id=sprintf('.%s',S(1:dotNr).subs);   
 
                     if p.profile
-                        match_location=find(strcmp({p.flatStruct.identifier},id));
                         if ~isempty(match_location)
                             st=dbstack('-completenames');
                             st=st(find(~strncmp({st.name},mfilename, length(mfilename)), 1,'first'));    
                             if ~isempty(st)
                                 st=st(1);
-                                p.flatStruct(match_location).set=params.addToHelpStack(p.flatStruct(match_location).set,st);
+                                assignHelp(p,fieldnames, [],{st},[]);
                             end
                         end
                     end
@@ -516,12 +542,11 @@ classdef params < handle
                     if p.profile
                         st=dbstack('-completenames');
                         st=st(find(~strncmp({st.name},mfilename, length(mfilename)), 1,'first'));
-                        [addFlatStruct.set]=deal(params.addToHelpStack([],st));
-                    else
-                        [addFlatStruct.set]=deal([]);
+                        if ~isempty(st)
+                            st=st(1);
+                            assignHelp(p,{addFlatStruct.identifier}, [],repmat({st},length(addFlatStruct),1) ,[]);
+                        end
                     end
-                    [addFlatStruct.get]=deal([]);
-                    [addFlatStruct.help]=deal('');
 
                     [overruled, overruledPos]=ismember({addFlatStruct.identifier},{p.flatStruct.identifier});
 
@@ -657,7 +682,7 @@ classdef params < handle
                     if length(value)>1
                         vs = [ '[ ' vs ' ]' ];
                     else
-                        vs = vs;
+                        vs = vs; %#ok<ASGSL>
                     end
                 else
                      vs = '[ ]';
@@ -718,7 +743,7 @@ classdef params < handle
                     else
                         function_location=find(strcmp({old.name}, st.name));
                         if isempty(function_location)
-                            old(end+1)=st;
+                            old(end+1)=st; %#ok<AGROW>
                         else
                             line_location=(st.line==old(function_location).line);
                             if ~any(line_location)
