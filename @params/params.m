@@ -733,7 +733,7 @@ classdef params < handle
         %                             st.name=[sfile{:} st.name];
                         sfile(strncmp(sfile,'+',1))=cellfun(@(x) [x(2:end) '.'], sfile(strncmp(sfile,'+',1)), 'UniformOutput', false);
                         sfile(strncmp(sfile,'@',1))=cellfun(@(x) [x(2:end) '/'], sfile(strncmp(sfile,'@',1)), 'UniformOutput', false);
-                        [~,st.name,st.extension]=fileparts(st.file);
+                        [~,st.name]=fileparts(st.file);
                         st.name=[sfile{first_class:end-1} st.name];
     %                     st.name=[sfile{first_class:end}];
                         st=rmfield(st,'file');
