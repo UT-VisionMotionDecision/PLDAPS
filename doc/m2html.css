@@ -27,6 +27,11 @@ div.line:target {
     background-color: #D7D7BB;
 }
 
+.description {
+	white-space: pre-wrap;
+	color: #228B22;
+}
+
 .comment {
 	color: #228B22;
 }
