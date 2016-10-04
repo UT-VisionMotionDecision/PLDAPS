@@ -17,7 +17,7 @@
 <!--<table width="100%"><tr><td align="left"><a href="../../../../index.html"><img alt="<" border="0" src="../../../../left.png">&nbsp;Master index</a></td>
 <td align="right"><a href="index.html">Index for PLDAPS/+pds/+plexon/+spikeserver&nbsp;<img alt=">" border="0" src="../../../../right.png"></a></td></tr></table>-->
 
-<h1>getSpikes
+<h1>pds.plexon.spikeserver.getSpikes
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
@@ -27,7 +27,7 @@
 <div class="box"><strong>function [p, spikes] = getSpikes(p) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
-<div class="fragment"><pre class="comment">pds.plexon.spikeserver.getSpikes   get data from the spikeserver
+<div class="fragment"><pre class="description">pds.plexon.spikeserver.getSpikes   get data from the spikeserver
 
  p = pds.plexon.spikeserver.getSpikes(p)
  reads spikes from the udp connection 
@@ -49,23 +49,23 @@ This function is called by:
 <h2><a name="_cross"></a>PARAMETER USAGE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../../up.png"></a></h2>
 This function uses these parameters:
 <ul >
-<li><a href="../../../../Parameters/plexon/nanpositions.html" class="code" title="">.plexon.nanpositions:</a>	
-        <a href="#_line0029" class="code"}">29 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/remoteip.html" class="code" title="IP of the plexon machine">.plexon.spikeserver.remoteip:</a>	
-        <a href="#_line0012" class="code"}">12 </a>IP of the plexon machine</li><li><a href="../../../../Parameters/plexon/spikeserver/remoteport.html" class="code" title="Port set on the plexon machine's spikeserver">.plexon.spikeserver.remoteport:</a>	
-        <a href="#_line0012" class="code"}">12 </a>Port set on the plexon machine's spikeserver</li><li><a href="../../../../Parameters/plexon/spikeserver/selfip.html" class="code" title="This machine's IP">.plexon.spikeserver.selfip:</a>	
-        <a href="#_line0012" class="code"}">12 </a>This machine's IP</li><li><a href="../../../../Parameters/plexon/spikeserver/selfport.html" class="code" title="The port this machine should use">.plexon.spikeserver.selfport:</a>	
-        <a href="#_line0012" class="code"}">12 </a>The port this machine should use</li><li><a href="../../../../Parameters/plexon/spikeserver/sock.html" class="code" title="">.plexon.spikeserver.sock:</a>	
-        <a href="#_line0012" class="code"}">12 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/spikeCount.html" class="code" title="">.plexon.spikeserver.spikeCount:</a>	
-        <a href="#_line0017" class="code"}">17 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/t0.html" class="code" title="">.plexon.spikeserver.t0:</a>	
-        <a href="#_line0012" class="code"}">12 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/use.html" class="code" title="toggle use of our plexon spikeserver">.plexon.spikeserver.use:</a>	
+<li><a href="../../../../Parameters/plexon/nanpositions.html" class="param" title="">.plexon.nanpositions:</a>	
+        <a href="#_line0029" class="code"}">29 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/remoteip.html" class="param" title="IP of the plexon machine">.plexon.spikeserver.remoteip:</a>	
+        <a href="#_line0012" class="code"}">12 </a>IP of the plexon machine</li><li><a href="../../../../Parameters/plexon/spikeserver/remoteport.html" class="param" title="Port set on the plexon machine's spikeserver">.plexon.spikeserver.remoteport:</a>	
+        <a href="#_line0012" class="code"}">12 </a>Port set on the plexon machine's spikeserver</li><li><a href="../../../../Parameters/plexon/spikeserver/selfip.html" class="param" title="This machine's IP">.plexon.spikeserver.selfip:</a>	
+        <a href="#_line0012" class="code"}">12 </a>This machine's IP</li><li><a href="../../../../Parameters/plexon/spikeserver/selfport.html" class="param" title="The port this machine should use">.plexon.spikeserver.selfport:</a>	
+        <a href="#_line0012" class="code"}">12 </a>The port this machine should use</li><li><a href="../../../../Parameters/plexon/spikeserver/sock.html" class="param" title="">.plexon.spikeserver.sock:</a>	
+        <a href="#_line0012" class="code"}">12 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/spikeCount.html" class="param" title="">.plexon.spikeserver.spikeCount:</a>	
+        <a href="#_line0017" class="code"}">17 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/t0.html" class="param" title="">.plexon.spikeserver.t0:</a>	
+        <a href="#_line0012" class="code"}">12 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/use.html" class="param" title="toggle use of our plexon spikeserver">.plexon.spikeserver.use:</a>	
         <a href="#_line0011" class="code"}">11 </a>toggle use of our plexon spikeserver</li></ul>
 This function assigns these parameters:
 <ul>
-<li><a href="../../../../Parameters/plexon/filename.html" class="code" title="">.plexon.filename:</a>
-        <a href="#_line0025" class="code"}">25 </a></li><li><a href="../../../../Parameters/plexon/nanpositions.html" class="code" title="">.plexon.nanpositions:</a>
-        <a href="#_line0029" class="code"}">29 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/sock.html" class="code" title="">.plexon.spikeserver.sock:</a>
-        <a href="#_line0013" class="code"}">13 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/spikeCount.html" class="code" title="">.plexon.spikeserver.spikeCount:</a>
-        <a href="#_line0016" class="code"}">16 </a>    <a href="#_line0016" class="code"}">16 </a>    <a href="#_line0017" class="code"}">17 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/spikes.html" class="code" title="">.plexon.spikeserver.spikes:</a>
+<li><a href="../../../../Parameters/plexon/filename.html" class="param" title="">.plexon.filename:</a>
+        <a href="#_line0025" class="code"}">25 </a></li><li><a href="../../../../Parameters/plexon/nanpositions.html" class="param" title="">.plexon.nanpositions:</a>
+        <a href="#_line0029" class="code"}">29 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/sock.html" class="param" title="">.plexon.spikeserver.sock:</a>
+        <a href="#_line0013" class="code"}">13 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/spikeCount.html" class="param" title="">.plexon.spikeserver.spikeCount:</a>
+        <a href="#_line0016" class="code"}">16 </a>    <a href="#_line0016" class="code"}">16 </a>    <a href="#_line0017" class="code"}">17 </a></li><li><a href="../../../../Parameters/plexon/spikeserver/spikes.html" class="param" title="">.plexon.spikeserver.spikes:</a>
         <a href="#_line0016" class="code"}">16 </a></li></ul>
 <!-- parameterreference -->
 
@@ -104,6 +104,9 @@ This function assigns these parameters:
 </div><div id="_line0030" class="line">0030     <span class="keyword">end</span>
 </div><div id="_line0031" class="line">0031 <span class="keyword">end</span>
 </div></pre></div>
-<hr><address>Generated on Mon 03-Oct-2016 11:54:57 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005
+<br>
+check <strong><a href="../../../../index.html">here</a></strong> date of last update.
+<br></address>
 </body>
 </html>
