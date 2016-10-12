@@ -30,7 +30,7 @@ try
     % pick YOUR experiment's main CONDITION file-- this is where all
     % expt-specific stuff emerges from
     if isempty(p.defaultParameters.session.experimentSetupFile)
-        [cfile, cpath] = uigetfile('*.m', 'choose condition file', [base '/CONDITION/debugcondition.m']); %#ok<NASGU>
+        [cfile] = uigetfile('*.m', 'choose condition file'); 
         
         dotm = strfind(cfile, '.m');
         if ~isempty(dotm)

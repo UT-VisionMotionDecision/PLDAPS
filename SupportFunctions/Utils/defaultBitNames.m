@@ -1,5 +1,5 @@
-function dv = defaultBitNames(dv)
-% dv = defaultBitNames(dv)
+function p = defaultBitNames(p)
+% p = defaultBitNames(p)
 % defaultBitNames adds .events.NAME to dv
 % The MAP server can only take 7 unique bits. BIT names are:
 %   1. FIXATION
@@ -12,11 +12,11 @@ function dv = defaultBitNames(dv)
 
 % 12/12/2013 jly    Wrote it
 
-dv.defaultParameters.event.FIXATION  = 1;
-dv.defaultParameters.event.STIMULUS  = 2;
-dv.defaultParameters.event.TARGS     = 3;
-dv.defaultParameters.event.REWARD    = 4;
-dv.defaultParameters.event.BREAKFIX  = 5;
-dv.defaultParameters.event.TRIALEND  = 6;
-dv.defaultParameters.event.CHOICE    = 8;
-dv.defaultParameters.event.TRIALSTART = 7;
+p.defaultParameters.event.FIXATION  = 1;
+p.defaultParameters.event.STIMULUS  = 2;
+p.defaultParameters.event.TARGS     = 3;
+p.defaultParameters.event.REWARD    = 4;
+p.defaultParameters.event.BREAKFIX  = 5;
+p.defaultParameters.event.TRIALEND  = 6;
+p.defaultParameters.event.CHOICE    = 8;
+p.defaultParameters.event.TRIALSTART = 7;
