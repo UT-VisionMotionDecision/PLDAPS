@@ -78,8 +78,11 @@ function s=pldapsClassDefaultParameters(s)
  s.	git.	use = false;
 
 %s.	mouse.
+ s.	mouse.	initialCoordinates = [];
  s.	mouse.	use = true;
  s.	mouse.	useAsEyepos = false;
+ s.	mouse.	useLocalCoordinates = false;
+ s.	mouse.	windowPtr = [ ];
 
 %s.	newEraSyringePump.
  s.	newEraSyringePump.	alarmMode = 1;

@@ -115,6 +115,13 @@ try
             p = pds.datapixx.init(p);
             
             pds.keyboard.setup(p);
+
+            if p.trial.mouse.useLocalCoordinates
+                p.trial.mouse.windowPtr=p.trial.display.ptr;
+            end
+            if ~isempty(p.trial.mouse.initialCoordinates)
+                SetMouse(p.trial.mouse.initialCoordinates(1),p.trial.mouse.initialCoordinates(2),p.trial.mouse.windowPtr)
+            end
     
             if p.trial.pldaps.useModularStateFunctions
                 [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);

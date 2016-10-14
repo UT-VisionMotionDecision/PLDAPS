@@ -88,7 +88,7 @@ end
         end
         % get mouse/eyetracker data
         if p.trial.mouse.use
-            [cursorX,cursorY,isMouseButtonDown] = GetMouse(); % ktz - added isMouseButtonDown, 28Mar2013
+            [cursorX,cursorY,isMouseButtonDown] = GetMouse(p.trial.mouse.windowPtr); % ktz - added isMouseButtonDown, 28Mar2013
             p.trial.mouse.samples = p.trial.mouse.samples+1;
             p.trial.mouse.samplesTimes(p.trial.mouse.samples)=GetSecs;
             p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples) = [cursorX;cursorY];
