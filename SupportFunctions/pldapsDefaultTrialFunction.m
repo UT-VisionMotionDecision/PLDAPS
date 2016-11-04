@@ -111,6 +111,96 @@ end
         %get plexon spikes
 %         pds.plexon.spikeserver.getSpikes(p);
     end %frameUpdate
+
+    %%% replay inputs and check behavior%%%
+%---------------------------------------------------------------------%
+    function frameReplayUpdate(p)
+        %%TODO: add buffer for Keyboard presses, nouse position and clicks.
+
+        %Keyboard
+        kbIdx=find(p.data{p.trial.pldaps.iTrial}.keyboard.samplesFrames==p.trial.iFrame);
+        if ~isempty(kbIdx) %we did store information this frame
+           if length(kbIdx)>1 %we checked keyboard more than once, need to use samplesTimes
+               warning('Replay Keyboard: frameUpdate was called more than once, will use time of the current state to make guess which samples to use');
+               %or you could count. i.e. if it's the first call in this
+               %frame you use the first index, second second.....that's
+               %actually the safest...let's see how often this problem
+               %occurs
+               kxIdx=find(p.data{p.trial.pldaps.iTrial}.keyboard.samplesTimes< p.trial.ttime+ p.trial.trstart,1,'last');
+           end
+
+           p.trial.keyboard.pressedQ    = p.data{p.trial.pldaps.iTrial}.keyboard.pressedSamples(:,kxIdx);
+           p.trial.keyboard.firstPressQ = p.data{p.trial.pldaps.iTrial}.keyboard.firstPressSamples(:,kxIdx);
+           firstRelease                 = p.data{p.trial.pldaps.iTrial}.keyboard.firstReleaseSamples(:,kxIdx);
+           lastPress                    = p.data{p.trial.pldaps.iTrial}.keyboard.lastPressSamples(:,kxIdx);
+           lastRelease                  = p.data{p.trial.pldaps.iTrial}.keyboard.lastReleaseSamples(:,kxIdx);
+
+            if p.trial.keyboard.pressedQ || any(firstRelease)
+                p.trial.keyboard.samples = p.trial.keyboard.samples+1;
+                p.trial.keyboard.samplesTimes(p.trial.keyboard.samples)=GetSecs;
+                p.trial.keyboard.samplesFrames(p.trial.keyboard.samples)=p.trial.iFrame;
+                p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples)=p.trial.keyboard.pressedQ;
+                p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples)=p.trial.keyboard.firstPressQ;
+                p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples)=firstRelease;
+                p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples)=lastPress;
+                p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples)=lastRelease;
+            end
+
+            if any(p.trial.keyboard.firstPressQ)
+                if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.mKey)
+                      pds.behavior.reward.give(p);
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.pKey)   % P = pause
+                    p.trial.pldaps.quit = 1;
+                    ShowCursor;
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.qKey) % Q = quit
+                    p.trial.pldaps.quit = 2;
+                    ShowCursor
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) % d=debug
+                        disp('stepped into debugger. Type return to start first trial...')
+                        keyboard %#ok<MCKBD>
+                end
+            end
+        end
+
+        % get mouse/eyetracker data
+        if p.trial.mouse.use
+           %ttime is assigned oat the end of the state, so we will search for
+           %the last time that is smaller than this
+           mIdx=find(p.data{p.trial.pldaps.iTrial}.mouse.samplesTimes< p.trial.ttime+ p.trial.trstart,1,'last');
+           if ~isempty(mIdx)
+                cursorX           = p.data{p.trial.pldaps.iTrial}.mouse.cursorSamples(1,mIdx);
+                cursorY           = p.data{p.trial.pldaps.iTrial}.mouse.cursorSamples(2,mIdx);
+                isMouseButtonDown = p.data{p.trial.pldaps.iTrial}.mouse.buttonPressSamples(:,mIdx)';
+
+                p.trial.mouse.samples = p.trial.mouse.samples+1;
+                p.trial.mouse.samplesTimes(p.trial.mouse.samples)=GetSecs;
+                p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples) = [cursorX;cursorY];
+                p.trial.mouse.buttonPressSamples(:,p.trial.mouse.samples) = isMouseButtonDown';
+                if(p.trial.mouse.useAsEyepos)
+                    if p.trial.pldaps.eyeposMovAv==1
+                        p.trial.eyeX = p.trial.mouse.cursorSamples(1,p.trial.mouse.samples);
+                        p.trial.eyeY = p.trial.mouse.cursorSamples(2,p.trial.mouse.samples);
+                    else
+                        mInds=(p.trial.mouse.samples-p.trial.pldaps.eyeposMovAv+1):p.trial.mouse.samples;
+                        p.trial.eyeX = mean(p.trial.mouse.cursorSamples(1,mInds));
+                        p.trial.eyeY = mean(p.trial.mouse.cursorSamples(2,mInds));
+                    end
+                end
+           end
+        end
+        %get analogData from Datapixx
+        pds.datapixx.adc.replayData(p);
+        %get eyelink data
+        pds.eyelink.replayQueue(p);
+        
+        %allow old style definition of eye data:
+        if isfield(p.trial,'stimulus') && isfield(p.trial,'eyeXYs') ...
+                && size(p.data{p.trial.pldaps.iTrial}.stimulus.eyeXYs,2)>=p.trial.iFrame
+           p.trial.eyeX = p.data{p.trial.pldaps.iTrial}.stimulus.eyeXYs(1,p.trial.iFrame)+p.trial.display.pWidth/2;
+           p.trial.eyeY = p.data{p.trial.pldaps.iTrial}.stimulus.eyeXYs(2,p.trial.iFrame)+p.trial.display.pHeight/2; 
+        end
+    end %frameReplayUpdate
+
 % 
 %     function framePrepareDrawing(p)
 %     end %framePrepareDrawing
