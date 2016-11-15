@@ -210,4 +210,4 @@ elseif p.trial.display.useOverlay==2 % software overlay
     glBindTexture(GL.TEXTURE_RECTANGLE_EXT, 0);
 end
 
-
+Screen('Flip', p.trial.display.ptr, 0);

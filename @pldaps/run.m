@@ -375,7 +375,7 @@ try
     
 catch me
     sca
-    
+    PsychPortAudio('Close')
     % return cursor and command-line control
     ShowCursor
     ListenChar(0)
