@@ -23,12 +23,12 @@ function p=openephys(p,state,name)
             zeroMQrr('Send',url ,sprintf('PLDAPS newExperiment Setupfile %s',p.defaultParameters.session.experimentSetupFile));
             
             
-            p.trial.(name).status.acquiring = zeroMQrr('Send',url ,'IsAcquiring');
-            p.trial.(name).status.recording = zeroMQrr('Send',url ,'IsRecording');
+            p.trial.(name).status.acquiring = zeroMQrr('Send',url ,'IsAcquiring',1);
+            p.trial.(name).status.recording = zeroMQrr('Send',url ,'IsRecording',1);
             if(p.trial.(name).status.recording)
-                p.trial.(name).status.recordingPath = zeroMQrr('Send',url ,'GetRecordingPath');
-                p.trial.(name).status.recordingNumber = zeroMQrr('Send',url ,'getRecordingNumber');
-                p.trial.(name).status.experimentNumber = zeroMQrr('Send',url ,'getExperimentNumber');
+                p.trial.(name).status.recordingPath = zeroMQrr('Send',url ,'GetRecordingPath',1);
+                p.trial.(name).status.recordingNumber = zeroMQrr('Send',url ,'getRecordingNumber',1);
+                p.trial.(name).status.experimentNumber = zeroMQrr('Send',url ,'getExperimentNumber',1);
             else
                 p.trial.(name).status.recordingPath = '';
                 p.trial.(name).status.recordingNumber = NaN;
@@ -43,7 +43,7 @@ function p=openephys(p,state,name)
             case p.trial.pldaps.trialStates.experimentCleanUp
             %experiment cleanUp
             url=p.trial.(name).url;
-            zeroMQrr('Send',url ,sprintf('PLDAPS endExperiment File %s',p.defaultParameters.session.file));
+            zeroMQrr('Send',url ,sprintf('PLDAPS endExperiment File %s',p.defaultParameters.session.file),1);
             zeroMQrr('CloseThread',url);
             [tmp]=zeroMQrr('GetResponses');
             
