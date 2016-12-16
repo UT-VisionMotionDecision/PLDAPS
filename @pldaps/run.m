@@ -375,7 +375,9 @@ try
     
 catch me
     sca
-    PsychPortAudio('Close')
+    if p.defaultParameters.sound.use
+        PsychPortAudio('Close')
+    end
     % return cursor and command-line control
     ShowCursor
     ListenChar(0)
