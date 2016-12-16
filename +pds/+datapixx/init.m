@@ -113,6 +113,9 @@ if p.trial.display.useOverlay==1 % Datapixx overlay
         bgColor=p.trial.display.bgColor;
         if isField(p.trial, 'display.gamma.table')
             bgColor = interp1(linspace(0,1,256),p.trial.display.gamma.table(:,1), p.trial.display.bgColor);
+        elseif isField(p.trial, 'display.gamma.power')
+            % outcolor = incolor ^ EncodingGamma.
+            bgColor =  p.trial.display.bgColor .^ p.trial.display.gamma.power;
         end
         Datapixx('SetVideoClutTransparencyColor', bgColor);
         Datapixx('EnableVideoClutTransparencyColorMode');
@@ -136,6 +139,9 @@ if p.trial.display.useOverlay==1 % Datapixx overlay
             y = interp1(x,p.trial.display.gamma.table(:,1), combinedClut(:));
             % reshape the combined clut back to 512 x 3
             combinedClut = reshape(y, sc);
+        elseif isField(p.trial, 'display.gamma.power')            
+            combinedClut=combinedClut .^ p.trial.display.gamma.power;
+            
         end
 
         % WARNING about LoadNormalizedGammaTable from Mario Kleiner:
