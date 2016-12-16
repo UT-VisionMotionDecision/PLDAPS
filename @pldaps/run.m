@@ -375,7 +375,7 @@ try
     
 catch me
     sca
-    if p.defaultParameters.sound.use
+    if p.trial.sound.use
         PsychPortAudio('Close')
     end
     % return cursor and command-line control
