@@ -104,9 +104,16 @@ end
 % end
 disp('****************************************************************')
 disp('****************************************************************')
-disp('Adding DisplayColorCorrection LookUpTable to FinalFormatting')
+disp('Adding DisplayColorCorrection to FinalFormatting')
 disp('****************************************************************')
-PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTable');
+if isstruct(p.trial.display.gamma)
+    if isfield(p.trial.display.gamma, 'table')
+        PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTable');
+    elseif isfield(p.trial.display.gamma, 'power')
+        PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
+    end
+end
+
 
 %% Open double-buffered onscreen window with the requested stereo mode
 disp('****************************************************************')
@@ -236,7 +243,6 @@ if isField(p.trial, 'display.gamma')
         if isfield(p.trial.display.gamma, 'table')
             PsychColorCorrection('SetLookupTable', p.trial.display.ptr, p.trial.display.gamma.table, 'FinalFormatting');
         elseif isfield(p.trial.display.gamma, 'power')
-            PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
             PsychColorCorrection('SetEncodingGamma', p.trial.display.ptr, p.trial.display.gamma.power, 'FinalFormatting');
         end
     else
