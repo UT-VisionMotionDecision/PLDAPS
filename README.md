@@ -15,7 +15,7 @@ It also reduced the required knowledge to start the first experiemnts as a new u
 Of course over time, any user should be familiar with all code, but learning may be easier if
 a new experiment can be setup without this knowledge.
 
-%% before we start
+## Before we start
 - PLDAPS has only been tested on Matlab 2014b and 2015b on OSX 10.10. 
 - Psychtoolbox needs to be installed
 - If you are planning to use Datapixx, you should download a current version of the datapixx 
@@ -23,29 +23,30 @@ a new experiment can be setup without this knowledge.
   PTB tends to be outdated.
 - For a recording rig, all basic testing should be done (e.g. VBLSyncTest with and without datapixx, etc)
 
-%% get started / installation
+## Getting started / installation
 
 Create a local copy of PLDAPS by cloning the git repository and select the version 4.2 branch (openreception).
 In a terminal window, first go to the directory in which you want the PLDAPS directory to reside in.
 
+```
     git clone https://github.com/HukLab/PLDAPS.git
     git checkout openreception
+```
 
-Now start Matlab and copy the function loadPLDAPS_template.m copy the function loadPLDAPS_template.
-to a place in your path (e.g. your Matlab start folder), rename it to loadPLDAPS.m and edit the 'dirs' 
-to include at least the path you just installed PLDAPS in. 
+Now start Matlab and copy the function `loadPLDAPS_template.m` to a place in your path (e.g. your Matlab start folder), rename it to `loadPLDAPS.m` and edit the 'dirs' to include at least the path you just installed PLDAPS in. 
 Now whenever you want to include PLDAPS in your path, just call
-    loadPLDAPS
+    `loadPLDAPS`
 
-Framework:
-%% pldaps
-The core is a class called pldaps.
+## Framework:
+### pldaps
+The core is a class called `pldaps`.
 
-When a pldaps is created, it will load default parameters from different sources 
-into a field called defaultParameters. This is again a class (named @params) 
+When a `pldaps` is created, it will load default parameters from different sources 
+into a field called `defaultParameters`. This is again a class (named `@params`) 
 that can handle a hierarchy of parameters.
 Importantly, pldaps is a handle class, which allows reduction of some memory allocation. There are a couple of downsides to using handle classes (for one, it appears that storing function handles in a handle class reduces the performance.), but this appears to be the fastest easy way to be able to add data to a struct from inside a subfunction. It might be possible to go via a mex file to get real pointer behavior without the downsides of a handle class
 
+```Matlab
     %Specifically, assume you have an object p of type pldaps
     p=pldaps;
     %Any changes made to a copy of p, will also effect p, as they are in fact using the same memory.
@@ -54,6 +55,7 @@ Importantly, pldaps is a handle class, which allows reduction of some memory all
     display(p.defaultParameters.newParameter);
     %notice that I created a new Parameter newParameter in object p2, but 
     %but now you can also access it using p, because p2 und p are identical.
+```
 
 creating a pldaps class:
 The pldaps contructor accepts the following inputs, all are optional:
@@ -77,8 +79,9 @@ for the remaining unclassified inputs the above order is assumed.
 
 now the defaultParameters are loaded, but the experiment isn't starting yet, and the provided experiment function has not been called yet.
 
-%% pldaps.run
-pldaps.run implements an experiment that can interface with a number of external 
+## Running pldaps 
+###pldaps.run
+`pldaps.run` implements an experiment that can interface with a number of external 
 hardware devices and will call a trial function each trial.
 
 Of course there is no need to use this, if you wanted to run your own experiment script. But in that case there might not be any benefit of using this version of pldaps.
@@ -95,7 +98,7 @@ This function
 note: in later versions, p.conditions might actually only hold information about certain conditions and another field the info of what conditions to use in each trial.
 note: since the screen is already created, basic screen parameters like the backgound color must be defined before the p.run is called.
 
-%% pldaps.runTrial
+### pldaps.runTrial
 unless another function is specified in the parameters as the 
 p.defaultParameters.pldaps.trialMasterFunction
 it defaults to dv.defaultParameters.pldaps.trialMasterFunction="runTrial";
@@ -111,12 +114,12 @@ This is the only function that needs to be implemented by the user to take care 
 
 note: version 4.0 had a trialMasterFunction that instead took a class as a stimulus Function and had to have methods names frameUpdate to frameFlip. This is a cleaner, but might be more difficult for a matlab novice to understand. This is the reason for the change to the state function.
 
-%% pldapsDefaultTrialFunction
+### pldapsDefaultTrialFunction
 all basic features of pldaps from flipping the buffers to drawing the eye position of the experimentor screen are
 implemented in a function called pldapsDefaultTrialFunction
 To make use of these, this function must simply be called by your trialFunction.
 
-%% putting it all together
+## putting it all together
 ok, now you will run your first experiment and work your way back from the trialFunction
 to the core of pldaps.
 
