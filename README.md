@@ -154,31 +154,31 @@ ok, now you will run your first experiment and work your way back from the trial
 to the core of pldaps.
 
 
-    to start, copy the function `loadPLDAPS` to a place in your path and edit the 'dirs' to include at least the 
-    path to PLDAPS. Next call loadPLDAPS, so that it is included in your path.
-    
-    ```Matlab
-    loadPLDAPS
-    ```
+to start, copy the function `loadPLDAPS` to a place in your path and edit the 'dirs' to include at least the 
+path to PLDAPS. Next call loadPLDAPS, so that it is included in your path.
 
-    now load some settings that should allow to run pldaps in a small screen for now
-    
-    ```Matlab
-    > load settingsStruct;
-    ```
+```Matlab
+loadPLDAPS
+```
 
-    next creat a pldaps object and specify to use plain.m as the experiment file
-    set the subject to 'test'  and pass the struct we just loaded
-    
-    ```Matlab
-    p=pldaps(@plain,'test',settingsStruct)
-    ```
-    
-    now you have a pldaps object. To start the experiment, call
-    ```Matlab
-    p.run
-    ```
-    After the PTB window opens, you should now see a gray screen with a white grid in degrees of visual angle. When you move the cursor of the mouse, it will be drawn at a corresponding position in cyan on that screen. The screen is full gray for a short time every 5 seconds. Hit 'd' on the keyboard to step into the debugger. Look around, you are now in the `frameUpdate` function of if the `pldapsDefaultTrialFunction` where you can see, that 'q' will quit , 'm' would give a manual reward 'p' would end the trial give you a console to change defaultParameters for the next trials. To change paramers that are defined in the conditions, you would have to manually change the cells in `p.conditions{}` accoordingly.
+now load some settings that should allow to run pldaps in a small screen for now
+
+```Matlab
+> load settingsStruct;
+```
+
+next creat a pldaps object and specify to use plain.m as the experiment file
+set the subject to 'test'  and pass the struct we just loaded
+
+```Matlab
+p=pldaps(@plain,'test',settingsStruct)
+```
+
+now you have a pldaps object. To start the experiment, call
+```Matlab
+p.run
+```
+After the PTB window opens, you should now see a gray screen with a white grid in degrees of visual angle. When you move the cursor of the mouse, it will be drawn at a corresponding position in cyan on that screen. The screen is full gray for a short time every 5 seconds. Hit 'd' on the keyboard to step into the debugger. Look around, you are now in the `frameUpdate` function of if the `pldapsDefaultTrialFunction` where you can see, that 'q' will quit , 'm' would give a manual reward 'p' would end the trial give you a console to change defaultParameters for the next trials. To change paramers that are defined in the conditions, you would have to manually change the cells in `p.conditions{}` accoordingly.
 
 now lets step back up and understand why we see what we see:
 first load a new, fresh version of the object
@@ -193,6 +193,8 @@ now type in
 p.trial
 ```
 
+or
+
 ```
 p.defaultParameters
 ```
@@ -200,11 +202,11 @@ p.defaultParameters
 this has all settings loaded, and as long as we are not in a trial, 
 `p.trial` points to `p.defaultParameters`
    
-During a trial `p.trial` will be a struct that holds the merged parameters from `p.defaultParameters` for that trial
+During a trial, `p.trial` will be a struct that holds the merged parameters from `p.defaultParameters` for that trial
     
 you will see a list of fieldnames
     
-    I'll list them here
+I'll list them here
         
         display     <- all display parameters
         datapixx    <- parameters for datapixx, including options to record analog data (datapixx.adc)
@@ -270,7 +272,7 @@ dv.trial.pldaps.trialStates
     for each state. This means that all the default behavior will get executed, this includes fetching data from eyelink,datapixx,current mouse position, checking the keyboard (frameUpdate), but also drawing of the grid and eyeposition if the parameters are set to use.
     If you wanted to leave out this default behavior and do it all by yourself, that is possible, but currently a couple of things defined and allocated by `pldapsDefaultTrialFunction` are also used by the `runTrial` function, so we should either clean this up, or you call the `pldapsDefaultTrialFunction(p,state)` for the required states
 
- ok, now work with the debugger a bit to get a first idea of what's going on.
+ok, now work with the debugger a bit to get a first idea of what's going on.
 
 ## setting up rig specifig default settings
 Now you know the basics of the pldaps system. Let's set it up so it can start easily on your machine to run experiments. 
