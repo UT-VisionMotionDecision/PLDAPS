@@ -60,8 +60,8 @@ Any changes made to a copy of `p`, will also effect `p`, as they are in fact usi
     p2.defaultParameters.newParameter='I told you so';
     display(p.defaultParameters.newParameter);
 ```
-notice that I created a new Parameter newParameter in object p2, but 
-but now you can also access it using p, because p2 und p are identical.
+notice that I created a new Parameter newParameter in object `p2`, but 
+but now you can also access it using `p`, because `p2` und `p` are identical.
 
 
 ###creating a `pldaps` class:
@@ -187,17 +187,22 @@ first load a new, fresh version of the object
     p=pldaps(@plain,'test',settingsStruct)
 ```    
 
-now type in
-    ```Matlab
-    p.trial or
-    p.defaultParameters
-    ```
-    this has all settings loaded, and as long as we are not in a trial, 
-    `p.trial` points to `p.defaultParameters`
+now type in 
+
+```
+p.trial
+```
+
+```
+p.defaultParameters
+```
+
+this has all settings loaded, and as long as we are not in a trial, 
+`p.trial` points to `p.defaultParameters`
+   
+During a trial `p.trial` will be a struct that holds the merged parameters from `p.defaultParameters` for that trial
     
-    During a trial `p.trial` will be a struct that holds the merged parameters from `p.defaultParameters` for that trial
-    
-    you will see a list of fieldnames
+you will see a list of fieldnames
     
     I'll list them here
         
@@ -214,56 +219,58 @@ now type in
         keyboard    <- keybord codes for the keys
         behavior    <- currently only used to define what reward systems to use.
     
-    ok, now first look at `p.trial.pldaps.draw`, you will noctice that
+ok, now first look at `p.trial.pldaps.draw`, you will noctice that
     `p.trial.pldaps.draw.grid.use==true` and
     `p.trial.pldaps.draw.eyepos.use==true`
     
 If you want you can play around with these options and run it again...
 
-    Now open up the file we provided to setup the experiemnt
-    edit plain.
-    When it is called by `pldaps.run` at the beginning of the experiment, only the `pldaps` object is being passed.
-    Thus, first look at the section `if nargin==1`, that in being excecuted in that case
-    For some things to function correctly we have to call
+Now open up the file we provided to setup the experiemnt
+edit plain.
+When it is called by `pldaps.run` at the beginning of the experiment, only the `pldaps` object is being passed.
+Thus, first look at the section `if nargin==1`, that in being excecuted in that case
+For some things to function correctly we have to call
     
-    `pdsDefaultTrialStructure(p)` and  `defaultTrialVariables(p)`
-    This is something that still needs cleaning up, but it won't harm having it here.
+`pdsDefaultTrialStructure(p)` and  `defaultTrialVariables(p)`
+This is something that still needs cleaning up, but it won't harm having it here.
 
-    Next the function that should be called for all the drawing and calculations of your stimulus is defined by
+Next the function that should be called for all the drawing and calculations of your stimulus is defined by
 
-    `p.defaultParameters.pldaps.trialFunction='plain';`   
+`p.defaultParameters.pldaps.trialFunction='plain';`   
     
-    I.e. in this example case, we use the same function to setup the experiment parameters and to calculate the stimulus. This is typically not the case later, when you have one stimulus file and several experiments that you define that use the sae stimulus code.
+I.e. in this example case, we use the same function to setup the experiment parameters and to calculate the stimulus. This is typically not the case later, when you have one stimulus file and several experiments that you define that use the sae stimulus code.
 
-    If you do not want to use the default trial function that is called for each Trial and manages the frames, etc, you can also define a
-    `dv.defaultParameters.pldaps.trialMasterFunction='runTrial';` but we won't do that here.
-    
-    next we define `p.trial.pldaps.maxTrialLength` and  `p.trial.pldaps.maxFrames`
-    
-    These are parameters that are also used by the `runTrial` function to allocate some data.
-    
-    Finally we load a cell of structs into the `p.conditions` property.
-    
-    Before each trial, the properties defined here will be merged with the default properties that werde defined before. 
-    If you want to, set a breakpoint and explore the stack of functions
+If you do not want to use the default trial function that is called for each Trial and manages the frames, etc, you can also define a
+`dv.defaultParameters.pldaps.trialMasterFunction='runTrial';` but we won't do that here.
 
-    ok, now everything is setup,
-    set a breakpoint in plain and start the experiment (`p.run`)
-    You will notice a few things:
+next we define `p.trial.pldaps.maxTrialLength` and  `p.trial.pldaps.maxFrames`
     
-    1. `plain` gets called even before the first frames with state set to `dv.trial.pldaps.trialStates.trialSetup` or `dv.trial.pldaps.trialStates.trialPrepare`
-    2. within a frame `plain` gets called multiple times with different states. check out all states:
+These are parameters that are also used by the `runTrial` function to allocate some data.
 
-    ```dv.trial.pldaps.trialStates```
-        
-        note: the Idle states are currently disabled, but could be reactivated if needed
-    3. plain calls 
-        `pldapsDefaultTrialFunction(p,state)`
-        
-        for each state. This means that all the default behavior will get executed, this includes fetching data from eyelink,datapixx,current mouse position, checking the keyboard (frameUpdate), but also drawing of the grid and eyeposition if the parameters are set to use.
-        If you wanted to leave out this default behavior and do it all by yourself, that is possible, but currently a couple of things defined and allocated by `pldapsDefaultTrialFunction` are also used by the `runTrial` function, so we should either clean this up, or you call the `pldapsDefaultTrialFunction(p,state)` for the required states
+Finally we load a cell of structs into the `p.conditions` property.
+
+Before each trial, the properties defined here will be merged with the default properties that werde defined before. 
+If you want to, set a breakpoint and explore the stack of functions
+
+ok, now everything is setup,
+set a breakpoint in plain and start the experiment (`p.run`)
+You will notice a few things:
+
+1. `plain` gets called even before the first frames with state set to `dv.trial.pldaps.trialStates.trialSetup` or `dv.trial.pldaps.trialStates.trialPrepare`
+2. within a frame `plain` gets called multiple times with different states. check out all states:
+
+```
+dv.trial.pldaps.trialStates
+```
     
-     ok, now work with the debugger a bit to get a first idea of what's going on.
+    note: the Idle states are currently disabled, but could be reactivated if needed
+3. plain calls 
+    `pldapsDefaultTrialFunction(p,state)`
+    
+    for each state. This means that all the default behavior will get executed, this includes fetching data from eyelink,datapixx,current mouse position, checking the keyboard (frameUpdate), but also drawing of the grid and eyeposition if the parameters are set to use.
+    If you wanted to leave out this default behavior and do it all by yourself, that is possible, but currently a couple of things defined and allocated by `pldapsDefaultTrialFunction` are also used by the `runTrial` function, so we should either clean this up, or you call the `pldapsDefaultTrialFunction(p,state)` for the required states
+
+ ok, now work with the debugger a bit to get a first idea of what's going on.
 
 ## setting up rig specifig default settings
 Now you know the basics of the pldaps system. Let's set it up so it can start easily on your machine to run experiments. 
