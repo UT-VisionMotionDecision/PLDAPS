@@ -396,11 +396,39 @@ end
 %would go.
 function pauseLoop(dv)
         ShowCursor;
-        ListenChar(1);
+        ListenChar(1); % is this necessary
+        KbQueueRelease();
+        KbQueueCreate();
+        KbQueueStart();
+        altLastPressed=0;
+        ctrlLastPressed=0;
+        ctrlPressed=false;
+        altPressed=false;
+        
         while(true)
             %the keyboard chechking we only capture ctrl+alt key presses.
-            [dv.trial.keyboard.pressedQ,  dv.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
-            if dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lctrl)&&dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lalt)
+            [dv.trial.keyboard.pressedQ, dv.trial.keyboard.firstPressQ, ...
+                ~, lastPress, lastRelease]=KbQueueCheck(); % fast
+            
+            if dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lctrl)
+                ctrlLastPressed=lastPress(dv.trial.keyboard.codes.Lctrl);
+                ctrlPressed=true;
+            end
+            
+            if lastRelease(dv.trial.keyboard.codes.Lctrl) > ctrlLastPressed
+                ctrlPressed=false;
+            end
+            
+            if dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lalt)
+                altLastPressed=lastPress(dv.trial.keyboard.codes.Lalt);
+                altPressed=true;
+            end
+            
+            if lastRelease(dv.trial.keyboard.codes.Lalt)>altLastPressed
+                altPressed=false;
+            end
+            
+            if ctrlPressed && altPressed
                 %D: Debugger
                 if  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.dKey) 
                     disp('stepped into debugger. Type return to start first trial...')
@@ -462,5 +490,8 @@ function pauseLoop(dv)
             end
             pause(0.1);
         end
+        KbQueueRelease();
+        KbQueueCreate();
+        KbQueueStart();
 
 end
