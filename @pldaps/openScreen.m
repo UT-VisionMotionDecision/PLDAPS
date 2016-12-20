@@ -106,12 +106,10 @@ disp('****************************************************************')
 disp('****************************************************************')
 disp('Adding DisplayColorCorrection to FinalFormatting')
 disp('****************************************************************')
-if isstruct(p.trial.display.gamma)
-    if isfield(p.trial.display.gamma, 'table')
-        PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTable');
-    elseif isfield(p.trial.display.gamma, 'power')
-        PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
-    end
+if isField(p.trial, 'display.gamma.power')
+    PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
+else
+	PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTable');
 end
 
 
@@ -239,14 +237,18 @@ if isField(p.trial, 'display.gamma')
     disp('****************************************************************')
     disp('Loading gamma correction')
     disp('****************************************************************')
-    if isstruct(p.trial.display.gamma)
-        if isfield(p.trial.display.gamma, 'table')
-            PsychColorCorrection('SetLookupTable', p.trial.display.ptr, p.trial.display.gamma.table, 'FinalFormatting');
-        elseif isfield(p.trial.display.gamma, 'power')
-            PsychColorCorrection('SetEncodingGamma', p.trial.display.ptr, p.trial.display.gamma.power, 'FinalFormatting');
+    if isfield(p.trial.display.gamma, 'table')
+        PsychColorCorrection('SetLookupTable', p.trial.display.ptr, p.trial.display.gamma.table, 'FinalFormatting');
+    elseif isfield(p.trial.display.gamma, 'power')
+        PsychColorCorrection('SetEncodingGamma', p.trial.display.ptr, p.trial.display.gamma.power, 'FinalFormatting');
+        if isfield(p.trial.display.gamma, 'bias') &&isfield(p.trial.display.gamma, 'minL')...
+           && isfield(p.trial.display.gamma, 'minL') &&  isfield(p.trial.display.gamma, 'gain')
+            bias=p.trial.display.gamma.bias;
+            minL=p.trial.display.gamma.minL;
+            maxL=p.trial.display.gamma.maxL;
+            gain=p.trial.display.gamma.gain;
+            PsychColorCorrection('SetExtendedGammaParameters', p.trial.display.ptr, minL, maxL, gain, bias);
         end
-    else
-        PsychColorCorrection('SetEncodingGamma', p.trial.display.ptr, p.trial.display.gamma, 'FinalFormatting');
     end
 else
     %set a linear gamma
