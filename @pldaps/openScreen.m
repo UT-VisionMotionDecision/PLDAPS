@@ -121,6 +121,9 @@ disp('****************************************************************')
 [ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, 0);
 p.trial.display.ptr=ptr;
 p.trial.display.winRect=winRect;
+if p.trial.display.useOverlay==2
+    p.trial.display.winRect(3)=p.trial.display.winRect(3)/2;
+end
 
 %% Set some basic variables about the display
 p.trial.display.ppd = p.trial.display.winRect(3)/p.trial.display.width; % calculate pixels per degree
@@ -159,8 +162,6 @@ if p.trial.display.useOverlay==1
     end
 elseif p.trial.display.useOverlay==2
     % if using a software overlay, adjust the window size to be half
-    p.trial.display.pWidth=p.trial.display.pWidth/2;
-    p.trial.display.ctr([1 3])=p.trial.display.ctr([1 3])/2;
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Using software overlay window')
