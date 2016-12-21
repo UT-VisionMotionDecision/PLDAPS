@@ -106,12 +106,10 @@ disp('****************************************************************')
 disp('****************************************************************')
 disp('Adding DisplayColorCorrection to FinalFormatting')
 disp('****************************************************************')
-if isstruct(p.trial.display.gamma)
-    if isfield(p.trial.display.gamma, 'table')
-        PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTable');
-    elseif isfield(p.trial.display.gamma, 'power')
-        PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
-    end
+if isField(p.trial, 'display.gamma.power')
+    PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
+else
+	PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTable');
 end
 
 
@@ -123,6 +121,9 @@ disp('****************************************************************')
 [ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, 0);
 p.trial.display.ptr=ptr;
 p.trial.display.winRect=winRect;
+if p.trial.display.useOverlay==2
+    p.trial.display.winRect(3)=p.trial.display.winRect(3)/2;
+end
 
 %% Set some basic variables about the display
 p.trial.display.ppd = p.trial.display.winRect(3)/p.trial.display.width; % calculate pixels per degree
@@ -161,8 +162,6 @@ if p.trial.display.useOverlay==1
     end
 elseif p.trial.display.useOverlay==2
     % if using a software overlay, adjust the window size to be half
-    p.trial.display.pWidth=p.trial.display.pWidth/2;
-    p.trial.display.ctr([1 3])=p.trial.display.ctr([1 3])/2;
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Using software overlay window')
@@ -239,14 +238,18 @@ if isField(p.trial, 'display.gamma')
     disp('****************************************************************')
     disp('Loading gamma correction')
     disp('****************************************************************')
-    if isstruct(p.trial.display.gamma)
-        if isfield(p.trial.display.gamma, 'table')
-            PsychColorCorrection('SetLookupTable', p.trial.display.ptr, p.trial.display.gamma.table, 'FinalFormatting');
-        elseif isfield(p.trial.display.gamma, 'power')
-            PsychColorCorrection('SetEncodingGamma', p.trial.display.ptr, p.trial.display.gamma.power, 'FinalFormatting');
+    if isfield(p.trial.display.gamma, 'table')
+        PsychColorCorrection('SetLookupTable', p.trial.display.ptr, p.trial.display.gamma.table, 'FinalFormatting');
+    elseif isfield(p.trial.display.gamma, 'power')
+        PsychColorCorrection('SetEncodingGamma', p.trial.display.ptr, p.trial.display.gamma.power, 'FinalFormatting');
+        if isfield(p.trial.display.gamma, 'bias') &&isfield(p.trial.display.gamma, 'minL')...
+           && isfield(p.trial.display.gamma, 'minL') &&  isfield(p.trial.display.gamma, 'gain')
+            bias=p.trial.display.gamma.bias;
+            minL=p.trial.display.gamma.minL;
+            maxL=p.trial.display.gamma.maxL;
+            gain=p.trial.display.gamma.gain;
+            PsychColorCorrection('SetExtendedGammaParameters', p.trial.display.ptr, minL, maxL, gain, bias);
         end
-    else
-        PsychColorCorrection('SetEncodingGamma', p.trial.display.ptr, p.trial.display.gamma, 'FinalFormatting');
     end
 else
     %set a linear gamma
