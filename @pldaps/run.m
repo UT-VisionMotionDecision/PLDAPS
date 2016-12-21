@@ -472,10 +472,10 @@ function pauseLoop(dv)
                 elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.xKey)
                     activeEditor=matlab.desktop.editor.getActive; 
                     if isempty(activeEditor)
-                        disp('No Matlab editor open -> Nothing to execute');
+                        display('No Matlab editor open -> Nothing to execute');
                     else
                         if isempty(activeEditor.SelectedText)
-                            disp('Nothing selected in the active editor Widnow -> Nothing to execute');
+                            display('Nothing selected in the active editor Widnow -> Nothing to execute');
                         else
                             try
                                 eval(activeEditor.SelectedText)
