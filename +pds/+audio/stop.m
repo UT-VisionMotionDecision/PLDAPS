@@ -2,6 +2,7 @@ function p = stop(p,sound_name)
 %pds.behavior.audio.stop(p,sound_name) stop the sound associated with the
 %specified name.
 %
+%
 %  SEE NOTES FOR play
 
 %  Virtual device handle
