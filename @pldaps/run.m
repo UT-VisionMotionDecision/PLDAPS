@@ -129,17 +129,11 @@ try
             end
 
     %% Last chance to check variables
-    if p.trial.pldaps.pause.preExperiment==true
-        if p.trial.pldaps.pause.type==1 %0=don't,1 is debugger, 2=pause loop
-            p  %#ok<NOPRT>
-            disp('Ready to begin trials. Type return to start first trial...')
-            keyboard %#ok<MCKBD>
-        elseif p.trial.pldaps.pause.type==2
-            p.trial.pldaps.quit=1;
-            pauseLoop(p)
-        end
+    if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
+        p  %#ok<NOPRT>
+        disp('Ready to begin trials. Type return to start first trial...')
+        keyboard %#ok<MCKBD>
     end
-    
  
     %%%%start recoding on all controlled components this in not currently done here
     % save timing info from all controlled components (datapixx, eyelink, this pc)
@@ -297,7 +291,6 @@ try
                 ListenChar(2);
                 HideCursor;
             elseif pause==2
-                p.trial.pldaps.quit=1;
                 pauseLoop(p);
             end           
 %             pds.datapixx.refresh(dv);
@@ -403,39 +396,11 @@ end
 %would go.
 function pauseLoop(dv)
         ShowCursor;
-%         ListenChar(1); % is this necessary
-        KbQueueRelease();
-        KbQueueCreate();
-        KbQueueStart();
-        altLastPressed=0;
-        ctrlLastPressed=0;
-        ctrlPressed=false;
-        altPressed=false;
-        
-        while dv.trial.pldaps.quit~=0
+        ListenChar(1);
+        while(true)
             %the keyboard chechking we only capture ctrl+alt key presses.
-            [dv.trial.keyboard.pressedQ, dv.trial.keyboard.firstPressQ, ...
-                ~, lastPress, lastRelease]=KbQueueCheck(); % fast
-            
-            if dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lctrl)
-                ctrlLastPressed=lastPress(dv.trial.keyboard.codes.Lctrl);
-                ctrlPressed=true;
-            end
-            
-            if lastRelease(dv.trial.keyboard.codes.Lctrl) > ctrlLastPressed
-                ctrlPressed=false;
-            end
-            
-            if dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lalt)
-                altLastPressed=lastPress(dv.trial.keyboard.codes.Lalt);
-                altPressed=true;
-            end
-            
-            if lastRelease(dv.trial.keyboard.codes.Lalt)>altLastPressed
-                altPressed=false;
-            end
-            
-            if ctrlPressed && altPressed
+            [dv.trial.keyboard.pressedQ,  dv.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
+            if dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lctrl)&&dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lalt)
                 %D: Debugger
                 if  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.dKey) 
                     disp('stepped into debugger. Type return to start first trial...')
@@ -479,10 +444,10 @@ function pauseLoop(dv)
                 elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.xKey)
                     activeEditor=matlab.desktop.editor.getActive; 
                     if isempty(activeEditor)
-                        disp('No Matlab editor open -> Nothing to execute');
+                        display('No Matlab editor open -> Nothing to execute');
                     else
                         if isempty(activeEditor.SelectedText)
-                            disp('Nothing selected in the active editor Widnow -> Nothing to execute');
+                            display('Nothing selected in the active editor Widnow -> Nothing to execute');
                         else
                             try
                                 eval(activeEditor.SelectedText)
@@ -497,9 +462,5 @@ function pauseLoop(dv)
             end
             pause(0.1);
         end
-%          ListenChar(2); % is this necessary
-%         KbQueueRelease();
-%         KbQueueCreate();
-%         KbQueueStart();
 
 end
