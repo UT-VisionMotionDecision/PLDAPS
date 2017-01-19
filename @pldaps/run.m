@@ -381,6 +381,9 @@ try
     sca;
     
 catch me
+    if p.trial.eyelink.use
+       pds.eyelink.finish(p); 
+    end
     sca
     if p.trial.sound.use
         PsychPortAudio('Close')
@@ -412,7 +415,7 @@ function pauseLoop(dv)
         ctrlPressed=false;
         altPressed=false;
         
-        while dv.trial.pldaps.quit~=0
+        while dv.trial.pldaps.quit==1
             %the keyboard chechking we only capture ctrl+alt key presses.
             [dv.trial.keyboard.pressedQ, dv.trial.keyboard.firstPressQ, ...
                 ~, lastPress, lastRelease]=KbQueueCheck(); % fast
