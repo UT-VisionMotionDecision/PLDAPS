@@ -52,13 +52,13 @@ if p.trial.datapixx.use
     %set getPreciseTime options, see testsuite/pldapsTimingTests for
     %details
     if ~isempty(p.trial.datapixx.GetPreciseTime.syncmode)
-        dpx.syncmode=2; %1,2,3
+        dpx.syncmode=p.trial.datapixx.GetPreciseTime.syncmode; %1,2,3
     end
     if ~isempty(p.trial.datapixx.GetPreciseTime.maxDuration)
-        dpx.maxDuration=0.02;
+        dpx.maxDuration=p.trial.datapixx.GetPreciseTime.maxDuration;
     end
     if ~isempty(p.trial.datapixx.GetPreciseTime.optMinwinThreshold)
-        dpx.optMinwinThreshold=6.5e-5;
+        dpx.optMinwinThreshold=p.trial.datapixx.GetPreciseTime.optMinwinThreshold;
     end
     
     if Datapixx('IsPropixx')
