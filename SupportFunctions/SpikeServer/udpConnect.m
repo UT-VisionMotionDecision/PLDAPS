@@ -5,12 +5,27 @@ function [sock,s, remotet0, localt0] = udpConnect(selfip,selfport,remoteip,remot
 remotet0 = 0; 
 localt0  = 0; 
 
-pnet('closeall');
+% pnet('closeall');
 
 sock=pnet('udpsocket',selfport);
 if sock == -1
-    error('Could not open port %d',selfport);
+    try
+        cons=pnet('getAll');
+        iCon=find([cons.port]==selfport);
+        if ~isempty(iCon)
+            fprintf('Port %i was already in use by pnet. Taking it over.\n', selfport);
+            pnet(cons(iCon).socket,'close');
+            sock=pnet('udpsocket',selfport);
+        end
+    catch
+        sock = -1;
+    end
+    if sock == -1
+        pnet('closeall');
+        error('Could not open port %d',selfport);
+    end
 end
+
 pnet(sock,'setwritetimeout',1);
 pnet(sock,'setreadtimeout',1);
 

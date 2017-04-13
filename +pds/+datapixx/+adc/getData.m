@@ -42,34 +42,31 @@ for imap=1:nMaps
     iSub(end).subs{2}=inds;
     
     p=subsasgn(p,iSub,bufferData(p.trial.datapixx.adc.channelMappingChannelInds{imap},:));
-    
-    if p.trial.datapixx.useAsEyepos
-        xChannel=p.trial.datapixx.adc.XEyeposChannel==p.trial.datapixx.adc.channelMappingChannels;
-        yChannel=p.trial.datapixx.adc.YEyeposChannel==p.trial.datapixx.adc.channelMappingChannels;
-        if any(xChannel)
-        	iSub(end).subs{1}=xChannel;
-            if p.trial.pldaps.eyeposMovAv>1
-                dInds=(p.trial.datapixx.adc.dataSampleCount-p.trial.pldaps.eyeposMovAv+1):p.trial.datapixx.adc.dataSampleCount;
-                iSub(end).subs{2}=dInds;
-                p.trial.eyeX = mean(subsref(p,iSub));
-            else
-                dInds=p.trial.datapixx.adc.dataSampleCount;
-                iSub(end).subs{2}=dInds;
-                p.trial.eyeX = subsref(p,iSub);
-            end
-             
-        elseif any(yChannel)
-            iSub(end).subs{1}=yChannel;
-            
-            if p.trial.pldaps.eyeposMovAv>1
-                dInds=(p.trial.datapixx.adc.dataSampleCount-p.trial.pldaps.eyeposMovAv+1):p.trial.datapixx.adc.dataSampleCount;
-                iSub(end).subs{2}=dInds;
-                p.trial.eyeX = mean(subsref(p,iSub));
-            else
-                dInds=p.trial.datapixx.adc.dataSampleCount;
-                iSub(end).subs{2}=dInds;
-                p.trial.eyeX = subsref(p,iSub);
-            end
+end
+
+%assign eye position if wanted
+if p.trial.datapixx.useAsEyepos
+    if p.trial.pldaps.eyeposMovAv>1
+        dInds=(p.trial.datapixx.adc.dataSampleCount-p.trial.pldaps.eyeposMovAv+1):p.trial.datapixx.adc.dataSampleCount;
+      else
+        dInds=p.trial.datapixx.adc.dataSampleCount;
+    end
+	if ~isempty(p.trial.datapixx.adc.XEyeposChannelSubs)
+        iSub=p.trial.datapixx.adc.XEyeposChannelSubs;
+        iSub(end).subs{2}=dInds;
+        if p.trial.pldaps.eyeposMovAv>1
+            p.trial.eyeX = mean(subsref(p,iSub));
+        else
+            p.trial.eyeX = subsref(p,iSub);
         end
-    end  
+	end
+    if ~isempty(p.trial.datapixx.adc.YEyeposChannelSubs)
+        iSub=p.trial.datapixx.adc.YEyeposChannelSubs;
+        iSub(end).subs{2}=dInds;
+        if p.trial.pldaps.eyeposMovAv>1
+            p.trial.eyeY = mean(subsref(p,iSub));
+        else
+            p.trial.eyeY = subsref(p,iSub);
+        end
+    end
 end

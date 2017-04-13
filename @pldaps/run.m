@@ -26,18 +26,6 @@ try
     else
         p.defaultParameters.session.initTime=now;
     end
-    
-    % pick YOUR experiment's main CONDITION file-- this is where all
-    % expt-specific stuff emerges from
-    if isempty(p.defaultParameters.session.experimentSetupFile)
-        [cfile, cpath] = uigetfile('*.m', 'choose condition file', [base '/CONDITION/debugcondition.m']); %#ok<NASGU>
-        
-        dotm = strfind(cfile, '.m');
-        if ~isempty(dotm)
-            cfile(dotm:end) = [];
-        end
-        p.defaultParameters.session.experimentSetupFile = cfile;
-    end
         
     if ~p.defaultParameters.pldaps.nosave
         p.defaultParameters.session.dir = p.defaultParameters.pldaps.dirs.data;
@@ -74,7 +62,10 @@ try
     
     % Setup PLDAPS experiment condition
     p.defaultParameters.pldaps.maxFrames=p.defaultParameters.pldaps.maxTrialLength*p.defaultParameters.display.frate;
-    feval(p.defaultParameters.session.experimentSetupFile, p);
+
+    if ~isempty(p.defaultParameters.session.experimentSetupFile)
+        feval(p.defaultParameters.session.experimentSetupFile, p);
+    end
     
             %
             % Setup Photodiode stimuli
@@ -248,10 +239,6 @@ try
 
                p.trial=oldptrial;
            end
-           
-           if ~p.defaultParameters.datapixx.use && p.defaultParameters.display.useOverlay
-                glDeleteTextures(2,glGenTextures(1));
-           end
 
            %advance to next trial
 %            if(dv.trial.pldaps.iTrial ~= dv.trial.pldaps.finish)
@@ -366,8 +353,8 @@ try
         Screen('FinalizeMovie', p.trial.display.movie.ptr);
     end
     
-    if ~p.defaultParameters.datapixx.use && p.defaultParameters.display.useOverlay
-        glDeleteTextures(2,glGenTextures(1));
+    if p.defaultParameters.display.useOverlay==2
+        glDeleteTextures(2,p.trial.display.lookupstexs(1));
     end
     Screen('CloseAll');
 
