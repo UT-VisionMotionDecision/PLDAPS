@@ -83,7 +83,7 @@ function p = runTrial(p)
         p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame+p.trial.display.ifi;
 
         tfh(p, p.trial.pldaps.trialStates.frameUpdate);
-        setTimeAndFrameState(p,p.trial.pldaps.trialStates.framePrepareDrawing)
+        setTimeAndFrameState(p,p.trial.pldaps.trialStates.framePrepareDrawing);
 
         tfh(p, p.trial.pldaps.trialStates.framePrepareDrawing);
         setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDraw);
@@ -119,7 +119,7 @@ function p = runTrial(p)
 % %                 dv.trial.ttime = GetSecs - dv.trial.trstart;
 % %                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
 %             end
-        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameFlip)
+        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameFlip);
 
 
         tfh(p, p.trial.pldaps.trialStates.frameFlip);
