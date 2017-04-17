@@ -64,6 +64,8 @@ maps=unique(p.trial.datapixx.adc.channelMapping);
 p.trial.datapixx.adc.channelMappingSubs=cell(size(maps));
 p.trial.datapixx.adc.channelMappingChannels=cell(size(maps));
 p.trial.datapixx.adc.channelMappingChannelInds=cell(size(maps));
+p.trial.datapixx.adc.XEyeposChannelSubs=[];
+p.trial.datapixx.adc.YEyeposChannelSubs=[];
 for imap=1:length(maps)
     p.trial.datapixx.adc.channelMappingChannelInds{imap}=strcmp(p.trial.datapixx.adc.channelMapping,maps(imap));
     p.trial.datapixx.adc.channelMappingChannels{imap}=p.trial.datapixx.adc.channels(p.trial.datapixx.adc.channelMappingChannelInds{imap});
@@ -77,9 +79,18 @@ for imap=1:length(maps)
     [Snew.subs]=deal(levels{:});
     S2=S;
     S2.type='()';
-    S2.subs={1:length(p.trial.datapixx.adc.channelMappingChannelInds{imap}), 1};
+    S2.subs={1:length(p.trial.datapixx.adc.channelMappingChannels{imap}), 1};
     
     p.trial.datapixx.adc.channelMappingSubs{imap}=[S Snew S2];
+
+    if ~isempty(p.trial.datapixx.adc.XEyeposChannel) && ismember(p.trial.datapixx.adc.XEyeposChannel,p.trial.datapixx.adc.channelMappingChannels{imap})
+        S2.subs{1}=find(p.trial.datapixx.adc.channelMappingChannels{imap}==p.trial.datapixx.adc.XEyeposChannel);
+        p.trial.datapixx.adc.XEyeposChannelSubs=[S Snew S2];
+    end
+    if ~isempty(p.trial.datapixx.adc.YEyeposChannel) && ismember(p.trial.datapixx.adc.YEyeposChannel,p.trial.datapixx.adc.channelMappingChannels{imap})
+        S2.subs{1}=find(p.trial.datapixx.adc.channelMappingChannels{imap}==p.trial.datapixx.adc.YEyeposChannel);
+        p.trial.datapixx.adc.YEyeposChannelSubs=[S Snew S2];
+    end
 end
 
 p.trial.datapixx.adc.dataSampleCount=0;

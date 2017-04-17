@@ -174,7 +174,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	plexon.	spikeserver.	use = 0;
 
 %s.	session.
- s.	session.	experimentFile = [ ];
+ s.	session.	experimentSetupFile = [ ];
 
 %s.	sound.
  s.	sound.	deviceid = [ ];
