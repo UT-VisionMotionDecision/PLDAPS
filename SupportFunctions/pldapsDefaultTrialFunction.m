@@ -45,7 +45,7 @@ function pldapsDefaultTrialFunction(p,state, sn)
             end
             %defaultColors get's called by pldaps.openScreen since overlay2
             %got introduced
-            if ~isField(p.defaultParameters.display,'humanCLUT')
+            if ~isfield(p.defaultParameters.display,'humanCLUT')
                 defaultColors(p);
             end
     end
