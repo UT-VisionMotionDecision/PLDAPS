@@ -40,12 +40,12 @@ function pldapsDefaultTrialFunction(p,state, sn)
             if ~isfield(p.trial.(sn), 'eyeW')
                 p.trial.(sn).eyeW = 8;
             end
-            if ~isField(p.trial,'event')
+            if ~isfield(p.trial,'event')
                 defaultBitNames(p);
             end
             %defaultColors get's called by pldaps.openScreen since overlay2
             %got introduced
-            if ~isField(p.defaultParameters.display,'humanCLUT')
+            if ~isfield(p.defaultParameters.display,'humanCLUT')
                 defaultColors(p);
             end
     end
