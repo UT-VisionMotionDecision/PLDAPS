@@ -26,18 +26,6 @@ try
     else
         p.defaultParameters.session.initTime=now;
     end
-    
-    % pick YOUR experiment's main CONDITION file-- this is where all
-    % expt-specific stuff emerges from
-    if isempty(p.defaultParameters.session.experimentSetupFile)
-        [cfile, cpath] = uigetfile('*.m', 'choose condition file', [base '/CONDITION/debugcondition.m']); %#ok<NASGU>
-        
-        dotm = strfind(cfile, '.m');
-        if ~isempty(dotm)
-            cfile(dotm:end) = [];
-        end
-        p.defaultParameters.session.experimentSetupFile = cfile;
-    end
         
     if ~p.defaultParameters.pldaps.nosave
         p.defaultParameters.session.dir = p.defaultParameters.pldaps.dirs.data;
@@ -74,7 +62,10 @@ try
     
     % Setup PLDAPS experiment condition
     p.defaultParameters.pldaps.maxFrames=p.defaultParameters.pldaps.maxTrialLength*p.defaultParameters.display.frate;
-    feval(p.defaultParameters.session.experimentSetupFile, p);
+
+    if ~isempty(p.defaultParameters.session.experimentSetupFile)
+        feval(p.defaultParameters.session.experimentSetupFile, p);
+    end
     
             %
             % Setup Photodiode stimuli
@@ -129,17 +120,11 @@ try
             end
 
     %% Last chance to check variables
-    if p.trial.pldaps.pause.preExperiment==true
-        if p.trial.pldaps.pause.type==1 %0=don't,1 is debugger, 2=pause loop
-            p  %#ok<NOPRT>
-            disp('Ready to begin trials. Type return to start first trial...')
-            keyboard %#ok<MCKBD>
-        elseif p.trial.pldaps.pause.type==2
-            p.trial.pldaps.quit=1;
-            pauseLoop(p)
-        end
+    if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
+        p  %#ok<NOPRT>
+        disp('Ready to begin trials. Type return to start first trial...')
+        keyboard %#ok<MCKBD>
     end
-    
  
     %%%%start recoding on all controlled components this in not currently done here
     % save timing info from all controlled components (datapixx, eyelink, this pc)
@@ -254,10 +239,6 @@ try
 
                p.trial=oldptrial;
            end
-           
-           if ~p.defaultParameters.datapixx.use && p.defaultParameters.display.useOverlay
-                glDeleteTextures(2,glGenTextures(1));
-           end
 
            %advance to next trial
 %            if(dv.trial.pldaps.iTrial ~= dv.trial.pldaps.finish)
@@ -297,7 +278,6 @@ try
                 ListenChar(2);
                 HideCursor;
             elseif pause==2
-                p.trial.pldaps.quit=1;
                 pauseLoop(p);
             end           
 %             pds.datapixx.refresh(dv);
@@ -373,8 +353,8 @@ try
         Screen('FinalizeMovie', p.trial.display.movie.ptr);
     end
     
-    if ~p.defaultParameters.datapixx.use && p.defaultParameters.display.useOverlay
-        glDeleteTextures(2,glGenTextures(1));
+    if p.defaultParameters.display.useOverlay==2
+        glDeleteTextures(2,p.trial.display.lookupstexs(1));
     end
     Screen('CloseAll');
 
@@ -417,28 +397,8 @@ function pauseLoop(dv)
         
         while dv.trial.pldaps.quit==1
             %the keyboard chechking we only capture ctrl+alt key presses.
-            [dv.trial.keyboard.pressedQ, dv.trial.keyboard.firstPressQ, ...
-                ~, lastPress, lastRelease]=KbQueueCheck(); % fast
-            
-            if dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lctrl)
-                ctrlLastPressed=lastPress(dv.trial.keyboard.codes.Lctrl);
-                ctrlPressed=true;
-            end
-            
-            if lastRelease(dv.trial.keyboard.codes.Lctrl) > ctrlLastPressed
-                ctrlPressed=false;
-            end
-            
-            if dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lalt)
-                altLastPressed=lastPress(dv.trial.keyboard.codes.Lalt);
-                altPressed=true;
-            end
-            
-            if lastRelease(dv.trial.keyboard.codes.Lalt)>altLastPressed
-                altPressed=false;
-            end
-            
-            if ctrlPressed && altPressed
+            [dv.trial.keyboard.pressedQ,  dv.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
+            if dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lctrl)&&dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lalt)
                 %D: Debugger
                 if  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.dKey) 
                     disp('stepped into debugger. Type return to start first trial...')
@@ -482,10 +442,10 @@ function pauseLoop(dv)
                 elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.xKey)
                     activeEditor=matlab.desktop.editor.getActive; 
                     if isempty(activeEditor)
-                        disp('No Matlab editor open -> Nothing to execute');
+                        display('No Matlab editor open -> Nothing to execute');
                     else
                         if isempty(activeEditor.SelectedText)
-                            disp('Nothing selected in the active editor Widnow -> Nothing to execute');
+                            display('Nothing selected in the active editor Widnow -> Nothing to execute');
                         else
                             try
                                 eval(activeEditor.SelectedText)
@@ -500,9 +460,5 @@ function pauseLoop(dv)
             end
             pause(0.1);
         end
-%          ListenChar(2); % is this necessary
-%         KbQueueRelease();
-%         KbQueueCreate();
-%         KbQueueStart();
 
 end

@@ -1,4 +1,9 @@
-function pldapsDefaultTrialFunction(p,state)
+function pldapsDefaultTrialFunction(p,state, sn)
+%stimulus name is only used for one variable: eyeW
+    if nargin<3
+        sn='stimulus';
+    end
+
     switch state
         %frameStates
         case p.trial.pldaps.trialStates.frameUpdate
@@ -6,7 +11,7 @@ function pldapsDefaultTrialFunction(p,state)
         case p.trial.pldaps.trialStates.framePrepareDrawing 
         %    framePrepareDrawing(p);
         case p.trial.pldaps.trialStates.frameDraw
-            frameDraw(p);
+            frameDraw(p,sn);
         %case p.trial.pldaps.trialStates.frameIdlePreLastDraw
         %    frameIdlePreLastDraw(p);
         %case p.trial.pldaps.trialStates.frameDrawTimecritical;
@@ -30,6 +35,18 @@ function pldapsDefaultTrialFunction(p,state)
             if ~isempty(p.trial.pldaps.experimentAfterTrialsFunction)
                h=str2func(p.trial.pldaps.experimentAfterTrialsFunction);
                h(p, state)
+            end
+        case p.trial.pldaps.trialStates.experimentPostOpenScreen
+            if ~isfield(p.trial.(sn), 'eyeW')
+                p.trial.(sn).eyeW = 8;
+            end
+            if ~isField(p.trial,'event')
+                defaultBitNames(p);
+            end
+            %defaultColors get's called by pldaps.openScreen since overlay2
+            %got introduced
+            if ~isfield(p.defaultParameters.display,'humanCLUT')
+                defaultColors(p);
             end
     end
 end
@@ -116,7 +133,7 @@ end
 %     end %framePrepareDrawing
 
     %% frameDraw
-    function frameDraw(p)
+    function frameDraw(p, sn)
         %this holds the code to draw some stuff to the overlay (using
         %switches, like the grid, the eye Position, etc
         
@@ -159,11 +176,11 @@ end
          %p.trial.pldaps.draw.eyepos?
          if p.trial.pldaps.draw.eyepos.use
             Screen('Drawdots',  p.trial.display.overlayptr, [p.trial.eyeX p.trial.eyeY]', ...
-            p.trial.stimulus.eyeW, p.trial.display.clut.eyepos, [0 0],0);
+            p.trial.(sn).eyeW, p.trial.display.clut.eyepos, [0 0],0);
          end
          if p.trial.mouse.use && p.trial.pldaps.draw.cursor.use
             Screen('Drawdots',  p.trial.display.overlayptr,  p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples), ...
-            p.trial.stimulus.eyeW, p.trial.display.clut.cursor, [0 0],0);
+            p.trial.(sn).eyeW, p.trial.display.clut.cursor, [0 0],0);
          end
          
          if p.trial.pldaps.draw.photodiode.use && mod(p.trial.iFrame, p.trial.pldaps.draw.photodiode.everyXFrames) == 0
@@ -203,7 +220,9 @@ end
 
     function frameFlip(p)
 %       if mod(p.trial.iFrame,3)==1
-         p.trial.timing.flipTimes(:,p.trial.iFrame) = deal(Screen('Flip', p.trial.display.ptr,0));
+         ft=cell(5,1);
+         [ft{:}] = Screen('Flip', p.trial.display.ptr,0);
+         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
 %       end
          if p.trial.display.movie.create
              %we should skip every nth frame depending on the ration of
@@ -242,8 +261,7 @@ end
     end %frameFlip
 
     function trialSetup(p)
-        
-        p.trial.timing.flipTimes       = zeros(4,p.trial.pldaps.maxFrames);
+        p.trial.timing.flipTimes       = zeros(5,p.trial.pldaps.maxFrames);
         p.trial.timing.frameStateChangeTimes=nan(9,p.trial.pldaps.maxFrames);
         
         if(p.trial.pldaps.draw.photodiode.use)
@@ -400,7 +418,9 @@ end
 
     function p = cleanUpandSave(p)
 %TODO move to pds.datapixx.cleanUpandSave
-        [p.trial.timing.flipTimes(:,p.trial.iFrame)] = deal(Screen('Flip', p.trial.display.ptr));
+        ft=cell(5,1);
+         [ft{:}] =Screen('Flip', p.trial.display.ptr,0);
+         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
         if p.trial.datapixx.use
             p.trial.datapixx.datapixxstoptime = Datapixx('GetTime');
         end
