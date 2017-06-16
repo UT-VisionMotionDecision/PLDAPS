@@ -7,6 +7,11 @@ function p=calibrate(p)
 %		dv.el: Eyelink default values
 
 % 12/12/2013 jly adapted from EyelinkDoTrackerSetup.m
+
+if ~isfield(p.trial.stimulus, 'fixdotW')
+    p.trial.stimulus.fixdotW = 15;
+end
+
 commandwindow
 if p.trial.sound.use
     Beeper
@@ -54,7 +59,7 @@ ListenChar(2)
 % if Eyelink('CheckRecording')==0
 %     fprintf('Eyelink is recording')
 
-Eyelink('Command', 'heuristic_filter = ON');
+% Eyelink('Command', 'heuristic_filter = OFF');
 Eyelink( 'StartSetup' );		% start setup mode
 Eyelink( 'WaitForModeReady', p.trial.eyelink.setup.waitformodereadytime );  % time for mode change
 
