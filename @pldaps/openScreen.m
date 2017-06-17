@@ -81,7 +81,7 @@ else
     PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
 end
 
-if strcmp(p.trial.display.stereoFlip,'right');
+if strcmp(p.trial.display.stereoFlip,'right')
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Setting stereo mode for use with planar')
@@ -127,12 +127,6 @@ p.trial.display.info = Screen('GetWindowInfo', p.trial.display.ptr);            
 %% some more
 p.trial.display.pWidth=p.trial.display.winRect(3)-p.trial.display.winRect(1);
 p.trial.display.pHeight=p.trial.display.winRect(4)-p.trial.display.winRect(2);
-p.trial.display.wWidth=p.trial.display.widthcm;
-p.trial.display.wHeight=p.trial.display.heightcm;
-p.trial.display.dWidth = atand(p.trial.display.wWidth/2 / p.trial.display.viewdist)*2;
-p.trial.display.dHeight = atand(p.trial.display.wHeight/2 / p.trial.display.viewdist)*2;
-p.trial.display.w2px=[p.trial.display.pWidth/p.trial.display.wWidth; p.trial.display.pHeight/p.trial.display.wHeight];
-p.trial.display.px2w=[p.trial.display.wWidth/p.trial.display.pWidth; p.trial.display.wHeight/p.trial.display.pHeight];
 
 % Set screen rotation
 p.trial.display.ltheta = 0.00*pi;                                    % Screen rotation to adjust for mirrors
@@ -152,10 +146,12 @@ if p.trial.display.useOverlay==1
         warning('pldaps:openScreen', 'Datapixx Overlay requested but datapixx disabled. No Dual head overlay availiable!')
         p.trial.display.overlayptr = p.trial.display.ptr;
     end
-elseif p.trial.display.useOverlay==2
+elseif p.trial.display.useOverlay==2 || p.trial.display.useOverlay==3
     % if using a software overlay, adjust the window size to be half
-    p.trial.display.pWidth=p.trial.display.pWidth/2;
-    p.trial.display.ctr([1 3])=p.trial.display.ctr([1 3])/2;
+    if p.trial.display.useOverlay==2
+        p.trial.display.pWidth=p.trial.display.pWidth/2;
+        p.trial.display.ctr([1 3])=p.trial.display.ctr([1 3])/2;
+    end
     disp('****************************************************************')
     disp('****************************************************************')
     disp('Using software overlay window')
@@ -201,8 +197,15 @@ elseif p.trial.display.useOverlay==2
     glUseProgram(p.trial.display.shader);
     glUniform1i(glGetUniformLocation(p.trial.display.shader,'lookup1'),3);
     glUniform1i(glGetUniformLocation(p.trial.display.shader,'lookup2'),4);
-
-    glUniform2f(glGetUniformLocation(p.trial.display.shader, 'res'), p.trial.display.pWidth, p.trial.display.pHeight);
+    
+    sampleX = 1;
+    sampleY = 1;   
+    if p.trial.display.useOverlay==2
+        glUniform2f(glGetUniformLocation(p.trial.display.shader, 'res'), p.trial.display.pWidth, p.trial.display.pHeight);
+    elseif p.trial.display.useOverlay==3
+        glUniform2f(glGetUniformLocation(p.trial.display.shader, 'res'), p.trial.display.pWidth*2, p.trial.display.pHeight);
+    end
+    glUniform2f(glGetUniformLocation(p.trial.display.shader, 'resScaler'), sampleX, sampleY);
     bgColor=p.trial.display.bgColor;
     glUniform3f(glGetUniformLocation(p.trial.display.shader, 'transparencycolor'), bgColor(1), bgColor(2), bgColor(3));
     glUniform1i(glGetUniformLocation(p.trial.display.shader, 'overlayImage'), 1);
@@ -226,7 +229,16 @@ else
     p.trial.display.overlayptr = p.trial.display.ptr;
 end
 
-% % Set gamma lookup table
+%% some more continued
+p.trial.display.wWidth=p.trial.display.widthcm;
+p.trial.display.wHeight=p.trial.display.heightcm;
+p.trial.display.dWidth = atand(p.trial.display.wWidth/2 / p.trial.display.viewdist)*2;
+p.trial.display.dHeight = atand(p.trial.display.wHeight/2 / p.trial.display.viewdist)*2;
+p.trial.display.w2px=[p.trial.display.pWidth/p.trial.display.wWidth; p.trial.display.pHeight/p.trial.display.wHeight];
+p.trial.display.px2w=[p.trial.display.wWidth/p.trial.display.pWidth; p.trial.display.wHeight/p.trial.display.pHeight];
+
+
+%% Set gamma lookup table
 if isField(p.trial, 'display.gamma')
     disp('****************************************************************')
     disp('****************************************************************')
@@ -283,5 +295,5 @@ if p.trial.display.forceLinearGamma %does't really belong here, but need it befo
     LoadIdentityClut(p.trial.display.ptr);
 end
 
-p=defaultColors(p); % load the default CLUTs -- this is useful for opening overlay window in pds.datapixx.init
+% p=defaultColors(p); % load the default CLUTs -- this is useful for opening overlay window in pds.datapixx.init
 p.trial.display.t0 = Screen('Flip', p.trial.display.ptr);

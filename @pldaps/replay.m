@@ -44,7 +44,7 @@ p.trial=p.defaultParameters;
 
 p.defaultParameters.setLevels(preLevels);
 %convert luts
-if p.defaultParameters.datapixx.use
+if p.defaultParameters.datapixx.use && ~newDisplay.useOverlay
     clutNames=fieldnames(p.trial.display.clut);
     for c=1:length(clutNames)
         cind=p.trial.display.clut.(clutNames{c})(1);
@@ -76,6 +76,7 @@ p.trial.display.useOverlay=newDisplay.useOverlay;
 p.trial.display.colorclamp=newDisplay.colorclamp;
 p.trial.display.forceLinearGamma=newDisplay.forceLinearGamma;
 p.trial.display.movie=newDisplay.movie;
+p.trial.display.switchOverlayCLUTs=newDisplay.switchOverlayCLUTs;
 if isfield(newDisplay,'gamma')
     p.trial.display.gamma=newDisplay.gamma;
 end
@@ -91,6 +92,7 @@ try
     p = openScreen(p);
     
     %% rescale dot drawing
+    p.trial.display.frate = PDS.initialParametersMerged.display.frate;
     p.trial.replay.xfactor= p.trial.display.pWidth/PDS.initialParametersMerged.display.pWidth;
     p.trial.replay.yfactor= p.trial.display.pHeight/PDS.initialParametersMerged.display.pHeight;
 

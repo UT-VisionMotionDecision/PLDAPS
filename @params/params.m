@@ -47,7 +47,7 @@ classdef params < handle
         % Overload fieldnames retrieval
         function names = fieldnames(p) 
             activeFields=cellfun(@(x) any(ismember(find(p.activeLevels),x)), {p.flatStruct.hierarchyLevels});
-            names={p.flatStruct(cellfun(@length,{p.flatStruct(activeFields).parentLevels})==1).identifier};
+            names={p.flatStruct(activeFields & cellfun(@length,{p.flatStruct.parentLevels})==1).identifier};
             names=cellfun(@(x) x(2:end),names,'UniformOutput',false);
         end
         

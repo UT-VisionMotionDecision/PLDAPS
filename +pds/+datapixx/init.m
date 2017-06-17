@@ -160,7 +160,7 @@ if p.trial.display.useOverlay==1 % Datapixx overlay
         % We don't seem to have this problem - jake 12/04/13
         Screen('LoadNormalizedGammaTable', p.trial.display.ptr, combinedClut, 2);
     end
-elseif p.trial.display.useOverlay==2 % software overlay
+elseif p.trial.display.useOverlay==2 ||  p.trial.display.useOverlay==3% software overlay
 
     %assign transparency color
     bgColor=p.trial.display.bgColor;

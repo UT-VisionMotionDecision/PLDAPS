@@ -30,6 +30,7 @@
 uniform sampler2DRect Image;
 uniform sampler2DRect overlayImage;
 uniform vec2 res;
+uniform vec2 resScaler;
 
 uniform sampler2DRect lookup1;
 uniform sampler2DRect lookup2;
@@ -49,7 +50,7 @@ void main()
     /* Retrieve main window color value.*/
     vec4 incolor = texture2DRect(Image, texCoord);
     
-    int overlayindex = int(floor(texture2DRect(overlayImage, texCoord).r*255. + 0.5));
+    int overlayindex = int(floor(texture2DRect(overlayImage, texCoord*resScaler).r*255. + 0.5));
 
     vec3 overlaycolor;
     if(overlayindex>0){

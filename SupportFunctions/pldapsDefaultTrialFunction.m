@@ -17,7 +17,9 @@ function pldapsDefaultTrialFunction(p,state)
         %    frameIdlePostDraw(p);
         case p.trial.pldaps.trialStates.frameFlip; 
             frameFlip(p);
-            
+             
+        case p.trial.pldaps.trialStates.frameReplayUpdate
+            frameReplayUpdate(p);
         %trialStates
         case p.trial.pldaps.trialStates.trialSetup
             trialSetup(p);
@@ -126,14 +128,14 @@ end
                %frame you use the first index, second second.....that's
                %actually the safest...let's see how often this problem
                %occurs
-               kxIdx=find(p.data{p.trial.pldaps.iTrial}.keyboard.samplesTimes< p.trial.ttime+ p.trial.trstart,1,'last');
+               kbIdx=find(p.data{p.trial.pldaps.iTrial}.keyboard.samplesTimes< p.trial.ttime+ p.trial.trstart,1,'last');
            end
 
-           p.trial.keyboard.pressedQ    = p.data{p.trial.pldaps.iTrial}.keyboard.pressedSamples(:,kxIdx);
-           p.trial.keyboard.firstPressQ = p.data{p.trial.pldaps.iTrial}.keyboard.firstPressSamples(:,kxIdx);
-           firstRelease                 = p.data{p.trial.pldaps.iTrial}.keyboard.firstReleaseSamples(:,kxIdx);
-           lastPress                    = p.data{p.trial.pldaps.iTrial}.keyboard.lastPressSamples(:,kxIdx);
-           lastRelease                  = p.data{p.trial.pldaps.iTrial}.keyboard.lastReleaseSamples(:,kxIdx);
+           p.trial.keyboard.pressedQ    = p.data{p.trial.pldaps.iTrial}.keyboard.pressedSamples(:,kbIdx);
+           p.trial.keyboard.firstPressQ = p.data{p.trial.pldaps.iTrial}.keyboard.firstPressSamples(:,kbIdx);
+           firstRelease                 = p.data{p.trial.pldaps.iTrial}.keyboard.firstReleaseSamples(:,kbIdx);
+           lastPress                    = p.data{p.trial.pldaps.iTrial}.keyboard.lastPressSamples(:,kbIdx);
+           lastRelease                  = p.data{p.trial.pldaps.iTrial}.keyboard.lastReleaseSamples(:,kbIdx);
 
             if p.trial.keyboard.pressedQ || any(firstRelease)
                 p.trial.keyboard.samples = p.trial.keyboard.samples+1;
@@ -160,6 +162,9 @@ end
                         keyboard %#ok<MCKBD>
                 end
             end
+        else
+           p.trial.keyboard.pressedQ    = 0;
+           p.trial.keyboard.firstPressQ = p.trial.keyboard.firstPressQ*0;
         end
 
         % get mouse/eyetracker data
@@ -188,16 +193,29 @@ end
                 end
            end
         end
-        %get analogData from Datapixx
-        pds.datapixx.adc.replayData(p);
-        %get eyelink data
-        pds.eyelink.replayQueue(p);
+%         %get analogData from Datapixx
+%         pds.datapixx.adc.replayData(p);
+%         %get eyelink data
+%         pds.eyelink.replayQueue(p);
         
         %allow old style definition of eye data:
-        if isfield(p.trial,'stimulus') && isfield(p.trial,'eyeXYs') ...
+        if isfield(p.data{p.trial.pldaps.iTrial},'stimulus') && isfield(p.data{p.trial.pldaps.iTrial}.stimulus,'eyeXYs') ...
                 && size(p.data{p.trial.pldaps.iTrial}.stimulus.eyeXYs,2)>=p.trial.iFrame
-           p.trial.eyeX = p.data{p.trial.pldaps.iTrial}.stimulus.eyeXYs(1,p.trial.iFrame)+p.trial.display.pWidth/2;
-           p.trial.eyeY = p.data{p.trial.pldaps.iTrial}.stimulus.eyeXYs(2,p.trial.iFrame)+p.trial.display.pHeight/2; 
+           if p.trial.replay.eyeXYs==2 %degrees
+               xy=p.data{p.trial.pldaps.iTrial}.stimulus.eyeXYs(1:2,p.trial.iFrame);
+               xy=pds.deg2px(xy,p.trial.display.viewdist,p.trial.display.w2px);
+               p.trial.eyeX = xy(1)+p.trial.display.pWidth/2;
+               p.trial.eyeY = xy(2)+p.trial.display.pHeight/2; 
+           elseif p.trial.replay.eyeXYs==1 %pixels in screen center coordintes
+               xy=p.data{p.trial.pldaps.iTrial}.stimulus.eyeXYs(1:2,p.trial.iFrame);
+               xy=pds.px2deg(xy,p.trial.replay.display.viewdist,p.trial.replay.display.px2w);
+               xy=pds.deg2px(xy,p.trial.display.viewdist,p.trial.display.w2px);
+               p.trial.eyeX = xy(1)+p.trial.display.pWidth/2;
+               p.trial.eyeY = xy(2)+p.trial.display.pHeight/2; 
+%                
+%                p.trial.eyeX = p.trial.replay.xfactor*p.data{p.trial.pldaps.iTrial}.stimulus.eyeXYs(1,p.trial.iFrame)+p.trial.display.pWidth/2;
+%                p.trial.eyeY = p.trial.replay.yfactor*p.data{p.trial.pldaps.iTrial}.stimulus.eyeXYs(2,p.trial.iFrame)+p.trial.display.pHeight/2; 
+           end
         end
     end %frameReplayUpdate
 
@@ -300,7 +318,7 @@ end
              %frame rates, or increase every nth frameduration by 1 every
              %nth frame
              if p.trial.display.frate > p.trial.display.movie.frameRate
-                 thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.display.movie.frameRate)>0;
+                 thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.display.movie.frameRate)==1;
              else
                  thisframe=true;
              end

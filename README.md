@@ -1,3 +1,4 @@
+
 PLDAPS 4.2
 ==========
 
@@ -93,19 +94,27 @@ This function
 - and should add a cell of structs to p.conditions that that holds the changes in parameters from therse defaults for _each_trial_
 
 note: in later versions, p.conditions might actually only hold information about certain conditions and another field the info of what conditions to use in each trial.
-note: since the screen is already created, basic screen parameters like the backgound color must be defined before the p.run is called.
+note: since the screen is already created, basic screen parameters like the screen size must be defined before the p.run is called. The background color can be changed on a frame by frame basis.
 
 %% pldaps.runTrial
 unless another function is specified in the parameters as the 
-p.defaultParameters.pldaps.trialMasterFunction
-it defaults to dv.defaultParameters.pldaps.trialMasterFunction="runTrial";
+p.defaultParameters.pldaps.trialMasterFunction it defaults to p.defaultParameters.pldaps.trialMasterFunction="runTrial";
+In order to harness the modular features of version 4.2 you will have to change this to
+    p.defaultParameters.pldaps.trialMasterFunction="runModularTrial";
+and also set
+    p.trial.pldaps.useModularStateFunctions = true;
 
+pldaps.runModularTrial is backwards compatible with pldaps.runTrial, so unless you have a case were you
+have a specific reason not to use runModularTrial, it is recommented to switch to runModularTrial by
+changing these two parameters in the rig settings using createRigPrefs
+
+The following information is about pldaps.runModularTrial:
 This is a generic trial function that takes care of the correct course of a trial.
 It will run through different stages for the trial and in a loop for each frame
 run through stages from frameUpdate to frameFlip.
 
 For each stage, instead of doing something itself, it calles another function, defined in
-p.defaultParameters.pldaps.trialFunction that take the pldaps class and a numerical state number as input.
+p.defaultParameters.pldaps.trialFunction that takes the pldaps class and a numerical state number, as well as an optional location string (later) as input.
 
 This is the only function that needs to be implemented by the user to take care of the drawing of the stimulus.
 
@@ -114,7 +123,107 @@ note: version 4.0 had a trialMasterFunction that instead took a class as a stimu
 %% pldapsDefaultTrialFunction
 all basic features of pldaps from flipping the buffers to drawing the eye position of the experimentor screen are
 implemented in a function called pldapsDefaultTrialFunction
-To make use of these, this function must simply be called by your trialFunction.
+To make use of these, this function must simply be setup to be called by runModularTrial or from within your trialFunction.
+
+The order in which the different states are run through is defined by the value of states defined in
+    p.trial.pldaps.trialstates
+All states with a positive value will be called for each frame in ascending order of the values.
+By default, the order is: frameUpdate, framePrepareDrawing, frameDrawing, frameDrawingFinished, frameFlip.
+States with nenative values are called outside of the frames of a trial.
+
+have a look at the documentation for the states to understand what each is for:
+    file://YOURPLDAPSROOT/PLDAPS/doc/Parameters/pldaps/trialStates/all.html
+
+p=pldaps(@plain,'test', settingsStruct)
+    p.run
+        -> experimentPreOpenScreen
+        PTB screen is opened
+        -> experiment setup file is called
+        -> experimentPostOpenScreen
+        while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2 
+            p.trial is converted to a struct
+            p.runModularTrial is called
+                evaluates currently active modules once at the beginning of the trial
+                -> trialSetup
+                -> trialPrepare
+                while ~p.trial.flagNextTrial && p.trial.pldaps.quit == 0
+                    -> frameUpdate
+                    -> framePrepareDrawing
+                    -> frameDraw
+                    -> frameDrawingFinished
+                    -> frameFlip
+                -> trialCleanUpandSave
+            -> experimentAfterTrials (in pldaps.run) %here you can change default values in p.trial for the next trials
+        -> experimentCleanUp
+    
+        %note that setting .pldaps.quit=2 will quit the current trial and end the experiment immediately
+        %will setting p.trial.pldaps.finish= p.trial.pldaps.iTrial; will cause the experiment to end after the trial has run
+       
+                %use .flagNextTrial to indicate (immediate) end of trial with the next one starting immediately
+                %use pldaps.quit=1 to indicate (immediate) end of trial and going into pause mode (leter)
+                %use pldaps.quit=2 to indicate (immediate) end of experiment
+  
+
+%% What is a module
+In PLDAPS 4.1 the was only one state function that was defined in p.trial.pldaps.trialFunction. This function was called for the different states and had to call other functions like the pldapsDefaultTrialFunction.
+However this made it difficult to add new hardware and also put limits in the flexibility of using stimuli.
+In PLDAPS 4.2 you can define many (independent) function to be called for each state.
+You do this by definding a field statefunction in a subfield on pldaps
+e.g.
+settingsStruct.myModule.stateFunction.name='TheNameOfYourModulesStatefunctionFile';
+settingsStruct.myModule.use=true;
+
+Now, if pldaps(@plain,'test', settingsStruct) is created and you call 
+    p.run
+the function TheNameOfYourModulesStatefunctionFile will get called with each of the states described above.
+You should design any new stateFunctions to accept a third input parameter: 
+    function TheNameOfYourModulesStatefunctionFile(p,state,name)
+and all variables and data from that statefunction should typically then be stored under
+p.trial.(name).
+Where the variable naeme is defined by the name of the subfield that holds the stateFunction parameter,
+e.g. in out case
+p.trial.(myModule).
+
+However to use this name, you have tell PLDAPS that your stateFunction can accept this third input
+settingsStruct.myModule.stateFunction.name='TheNameOfYourModulesStatefunctionFile';
+settingsStruct.myModule.use=true;
+settingsStruct.myModule.stateFunction.acceptsLocationInput=true;
+
+If there are multiple stateFunctions, the order in which they are called if defined by the field .order.
+This means a modules are called in the order of [-Inf....-1,0,1,...Inf,NaN]
+settingsStruct.myModule.stateFunction.name='TheNameOfYourModulesStatefunctionFile';
+settingsStruct.myModule.use=true;
+settingsStruct.myModule.stateFunction.acceptsLocationInput=true;
+settingsStruct.myModule.stateFunction.order=0; %default is 0
+
+to reduce the number of unneded called, or to only use a statefuntion for specific parts you can select to only
+call the statefucntion for a set of defined states. 
+if the .requestedStates does not exist, or if .requestedStates.all=true, all states will be called,
+otherwise, only states with a value true are called, e.g.
+
+settingsStruct.myModule.stateFunction.name='TheNameOfYourModulesStatefunctionFile';
+settingsStruct.myModule.use=true;
+settingsStruct.myModule.stateFunction.acceptsLocationInput=true;
+settingsStruct.myModule.stateFunction.order=0; 
+settingsStruct.myModule.stateFunction.requestedStates.experimentPostOpenScreen=true;
+settingsStruct.myModule.stateFunction.requestedStates.experimentCleanUp=true;
+settingsStruct.myModule.stateFunction.requestedStates.trialSetup=true;
+settingsStruct.myModule.stateFunction.requestedStates.trialCleanUpandSave=true;
+
+As you can see this module will only get calles at the beginning and end of an experiment and trial.
+This is what is typically used for controlling axternal heardware that you do not collect data from, but
+simply start recording and send synchronization and other information
+
+For hardware that collects data, simply also implement and activate the 
+settingsStruct.myModule.stateFunction.requestedStates.frameUpdate
+state and set the order so that the relevant fields are set before your stimulus needs them.
+
+But you can also use modules to combine multiple generic stimuli in one experiment without having to
+create a specific trial stateFunction for that.
+Or you could alternate differnt stimilus functions for different trials, simply by setting
+the .use field to false/true in the conditions struct of that trial.
+
+%AT END, STATE 3 OPTIONS AS EXPLAINED TO JAKE: Not modular, partially modulay, fully modular, maybe also stimulus not+hardware modular
 
 %% putting it all together
 ok, now you will run your first experiment and work your way back from the trialFunction
@@ -125,7 +234,7 @@ to the core of pldaps.
 
     %now load some settings that should allow to run pldaps in a small screen for now
     > load settingsStruct;
-    %next creat a pldaps object and specify to use plain.m as the experiment file
+    %next create a pldaps object and specify to use plain.m as the experiment file
     %set the subject to 'test'  and pass the struct we just loaded
     p=pldaps(@plain,'test',settingsStruct)
     %now you have a pldaps object. To start the experiment, call
@@ -195,9 +304,9 @@ now open up the file we provided to setup the experiemnt
     %ok, now everything is setup,
     %set a breakpoint in plain and start the experiment (p.run)
     %You will notice a few things
-    %a) plain gets called even before the first frames with state set to dv.trial.pldaps.trialStates.trialSetup or dv.trial.pldaps.trialStates.trialPrepare
+    %a) plain gets called even before the first frames with state set to p.trial.pldaps.trialStates.trialSetup or p.trial.pldaps.trialStates.trialPrepare
     %b) within a frame plain gets called multiple times with different states. check out all states:
-        %dv.trial.pldaps.trialStates
+        %p.trial.pldaps.trialStates
         %note: the Idle states are currently disabled, but could be reactivated if needed
     %c) plain calles 
         %pldapsDefaultTrialFunction(p,state)
@@ -216,10 +325,9 @@ For this, we will store parameters that are specifig to the rig (e.g. framerate,
 call
     createRigPrefs
 and follow the instructions.
-createRigPrefs also opens a gui, to help view and move data in the defaultParameters hierarchy, but you can also change this in the command line using
+createRigPrefs also opens a gui, to help view and move data in the defaultParameters hierarchy, but you can also change parameters in the command line using
     p.defaultParameters.setLevels([1 2]);
 to ensure that you are adding the values at the correct hierarchy level
-
 
 %% Understanding all parameters
 Here all parameters should get explained, along with where they are being used

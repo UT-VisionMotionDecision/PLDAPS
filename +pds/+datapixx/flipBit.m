@@ -6,7 +6,7 @@ function timings=flipBit(bit,trial)
 %
 % NOTE: This code is optimized to use with the Plexon omniplex system. 
 % We are using it it stobe only mode and thus simply forward the command to 
-% pds.datapixx.stobe
+% pds.datapixx.strobe
 %
 % (c) jk 2015
 

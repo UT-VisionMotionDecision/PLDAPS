@@ -27,6 +27,9 @@ function p = runModularTrial(p, replay)
     [stateValue, stateName] = p.getReorderedFrameStates(p.trial.pldaps.trialStates,moduleRequestedStates);
     nStates=length(stateValue);
 
+    if replay
+        runStateforModules(p,'trialReplaySetup',modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+    end
     runStateforModules(p,'trialSetup',modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 
     %switch to high priority mode
@@ -49,12 +52,23 @@ function p = runModularTrial(p, replay)
         %Save the times each state is finished.
 
         %time of the estimated next flip
+        if replay
+            if p.trial.iFrame==1
+                p.trial.stimulus.timeLastFrame = 0;
+                p.trial.trstart = p.data{p.trial.pldaps.iTrial}.trstart;
+            else
+                p.trial.stimulus.timeLastFrame = p.data{p.trial.pldaps.iTrial}.timing.flipTimes(1,p.trial.iFrame-1)-p.trial.trstart;
+            end
+        end
         p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame+p.trial.display.ifi;
 
         %iterate through frame states
         for iState=1:nStates
             runStateforModules(p,stateName{iState},modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 
+            if p.trial.iFrame>size(p.data{p.trial.pldaps.iTrial}.timing.frameStateChangeTimes,2)
+                break;
+            end
             if replay
                 p.trial.ttime=p.data{p.trial.pldaps.iTrial}.timing.frameStateChangeTimes(iState,p.trial.iFrame)+ p.trial.nextFrameTime-p.trial.display.ifi;
             else
