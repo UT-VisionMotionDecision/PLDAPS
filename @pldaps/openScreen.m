@@ -29,6 +29,7 @@ function p = openScreen(p)
 % 05/2015    jk  update     changed for use with version 4.1
 %                           moved default parameters to the
 %                           pldapsClassDefaultParameters
+% 06/26/2017 lpl update     edited so can use datapixx for I/O with software overlay
 
 
 InitializeMatlabOpenGL(0,0); %second 0: debug level =0 for speed
@@ -59,14 +60,15 @@ if p.trial.display.normalizeColor == 1
 end
 
 if p.trial.datapixx.use
-    disp('****************************************************************')
-    disp('****************************************************************')
-    disp('Adds flags for UseDataPixx')
-    disp('****************************************************************')
-    % Tell PTB we are using Datapixx
-    PsychImaging('AddTask', 'General', 'UseDataPixx');
-    PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
-    
+    if p.trial.display.useOverlay~=2
+        disp('****************************************************************')
+        disp('****************************************************************')
+        disp('Adds flags for UseDataPixx')
+        disp('****************************************************************')
+        % Tell PTB we are using Datapixx
+        PsychImaging('AddTask', 'General', 'UseDataPixx');
+        PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
+    end
     if p.trial.display.useOverlay==1
         % Turn on the overlay
         disp('Using overlay window (EnableDataPixxM16OutputWithOverlay)')
