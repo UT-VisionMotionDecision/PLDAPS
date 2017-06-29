@@ -14,7 +14,7 @@ function p = connect(p)
 if p.trial.plexon.spikeserver.use
 
     fprintLineBreak
-    fprintf('\tInitializing Plexon spikeserver.\n'
+    fprintf('\tInitializing Plexon spikeserver.\n');
     fprintLineBreak
     
     try
