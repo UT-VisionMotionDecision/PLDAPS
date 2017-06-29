@@ -15,7 +15,7 @@ function p = run(p)
 % TODO:reset class at end of experiment or mark as recorded, so I don't
 % run the same again by mistake
 
-try
+% try
     %% Setup and File management
     % Enure we have an experimentSetupFile set and verify output file
     
@@ -360,26 +360,26 @@ try
 
     sca;
     
-catch me
-    if p.trial.eyelink.use
-       pds.eyelink.finish(p); 
-    end
-    sca
-    if p.trial.sound.use
-        PsychPortAudio('Close')
-    end
-    % return cursor and command-line control
-    ShowCursor
-    ListenChar(0)
-    disp(me.message)
-    
-    nErr = size(me.stack); 
-    for iErr = 1:nErr
-        fprintf('errors in %s line %d\r', me.stack(iErr).name, me.stack(iErr).line)
-    end
-    fprintf('\r\r')
-    keyboard    
-end
+% catch me
+%     if p.trial.eyelink.use
+%        pds.eyelink.finish(p); 
+%     end
+%     sca
+%     if p.trial.sound.use
+%         PsychPortAudio('Close')
+%     end
+%     % return cursor and command-line control
+%     ShowCursor
+%     ListenChar(0)
+%     disp(me.message)
+%     
+%     nErr = size(me.stack); 
+%     for iErr = 1:nErr
+%         fprintf('errors in %s line %d\r', me.stack(iErr).name, me.stack(iErr).line)
+%     end
+%     fprintf('\r\r')
+%     keyboard    
+% end
 
 end
 %we are pausing, will create a new defaultParaneters Level where changes

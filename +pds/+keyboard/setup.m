@@ -1,4 +1,4 @@
-function p = setup(p,scan)
+function p = setup(p, devIdx)
 %pds.git.setup   setup the keyboard queue
 %
 % Setup universal Mac/PC keyboard and keynames
@@ -7,12 +7,17 @@ function p = setup(p,scan)
 %
 % p = pds.keyboard.setup(p)
 %
-% T.Czuba 6-4-2008
-% ktz updated the function description Apr2013
-% jk 2014 adapted to work with version 4.1
+% 2008-04-06  T.Czuba  Wrote it
+% 2013-04-00  ktz   Updated the function description
+% 2014-00-00  jk    Adapted to work with version 4.1
+% 2017-06-27  tbc   Removed KbQueue dependency on clearbuffer.m for initialization
+%                   Replaced depreciated 'scan' input with device index [devIdx]
+% 
 
-if nargin < 2
-    scan = 0;
+% Be explicit about what device we're polling
+%       (...subsequent KbQueueXxxx calls need to do this too, but we gotta start somewhere)
+if nargin < 2 || isempty(devIdx)
+    devIdx = -1; % PTB default
 end
 
 KbName('UnifyKeyNames');
@@ -77,58 +82,18 @@ kb.plusKey  = KbName('=+');
 kb.minusKey = KbName('-_');
 
 
-if scan && isMac
-    
-    devices = getDevices;
-    
-    if isempty(devices.keyInputExternal);
-        
-        kb.devint =devices.keyInputInternal(1);
-        
-        kb.dev = devices.keyInputInternal(end);
-        
-        disp('internal keyboard');
-        
-        disp(kb.devint)
-        
-        disp('no external devices');
-        
-    elseif isempty(devices.keyInputInternal);
-        
-        kb.devint =devices.keyInputExternal(1);
-        
-        kb.dev = devices.keyInputExternal(end);
-        
-        disp('external keyboard');
-        
-        disp(kb.devint)
-        
-        disp('no internal key devices');
-        
-    else
-        
-        kb.devint = devices.keyInputInternal(1);
-        
-        kb.dev = devices.keyInputExternal(1);
-        
-        disp('internal keyboard');
-        
-        disp(kb.devint)
-        
-        disp('external keyboard');
-        
-        disp(kb.dev)
-        
-    end
-end
 p.trial.keyboard.codes=kb;
 
-pds.keyboard.clearBuffer(p);
 
- [~, firstPress]=KbQueueCheck();
- 
- p.trial.keyboard.nCodes=length(firstPress);
+% Establish the queue
+KbQueueCreate(devIdx);
+% Start collecting keystrokes
+KbQueueStart(devIdx);
 
-% [kb.keyIsDown, ~, kb.keyCode] = KbCheck(-1);
+% Populate output fields & info
+[p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ] = KbQueueCheck(devIdx);
+p.trial.keyboard.nCodes = length(p.trial.keyboard.firstPressQ);
+p.trial.keyboard.devIdx = devIdx;
+
 
 end
