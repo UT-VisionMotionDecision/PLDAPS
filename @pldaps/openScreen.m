@@ -121,6 +121,7 @@ disp('****************************************************************')
 [ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, 0);
 p.trial.display.ptr=ptr;
 p.trial.display.winRect=winRect;
+% Software overlay is half-width; adjust winRect accordingly
 if p.trial.display.useOverlay==2
     p.trial.display.winRect(3)=p.trial.display.winRect(3)/2;
 end
@@ -257,8 +258,6 @@ if isField(p.trial, 'display.gamma')
         end
     end
 else
-    %     % get hardware bitdepth
-    %     [~, ~, realBitDepth] = Screen('ReadNormalizedGammaTable',ptr);
     %set a linear gamma
     PsychColorCorrection('SetLookupTable', ptr, linspace(0,1,p.trial.display.info.realBitDepth)'*[1, 1, 1], 'FinalFormatting');
 end
@@ -284,7 +283,7 @@ if p.trial.display.movie.create
     if isempty(movie.frameRate)
         movie.frameRate = p.trial.display.frate;
     end
-    movie.ptr = Screen('CreateMovie', ptr, [movie.dir filesep movie.file '.avi'], movie.width,movie.height,movie.frameRate,movie.options);
+    movie.ptr = Screen('CreateMovie', ptr, fullfile(movie.dir, [movie.file '.mp4']), movie.width, movie.height, movie.frameRate, movie.options);
     p.trial.display.movie=movie;
 end
 
