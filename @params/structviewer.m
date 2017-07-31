@@ -23,9 +23,14 @@ function varargout = structviewer(varargin)
 
 % Edit the above text to modify the response to help structviewer
 
-% Last Modified by GUIDE v2.5 24-Apr-2014 13:10:56
+% Last Modified by GUIDE v2.5 31-Jul-2017 10:47:02
 
 % Begin initialization code - DO NOT EDIT
+
+% Ensure figure window is not docked    (docked windows error on resizing callbacks)
+defFigWinStyle = get(0, 'DefaultFigureWindowStyle');
+set(0, 'DefaultFigureWindowStyle','normal')
+
 gui_Singleton = 1;
 gui_State = struct('gui_Name',          mfilename, ...
                    'gui_Singleton',     gui_Singleton, ...
@@ -42,6 +47,7 @@ if nargout
 else
     gui_mainfcn(gui_State, varargin{:});
 end
+set(0, 'defaultFigureWindowStyle',defFigWinStyle);
 % End initialization code - DO NOT EDIT
 
 
@@ -655,3 +661,4 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 %params class in the meantime.....
 handles.param.flatStruct=handles.flatStruct;
 handles.param.flatStructIdMap=containers.Map({handles.flatStruct.identifier},1:length(handles.flatStruct));
+
