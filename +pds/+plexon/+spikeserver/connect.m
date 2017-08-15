@@ -7,9 +7,16 @@ function p = connect(p)
 % p = pds.plexon.spikeserver.connect(p)
 %
 
-if ~p.trial.plexon.spikeserver.use
-    fprintf('spike server is turned off. If you intend it to be on, update your rig file to include dv.useSpikeserver = 1\r')
-else
+%  Lets not do this
+        % if ~p.trial.plexon.spikeserver.use
+        %     fprintf('spike server is turned off. If you intend it to be on, update your rig file to include dv.useSpikeserver = 1\r')
+        % else
+if p.trial.plexon.spikeserver.use
+
+    fprintLineBreak
+    fprintf('\tInitializing Plexon spikeserver.\n');
+    fprintLineBreak
+    
     try
         if isempty(p.trial.plexon.spikeserver.selfip)
             address = java.net.InetAddress.getLocalHost;

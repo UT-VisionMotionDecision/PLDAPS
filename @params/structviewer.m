@@ -23,9 +23,14 @@ function varargout = structviewer(varargin)
 
 % Edit the above text to modify the response to help structviewer
 
-% Last Modified by GUIDE v2.5 24-Apr-2014 13:10:56
+% Last Modified by GUIDE v2.5 31-Jul-2017 10:47:02
 
 % Begin initialization code - DO NOT EDIT
+
+% Ensure figure window is not docked    (docked windows error on resizing callbacks)
+% defFigWinStyle = get(0, 'DefaultFigureWindowStyle');
+% set(0, 'DefaultFigureWindowStyle','normal')
+
 gui_Singleton = 1;
 gui_State = struct('gui_Name',          mfilename, ...
                    'gui_Singleton',     gui_Singleton, ...
@@ -52,7 +57,7 @@ function structviewer_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to structviewer (see VARARGIN)
-
+    
 % Choose default command line output for structviewer
     handles.output = hObject;
     handles.param = varargin{1};
@@ -198,6 +203,13 @@ function varargout = structviewer_OutputFcn(hObject, eventdata, handles)
 %     jListbox = jScrollPane.getViewport.getComponent(0);
 %     set(jListbox, 'SelectionBackground',[0.8 0.8 0.8]);
 %    
+    % Ensure windowstyle == 'normal' (...prevents gui hiccups if defaultwindowstyle is docked)
+    handles.figure1.WindowStyle = 'normal'; 
+    drawnow;
+    ssz = get(0,'ScreenSize');
+    set(handles.figure1, 'units','pixels');
+    set(handles.figure1, 'Position', [ssz(3:4)-[1020, 760], 1000, 700]);
+
     [jScrollBar]=findjobj(handles.listbox1,'class','com.mathworks.hg.peer.utils.UIScrollPane');
     set(handle(jScrollBar,'CallbackProperties'),'AdjustmentValueChangedCallback',{@listbox1_ScrollCallback, handles.listbox1 });
     set(jScrollBar,'VerticalScrollBarPolicy',22); 
@@ -205,29 +217,19 @@ function varargout = structviewer_OutputFcn(hObject, eventdata, handles)
     [jScrollBar]=findjobj(handles.listbox2,'class','com.mathworks.hg.peer.utils.UIScrollPane');
     set(handle(jScrollBar,'CallbackProperties'),'AdjustmentValueChangedCallback',{@listbox2_ScrollCallback, handles.listbox1 });
     set(jScrollBar,'VerticalScrollBarPolicy',22); 
-    
+        
     varargout{1} = handles.output;
     
 function listbox1_ScrollCallback(hObject, eventdata, listbox1_handle)    
 handles=guidata(listbox1_handle);
 
-l1_position=get(handles.listbox1,'ListboxTop');
-l2_position=get(handles.listbox2,'ListboxTop');
-
-if(l1_position~=l2_position)
-    set(handles.listbox2,'ListboxTop',l1_position)
-end
+set(handles.listbox2,'ListboxTop', get(handles.listbox1,'ListboxTop'))
 
 
 function listbox2_ScrollCallback(hObject, eventdata, listbox2_handle)    
 handles=guidata(listbox2_handle);
 
-l1_position=get(handles.listbox1,'ListboxTop');
-l2_position=get(handles.listbox2,'ListboxTop');
-
-if(l1_position~=l2_position)
-    set(handles.listbox1,'ListboxTop',l2_position)
-end
+set(handles.listbox1,'ListboxTop', get(handles.listbox2,'ListboxTop'))
 
     
 % ------------------------------------------------------------
@@ -655,3 +657,4 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 %params class in the meantime.....
 handles.param.flatStruct=handles.flatStruct;
 handles.param.flatStructIdMap=containers.Map({handles.flatStruct.identifier},1:length(handles.flatStruct));
+

@@ -118,11 +118,12 @@ end
 %% Open double-buffered onscreen window with the requested stereo mode
 disp('****************************************************************')
 disp('****************************************************************')
-fprintf('Opening screen %d with background %02.2f in stereo mode %d\r', p.trial.display.scrnNum, p.trial.display.bgColor(1), p.trial.display.stereoMode)
+fprintf('Opening screen %d with background %s in stereo mode %d\r', p.trial.display.scrnNum, mat2str(p.trial.display.bgColor), p.trial.display.stereoMode)
 disp('****************************************************************')
 [ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, 0);
 p.trial.display.ptr=ptr;
 p.trial.display.winRect=winRect;
+% Software overlay is half-width; adjust winRect accordingly
 if p.trial.display.useOverlay==2
     p.trial.display.winRect(3)=p.trial.display.winRect(3)/2;
 end
@@ -133,21 +134,26 @@ p.trial.display.frate = round(1/Screen('GetFlipInterval',p.trial.display.ptr)); 
 p.trial.display.ifi=Screen('GetFlipInterval', p.trial.display.ptr);               % Inter-frame interval (frame rate in seconds)
 p.trial.display.ctr = [p.trial.display.winRect(3:4),p.trial.display.winRect(3:4)]./2 - 0.5;          % Rect defining screen center
 p.trial.display.info = Screen('GetWindowInfo', p.trial.display.ptr);              % Record a bunch of general display settings
+[~, ~, p.trial.display.info.realBitDepth] = Screen('ReadNormalizedGammaTable', p.trial.display.ptr); % Actual bitdepth of display hardware (not merely frame buffer bpc)
 
 %% some more
+% [p]ixel dimensions
 p.trial.display.pWidth=p.trial.display.winRect(3)-p.trial.display.winRect(1);
 p.trial.display.pHeight=p.trial.display.winRect(4)-p.trial.display.winRect(2);
+% physical [w]orld dimensions (cm)
 p.trial.display.wWidth=p.trial.display.widthcm;
 p.trial.display.wHeight=p.trial.display.heightcm;
-p.trial.display.dWidth = atand(p.trial.display.wWidth/2 / p.trial.display.viewdist)*2;
-p.trial.display.dHeight = atand(p.trial.display.wHeight/2 / p.trial.display.viewdist)*2;
+% visual [d]egrees          % updated to ensure this param reflects ppd (i.e. not an independent/redundant calculation)
+p.trial.display.dWidth =  p.trial.display.pWidth/p.trial.display.ppd;   
+p.trial.display.dHeight = p.trial.display.pHeight/p.trial.display.ppd;
+% space conversions
 p.trial.display.w2px=[p.trial.display.pWidth/p.trial.display.wWidth; p.trial.display.pHeight/p.trial.display.wHeight];
 p.trial.display.px2w=[p.trial.display.wWidth/p.trial.display.pWidth; p.trial.display.wHeight/p.trial.display.pHeight];
 
 % Set screen rotation
 p.trial.display.ltheta = 0.00*pi;                                    % Screen rotation to adjust for mirrors
 p.trial.display.rtheta = -p.trial.display.ltheta;
-p.trial.display.scr_rot = 0;                                         % Screen Rotation for opponency conditions
+p.trial.display.scr_rot = 0;                                         
 
 % Make text clean
 Screen('TextFont',p.trial.display.ptr,'Helvetica');
@@ -244,8 +250,8 @@ if isField(p.trial, 'display.gamma')
         PsychColorCorrection('SetLookupTable', p.trial.display.ptr, p.trial.display.gamma.table, 'FinalFormatting');
     elseif isfield(p.trial.display.gamma, 'power')
         PsychColorCorrection('SetEncodingGamma', p.trial.display.ptr, p.trial.display.gamma.power, 'FinalFormatting');
-        if isfield(p.trial.display.gamma, 'bias') &&isfield(p.trial.display.gamma, 'minL')...
-           && isfield(p.trial.display.gamma, 'minL') &&  isfield(p.trial.display.gamma, 'gain')
+        % Extended gamma parameters
+        if all( isfield(p.trial.display.gamma, {'bias', 'minL', 'maxL', 'gain'}) )
             bias=p.trial.display.gamma.bias;
             minL=p.trial.display.gamma.minL;
             maxL=p.trial.display.gamma.maxL;
@@ -255,7 +261,7 @@ if isField(p.trial, 'display.gamma')
     end
 else
     %set a linear gamma
-    PsychColorCorrection('SetLookupTable', ptr, linspace(0,1,256)'*[1, 1, 1], 'FinalFormatting');
+    PsychColorCorrection('SetLookupTable', ptr, linspace(0,1,p.trial.display.info.realBitDepth)'*[1, 1, 1], 'FinalFormatting');
 end
 
 % % This seems redundant. Is it necessary?
@@ -279,7 +285,7 @@ if p.trial.display.movie.create
     if isempty(movie.frameRate)
         movie.frameRate = p.trial.display.frate;
     end
-    movie.ptr = Screen('CreateMovie', ptr, [movie.dir filesep movie.file '.avi'], movie.width,movie.height,movie.frameRate,movie.options);
+    movie.ptr = Screen('CreateMovie', ptr, fullfile(movie.dir, [movie.file '.mp4']), movie.width, movie.height, movie.frameRate, movie.options);
     p.trial.display.movie=movie;
 end
 

@@ -3,12 +3,22 @@ function p = setup(p)
 %
 % p = pds.eyelink.setup(p)
 % Setup PLDAPS to use Eyelink toolbox
-if ~p.trial.eyelink.use
-    fprintf('****************************************************************\r')
-    fprintf('****************************************************************\r')
-    fprintf('PLDAPS is NOT using EYELINK Toolbox for eyetrace. \r')
-    return
-else
+    
+    % What is the utility in stating what we're NOT using? --TBC 2017
+    % if ~p.trial.eyelink.use
+    %     fprintf('****************************************************************\r')
+    %     fprintf('****************************************************************\r')
+    %     fprintf('PLDAPS is NOT using EYELINK Toolbox for eyetrace. \r')
+    %     return
+    % else
+    
+if p.trial.eyelink.use 
+    
+    fprintLineBreak;
+    fprintf('\tSetting up EYELINK Toolbox for eyetrace. \n');
+    fprintLineBreak;
+
+        
     Eyelink('Initialize')
     
     if p.trial.eyelink.custom_calibration;

@@ -216,4 +216,10 @@ elseif p.trial.display.useOverlay==2 % software overlay
     glBindTexture(GL.TEXTURE_RECTANGLE_EXT, 0);
 end
 
+%% final status checks & updates before flip and return
+%
+if p.trial.datapixx.use
+    p.trial.datapixx.videoStatus = Datapixx('GetVideoStatus');
+end
+
 Screen('Flip', p.trial.display.ptr, 0);
