@@ -8,7 +8,7 @@ function p = runModularTrial(p, replay)
 %               might change to ASYNC buffer flipping. but won't for now.
 % 03/2016 jk    modular version
 
-    %replay from this side is faily easy, just need to set the ttime
+    %replay from this side is fairly easy, just need to set the ttime
     %(current time in trial). User must still replace frameUpdate functions 
     %to copy the correct data for the other states to use.
     if nargin<2
@@ -16,7 +16,7 @@ function p = runModularTrial(p, replay)
     end
 
     %get all functionHandles that we want to use
-    [modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+    [modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p);
 
     %order the framestates that we will iterate through each trial by their value
     % only positive states are frame states. And they will be called in
@@ -24,10 +24,10 @@ function p = runModularTrial(p, replay)
     % for explanations of the default states
     % negative states are special states outside of a frame (trial,
     % experiment, etc)
-    [stateValue, stateName] = p.getReorderedFrameStates(p.trial.pldaps.trialStates,moduleRequestedStates);
+    [stateValue, stateName] = p.getReorderedFrameStates(p.trial.pldaps.trialStates, moduleRequestedStates);
     nStates=length(stateValue);
 
-    runStateforModules(p,'trialSetup',modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+    runStateforModules(p, 'trialSetup', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
     %switch to high priority mode
     if p.trial.pldaps.maxPriority
@@ -40,7 +40,7 @@ function p = runModularTrial(p, replay)
 
     %will be called just before the trial starts for time critical calls to
     %start data aquisition
-    runStateforModules(p,'trialPrepare',modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+    runStateforModules(p, 'trialPrepare', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
     %%% MAIN WHILE LOOP %%%
     %-------------------------------------------------------------------------%
@@ -53,15 +53,15 @@ function p = runModularTrial(p, replay)
 
         %iterate through frame states
         for iState=1:nStates
-            runStateforModules(p,stateName{iState},modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+            runStateforModules(p, stateName{iState}, modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
             if replay
-                p.trial.ttime=p.data{p.trial.pldaps.iTrial}.timing.frameStateChangeTimes(iState,p.trial.iFrame)+ p.trial.nextFrameTime-p.trial.display.ifi;
+                p.trial.ttime=p.data{p.trial.pldaps.iTrial}.timing.frameStateChangeTimes(iState, p.trial.iFrame)+ p.trial.nextFrameTime-p.trial.display.ifi;
             else
                 p.trial.ttime = GetSecs - p.trial.trstart;
             end
             p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
-            p.trial.timing.frameStateChangeTimes(iState,p.trial.iFrame)=p.trial.ttime-p.trial.nextFrameTime+p.trial.display.ifi;
+            p.trial.timing.frameStateChangeTimes(iState, p.trial.iFrame)=p.trial.ttime-p.trial.nextFrameTime+p.trial.display.ifi;
         end
 
         %advance to next frame, update frame index
@@ -74,10 +74,10 @@ function p = runModularTrial(p, replay)
             Priority(oldPriority);
         end
         if round(newPriority)<maxPriority
-            warning('pldaps:runTrial','Thread priority was degraded by operating system during the trial.')
+            warning('pldaps:runTrial', 'Thread priority was degraded by operating system during the trial.')
         end
     end
 
-    runStateforModules(p,'trialCleanUpandSave',modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+    runStateforModules(p, 'trialCleanUpandSave', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
 end %runModularTrial

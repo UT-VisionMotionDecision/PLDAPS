@@ -93,13 +93,13 @@ function p = runTrial(p)
 
 %             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
 %             p.trial.framePreLastDrawIdleCount = p.trial.framePreLastDrawIdleCount +1;
-% %             dv.trial.ttime = GetSecs - dv.trial.trstart;
-% %             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-% %             while (dv.trial.remainingFrameTime>sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePreLastDraw+1:end)))
-% %                 tfh(dv, dv.trial.pldaps.trialStates.frameIdlePreLastDraw);
-% %                 dv.trial.framePreLastDrawIdleCount = dv.trial.framePreLastDrawIdleCount +1;
-% %                 dv.trial.ttime = GetSecs - dv.trial.trstart;
-% %                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
+% %             p.trial.ttime = GetSecs - p.trial.trstart;
+% %             p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
+% %             while (p.trial.remainingFrameTime>sum(timeNeeded(p.trial.pldaps.trialStates.frameIdlePreLastDraw+1:end)))
+% %                 tfh(dv, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
+% %                 p.trial.framePreLastDrawIdleCount = p.trial.framePreLastDrawIdleCount +1;
+% %                 p.trial.ttime = GetSecs - p.trial.trstart;
+% %                 p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
 % %             end
 %             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawTimecritical);
 % 
@@ -111,13 +111,13 @@ function p = runTrial(p)
 % 
 %             tfh(p, p.trial.pldaps.trialStates.frameIdlePostDraw);
 %             p.trial.framePostLastDrawIdleCount = p.trial.framePostLastDrawIdleCount +1;
-% %             dv.trial.ttime = GetSecs - dv.trial.trstart;
-% %             dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
-% %             while (dv.trial.remainingFrameTime>sum(timeNeeded(dv.trial.pldaps.trialStates.frameIdlePostDraw+1:end)))
-% %                 tfh(dv, dv.trial.pldaps.trialStates.frameIdlePostDraw);
-% %                 dv.trial.framePostLastDrawIdleCount = dv.trial.framePostLastDrawIdleCount +1;
-% %                 dv.trial.ttime = GetSecs - dv.trial.trstart;
-% %                 dv.trial.remainingFrameTime=dv.trial.nextFrameTime-dv.trial.ttime;
+% %             p.trial.ttime = GetSecs - p.trial.trstart;
+% %             p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
+% %             while (p.trial.remainingFrameTime>sum(timeNeeded(p.trial.pldaps.trialStates.frameIdlePostDraw+1:end)))
+% %                 tfh(dv, p.trial.pldaps.trialStates.frameIdlePostDraw);
+% %                 p.trial.framePostLastDrawIdleCount = p.trial.framePostLastDrawIdleCount +1;
+% %                 p.trial.ttime = GetSecs - p.trial.trstart;
+% %                 p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
 %             end
         setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameFlip)
 

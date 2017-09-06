@@ -150,20 +150,20 @@ function p = run(p)
     
     %now setup everything for the first trial
    
-%     dv.defaultParameters.pldaps.iTrial=trialNr;
+%     p.defaultParameters.pldaps.iTrial=trialNr;
     
     %we'll have a trialNr counter that the trial function can tamper with?
     %do we need to lock the defaultParameters to prevent tampering there?
     levelsPreTrials=p.defaultParameters.getAllLevels();
-%     dv.defaultParameters.addLevels(dv.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
+%     p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
     
     %for now all structs will be in the parameters class, first
     %levelsPreTrials, then we'll add the condition struct before each trial.
-%     dv.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr])
-%     dv.defaultParameters.pldaps.iTrial=trialNr;
-%     dv.trial=mergeToSingleStruct(dv.defaultParameters);
+%     p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr])
+%     p.defaultParameters.pldaps.iTrial=trialNr;
+%     p.trial=mergeToSingleStruct(p.defaultParameters);
     
-    %only use dv.trial from here on!
+    %only use p.trial from here on!
     
     %% main trial loop %%
     while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
@@ -241,21 +241,21 @@ function p = run(p)
            end
 
            %advance to next trial
-%            if(dv.trial.pldaps.iTrial ~= dv.trial.pldaps.finish)
+%            if(p.trial.pldaps.iTrial ~= p.trial.pldaps.finish)
 %                 %now we add this and the next Trials condition parameters
-%                 dv.defaultParameters.addLevels(dv.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']},[levelsPreTrials length(levelsPreTrials)+trialNr]);
-%                 dv.defaultParameters.pldaps.iTrial=trialNr;
-%                 dv.trial=mergeToSingleStruct(dv.defaultParameters);
+%                 p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']},[levelsPreTrials length(levelsPreTrials)+trialNr]);
+%                 p.defaultParameters.pldaps.iTrial=trialNr;
+%                 p.trial=mergeToSingleStruct(p.defaultParameters);
 %            else
-%                 dv.trial.pldaps.iTrial=trialNr;
+%                 p.trial.pldaps.iTrial=trialNr;
 %            end
 %            
 %            if isfield(dTrialStruct,'pldaps')
 %                if isfield(dTrialStruct.pldaps,'finish') 
-%                     dv.trial.pldaps.finish=dTrialStruct.pldaps.finish;
+%                     p.trial.pldaps.finish=dTrialStruct.pldaps.finish;
 %                end
 %                if isfield(dTrialStruct.pldaps,'quit') 
-%                     dv.trial.pldaps.quit=dTrialStruct.pldaps.quit;
+%                     p.trial.pldaps.quit=dTrialStruct.pldaps.quit;
 %                end
 %            end
             
@@ -280,7 +280,7 @@ function p = run(p)
             elseif pause==2
                 pauseLoop(p);
             end           
-%             pds.datapixx.refresh(dv);
+%             pds.datapixx.refresh(p);
 
             %now I'm assuming that nobody created new levels,
             %but I guess when you know how to do that
@@ -384,7 +384,7 @@ function p = run(p)
 end
 %we are pausing, will create a new defaultParaneters Level where changes
 %would go.
-function pauseLoop(dv)
+function pauseLoop(p)
         ShowCursor;
 %         ListenChar(1); % is this necessary
         KbQueueRelease();
@@ -395,51 +395,51 @@ function pauseLoop(dv)
         ctrlPressed=false;
         altPressed=false;
         
-        while dv.trial.pldaps.quit==1
+        while p.trial.pldaps.quit==1
             %the keyboard chechking we only capture ctrl+alt key presses.
-            [dv.trial.keyboard.pressedQ,  dv.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
-            if dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lctrl)&&dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lalt)
+            [p.trial.keyboard.pressedQ,  p.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
+            if p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.Lctrl)&&p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.Lalt)
                 %D: Debugger
-                if  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.dKey) 
+                if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) 
                     disp('stepped into debugger. Type return to start first trial...')
                     keyboard %#ok<MCKBD>
 
                 %E: Eyetracker Setup
-                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.eKey)
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.eKey)
                     try
-                       if(dv.trial.eyelink.use) 
-                           pds.eyelink.calibrate(dv);
+                       if(p.trial.eyelink.use) 
+                           pds.eyelink.calibrate(p);
                        end
                     catch ME
                         display(ME);
                     end
 
                 %M: Manual reward
-                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.mKey)
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.mKey)
                     pds.behavior.reward.give(p);
-%                     if dv.trial.datapixx.use
-%                         pds.datapixx.analogOut(dv.trial.stimulus.rewardTime)
-%                         pds.datapixx.flipBit(dv.trial.event.REWARD);
+%                     if p.trial.datapixx.use
+%                         pds.datapixx.analogOut(p.trial.stimulus.rewardTime)
+%                         pds.datapixx.flipBit(p.trial.event.REWARD);
 %                     end
-%                     dv.trial.ttime = GetSecs - dv.trial.trstart;
-%                     dv.trial.stimulus.timeReward(:,dv.trial.iReward) = [dv.trial.ttime dv.trial.stimulus.rewardTime];
-%                     dv.trial.stimulus.iReward = dv.trial.iReward + 1;
-%                     PsychPortAudio('Start', dv.trial.sound.reward);
+%                     p.trial.ttime = GetSecs - p.trial.trstart;
+%                     p.trial.stimulus.timeReward(:,p.trial.iReward) = [p.trial.ttime p.trial.stimulus.rewardTime];
+%                     p.trial.stimulus.iReward = p.trial.iReward + 1;
+%                     PsychPortAudio('Start', p.trial.sound.reward);
 
                 %P: PAUSE (end the pause) 
-                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.pKey)
-                    dv.trial.pldaps.quit = 0;
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.pKey)
+                    p.trial.pldaps.quit = 0;
                     ListenChar(2);
                     HideCursor;
                     break;
 
                 %Q: QUIT
-                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.qKey)
-                    dv.trial.pldaps.quit = 2;
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.qKey)
+                    p.trial.pldaps.quit = 2;
                     break;
                 
                 %X: Execute text selected in Matlab editor
-                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.xKey)
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.xKey)
                     activeEditor=matlab.desktop.editor.getActive; 
                     if isempty(activeEditor)
                         display('No Matlab editor open -> Nothing to execute');

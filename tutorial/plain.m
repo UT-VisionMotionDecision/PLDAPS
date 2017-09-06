@@ -9,7 +9,7 @@ function p=plain(p,state)
         
         p = pdsDefaultTrialStructure(p); 
 
-%         dv.defaultParameters.pldaps.trialMasterFunction='runTrial';
+%         p.defaultParameters.pldaps.trialMasterFunction='runTrial';
         p.defaultParameters.pldaps.trialFunction='plain';
         %five seconds per trial.
         p.trial.pldaps.maxTrialLength = 5;
@@ -25,17 +25,18 @@ function p=plain(p,state)
         %otherwise just leave it here
         pldapsDefaultTrialFunction(p,state);
         switch state
-%             case dv.trial.pldaps.trialStates.frameUpdate
-%             case dv.trial.pldaps.trialStates.framePrepareDrawing; 
-%             case dv.trial.pldaps.trialStates.frameDraw;
-% %             case dv.trial.pldaps.trialStates.frameIdlePreLastDraw;
-% %             case dv.trial.pldaps.trialStates.frameDrawTimecritical;
-%             case dv.trial.pldaps.trialStates.frameDrawingFinished;
-% %             case dv.trial.pldaps.trialStates.frameIdlePostDraw;
+%             case p.trial.pldaps.trialStates.frameUpdate
+%             case p.trial.pldaps.trialStates.framePrepareDrawing; 
+            case p.trial.pldaps.trialStates.frameDraw
+                    Screen('DrawDots', p.trial.display.ptr, randi([-200,200], 2,10), 12, [], p.trial.display.ctr(1:2), 1);
+% %             case p.trial.pldaps.trialStates.frameIdlePreLastDraw;
+% %             case p.trial.pldaps.trialStates.frameDrawTimecritical;
+%             case p.trial.pldaps.trialStates.frameDrawingFinished;
+% %             case p.trial.pldaps.trialStates.frameIdlePostDraw;
 %
-%             case dv.trial.pldaps.trialStates.trialSetup
-%             case dv.trial.pldaps.trialStates.trialPrepare
-%             case dv.trial.pldaps.trialStates.trialCleanUpandSave
+%             case p.trial.pldaps.trialStates.trialSetup
+%             case p.trial.pldaps.trialStates.trialPrepare
+%             case p.trial.pldaps.trialStates.trialCleanUpandSave
 
             case p.trial.pldaps.trialStates.frameFlip;   
                 if p.trial.iFrame == p.trial.pldaps.maxFrames
