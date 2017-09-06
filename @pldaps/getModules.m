@@ -13,7 +13,10 @@ function [modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInpu
     [moduleOrder,so]=sort(moduleOrder);
     modules=modules(so);
     
-    moduleLocationInputs=cellfun(@(x) (isfield(p.trial.(x).stateFunction,'acceptsLocationInput') && p.trial.(x).stateFunction.acceptsLocationInput),modules); %does the function accept the thirn input to specifiy where to save the data?
+    % "acceptsLocationInput" means the function accepts a 3rd [string] input specifying the p.trial structure fieldname
+    % where the relevant data & parameters are located
+    %    (e.g.  moduleFxnAbreviation = n = 'dots'; that locationInput[n] directs stateFunctions to look in  p.trial.(n).<whatever>  )
+    moduleLocationInputs=cellfun(@(x) (isfield(p.trial.(x).stateFunction,'acceptsLocationInput') && p.trial.(x).stateFunction.acceptsLocationInput),modules); 
     
     moduleFunctionHandles=cellfun(@(x) str2func(p.trial.(x).stateFunction.name), modules, 'UniformOutput', false); 
 %     moduleRequestedStates=cellfun(@(x) (p.trial.(x).stateFunction.requestedStates), modules, 'UniformOutput', false);
@@ -22,10 +25,17 @@ function [modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInpu
     %a little too long, ok, so if requestedStates is not defined, or .all
     %is true, we will call it for all states. Otherwise it will only call
     %the ones defined and true.
-    moduleRequestedStates=cellfun(@(x) cellfun(@(y) (~isfield(p.trial.(y).stateFunction,'requestedStates') || (isfield(p.trial.(y).stateFunction.requestedStates,'all') && p.trial.(y).stateFunction.requestedStates.all) || (isfield(p.trial.(y).stateFunction.requestedStates,x) && p.trial.(y).stateFunction.requestedStates.(x))), modules), availiableStates, 'UniformOutput', false);
+    moduleRequestedStates = cellfun(@(x)...
+                                        (cellfun(@(y)...
+                                                     (~isfield(p.trial.(y).stateFunction,'requestedStates')...
+                                                      || (isfield(p.trial.(y).stateFunction.requestedStates,'all') && p.trial.(y).stateFunction.requestedStates.all)...
+                                                      || (isfield(p.trial.(y).stateFunction.requestedStates,x)...
+                                                      && p.trial.(y).stateFunction.requestedStates.(x))),... % end @(y) customFxn
+                                                      modules)),... % end @(x) customFxn
+                                        availiableStates, 'UniformOutput', false);
     
     
-    if isfield(p.trial.pldaps,'trialFunction') && ~isempty(p.trial.pldaps.trialFunction);
+    if isfield(p.trial.pldaps,'trialFunction') && ~isempty(p.trial.pldaps.trialFunction)
         modules{end+1}='stimulus';
         moduleFunctionHandles{end+1}=str2func(p.trial.pldaps.trialFunction);
         for iState=1:length(moduleRequestedStates)
