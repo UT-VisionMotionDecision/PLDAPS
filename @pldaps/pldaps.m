@@ -95,7 +95,7 @@ classdef pldaps < handle
         
         
         %TODO: decice wheter this is a hack or feature. Allows to use
-        %dv.trial before the first trial. But it's a Params class
+        %p.trial before the first trial. But it's a Params class
         %until the first trial starts
         p.trial = p.defaultParameters; 
     end 

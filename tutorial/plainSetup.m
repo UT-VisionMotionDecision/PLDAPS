@@ -8,7 +8,7 @@ function p=plainSetup(p)
 % p.run
     p = pdsDefaultTrialStructure(p); 
 
-%         dv.defaultParameters.pldaps.trialMasterFunction='runTrial';
+%         p.defaultParameters.pldaps.trialMasterFunction='runTrial';
     p.defaultParameters.pldaps.trialFunction='plain';
         %five seconds per trial.
     p.trial.pldaps.maxTrialLength = 5;
