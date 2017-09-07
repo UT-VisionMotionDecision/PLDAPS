@@ -11,6 +11,7 @@ function s=pldapsClassDefaultParameters(s)
 %s.	datapixx.
  s.	datapixx.	enablePropixxCeilingMount = false;
  s.	datapixx.	enablePropixxRearProjection = false;
+ s. datapixx.   rb3d = 0;
  s.	datapixx.	LogOnsetTimestampLevel = 2;
  s.	datapixx.	use = true;
  s.	datapixx.	useAsEyepos = false;
@@ -48,6 +49,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	display.	sourceFactorNew = 'GL_SRC_ALPHA';
  s.	display.	stereoFlip = [ ];
  s.	display.	stereoMode = 0;
+ s. display.    crosstalk = 0;
  s.	display.	switchOverlayCLUTs = false;
  s.	display.	useOverlay = 1;
  s.	display.	viewdist = 57;
