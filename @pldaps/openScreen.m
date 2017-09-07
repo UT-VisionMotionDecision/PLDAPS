@@ -82,6 +82,7 @@ if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1
     % Ensure stereomode==8 (Red-Blue anaglyph) for proper assignment of L/R stereobuffers into R & B channels
    p.trial.display.stereoMode = 8;
 end
+
 if p.trial.display.stereoMode > 0
     % PTB stereo crosstalk correction
     if isfield(p.trial.display, 'crosstalk') && any(p.trial.display.crosstalk>0)
@@ -92,8 +93,8 @@ if p.trial.display.stereoMode > 0
         disp('****************************************************************')
         disp('****************************************************************')
         fprintf('Stereo Crosstalk correction implemented through PTB:\n');
-        fprintf('\tL-(gain*R): [%05.2f, %05.2f, %05.2f]%%\n', xtalk(:,1).*100)
-        fprintf('\tR-(gain*L): [%05.2f, %05.2f, %05.2f]%%\n', xtalk(:,end).*100)
+        fprintf('\tL-(gain*R): [%05.2f, %05.2f, %05.2f]%%\n', p.trial.display.crosstalk(:,1).*100)
+        fprintf('\tR-(gain*L): [%05.2f, %05.2f, %05.2f]%%\n', p.trial.display.crosstalk(:,end).*100)
         disp('****************************************************************')
     end
     
