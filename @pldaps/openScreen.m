@@ -192,7 +192,7 @@ if p.trial.display.useOverlay==1
         elseif p.trial.datapixx.rb3d
             % RB3d mode needs special shaders to encode overlay in the green channel
             oldColRange = Screen('ColorRange', p.trial.display.ptr, 255);
-            p.trial.display.overlayptr = SetAnaglyphStereoParameters('CreateGreenOverlay', windowPtr);            
+            p.trial.display.overlayptr = SetAnaglyphStereoParameters('CreateGreenOverlay', p.trial.display.ptr);            
             % Put stimulus color range back how it was
             Screen('ColorRange', p.trial.display.ptr, oldColRange);
             
