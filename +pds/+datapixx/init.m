@@ -79,6 +79,13 @@ if p.trial.datapixx.use
         else
             Datapixx('DisablePropixxCeilingMount');
         end
+        
+        if isfield(p.trial.datapixx,'rb3d') && p.trial.datapixx.rb3d
+            Datapixx('SetVideoMode', 9); % Enable the overlay on the PPX CTRL
+            Datapixx('SetPropixxDlpSequenceProgram', 1); %, 1);
+            Datapixx('RegWrRd');
+        end
+
     end
     
     p.trial.datapixx.info.DatapixxFirmwareRevision = Datapixx('GetFirmwareRev');
@@ -110,6 +117,10 @@ if p.trial.display.useOverlay==1 % Datapixx overlay
         %differ between all machines...hmm, instead:
         %Set the transparancy color to the background color. Could set it
         %to anything, but we'll use this to maximize backward compatibility
+        % %
+        % % This could cause a problem with RB3d Overlay implementation,
+        % % which is done in propixx hardware (i.e. 'blackbox' code)
+        % %
         bgColor=p.trial.display.bgColor;
         if isField(p.trial, 'display.gamma.table')
             bgColor = interp1(linspace(0,1,256),p.trial.display.gamma.table(:,1), p.trial.display.bgColor);
@@ -119,7 +130,7 @@ if p.trial.display.useOverlay==1 % Datapixx overlay
         end
         Datapixx('SetVideoClutTransparencyColor', bgColor);
         Datapixx('EnableVideoClutTransparencyColorMode');
-        Datapixx('RegWr');
+        Datapixx('RegWrRd');
         
         if p.trial.display.switchOverlayCLUTs
             combinedClut = [p.trial.display.humanCLUT; p.trial.display.monkeyCLUT];
@@ -144,6 +155,9 @@ if p.trial.display.useOverlay==1 % Datapixx overlay
             
         end
 
+        % Retrieve/update extended Datapixx settings ("VideoStatus")
+        p.trial.datapixx.videoStatus = Datapixx('GetVideoStatus');
+
         % WARNING about LoadNormalizedGammaTable from Mario Kleiner:
         % "Not needed, possibly harmful:
         % The PsychImaging() setup code already calls LoadIdentityClut()
@@ -164,8 +178,19 @@ if p.trial.display.useOverlay==1 % Datapixx overlay
         % (posted on Psychtoolbox forum, 3/9/2010)
         %
         % We don't seem to have this problem - jake 12/04/13
-        Screen('LoadNormalizedGammaTable', p.trial.display.ptr, combinedClut, 2);
+        
+        % Apply the clut
+        if p.trial.datapixx.videoStatus.mode == 9
+           % RB3d Overlay clut must be passed to Propixx via Datapixx()
+           Datapixx('SetVideoClut', p.trial.display.ptr, combinedClut)
+           Datapixx('RegWrRd');
+
+        else
+            % Let Screen apply clut to target device (via 4th input == 2)
+            Screen('LoadNormalizedGammaTable', p.trial.display.ptr, combinedClut, 2);            
+        end
     end
+    
 elseif p.trial.display.useOverlay==2 % software overlay
 
     %assign transparency color
@@ -216,8 +241,8 @@ elseif p.trial.display.useOverlay==2 % software overlay
     glBindTexture(GL.TEXTURE_RECTANGLE_EXT, 0);
 end
 
-%% final status checks & updates before flip and return
-%
+%% Final status checks & updates before flip and return
+% Retrieve/update extended Datapixx settings ("VideoStatus")
 if p.trial.datapixx.use
     p.trial.datapixx.videoStatus = Datapixx('GetVideoStatus');
 end

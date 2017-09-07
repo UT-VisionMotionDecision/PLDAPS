@@ -23,6 +23,8 @@
  * chain of the Psychtoolbox-3 imaging pipeline.
  *
  * (c)2016 by Jonas Knoell, licensed to you under MIT license.
+ * 2017-09-03  TBC  Updated to follow panel filter conventions of newer(?) bitsplusplus.m shaders
+ *
  */
 
 #extension GL_ARB_texture_rectangle : enable
@@ -39,6 +41,9 @@ uniform vec3 transparencycolor;
 /* Declare external function for luminance color conversion: */
 vec4 icmTransformColor(vec4 incolor);
 
+/* Dynamically generated overlay color index lookup function: */
+float getMonoOverlayIndex(vec2 pos);
+
 void main()
 {
     vec2 texCoord = gl_TexCoord[0].st;
@@ -49,7 +54,8 @@ void main()
     /* Retrieve main window color value.*/
     vec4 incolor = texture2DRect(Image, texCoord);
     
-    int overlayindex = int(floor(texture2DRect(overlayImage, texCoord).r*255. + 0.5));
+    /* int overlayindex = int(floor(texture2DRect(overlayImage, texCoord).r*255. + 0.5)); */
+    int overlayindex = int(floor(getMonoOverlayIndex(texCoord)*255. + 0.5));
 
     vec3 overlaycolor;
     if(overlayindex>0){
