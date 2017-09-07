@@ -95,7 +95,7 @@ if p.trial.display.stereoMode > 0
         fprintf('Stereo Crosstalk correction implemented through PTB:\n');
         fprintf('\tL-(gain*R): [%05.2f, %05.2f, %05.2f]%%\n', p.trial.display.crosstalk(:,1).*100)
         fprintf('\tR-(gain*L): [%05.2f, %05.2f, %05.2f]%%\n', p.trial.display.crosstalk(:,end).*100)
-        disp('****************************************************************')
+        fprintf('\n****************************************************************\n')
     end
     
     % Planar display setup

@@ -182,7 +182,7 @@ if p.trial.display.useOverlay==1 % Datapixx overlay
         % Apply the clut
         if p.trial.datapixx.videoStatus.mode == 9
            % RB3d Overlay clut must be passed to Propixx via Datapixx()
-           Datapixx('SetVideoClut', p.trial.display.ptr, combinedClut)
+           Datapixx('SetVideoClut', combinedClut)
            Datapixx('RegWrRd');
 
         else
