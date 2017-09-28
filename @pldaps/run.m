@@ -17,6 +17,9 @@ function p = run(p)
 
 % try
     %% Setup and File management
+    % clean IOPort handles (no PTB method to retrieve previously opened IOPort handles, so might as well clean slate)
+    IOPort('CloseAll');
+    
     % Enure we have an experimentSetupFile set and verify output file
     
     %make sure we are not running an experiment twice
