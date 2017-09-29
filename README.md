@@ -84,16 +84,21 @@ The order of inputs is somewhat flexible**, but the only officially supported or
 - __settingsStruct__ must be a structure. Fieldnames [within their respective param struct hierarchies] matching those in defaultParameters will be replaced with the value in settingsStruct.
 	- e.g. toggle the overlay state for this run by creating `settingsStruct.display.useOverlay = 1`. Note: you need not build every field of the .display struct into this; fieldnames will be matched/updated piecewise
 
-- _condsCell_ a fourth input of a cell struct of parameters for each trial can also be accepted. This input should only really be used for debugging purposes, as trial specific parameters are better dealt with inside your setupFunction (when setting up p.conditions{})
-
-`p` now exists as a PLDAPS class in the workspace, but the experiment hasn't started yet, and the provided experiment function has not been called yet.
+- _condsCell_, a fourth input of a cell struct of parameters for each trial can also be accepted. This input should only really be used for debugging purposes, as trial specific parameters are better dealt with inside your setupFunction (when setting up p.conditions{})
 
 > (__*__ all inputs are _technically_ optional, but PLDAPS won't do much without them.)
 > (__**__ In most—but not all—cases PLDAPS will still be able to parse disordered inputs, but lets not leave things to chance when we don't have to.)
 
 ## Running pldaps 
-###pldaps.run
-`pldaps.run` runs the experiment. This will open the PTB screen and interface with a number of external hardware devices and will call a function each trial.
+### pldaps.run
+`p` now exists as a PLDAPS class in the workspace, but the experiment hasn't started yet, and the provided experiment function has not been called yet.
+
+Execute the .run method to actually begin the experiment:
+```Matlab
+p.run
+```
+
+__`pldaps.run`__ runs the experiment. This will open the PTB screen and interface with a number of external hardware devices and will call a function each trial.
 
 Of course there is no need to use this, if you wanted to run your own experiment script and only wanted to use pldaps for its screen opening and device management, but in that case there might not be any benefit of using this version of pldaps.
 
