@@ -88,8 +88,8 @@ The order of inputs is somewhat flexible**, but the only officially supported or
 
 `p` now exists as a PLDAPS class in the workspace, but the experiment hasn't started yet, and the provided experiment function has not been called yet.
 
-(__*__ all inputs are _technically_ optional, but PLDAPS won't do much without them.)
-(__**__ In most—but not all—cases PLDAPS will still be able to parse disordered inputs, but lets not leave things to chance when we don't have to.)
+> (__*__ all inputs are _technically_ optional, but PLDAPS won't do much without them.)
+> (__**__ In most—but not all—cases PLDAPS will still be able to parse disordered inputs, but lets not leave things to chance when we don't have to.)
 
 ## Running pldaps 
 ###pldaps.run
