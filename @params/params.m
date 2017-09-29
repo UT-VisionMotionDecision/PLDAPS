@@ -331,7 +331,8 @@ classdef params < handle
                                 varargout{1}=tmp;
                             catch
                                 % Still ambiguous, but better than maddeningly perpetual "subsref" errors
-                                warning('Field %s%s is currently inaccessible.', S.type, S.subs)
+                                jnk = {S.type; S.subs}; jnk = [jnk{:}];
+                                warning('Requested params field  %s  is inaccessible or does not exist.', jnk)
                             end
                         end
 

@@ -8,10 +8,12 @@ function outStruct=createRigPrefs(additionalSettings)
 % outStruct is the final struct of settings that were also stored in the
 % matlab preference system.
 
+    fprintf('\n****************************************************************\n')
+
     %to we already have current settings?
     a=getpref('pldaps');
     if ~isempty(a)
-        warning('you already have a pldaps setting, be sure not no lose those seetings....');
+        fprintf('Existing pldaps rigPrefs loaded.\n\tIf changes are made, a backup of previous settings will be saved.\n');
     end
     
     %do we have and old PLDAPS Version setting?
@@ -75,21 +77,16 @@ function outStruct=createRigPrefs(additionalSettings)
     p=pldaps('test','nothing');
     if isstruct(fromOldPrefs)
         p.defaultParameters.addLevels({fromOldPrefs}, {'PLDAPS 3 Prefs'});
+        fprintf('Legacy (ver. 3) PLDAPS prefs appended.\n');
     end
+    
     if nargin>0
         p.defaultParameters.addLevels({additionalSettings}, {'additional Settings'});
+        fprintf('User input settings struct %s appended.\n', inputname(1));
     end
     
     p.defaultParameters;
     p.defaultParameters.view
-    warning('Loaded default values, any previous preferences and also preferences from the PLDAPS3.');
-    
-    %save old prefs
-    if ~isempty(a)
-        sfn = sprintf('pldaps_prefs_pre%s.mat', datestr(now, 'yyyy-mm-dd_HH-MM-SS'));
-        fprintf(2, '\n\tPrior PLDAPS prefs saved to:\n\t\t%s\n\n', fullfile(pwd,sfn));
-        save(sfn, 'a');
-    end
     
     % Print instructions to command window
     fprintf([...
@@ -131,17 +128,31 @@ function outStruct=createRigPrefs(additionalSettings)
     %now, to ensure that you are adding the values at the correct hierarchy
     %level
     
-    %once all is set, call
+    
+    % Save old prefs before removing them from matlab prefs storage
+    if ~isempty(a)
+        sfn = sprintf('pldaps_prefs_pre%s.mat', datestr(now, 'yyyy-mm-dd_HH-MM-SS'));
+        try % to be cleaner
+            sfn = fullfile( p.defaultParameters.pldaps.dirs.proot, 'rigPrefs', sfn);
+            if ~exist(fileparts(sfn),'dir'), mkdir(fileparts(sfn)); end
+        catch
+            sfn = fullfile( pwd, sfn);
+        end
+        fprintf('\nPrior PLDAPS prefs saved to:\n\t%s\n\n', sfn);
+        save(sfn, 'a');
+
+        rmpref('pldaps'); %remove current
+    end
+    
+    % Package current prefs for saving
     p.defaultParameters.setLevels(2);
     outStruct=p.defaultParameters.mergeToSingleStruct();
     
     fn=fieldnames(outStruct);
     outStructc=struct2cell(outStruct);
+
+    % Set new prefs
+    setpref('pldaps',fn(:),outStructc);
     
-    if ~isempty(a)
-        rmpref('pldaps'); %remove current
-    end
-    setpref('pldaps',fn(:),outStructc); %set new
-    
-    fprintf('Done. Your new pldaps rig prefs have been saved.');
+    fprintf('Done. Your new pldaps rig prefs have been saved.\n');
 end

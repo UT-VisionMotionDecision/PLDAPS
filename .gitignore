@@ -1,5 +1,6 @@
 *.m~
 *.*~
 *.DS_Store
+rigPrefs/*
 +pds/+leap/+matleapmaster/libLeap.dylib
 +pds/+leap/+matleapmaster/LeapSDK/*

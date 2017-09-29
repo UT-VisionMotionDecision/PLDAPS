@@ -43,7 +43,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	display.	displayName = 'defaultScreenParameters';
  s.	display.	forceLinearGamma = false;
  s.	display.	heightcm = 45;
- s.	display.	normalizeColor = 0;
+ s.	display.	normalizeColor = 1;
  s.	display.	screenSize = [ ];
  s.	display.	scrnNum = max(Screen('Screens'));
  s.	display.	sourceFactorNew = 'GL_SRC_ALPHA';
@@ -114,7 +114,8 @@ function s=pldapsClassDefaultParameters(s)
 
 %s.	pldaps.	dirs.
  s.	pldaps.	dirs.	data = '/Data';
- s.	pldaps.	dirs.	wavfiles = fullfile( fileparts( which('createRigPrefs.m')), 'beepsounds'); %'~/PLDAPS/beepsounds';
+ s. pldaps. dirs.   proot = fileparts(fileparts(mfilename('fullpath'))); % proot == PLDAPS root directory
+ s.	pldaps.	dirs.	wavfiles = fullfile( s.pldaps.dirs.proot, 'beepsounds'); %'[proot]/beepsounds';
 
 %s.	pldaps.	draw.
 %s.	pldaps.	draw.	cursor.

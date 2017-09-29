@@ -83,21 +83,21 @@ function p = run(p)
             % Tick Marks
             %-------------------------------------------------------------------------%
             if(p.trial.pldaps.draw.grid.use)
-                p = initTicks(p);
+                initTicks(p);
             end
 
 
             %get and store changes of current code to the git repository
-            p = pds.git.setup(p);
+            pds.git.setup(p);
             
             %things that were in the conditionFile
-            p = pds.eyelink.setup(p);
+            pds.eyelink.setup(p);
     
             %things that where in the default Trial Structure
             
             % Audio
             %-------------------------------------------------------------------------%
-            p = pds.audio.setup(p);
+            pds.audio.setup(p);
             
             % PLEXON
             %-------------------------------------------------------------------------%
@@ -105,11 +105,11 @@ function p = run(p)
             
             % REWARD
             %-------------------------------------------------------------------------%
-            p = pds.behavior.reward.setup(p);
+            pds.behavior.reward.setup(p);
                      
             % Initialize Datapixx including dual CLUTS and timestamp
             % logging
-            p = pds.datapixx.init(p);
+            pds.datapixx.init(p);
             
             pds.keyboard.setup(p);
 
