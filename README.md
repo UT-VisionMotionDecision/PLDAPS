@@ -44,69 +44,52 @@ into a field called `defaultParameters`. This is again a class (named `@params`)
 that can handle a hierarchy of parameters.
 Importantly, pldaps is a handle class.
 
-###Quick aside on handle classes
-We use a handle class for pldaps because it allows a reduction of some memory allocation, which translates to increased speed during the trial. There are a couple of downsides to using handle classes (for one, it appears that storing function handles in a handle class reduces the performance.), but this appears to be the fastest easy way to be able to add data to a struct from inside a subfunction. It might be possible to go via a mex file to get real pointer behavior without the downsides of a handle class
 
-Specifically, assume you have an object p of type pldaps
 
+> __Quick aside on handle classes__
+> We use a handle class for pldaps because it allows a reduction of some memory allocation, which translates to increased speed during the trial. There are a couple of downsides to using handle classes (for one, it appears that storing function handles in a handle class reduces the performance.), but this appears to be the fastest easy way to be able to add data to a struct from inside a subfunction. It might be possible to go via a mex file to get real pointer behavior without the downsides of a handle class
+
+> Specifically, assume you have an object p of type pldaps
+
+> ```Matlab
+>     p=pldaps;
+> ```
+
+> Any changes made to a copy of `p`, will also effect `p`, as they are in fact using the same memory.
+
+> ```Matlab
+>     p2=p;
+>     p2.defaultParameters.newParameter='I told you so';
+>     display(p.defaultParameters.newParameter);
+> ```
+> notice that I created a new Parameter newParameter in object `p2`, but 
+> but now you can also access it using `p`, because `p2` und `p` are identical.
+
+
+##Creating a `pldaps` class:
+Typical use of the pldaps contructor includes the following inputs [^inputs]:
+    1. Subject identifier
+    2. Experiment setup function
+    3. Settings struct containing changes to defaultParameters
+	    (e.g. to add/change values from your 'rigPrefs' to be applied only on this particular run)
+
+The order of inputs is somewhat flexible[^inputOrd], but the only officially supported order is as follows:
 ```Matlab
-    p=pldaps;
+	p = pldaps( 'subject', setupFunction, settingsStruct )
 ```
 
-Any changes made to a copy of `p`, will also effect `p`, as they are in fact using the same memory.
+• [subject] must be a string input.
+• [setupFunction] can be either a string of the function name, or a function handle (i.e. @fxn ).
+(...using a function handle here allows tab completion, which is nice)
+• [settingsStruct] must be a structure. Fieldnames [within their respective param struct hierarchies] matching those in defaultParameters will be replaced with the value in settingsStruct.
+(e.g. toggle the overlay state for this run by creating `settingsStruct.display.useOverlay = 1`. Note: you need not build every field of the .display struct into this; fieldnames will be matched/updated piecewise)
 
-```Matlab
-    p2=p;
-    p2.defaultParameters.newParameter='I told you so';
-    display(p.defaultParameters.newParameter);
-```
-notice that I created a new Parameter newParameter in object `p2`, but 
-but now you can also access it using `p`, because `p2` und `p` are identical.
+• [condsCell]: a fourth input of a cell struct of parameters for each trial can also be accepted. This input should only really be used for debugging purposes, as trial specific parameters are better dealt with inside your setupFunction (when setting up p.conditions{})
 
+[^inputs]: all inputs are _technically_ optional, but PLDAPS won't do much without them.
+[^inputOrd]:In most—but not all—cases PLDAPS will still be able to parse disordered inputs, but lets not leave things to chance when we don't have to.)
 
-###creating a `pldaps` class:
-The pldaps contructor accepts the following inputs, all are optional:
-    1. a subject identifier (string)
-    2. a function name or handle that sets up all experiement parameters
-    3. a struct with changes to the defaultParameters, this is usefull for debugging, but could also be used to replace the function.
-    4. a cell array containing a struct with parameters for each trial (this is typically set later in the fucntion you set in 2.)
-
-As long as the inputs are classifiable, the order is not important, otherwise 
-for the remaining unclassified inputs the above order is assumed.
-
-Specifically when both subject and the function are strings the input must be
-
-```Matlab
-    p=pldaps('subject','functionName', parameterStruct);
-```
-
-or
-
-```Matlab
-    p=pldaps('subject', parameterStruct, 'functionName');
-```
-
-or
-
-```Matlab
-    p=pldaps(parameterStruct,'subject', 'functionName');
-```
-
-but not
-
-```Matlab
-    p=pldaps('functionName','subject', parameterStruct);
-```
-
-but when using a handle, this is ok:
-
-```Matlab
-    p=pldaps(@functionName,'subject', parameterStruct);
-```
-
-using a handle also enables tab completion for the function name, so I'd recomment using a handle
-
-now the `defaultParameters` are loaded, but the experiment hasn't started yet, and the provided experiment function has not been called yet.
+__`p`__ now exists as a PLDAPS class in the workspace, but the experiment hasn't started yet, and the provided experiment function has not been called yet.
 
 ## Running pldaps 
 ###pldaps.run

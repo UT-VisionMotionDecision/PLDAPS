@@ -1,7 +1,7 @@
 function p = run(p)
 %run    run a new experiment for a previuously created pldaps class
 % p = run(p)
-% PLDAPS (Plexon Datapixx PsychToolbox) version 4.1
+% PLDAPS (Plexon Datapixx PsychToolbox) version 4.2
 %       run is a wrapper for calling PLDAPS package files
 %           It opens the PsychImaging pipeline and initializes datapixx for
 %           dual color lookup tables. 
@@ -32,8 +32,11 @@ function p = run(p)
         
     if ~p.defaultParameters.pldaps.nosave
         p.defaultParameters.session.dir = p.defaultParameters.pldaps.dirs.data;
-        p.defaultParameters.session.file = [p.defaultParameters.session.subject datestr(p.defaultParameters.session.initTime, 'yyyymmdd') p.defaultParameters.session.experimentSetupFile datestr(p.defaultParameters.session.initTime, 'HHMM') '.PDS'];
-%         p.defaultParameters.session.file = fullfile(p.defaultParameters.pldaps.dirs.data, [p.defaultParameters.session.subject datestr(p.defaultParameters.session.initTime, 'yyyymmdd') p.defaultParameters.session.experimentSetupFile datestr(p.defaultParameters.session.initTime, 'HHMM') '.PDS']);
+        p.defaultParameters.session.file = sprintf('%s%s%s%s.PDS',...
+                                                   p.defaultParameters.session.subject,...
+                                                   datestr(p.defaultParameters.session.initTime, 'yyyymmdd'),...
+                                                   p.defaultParameters.session.experimentSetupFile, ...
+                                                   datestr(p.defaultParameters.session.initTime, 'HHMM'));
         
         if p.defaultParameters.pldaps.useFileGUI
             [cfile, cdir] = uiputfile('.PDS', 'specify data storage file', fullfile( p.defaultParameters.session.dir,  p.defaultParameters.session.file));
@@ -125,7 +128,7 @@ function p = run(p)
     %% Last chance to check variables
     if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
         p  %#ok<NOPRT>
-        disp('Ready to begin trials. Type return to start first trial...')
+        disp('Ready to begin trials. Type "dbcont" to start first trial...')
         keyboard %#ok<MCKBD>
     end
  
@@ -275,7 +278,7 @@ function p = run(p)
                 ListenChar(0);
                 ShowCursor;
                 p.trial
-                disp('Ready to begin trials. Type return to start first trial...')
+                disp('Ready to begin trials. Type "dbcont" to start first trial...')
                 keyboard %#ok<MCKBD>
                 p.trial.pldaps.quit = 0;
                 ListenChar(2);
