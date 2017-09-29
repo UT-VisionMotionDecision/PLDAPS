@@ -66,7 +66,7 @@ Importantly, pldaps is a handle class.
 > but now you can also access it using `p`, because `p2` und `p` are identical.
 
 
-##Creating a `pldaps` class:
+## Creating a `pldaps` class:
 Typical use of the pldaps contructor includes the following inputs [^inputs]:
     1. Subject identifier
     2. Experiment setup function

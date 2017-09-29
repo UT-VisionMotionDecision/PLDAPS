@@ -407,7 +407,7 @@ function pauseLoop(p)
             if p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.Lctrl)&&p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.Lalt)
                 %D: Debugger
                 if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) 
-                    disp('stepped into debugger. Type return to start first trial...')
+                    disp('stepped into debugger. Type "dbcont" to start first trial...')
                     keyboard %#ok<MCKBD>
 
                 %E: Eyetracker Setup
