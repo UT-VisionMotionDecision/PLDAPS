@@ -90,7 +90,7 @@ The order of inputs is somewhat flexible**, but the only officially supported or
 > (__**__ In most—but not all—cases PLDAPS will still be able to parse disordered inputs, but lets not leave things to chance when we don't have to.)
 
 ## Running pldaps 
-### pldaps.run
+
 `p` now exists as a PLDAPS class in the workspace, but the experiment hasn't started yet, and the provided experiment function has not been called yet.
 
 Execute the .run method to actually begin the experiment:
@@ -98,9 +98,8 @@ Execute the .run method to actually begin the experiment:
 p.run
 ```
 
-__`pldaps.run`__ runs the experiment. This will open the PTB screen and interface with a number of external hardware devices and will call a function each trial.
-
-Of course there is no need to use this, if you wanted to run your own experiment script and only wanted to use pldaps for its screen opening and device management, but in that case there might not be any benefit of using this version of pldaps.
+### pldaps.run
+__`pldaps.run`__  will open the PTB screen and interface with a number of external hardware devices and will call a function each trial.
 
 `pldaps.run` opens a Psychtoolbox window using `p.openScreen`
 
