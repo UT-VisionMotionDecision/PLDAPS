@@ -78,13 +78,13 @@ The order of inputs is somewhat flexible**, but the only officially supported or
 	p = pldaps( 'subject', setupFunction, settingsStruct )
 ```
 
-- [subject] must be a string input.
-- [setupFunction] can be either a string of the function name, or a function handle (i.e. @fxn ).
+- __subject__ must be a string input.
+- __setupFunction__ can be either a string of the function name, or a function handle (i.e. @fxn ).
 	- ...using a function handle here allows tab completion, which is nice
-- [settingsStruct] must be a structure. Fieldnames [within their respective param struct hierarchies] matching those in defaultParameters will be replaced with the value in settingsStruct.
+- __settingsStruct__ must be a structure. Fieldnames [within their respective param struct hierarchies] matching those in defaultParameters will be replaced with the value in settingsStruct.
 	- e.g. toggle the overlay state for this run by creating `settingsStruct.display.useOverlay = 1`. Note: you need not build every field of the .display struct into this; fieldnames will be matched/updated piecewise
 
-- [condsCell]: a fourth input of a cell struct of parameters for each trial can also be accepted. This input should only really be used for debugging purposes, as trial specific parameters are better dealt with inside your setupFunction (when setting up p.conditions{})
+- _condsCell_ a fourth input of a cell struct of parameters for each trial can also be accepted. This input should only really be used for debugging purposes, as trial specific parameters are better dealt with inside your setupFunction (when setting up p.conditions{})
 
 `p` now exists as a PLDAPS class in the workspace, but the experiment hasn't started yet, and the provided experiment function has not been called yet.
 
