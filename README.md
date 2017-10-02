@@ -68,23 +68,24 @@ Importantly, pldaps is a handle class.
 
 ## Creating a `pldaps` class:
 Typical use of the pldaps contructor includes the following inputs*:
-    1. Subject identifier
-    2. Experiment setup function
-    3. Settings struct containing changes to defaultParameters
-	    (e.g. to add/change values from your 'rigPrefs' to be applied only on this particular run)
+    1. Experiment setup function
+    2. Subject identifier
+    3. Settings struct containing hierarchies for additional experiment components (e.g. ) and/or changes to defaultParameters (e.g. to add/change values from your 'rigPrefs' to be applied only on this particular run)
 
 The order of inputs is somewhat flexible**, but the only officially supported order is as follows:
 ```Matlab
-	p = pldaps( 'subject', setupFunction, settingsStruct )
+	p = pldaps( @fxnsetupFunction, 'subject', settingsStruct )
 ```
 
-- __subject__ must be a string input.
-- __setupFunction__ can be either a string of the function name, or a function handle (i.e. @fxn ).
+- __setupFunction__ must be a function handle (i.e. @fxn ) to your setup function
 	- ...using a function handle here allows tab completion, which is nice
-- __settingsStruct__ must be a structure. Fieldnames [within their respective param struct hierarchies] matching those in defaultParameters will be replaced with the value in settingsStruct.
-	- e.g. toggle the overlay state for this run by creating `settingsStruct.display.useOverlay = 1`. Note: you need not build every field of the .display struct into this; fieldnames will be matched/updated piecewise
+- __subject__ must be a string input.
+- __settingsStruct__ must be a structure. 
+	- Defining core modules/components of your experiment (i.e. hardware elements, stimulus parameters, etc...see demo code for examples)
+	- Fieldnames matching fields already present in defaultParameters  [& within their respective param struct hierarchies] will take on the value in settingsStruct.
+		- e.g. toggle the overlay state for this run by creating `settingsStruct.display.useOverlay = 1`. Note: you need not build every field of the .display struct into this; fieldnames will be matched/updated piecewise
 
-- _condsCell_, a fourth input of a cell struct of parameters for each trial can also be accepted. This input should only really be used for debugging purposes, as trial specific parameters are better dealt with inside your setupFunction (when setting up p.conditions{})
+- _condsCell_, a fourth input of a cell struct of parameters for each trial can also be accepted. Use of this input is relatively depreciated and should only really be used for debugging purposes. Trial specific parameters are better dealt with inside your setupFunction (when setting up p.conditions{}).
 
 > (__*__ all inputs are _technically_ optional, but PLDAPS won't do much without them.)
 > (__**__ In most—but not all—cases PLDAPS will still be able to parse disordered inputs, but lets not leave things to chance when we don't have to.)
