@@ -1,5 +1,5 @@
 classdef pldaps < handle
-%pldaps    main class for PLDAPS (Plexon Datapixx PsychToolbox) version 4.1
+%pldaps    main class for PLDAPS (Plexon Datapixx PsychToolbox) version 4.2
 % The pldaps contructor accepts the following inputs, all are optional, but may be required later for experiments to run:
 %     1. a subject identifier (string)
 %     2. a function name or handle that sets up all experiement parameters
@@ -94,7 +94,7 @@ classdef pldaps < handle
         p.defaultParameters.addLevels({constructorStruct, struct},{'ConstructorInputDefaults', 'SessionParameters'});
         
         
-        %TODO: decice wheter this is a hack or feature. Allows to use
+        %TODO: decide wheter this is a hack or feature. Allows to use
         %p.trial before the first trial. But it's a Params class
         %until the first trial starts
         p.trial = p.defaultParameters; 

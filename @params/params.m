@@ -132,11 +132,11 @@ classdef params < handle
         
         function p=addNewStruct(p,newStruct,newStructName,makeActive)
            %first get at flat version of that Struct
-            levelNr=length(p.structs)+1;
+            iLevel=length(p.structs)+1;
             fs=p.getNextStructLevel(newStruct,{},[]);
             id=cellfun(@(x) sprintf('.%s',x{:}), {fs.parentLevels}, 'UniformOutput', false);   
             [fs.identifier]=deal(id{:});
-            [fs.hierarchyLevels]=deal(levelNr);
+            [fs.hierarchyLevels]=deal(iLevel);
             
             %now merge with the current masterFlatStruct:
             if(isempty(p.flatStruct))
@@ -149,7 +149,7 @@ classdef params < handle
                  nFields=length(fs);
                  for iField=1:nFields
                     if(overruled(iField))
-                        p.flatStruct(overruledPos(iField)).hierarchyLevels(end+1) = levelNr; 
+                        p.flatStruct(overruledPos(iField)).hierarchyLevels(end+1) = iLevel; 
                     else
                         p.flatStruct(end+1)=fs(iField);
                     end
@@ -186,11 +186,11 @@ classdef params < handle
             active=p.activeLevels;
         end
         
-        function p = addField(p,id,value,levelNr) 
+        function p = addField(p,id,value,iLevel) 
             %most ineficient way ever: but we are not planning on running
             %this during a trial (for now)
             if nargin<4
-                levelNr=p.topLevel;
+                iLevel=p.topLevel;
             end
             
             parentLevels=textscan(id,'%s','delimiter','.');
@@ -200,22 +200,22 @@ classdef params < handle
             Spartial=p.Snew1(ones(1,length(parentLevels)));
             [Spartial.subs]=deal(parentLevels{:});
             S=[p.Snew1 Spartial];
-            S(2).subs={levelNr};
+            S(2).subs={iLevel};
             [~]=builtin('subsasgn',p,S,value);
             
             if isstruct(value) %need to flatten that.
                 addFlatStruct=p.getNextStructLevel(tmp,parentLevels,[]);
                 id=cellfun(@(x) sprintf('.%s',x{:}), {addFlatStruct.parentLevels}, 'UniformOutput', false);   
                 [addFlatStruct.identifier]=deal(id{:});
-                [addFlatStruct.hierarchyLevels]=levelNr;
+                [addFlatStruct.hierarchyLevels]=iLevel;
             
                 [overruled, overruledPos]=ismember({addFlatStruct.identifier},{p.flatStruct.identifier});
                 
                 nFields=length(addFlatStruct);
                 for iField=1:nFields
                     if overruled(iField)
-                        if ~any(p.flatStruct(overruledPos(iField)).hierarchyLevels==levelNr) 
-                            p.flatStruct(overruledPos(iField)).hierarchyLevels(end+1) = levelNr; 
+                        if ~any(p.flatStruct(overruledPos(iField)).hierarchyLevels==iLevel) 
+                            p.flatStruct(overruledPos(iField)).hierarchyLevels(end+1) = iLevel; 
                         end
                     else
                         p.flatStruct(end+1)=addFlatStruct(iField);
@@ -225,8 +225,8 @@ classdef params < handle
             else %simpler...but maybe not worth it
                 [overruled, overruledPos]=ismember(id,{p.flatStruct.identifier});
                 if overruled 
-                    if ~any(p.flatStruct(overruledPos).hierarchyLevels==levelNr) 
-                        p.flatStruct(overruledPos).hierarchyLevels(end+1)=levelNr;
+                    if ~any(p.flatStruct(overruledPos).hierarchyLevels==iLevel) 
+                        p.flatStruct(overruledPos).hierarchyLevels(end+1)=iLevel;
                     end
                 else
                     addFlatStruct.parentLevels=textscan(id,'%s','delimiter','.');
@@ -234,13 +234,13 @@ classdef params < handle
                     
                     addFlatStruct.isNode=false;
                     addFlatStruct.identifier=id;
-                    addFlatStruct.hierarchyLevels=levelNr;
+                    addFlatStruct.hierarchyLevels=iLevel;
                     p.flatStruct(end+1) = addFlatStruct;
                 end                
             end
         end
         
-        function varargout =getParameter(p,id,levelNr)
+        function varargout =getParameter(p,id,iLevel)
             parentLevels=textscan(id,'%s','delimiter','.');
             parentLevels=parentLevels{1}(2:end);
 
@@ -251,7 +251,7 @@ classdef params < handle
                 [varargout{1:nargout}] = subsref(p,Spartial);
             else
                 S=[p.Snew1 Spartial];
-                S(2).subs={levelNr};
+                S(2).subs={iLevel};
                 [varargout{1:nargout}] = builtin('subsref',p, S);
             end
         end

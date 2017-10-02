@@ -144,8 +144,11 @@ function p = run(p)
     p.trial.iFrame     = 1;  % frame index
     
     %save defaultParameters as trial 0
-    trialNr=0;
-    p.trial.pldaps.iTrial=0;
+    p.defaultParameters.pldaps.iTrial=0;
+    % NOTE: the following line converts p.trial into a struct.
+    % ------------------------------------------------
+    % !!! Beyond this point, p.trial is NO LONGER A POINTER TO p.defaultParameters !!!
+    % ------------------------------------------------
     p.trial=mergeToSingleStruct(p.defaultParameters);
     result = saveTempFile(p); 
     if ~isempty(result)
@@ -156,17 +159,17 @@ function p = run(p)
     
     %now setup everything for the first trial
    
-%     p.defaultParameters.pldaps.iTrial=trialNr;
+%     p.defaultParameters.pldaps.iTrial=p.defaultParameters.pldaps.iTrial;
     
-    %we'll have a trialNr counter that the trial function can tamper with?
+    %we'll have a trialNr counter that the trial function can tamper with?  ...No. No purpose to this, and only invites danger of mismatched data outputs.
     %do we need to lock the defaultParameters to prevent tampering there?
     levelsPreTrials=p.defaultParameters.getAllLevels();
-%     p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
+%     p.defaultParameters.addLevels(p.conditions(p.defaultParameters.pldaps.iTrial), {['Trial' num2str(p.defaultParameters.pldaps.iTrial) 'Parameters']});
     
     %for now all structs will be in the parameters class, first
     %levelsPreTrials, then we'll add the condition struct before each trial.
-%     p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr])
-%     p.defaultParameters.pldaps.iTrial=trialNr;
+%     p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+p.defaultParameters.pldaps.iTrial])
+%     p.defaultParameters.pldaps.iTrial=p.defaultParameters.pldaps.iTrial;
 %     p.trial=mergeToSingleStruct(p.defaultParameters);
     
     %only use p.trial from here on!
@@ -177,14 +180,14 @@ function p = run(p)
         if p.trial.pldaps.quit == 0
             
            %load parameters for next trial and lock defaultsParameters
-           trialNr=trialNr+1;
+           nextTrial=p.defaultParameters.pldaps.iTrial+1;
            if ~isempty(p.conditions)
-            p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
-            p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr]);
+            p.defaultParameters.addLevels(p.conditions(nextTrial), {['Trial' num2str(nextTrial) 'Parameters']});
+            p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+nextTrial]);
            else
             p.defaultParameters.setLevels([levelsPreTrials]);
            end
-           p.defaultParameters.pldaps.iTrial=trialNr;
+           p.defaultParameters.pldaps.iTrial=nextTrial;
            
 
            %it looks like the trial struct gets really partitioned in
@@ -193,15 +196,12 @@ function p = run(p)
            %is supposed to do that, but that is ver very slow, so we create 
            %a manual deep copy by saving the struct to a file and loading it 
            %back in.
-           tmpts=mergeToSingleStruct(p.defaultParameters);
-           save([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct'], 'tmpts');
+           tmpts=mergeToSingleStruct(p.defaultParameters); %#ok<NASGU>
+           save( fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'), '-struct', 'tmpts');
            clear tmpts
-           load([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct']);
-           p.trial=tmpts;
-           clear tmpts;
+           p.trial = load(fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'));
 %             p.trial=mergeToSingleStruct(p.defaultParameters);
             
-
            p.defaultParameters.setLock(true);
             
            % run trial
@@ -223,14 +223,14 @@ function p = run(p)
                %store the difference of the trial struct to .data
                dTrialStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
            end
-           p.data{trialNr}=dTrialStruct;
+           p.data{p.defaultParameters.pldaps.iTrial}=dTrialStruct;
            
            
            if p.trial.pldaps.useModularStateFunctions
                oldptrial=p.trial;
                [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
                p.defaultParameters.setLevels(levelsPreTrials);
-               p.defaultParameters.pldaps.iTrial=trialNr;
+               %p.defaultParameters.pldaps.iTrial=trialNr;
                p.trial=mergeToSingleStruct(p.defaultParameters);
                p.defaultParameters.setLock(true); 
 
@@ -239,7 +239,7 @@ function p = run(p)
                p.defaultParameters.setLock(false); 
                betweenTrialsStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
                if(~isequal(struct,betweenTrialsStruct))
-                    p.defaultParameters.addLevels({betweenTrialsStruct}, {['experimentAfterTrials' num2str(trialNr) 'Parameters']});
+                    p.defaultParameters.addLevels({betweenTrialsStruct}, {['experimentAfterTrials' num2str(p.defaultParameters.pldaps.iTrial) 'Parameters']});
                     levelsPreTrials=[levelsPreTrials length(p.defaultParameters.getAllLevels())]; %#ok<AGROW>
                end
 
@@ -268,13 +268,13 @@ function p = run(p)
         else %dbquit ==1 is meant to be pause. should we halt eyelink, datapixx, etc?
             %create a new level to store all changes in, 
             %load only non trial paraeters
-            pause=p.trial.pldaps.pause.type;
+            ptype=p.trial.pldaps.pause.type;
             p.trial=p.defaultParameters;
             
-            p.defaultParameters.addLevels({struct}, {['PauseAfterTrial' num2str(trialNr) 'Parameters']});
+            p.defaultParameters.addLevels({struct}, {['PauseAfterTrial' num2str(p.defaultParameters.pldaps.iTrial) 'Parameters']});
             p.defaultParameters.setLevels([levelsPreTrials length(p.defaultParameters.getAllLevels())]);
             
-            if pause==1 %0=don't,1 is debugger, 2=pause loop
+            if ptype==1 %0=don't,1 is debugger, 2=pause loop
                 ListenChar(0);
                 ShowCursor;
                 p.trial
@@ -283,7 +283,7 @@ function p = run(p)
                 p.trial.pldaps.quit = 0;
                 ListenChar(2);
                 HideCursor;
-            elseif pause==2
+            elseif ptype==2
                 pauseLoop(p);
             end           
 %             pds.datapixx.refresh(p);
@@ -308,8 +308,8 @@ function p = run(p)
     ListenChar(0);
     Priority(0);
     
-    p = pds.eyelink.finish(p);
-    p = pds.plexon.finish(p);
+    pds.eyelink.finish(p);  % p =  ; These should be operating on pldaps class handles, thus no need for outputs. --tbc.
+    pds.plexon.finish(p);
     if(p.defaultParameters.datapixx.use)
         %start adc data collection if requested
         pds.datapixx.adc.stop(p);
