@@ -203,11 +203,11 @@ function p = run(p)
            %is supposed to do that, but that is ver very slow, so we create 
            %a manual deep copy by saving the struct to a file and loading it 
            %back in.
-% %            tmpts=mergeToSingleStruct(p.defaultParameters); %#ok<NASGU>
-% %            save( fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'), '-struct', 'tmpts');
-% %            clear tmpts
-% %            p.trial = load(fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'));
-            p.trial=mergeToSingleStruct(p.defaultParameters);
+           tmpts=mergeToSingleStruct(p.defaultParameters); %#ok<NASGU>
+           save( fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'), '-struct', 'tmpts');
+           clear tmpts
+           p.trial = load(fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'));
+%             p.trial=mergeToSingleStruct(p.defaultParameters);
             
            p.defaultParameters.setLock(true);
             
