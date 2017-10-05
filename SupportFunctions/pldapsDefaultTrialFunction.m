@@ -157,7 +157,11 @@ end
             p.trial.pldaps.draw.framerate.data=circshift(p.trial.pldaps.draw.framerate.data,-1);
             p.trial.pldaps.draw.framerate.data(end)=p.trial.timing.flipTimes(1,p.trial.iFrame-1)-p.trial.timing.flipTimes(1,p.trial.iFrame-2);
             %plot
-            if p.trial.pldaps.draw.framerate.show 
+            if isa(p.trial.pldaps.draw.framerate.show, 'matlab.graphics.chart.primitive.Line')
+                set(p.trial.pldaps.draw.framerate.show, 'ydata', p.trial.pldaps.draw.framerate.data);
+                %refreshdata(p.trial.pldaps.draw.framerate.show)
+                drawnow
+            elseif p.trial.pldaps.draw.framerate.show 
                 %adjust y limit
                 p.trial.pldaps.draw.framerate.sf.ylims=[0 max(max(p.trial.pldaps.draw.framerate.data), 2*p.trial.display.ifi)];
                 %current ifi is solid black

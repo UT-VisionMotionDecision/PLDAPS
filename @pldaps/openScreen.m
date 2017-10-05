@@ -87,15 +87,22 @@ if p.trial.display.stereoMode > 0
     % PTB stereo crosstalk correction
     if isfield(p.trial.display, 'crosstalk') && any(p.trial.display.crosstalk>0)
         % Crosstalk gains == [Lr Lg Lb; Rr Rg Rb]'; 
-        %   Will apply same crosstalk correction to both eyes if only one column of [RGB] gains provided
-        PsychImaging('AddTask', 'LeftView',  'StereoCrosstalkReduction', 'subtractOther', p.trial.display.crosstalk(:,1));
-        PsychImaging('AddTask', 'RightView', 'StereoCrosstalkReduction', 'subtractOther', p.trial.display.crosstalk(:,end));
         disp('****************************************************************')
-        disp('****************************************************************')
-        fprintf('Stereo Crosstalk correction implemented through PTB:\n');
-        fprintf('\tL-(gain*R): [%05.2f, %05.2f, %05.2f]%%\n', p.trial.display.crosstalk(:,1).*100)
-        fprintf('\tR-(gain*L): [%05.2f, %05.2f, %05.2f]%%\n', p.trial.display.crosstalk(:,end).*100)
-        fprintf('\n****************************************************************\n')
+        if numel(p.trial.display.crosstalk)==2
+            fprintf('Stereo Crosstalk correction implemented by custom PLDAPS shader:\n');
+        else
+            %   Will apply same crosstalk correction to both eyes if only one column of [RGB] gains provided
+            PsychImaging('AddTask', 'LeftView',  'StereoCrosstalkReduction', 'subtractOther', p.trial.display.crosstalk(:,1));
+            PsychImaging('AddTask', 'RightView', 'StereoCrosstalkReduction', 'subtractOther', p.trial.display.crosstalk(:,end));
+            fprintf('Stereo Crosstalk correction implemented by PTB:\n');
+        end
+        fprintf('\tL-(gain*R): [')
+        fprintf('%05.2f, ', p.trial.display.crosstalk(:,1).*100)
+        fprintf('\b\b]%%\n')
+        fprintf('\tR-(gain*L): [')
+        fprintf('%05.2f, ', p.trial.display.crosstalk(:,end).*100)
+        fprintf('\b\b]%%\n')
+        fprintf('****************************************************************\n')
     end
     
     % Planar display setup
@@ -192,10 +199,42 @@ if p.trial.display.useOverlay==1
         elseif p.trial.datapixx.rb3d
             % RB3d mode needs special shaders to encode overlay in the green channel
             oldColRange = Screen('ColorRange', p.trial.display.ptr, 255);
-            p.trial.display.overlayptr = SetAnaglyphStereoParameters('CreateGreenOverlay', p.trial.display.ptr);            
+            p.trial.display.overlayptr = SetAnaglyphStereoParameters('CreateGreenOverlay', p.trial.display.ptr);
             % Put stimulus color range back how it was
             Screen('ColorRange', p.trial.display.ptr, oldColRange);
+            %             p.trial.display.overlayptr = p.trial.display.ptr;
             
+            % If crosstalk format is [1x2], interpret as (1)==crosstalk gain for L-gain*R, (2)==crosstalk gain for R-gain*L
+            if numel(p.trial.display.crosstalk)==2
+                % setup crosstalk gains, ensuring the G (overlay channel) gain is zero
+                crosstalkGain = [p.trial.display.crosstalk(1), 0, p.trial.display.crosstalk(2)];
+                if min(p.trial.display.bgColor) <= 0 || max(p.trial.display.bgColor) >= 1
+                    sca;    error('In StereoRb3dCrosstalkReduction: Provided background clear color is not in the normalized range > 0 and < 1 as required.');
+                end
+                
+                % Retrieve existing shader chain
+                [icmShaders, icmIdString, icmConfig] = PsychColorCorrection('GetCompiledShaders', p.trial.display.ptr, 2);
+                % Load StereoRb3dCrosstalkReductionShader.frag.txt from PLDAPS directory & append existing shader chain:
+                shader = LoadGLSLProgramFromFiles(fullfile(p.trial.pldaps.dirs.proot, 'SupportFunctions', 'Utils', 'StereoRb3dCrosstalkReductionShader.frag'), 2, icmShaders);
+                
+                % Init the shader: Assign mapping of shader inputs:
+                glUseProgram(shader);
+                % [Image] will contain the finalized image (after L & R streams have been blitted into R & B channels, respectively)
+                glUniform1i(glGetUniformLocation(shader, 'Image'), 0);
+                % Pass crosstalk gain & background color triplets into shader
+                glUniform3fv(glGetUniformLocation(shader, 'crosstalkGain'), 1, crosstalkGain);
+                glUniform3fv(glGetUniformLocation(shader, 'backGroundClr'), 1, p.trial.display.bgColor);                
+                % Shader setup done:
+                glUseProgram(0);
+                
+                p.trial.display.crosstalkShader = shader;
+                % Apply to the FinalOutputFormattingBlit
+                idString = sprintf('Crosstalk Shader : %s', icmIdString);
+                % pString  = [ pString icmConfig ]; ...no additional textureRect2Ds to map
+                Screen('HookFunction', p.trial.display.ptr, 'Reset', 'FinalOutputFormattingBlit');
+                Screen('HookFunction', p.trial.display.ptr, 'AppendShader', 'FinalOutputFormattingBlit', idString, p.trial.display.crosstalkShader, icmConfig);
+                PsychColorCorrection('ApplyPostGLSLLinkSetup', p.trial.display.ptr, 'FinalFormatting');
+            end
         end        
     else
         warning('pldaps:openScreen', 'Datapixx Overlay requested but datapixx disabled. No Dual head overlay availiable!')

@@ -100,6 +100,7 @@ function s=pldapsClassDefaultParameters(s)
 %s.	pldaps.
  s.	pldaps.	experimentAfterTrialsFunction = [ ];
  s.	pldaps.	eyeposMovAv = 1;
+ s. pldaps. lastBgColor = s.display.bgColor;
  s.	pldaps.	finish = Inf;
  s.	pldaps.	goodtrial = 0;
  s.	pldaps.	iTrial = 1;
@@ -175,6 +176,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	plexon.	spikeserver.	selfip = 'xx.xx.xx.xx';
  s.	plexon.	spikeserver.	selfport = 3332;
  s.	plexon.	spikeserver.	use = 0;
+ s. plexon. spikeserver.    spikeCount = 0;
 
 %s.	session.
  s.	session.	experimentSetupFile = [ ];

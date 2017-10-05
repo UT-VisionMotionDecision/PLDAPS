@@ -184,6 +184,22 @@ if p.trial.display.useOverlay==1 % Datapixx overlay
            % RB3d Overlay clut must be passed to Propixx via Datapixx()
            Datapixx('SetVideoClut', combinedClut)
            Datapixx('RegWrRd');
+           
+           if isfield(p.trial.datapixx, 'crosstalk')
+               Datapixx('SetPropixx3DCrosstalkRL', p.trial.datapixx.crosstalk(:,1));    % ...only takes scalar gain param
+               Datapixx('SetPropixx3DCrosstalkLR', p.trial.datapixx.crosstalk(:,end));    % ...only takes scalar gain param
+               disp('****************************************************************')
+               fprintf('Stereo Crosstalk correction implemented by Propixx firmware:\n');
+               fprintf('\tL-(gain*R): [')
+               fprintf('%05.2f, ', p.trial.datapixx.crosstalk(:,1).*100)
+               fprintf('\b\b]%%\n')
+               fprintf('\tR-(gain*L): [')
+               fprintf('%05.2f, ', p.trial.datapixx.crosstalk(:,end).*100)
+               fprintf('\b\b]%%\n')
+               fprintf('****************************************************************\n')
+               
+           end
+
 
         else
             % Let Screen apply clut to target device (via 4th input == 2)

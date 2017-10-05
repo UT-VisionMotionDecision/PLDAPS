@@ -101,7 +101,7 @@ function p = run(p)
             
             % PLEXON
             %-------------------------------------------------------------------------%
-            p = pds.plexon.spikeserver.connect(p);
+            pds.plexon.spikeserver.connect(p);
             
             % REWARD
             %-------------------------------------------------------------------------%
@@ -129,7 +129,13 @@ function p = run(p)
     if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
         p  %#ok<NOPRT>
         disp('Ready to begin trials. Type "dbcont" to start first trial...')
-        keyboard %#ok<MCKBD>
+        keyboard
+        %     else
+        %         % will a brief pause here prevent the frame drops on first trial that only seem to happen in absence of a keyboard call??
+        %         % ...nope!
+        %         p  %#ok<NOPRT>
+        %         disp('Ready to begin trials. Type "dbcont" to start first trial...')
+        %         pause(1)
     end
  
     %%%%start recoding on all controlled components this in not currently done here
@@ -158,11 +164,12 @@ function p = run(p)
     
     
     %now setup everything for the first trial
-   
-%     p.defaultParameters.pldaps.iTrial=p.defaultParameters.pldaps.iTrial;
     
-    %we'll have a trialNr counter that the trial function can tamper with?  ...No. No purpose to this, and only invites danger of mismatched data outputs.
-    %do we need to lock the defaultParameters to prevent tampering there?
+    %we'll have a trialNr counter that the trial function can tamper with?
+    % No apparent purpose to this...only invites danger of mismatched data outputs.
+    
+    % Record of baseline params class levels before start of experiment.
+%     do we need to lock the defaultParameters to prevent tampering there?
     levelsPreTrials=p.defaultParameters.getAllLevels();
 %     p.defaultParameters.addLevels(p.conditions(p.defaultParameters.pldaps.iTrial), {['Trial' num2str(p.defaultParameters.pldaps.iTrial) 'Parameters']});
     
@@ -196,11 +203,11 @@ function p = run(p)
            %is supposed to do that, but that is ver very slow, so we create 
            %a manual deep copy by saving the struct to a file and loading it 
            %back in.
-           tmpts=mergeToSingleStruct(p.defaultParameters); %#ok<NASGU>
-           save( fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'), '-struct', 'tmpts');
-           clear tmpts
-           p.trial = load(fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'));
-%             p.trial=mergeToSingleStruct(p.defaultParameters);
+% %            tmpts=mergeToSingleStruct(p.defaultParameters); %#ok<NASGU>
+% %            save( fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'), '-struct', 'tmpts');
+% %            clear tmpts
+% %            p.trial = load(fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'));
+            p.trial=mergeToSingleStruct(p.defaultParameters);
             
            p.defaultParameters.setLock(true);
             
@@ -388,6 +395,12 @@ function p = run(p)
 % end
 
 end
+
+
+% % % % % % % % % % % % 
+% % Sub-Functions
+% % % % % % % % % % % % 
+
 %we are pausing, will create a new defaultParaneters Level where changes
 %would go.
 function pauseLoop(p)

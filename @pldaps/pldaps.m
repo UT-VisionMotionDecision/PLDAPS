@@ -34,19 +34,19 @@ classdef pldaps < handle
         
         p.defaultParameters=params(defaults,defaultsNames);
         
-        %unnecassary, but we'll allow to save parameters in a rig
-        %struct, rather than the prefs, as that's a little more
-        %conveniant
+        %DEPRECIATED:   Use createRigPrefs.m to update rig prefs framework
         if isField(p.defaultParameters,'pldaps.rigParameters')
-            defaults{3}=load(p.defaultParameters.pldaps.rigParameters);
-            fn=fieldnames(defaults{3});
-            if length(fn)>1
-                error('pldaps:pldaps', 'The rig default parameter struct should only have one fieldname');
-            end
-            defaults{3}=defaults{3}.(fn{1});
-            defaultsNames{3}=fn{1};
-             
-            p.defaultParameters.addLevels(defaults(3),defaultsNames(3));
+            error(['Storing rigPrefs within the .pldaps.rigParameters field is depreciated.\n',...
+                    '\tRun createRigPrefs.m to create updated preferences storage inline with PLDAPS ver. 4.2 (and beyond)'], [])
+                %             defaults{3}=load(p.defaultParameters.pldaps.rigParameters);
+                %             fn=fieldnames(defaults{3});
+                %             if length(fn)>1
+                %                 error('pldaps:pldaps', 'The rig default parameter struct should only have one fieldname');
+                %             end
+                %             defaults{3}=defaults{3}.(fn{1});
+                %             defaultsNames{3}=fn{1};
+                %
+                %             p.defaultParameters.addLevels(defaults(3),defaultsNames(3));
         end
         
         
