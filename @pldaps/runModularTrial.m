@@ -48,23 +48,29 @@ function p = runModularTrial(p, replay)
         %go through one frame by calling the modules with the different states.
         %Save the times each state is finished.
 
-        %time of the estimated next flip
-        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame+p.trial.display.ifi;
-
+        %time of the next flip request
+        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + p.trial.display.ifi;
+        % Start timer for GPU rendering operations
+        Screen('GetWindowInfo', p.trial.display.ptr, 5);
+        
         %iterate through frame states
         for iState=1:nStates
             runStateforModules(p, stateName{iState}, modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
             if replay
-                p.trial.ttime=p.data{p.trial.pldaps.iTrial}.timing.frameStateChangeTimes(iState, p.trial.iFrame)+ p.trial.nextFrameTime-p.trial.display.ifi;
+                p.trial.ttime = p.data{p.trial.pldaps.iTrial}.timing.frameStateChangeTimes(iState, p.trial.iFrame) + p.trial.nextFrameTime - p.trial.display.ifi;
             else
                 p.trial.ttime = GetSecs - p.trial.trstart;
             end
-            p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
-            p.trial.timing.frameStateChangeTimes(iState, p.trial.iFrame)=p.trial.ttime-p.trial.nextFrameTime+p.trial.display.ifi;
+            p.trial.remainingFrameTime = p.trial.nextFrameTime - p.trial.ttime;
+            p.trial.timing.frameStateChangeTimes(iState, p.trial.iFrame) = p.trial.ttime - p.trial.nextFrameTime + p.trial.display.ifi;
         end
+        
+        % Retrieve GPU render time of last frame
+        dinfo = Screen('GetWindowInfo', p.trial.display.ptr);
+        p.trial.frameRenderTime(p.trial.iFrame) = dinfo.GPULastFrameRenderTime;
 
-        %advance to next frame, update frame index
+        % Advance to next frame, update frame index
         p.trial.iFrame = p.trial.iFrame + 1;
     end %while Trial running
 

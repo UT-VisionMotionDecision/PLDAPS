@@ -79,50 +79,68 @@ function p = runTrial(p)
         %go through one frame by calling tfh with the different states.
         %Save the times each state is finished.
 
-        %time of the estimated next flip
-        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame+p.trial.display.ifi;
+        % Time of next flip
+        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + p.trial.display.ifi;
 
+        % Start timer for GPU rendering operations
+        Screen('GetWindowInfo', p.trial.display.ptr, 5);
+        
+        % frameUpdate
         tfh(p, p.trial.pldaps.trialStates.frameUpdate);
+        
+        % framePrepareDrawing
         setTimeAndFrameState(p,p.trial.pldaps.trialStates.framePrepareDrawing)
-
         tfh(p, p.trial.pldaps.trialStates.framePrepareDrawing);
+        
+        % frameDraw
         setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDraw);
-
         tfh(p, p.trial.pldaps.trialStates.frameDraw);
-%             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePreLastDraw);
+        
+        % frameIdlePreLastDraw
+        %   (...state does not appear to have ever been fully implemented...??)
+        %             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePreLastDraw);
+        %             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
+        %
+        %             p.trial.framePreLastDrawIdleCount = p.trial.framePreLastDrawIdleCount +1;
+        % %             p.trial.ttime = GetSecs - p.trial.trstart;
+        % %             p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
+        % %             while (p.trial.remainingFrameTime>sum(timeNeeded(p.trial.pldaps.trialStates.frameIdlePreLastDraw+1:end)))
+        % %                 tfh(dv, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
+        % %                 p.trial.framePreLastDrawIdleCount = p.trial.framePreLastDrawIdleCount +1;
+        % %                 p.trial.ttime = GetSecs - p.trial.trstart;
+        % %                 p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
+        % %             end
+        %             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawTimecritical);
+        %
+        %             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
 
-%             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
-%             p.trial.framePreLastDrawIdleCount = p.trial.framePreLastDrawIdleCount +1;
-% %             p.trial.ttime = GetSecs - p.trial.trstart;
-% %             p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
-% %             while (p.trial.remainingFrameTime>sum(timeNeeded(p.trial.pldaps.trialStates.frameIdlePreLastDraw+1:end)))
-% %                 tfh(dv, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
-% %                 p.trial.framePreLastDrawIdleCount = p.trial.framePreLastDrawIdleCount +1;
-% %                 p.trial.ttime = GetSecs - p.trial.trstart;
-% %                 p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
-% %             end
-%             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawTimecritical);
-% 
-%             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
+        % frameDrawingFinished
         setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawingFinished);
-
         tfh(p, p.trial.pldaps.trialStates.frameDrawingFinished);
-%             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePostDraw);
-% 
-%             tfh(p, p.trial.pldaps.trialStates.frameIdlePostDraw);
-%             p.trial.framePostLastDrawIdleCount = p.trial.framePostLastDrawIdleCount +1;
-% %             p.trial.ttime = GetSecs - p.trial.trstart;
-% %             p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
-% %             while (p.trial.remainingFrameTime>sum(timeNeeded(p.trial.pldaps.trialStates.frameIdlePostDraw+1:end)))
-% %                 tfh(dv, p.trial.pldaps.trialStates.frameIdlePostDraw);
-% %                 p.trial.framePostLastDrawIdleCount = p.trial.framePostLastDrawIdleCount +1;
-% %                 p.trial.ttime = GetSecs - p.trial.trstart;
-% %                 p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
-%             end
+        
+        % frameIdlePostDraw
+        %   (...state does not appear to have ever been fully implemented...??)
+        %             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePostDraw);
+        %             tfh(p, p.trial.pldaps.trialStates.frameIdlePostDraw);
+        %
+        %             p.trial.framePostLastDrawIdleCount = p.trial.framePostLastDrawIdleCount +1;
+        % %             p.trial.ttime = GetSecs - p.trial.trstart;
+        % %             p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
+        % %             while (p.trial.remainingFrameTime>sum(timeNeeded(p.trial.pldaps.trialStates.frameIdlePostDraw+1:end)))
+        % %                 tfh(dv, p.trial.pldaps.trialStates.frameIdlePostDraw);
+        % %                 p.trial.framePostLastDrawIdleCount = p.trial.framePostLastDrawIdleCount +1;
+        % %                 p.trial.ttime = GetSecs - p.trial.trstart;
+        % %                 p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
+        %             end
+        
+        % frameFlip
         setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameFlip)
-
-
         tfh(p, p.trial.pldaps.trialStates.frameFlip);
+        
+        % Retrieve GPU render time of last frame
+        dinfo = Screen('GetWindowInfo', p.trial.display.ptr);
+        p.trial.frameRenderTime(p.trial.iFrame) = dinfo.GPULastFrameRenderTime;
+        
         %advance to next frame
         setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameUpdate);           
         p.trial.iFrame = p.trial.iFrame + 1;  % update frame index

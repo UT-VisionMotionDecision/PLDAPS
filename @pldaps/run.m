@@ -117,7 +117,7 @@ function p = run(p)
                 p.trial.mouse.windowPtr=p.trial.display.ptr;
             end
             if ~isempty(p.trial.mouse.initialCoordinates)
-                SetMouse(p.trial.mouse.initialCoordinates(1),p.trial.mouse.initialCoordinates(2),p.trial.mouse.windowPtr)
+                SetMouse(p.trial.mouse.initialCoordinates(1),p.trial.mouse.initialCoordinates(2),p.trial.mouse.windowPtr);
             end
     
             if p.trial.pldaps.useModularStateFunctions
@@ -130,12 +130,6 @@ function p = run(p)
         p  %#ok<NOPRT>
         disp('Ready to begin trials. Type "dbcont" to start first trial...')
         keyboard
-        %     else
-        %         % will a brief pause here prevent the frame drops on first trial that only seem to happen in absence of a keyboard call??
-        %         % ...nope!
-        %         p  %#ok<NOPRT>
-        %         disp('Ready to begin trials. Type "dbcont" to start first trial...')
-        %         pause(1)
     end
  
     %%%%start recoding on all controlled components this in not currently done here
@@ -150,6 +144,7 @@ function p = run(p)
     p.trial.iFrame     = 1;  % frame index
     
     %save defaultParameters as trial 0
+    trialNr = 0;
     p.defaultParameters.pldaps.iTrial=0;
     % NOTE: the following line converts p.trial into a struct.
     % ------------------------------------------------
@@ -187,14 +182,15 @@ function p = run(p)
         if p.trial.pldaps.quit == 0
             
            %load parameters for next trial and lock defaultsParameters
-           nextTrial=p.defaultParameters.pldaps.iTrial+1;
+           % nextTrial=p.defaultParameters.pldaps.iTrial+1;
+           trialNr = trialNr+1;
            if ~isempty(p.conditions)
-            p.defaultParameters.addLevels(p.conditions(nextTrial), {['Trial' num2str(nextTrial) 'Parameters']});
-            p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+nextTrial]);
+            p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
+            p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr]);
            else
             p.defaultParameters.setLevels([levelsPreTrials]);
            end
-           p.defaultParameters.pldaps.iTrial=nextTrial;
+           p.defaultParameters.pldaps.iTrial=trialNr;
            
 
            %it looks like the trial struct gets really partitioned in
@@ -230,14 +226,14 @@ function p = run(p)
                %store the difference of the trial struct to .data
                dTrialStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
            end
-           p.data{p.defaultParameters.pldaps.iTrial}=dTrialStruct;
+           %p.data{p.defaultParameters.pldaps.iTrial}=dTrialStruct;
+           p.data{trialNr} = dTrialStruct;
            
-           
-           if p.trial.pldaps.useModularStateFunctions
+           if p.trial.pldaps.useModularStateFunctions && ~isempty(p.trial.pldaps.experimentAfterTrialsFunction)
                oldptrial=p.trial;
                [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
                p.defaultParameters.setLevels(levelsPreTrials);
-               %p.defaultParameters.pldaps.iTrial=trialNr;
+               p.defaultParameters.pldaps.iTrial=trialNr;
                p.trial=mergeToSingleStruct(p.defaultParameters);
                p.defaultParameters.setLock(true); 
 
@@ -246,7 +242,7 @@ function p = run(p)
                p.defaultParameters.setLock(false); 
                betweenTrialsStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
                if(~isequal(struct,betweenTrialsStruct))
-                    p.defaultParameters.addLevels({betweenTrialsStruct}, {['experimentAfterTrials' num2str(p.defaultParameters.pldaps.iTrial) 'Parameters']});
+                    p.defaultParameters.addLevels({betweenTrialsStruct}, {['experimentAfterTrials' num2str(trialNr) 'Parameters']});
                     levelsPreTrials=[levelsPreTrials length(p.defaultParameters.getAllLevels())]; %#ok<AGROW>
                end
 
@@ -278,7 +274,7 @@ function p = run(p)
             ptype=p.trial.pldaps.pause.type;
             p.trial=p.defaultParameters;
             
-            p.defaultParameters.addLevels({struct}, {['PauseAfterTrial' num2str(p.defaultParameters.pldaps.iTrial) 'Parameters']});
+            p.defaultParameters.addLevels({struct}, {['PauseAfterTrial' num2str(trialNr) 'Parameters']});
             p.defaultParameters.setLevels([levelsPreTrials length(p.defaultParameters.getAllLevels())]);
             
             if ptype==1 %0=don't,1 is debugger, 2=pause loop
