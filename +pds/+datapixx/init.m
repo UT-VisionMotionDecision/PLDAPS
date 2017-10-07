@@ -184,23 +184,7 @@ if p.trial.display.useOverlay==1 % Datapixx overlay
            % RB3d Overlay clut must be passed to Propixx via Datapixx()
            Datapixx('SetVideoClut', combinedClut)
            Datapixx('RegWrRd');
-           
-           if isfield(p.trial.datapixx, 'crosstalk')
-               Datapixx('SetPropixx3DCrosstalkRL', p.trial.datapixx.crosstalk(:,1));    % ...only takes scalar gain param
-               Datapixx('SetPropixx3DCrosstalkLR', p.trial.datapixx.crosstalk(:,end));    % ...only takes scalar gain param
-               disp('****************************************************************')
-               fprintf('Stereo Crosstalk correction implemented by Propixx firmware:\n');
-               fprintf('\tL-(gain*R): [')
-               fprintf('%05.2f, ', p.trial.datapixx.crosstalk(:,1).*100)
-               fprintf('\b\b]%%\n')
-               fprintf('\tR-(gain*L): [')
-               fprintf('%05.2f, ', p.trial.datapixx.crosstalk(:,end).*100)
-               fprintf('\b\b]%%\n')
-               fprintf('****************************************************************\n')
-               
-           end
-
-
+        
         else
             % Let Screen apply clut to target device (via 4th input == 2)
             Screen('LoadNormalizedGammaTable', p.trial.display.ptr, combinedClut, 2);            
@@ -255,6 +239,22 @@ elseif p.trial.display.useOverlay==2 % software overlay
     % Assign lookuptable data to texture:
     glTexImage2D(GL.TEXTURE_RECTANGLE_EXT, 0, p.trial.display.internalFormat, n, m, 0, GL.LUMINANCE, GL.FLOAT, single(combinedClut(n+1:end,:)));
     glBindTexture(GL.TEXTURE_RECTANGLE_EXT, 0);
+end
+
+
+% 3D crosstalk correction when using Propixx Rb3d  (...can operate independent of overlay)
+if isfield(p.trial.datapixx, 'crosstalk') && any(p.trial.datapixx.crosstalk(:))
+    Datapixx('SetPropixx3DCrosstalkRL', p.trial.datapixx.crosstalk(:,1));    % ...only takes scalar gain param
+    Datapixx('SetPropixx3DCrosstalkLR', p.trial.datapixx.crosstalk(:,end));    % ...only takes scalar gain param
+    disp('****************************************************************')
+    fprintf('Stereo Crosstalk correction implemented by Propixx firmware:\n');
+    fprintf('\tL-(gain*R): [')
+    fprintf('%05.2f, ', p.trial.datapixx.crosstalk(:,1).*100)
+    fprintf('\b\b]%%\n')
+    fprintf('\tR-(gain*L): [')
+    fprintf('%05.2f, ', p.trial.datapixx.crosstalk(:,end).*100)
+    fprintf('\b\b]%%\n')
+    fprintf('****************************************************************\n')
 end
 
 %% Final status checks & updates before flip and return

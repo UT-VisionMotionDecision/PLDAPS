@@ -9,14 +9,22 @@ function p=plain(p,state)
         
         p = pdsDefaultTrialStructure(p); 
 
-%         p.defaultParameters.pldaps.trialMasterFunction='runTrial';
+        p.defaultParameters.pldaps.trialMasterFunction='runModularTrial';
         p.defaultParameters.pldaps.trialFunction='plain';
-        %five seconds per trial.
-        p.trial.pldaps.maxTrialLength = 5;
+
+        % seconds per trial.
+        p.trial.pldaps.maxTrialLength = 3;
         p.trial.pldaps.maxFrames = p.trial.pldaps.maxTrialLength*p.trial.display.frate;
         
-        c.Nr=1; %one condition;
-        p.conditions=repmat({c},1,200);
+        % Make a simple condition matrix
+        dsz = 6:6:24;
+        c = [];
+        for i = 1:length(dsz)
+            c{i}.i = i; % condition index
+            c{i}.dots.dotsz = dsz(i);
+        end
+        
+        p.conditions=repmat(c, [1,4]);
 
         p.defaultParameters.pldaps.finish = length(p.conditions); 
     else
@@ -28,7 +36,7 @@ function p=plain(p,state)
 %             case p.trial.pldaps.trialStates.frameUpdate
 %             case p.trial.pldaps.trialStates.framePrepareDrawing; 
             case p.trial.pldaps.trialStates.frameDraw
-                    Screen('DrawDots', p.trial.display.ptr, randi([-200,200], 2,10), 12, [], p.trial.display.ctr(1:2), 1);
+                    Screen('DrawDots', p.trial.display.ptr, randi([-200,200], 2,10), p.trial.dots.dotsz, [], p.trial.display.ctr(1:2), 1);
 % %             case p.trial.pldaps.trialStates.frameIdlePreLastDraw;
 % %             case p.trial.pldaps.trialStates.frameDrawTimecritical;
 %             case p.trial.pldaps.trialStates.frameDrawingFinished;
@@ -38,7 +46,7 @@ function p=plain(p,state)
 %             case p.trial.pldaps.trialStates.trialPrepare
 %             case p.trial.pldaps.trialStates.trialCleanUpandSave
 
-            case p.trial.pldaps.trialStates.frameFlip;   
+            case p.trial.pldaps.trialStates.frameFlip
                 if p.trial.iFrame == p.trial.pldaps.maxFrames
                     p.trial.flagNextTrial=true;
                 end

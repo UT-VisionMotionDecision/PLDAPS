@@ -86,9 +86,9 @@ end
             elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.pKey)   % P = pause
                 p.trial.pldaps.quit = 1;
                 ShowCursor;
-    %             Screen('Flip', p.trial.display.ptr);
+
             elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.qKey) % Q = quit
-    %             Screen('Flip', p.trial.display.ptr);
+
     %             p = pdsEyelinkFinish(p);
     %             PDS.timing.timestamplog = PsychDataPixx('GetTimestampLog', 1);
                 p.trial.pldaps.quit = 2;
@@ -157,11 +157,7 @@ end
             p.trial.pldaps.draw.framerate.data=circshift(p.trial.pldaps.draw.framerate.data,-1);
             p.trial.pldaps.draw.framerate.data(end)=p.trial.timing.flipTimes(1,p.trial.iFrame-1)-p.trial.timing.flipTimes(1,p.trial.iFrame-2);
             %plot
-            if isa(p.trial.pldaps.draw.framerate.show, 'matlab.graphics.chart.primitive.Line')
-                set(p.trial.pldaps.draw.framerate.show, 'ydata', p.trial.pldaps.draw.framerate.data);
-                %refreshdata(p.trial.pldaps.draw.framerate.show)
-                drawnow
-            elseif p.trial.pldaps.draw.framerate.show 
+            if p.trial.pldaps.draw.framerate.show
                 %adjust y limit
                 p.trial.pldaps.draw.framerate.sf.ylims=[0 max(max(p.trial.pldaps.draw.framerate.data), 2*p.trial.display.ifi)];
                 %current ifi is solid black
@@ -179,8 +175,8 @@ end
          %move the color and size parameters to
          %p.trial.pldaps.draw.eyepos?
          if p.trial.pldaps.draw.eyepos.use
-            Screen('Drawdots',  p.trial.display.overlayptr, [p.trial.eyeX p.trial.eyeY]', ...
-            p.trial.(sn).eyeW, p.trial.display.clut.eyepos, [0 0],0);
+            Screen('Drawdots', p.trial.display.overlayptr, [p.trial.eyeX p.trial.eyeY]', ...
+                    p.trial.(sn).eyeW, p.trial.display.clut.eyepos, [0 0],0);
          end
          if p.trial.mouse.use && p.trial.pldaps.draw.cursor.use
             Screen('Drawdots',  p.trial.display.overlayptr,  p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples), ...
@@ -221,28 +217,28 @@ end
 %             p.trial.currentFrameState=p.trial.pldaps.trialStates.frameFlip;
 %         end
 %     end %frameIdlePostDraw
-
+    
+    %% frameFlip
     function frameFlip(p)
-%       if mod(p.trial.iFrame,3)==1
-         ft=cell(5,1);
-         [ft{:}] = Screen('Flip', p.trial.display.ptr,0);
-         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
-%       end
-         if p.trial.display.movie.create
-             %we should skip every nth frame depending on the ration of
-             %frame rates, or increase every nth frameduration by 1 every
-             %nth frame
-             if p.trial.display.frate > p.trial.display.movie.frameRate
-                 thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.display.movie.frameRate)>0;
-             else
-                 thisframe=true;
-             end
+    ft=cell(5,1);
+    [ft{:}] = Screen('Flip', p.trial.display.ptr, p.trial.nextFrameTime + p.trial.trstart);
+    
+    p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
+    if p.trial.display.movie.create
+        %we should skip every nth frame depending on the ration of
+        %frame rates, or increase every nth frameduration by 1 every
+        %nth frame
+        if p.trial.display.frate > p.trial.display.movie.frameRate
+            thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.display.movie.frameRate)>0;
+        else
+            thisframe=true;
+        end
 
-             if thisframe
-                 frameDuration=1;
-                 Screen('AddFrameToMovie', p.trial.display.ptr,[],[],p.trial.display.movie.ptr, frameDuration);
-             end
-         end
+        if thisframe
+            frameDuration=1;
+            Screen('AddFrameToMovie', p.trial.display.ptr,[],[],p.trial.display.movie.ptr, frameDuration);
+        end
+    end
                   
          %did the background color change?
          %we're doing it here to make sure we don't overwrite anything

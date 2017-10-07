@@ -42,7 +42,6 @@ PsychImaging('PrepareConfiguration');
 
 if p.trial.display.normalizeColor == 1
     disp('****************************************************************')
-    disp('****************************************************************')
     disp('Turning on Normalized High res Color Range')
     disp('Sets all displays to use color range from 0-1 (e.g. NOT 0-255),')
     disp('while also setting color range to ''unclamped''.')
@@ -52,26 +51,28 @@ end
 
 if p.trial.datapixx.use
     disp('****************************************************************')
-    disp('****************************************************************')
     disp('Adds flags for UseDataPixx')
     disp('****************************************************************')
     % Tell PTB we are using Datapixx
     PsychImaging('AddTask', 'General', 'UseDataPixx');
     PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
     
-    if p.trial.display.useOverlay==1
-        % Turn on the overlay
-        if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1
-            disp('Using RB3d overlay window (via Datapixx VideoMode==9)')
-            % No initialization phase code necessary; all done in overlay setup after window has been created.
+    if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1
+        % With RB3d, all overlay init must be performed after window has been created.
+        if p.trial.display.useOverlay==1
+            disp('Using RB3d with overlay window (via Datapixx VideoMode==9)')
         else
-            disp('Using standard overlay window (EnableDataPixxM16OutputWithOverlay)')
-            PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');            
-            
+            disp('Using RB3d without overlay window (via Datapixx VideoMode==9)')
         end
-        disp('****************************************************************')
+        
+    elseif p.trial.display.useOverlay==1
+        % Turn on the standard overlay
+        disp('Using standard overlay window (EnableDataPixxM16OutputWithOverlay)')
+        PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
         
     end
+    disp('****************************************************************')
+    
 else
     PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
 
@@ -85,7 +86,7 @@ end
 
 if p.trial.display.stereoMode > 0
     % PTB stereo crosstalk correction
-    if isfield(p.trial.display, 'crosstalk') && any(p.trial.display.crosstalk>0)
+    if isfield(p.trial.display, 'crosstalk') && any(p.trial.display.crosstalk(:))
         % Crosstalk gains == [Lr Lg Lb; Rr Rg Rb]'; 
         disp('****************************************************************')
         if numel(p.trial.display.crosstalk)==2
@@ -108,13 +109,11 @@ if p.trial.display.stereoMode > 0
     % Planar display setup
     if strcmp(p.trial.display.stereoFlip,'right')
         disp('****************************************************************')
-        disp('****************************************************************')
         disp('Setting stereo mode for use with planar')
         disp('Flipping the RIGHT monitor to be a mirror image')
         disp('****************************************************************')
         PsychImaging('AddTask', 'RightView', 'FlipHorizontal');
     elseif strcmp(p.trial.display.stereoFlip,'left')
-        disp('****************************************************************')
         disp('****************************************************************')
         disp('Setting stereo mode for use with planar')
         disp('Flipping the LEFT monitor to be a mirror image')
@@ -126,7 +125,6 @@ end
 
 %% Color correction
 disp('****************************************************************')
-disp('****************************************************************')
 disp('Adding DisplayColorCorrection to FinalFormatting')
 disp('****************************************************************')
 if isField(p.trial, 'display.gamma.power')
@@ -137,7 +135,6 @@ end
 
 
 %% Open double-buffered onscreen window with the requested stereo mode
-disp('****************************************************************')
 disp('****************************************************************')
 fprintf('Opening screen %d with background %s in stereo mode %d\r', p.trial.display.scrnNum, mat2str(p.trial.display.bgColor), p.trial.display.stereoMode)
 disp('****************************************************************')
@@ -188,6 +185,7 @@ Screen('TextFont',p.trial.display.ptr,'Helvetica');
 Screen('TextSize',p.trial.display.ptr,16);
 Screen('TextStyle',p.trial.display.ptr,1);
 
+
 %% Assign overlay pointer
 if p.trial.display.useOverlay==1
     if p.trial.datapixx.use
@@ -199,42 +197,30 @@ if p.trial.display.useOverlay==1
         elseif p.trial.datapixx.rb3d
             % RB3d mode needs special shaders to encode overlay in the green channel
             oldColRange = Screen('ColorRange', p.trial.display.ptr, 255);
-            p.trial.display.overlayptr = SetAnaglyphStereoParameters('CreateGreenOverlay', p.trial.display.ptr);
+            %             p.trial.display.overlayptr = SetAnaglyphStereoParameters('CreateGreenOverlay', p.trial.display.ptr);
+            % Manually create overlay window so we can make tweaks to setup performed by SetAnaglyphStereoParameters
+            glUseProgram(0);
+            p.trial.display.overlayptr = Screen('OpenOffscreenWindow', p.trial.display.ptr, 0, [0 0 p.trial.display.pWidth p.trial.display.pHeight], 8, 32);            
             % Put stimulus color range back how it was
             Screen('ColorRange', p.trial.display.ptr, oldColRange);
-            %             p.trial.display.overlayptr = p.trial.display.ptr;
             
-            % If crosstalk format is [1x2], interpret as (1)==crosstalk gain for L-gain*R, (2)==crosstalk gain for R-gain*L
-            if numel(p.trial.display.crosstalk)==2
-                % setup crosstalk gains, ensuring the G (overlay channel) gain is zero
-                crosstalkGain = [p.trial.display.crosstalk(1), 0, p.trial.display.crosstalk(2)];
-                if min(p.trial.display.bgColor) <= 0 || max(p.trial.display.bgColor) >= 1
-                    sca;    error('In StereoRb3dCrosstalkReduction: Provided background clear color is not in the normalized range > 0 and < 1 as required.');
-                end
-                
-                % Retrieve existing shader chain
-                [icmShaders, icmIdString, icmConfig] = PsychColorCorrection('GetCompiledShaders', p.trial.display.ptr, 2);
-                % Load StereoRb3dCrosstalkReductionShader.frag.txt from PLDAPS directory & append existing shader chain:
-                shader = LoadGLSLProgramFromFiles(fullfile(p.trial.pldaps.dirs.proot, 'SupportFunctions', 'Utils', 'StereoRb3dCrosstalkReductionShader.frag'), 2, icmShaders);
-                
-                % Init the shader: Assign mapping of shader inputs:
-                glUseProgram(shader);
-                % [Image] will contain the finalized image (after L & R streams have been blitted into R & B channels, respectively)
-                glUniform1i(glGetUniformLocation(shader, 'Image'), 0);
-                % Pass crosstalk gain & background color triplets into shader
-                glUniform3fv(glGetUniformLocation(shader, 'crosstalkGain'), 1, crosstalkGain);
-                glUniform3fv(glGetUniformLocation(shader, 'backGroundClr'), 1, p.trial.display.bgColor);                
-                % Shader setup done:
-                glUseProgram(0);
-                
-                p.trial.display.crosstalkShader = shader;
-                % Apply to the FinalOutputFormattingBlit
-                idString = sprintf('Crosstalk Shader : %s', icmIdString);
-                % pString  = [ pString icmConfig ]; ...no additional textureRect2Ds to map
-                Screen('HookFunction', p.trial.display.ptr, 'Reset', 'FinalOutputFormattingBlit');
-                Screen('HookFunction', p.trial.display.ptr, 'AppendShader', 'FinalOutputFormattingBlit', idString, p.trial.display.crosstalkShader, icmConfig);
-                PsychColorCorrection('ApplyPostGLSLLinkSetup', p.trial.display.ptr, 'FinalFormatting');
-            end
+            p.trial.display.overlaytex = Screen('GetOpenGLTexture', p.trial.display.ptr, p.trial.display.overlayptr);
+            % Super cryptic copy-pasta from SetAnaglyphStereoParameters('CreateGreenOverlay'...)
+            Screen('Hookfunction', p.trial.display.ptr, 'AppendMFunction', 'StereoCompositingBlit', 'Setup1 Green only mask for Overlay', 'glColorMask(0, 1, 0, 0);');
+            Screen('Hookfunction', p.trial.display.ptr, 'AppendMFunction', 'StereoCompositingBlit', 'Setup2 Texunit1 off for Overlay', 'glActiveTexture(33985);');
+            Screen('Hookfunction', p.trial.display.ptr, 'AppendMFunction', 'StereoCompositingBlit', 'Setup3 Texunit1 off for Overlay', 'glDisable(34037);');
+            Screen('Hookfunction', p.trial.display.ptr, 'AppendMFunction', 'StereoCompositingBlit', 'Setup4 Texunit1 off for Overlay', 'glActiveTexture(33984);');
+            Screen('Hookfunction', p.trial.display.ptr, 'AppendBuiltin',   'StereoCompositingBlit', 'Builtin:IdentityBlit', sprintf('TEXTURERECT2D(0)=%i', p.trial.display.overlaytex));
+            Screen('Hookfunction', p.trial.display.ptr, 'AppendMFunction', 'StereoCompositingBlit', 'Reset colormask after Overlay blit', 'glColorMask(1, 1, 1, 1);');
+            
+            % Disable bilinear filtering on this texture - always use nearest neighbour sampling to avoid interpolation artifacts
+            glBindTexture(GL.TEXTURE_RECTANGLE_EXT, p.trial.display.overlaytex);
+            glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+            glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+            glBindTexture(GL.TEXTURE_RECTANGLE_EXT, 0);
+
+            
+            %             p.trial.display.overlayptr = p.trial.display.ptr;            
         end        
     else
         warning('pldaps:openScreen', 'Datapixx Overlay requested but datapixx disabled. No Dual head overlay availiable!')
@@ -261,7 +247,6 @@ elseif p.trial.display.useOverlay==2
             shSrc = sprintf('uniform sampler2DRect overlayImage; float getMonoOverlayIndex(vec2 pos) { return(texture2DRect(overlayImage, pos * vec2(%f, %f)).r); }', sampleX, sampleY);
 
     % if using a software overlay, the window size needs to [already] be halved.
-    disp('****************************************************************')
     disp('****************************************************************')
     disp('Using software overlay window')
     disp('****************************************************************')
@@ -343,7 +328,6 @@ end
 % % Set gamma lookup table
 if isField(p.trial, 'display.gamma')
     disp('****************************************************************')
-    disp('****************************************************************')
     disp('Loading gamma correction')
     disp('****************************************************************')
     if isfield(p.trial.display.gamma, 'table')
@@ -367,10 +351,42 @@ end
 % % This seems redundant. Is it necessary?
 if p.trial.display.colorclamp == 1
     disp('****************************************************************')
-    disp('****************************************************************')
     disp('clamping color range')
     disp('****************************************************************')
     Screen('ColorRange', p.trial.display.ptr, 1, 0);
+end
+
+%% Rb3d stereo crosstalk correction using custom shader (mmmuch faster than version built into PTB)
+% If crosstalk format must be [1x2]; will be interpreted as (1)==crosstalk gain for L-gain*R, (2)==crosstalk gain for R-gain*L
+if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1 &&  numel(p.trial.display.crosstalk)==2
+    % setup crosstalk gains, ensuring the G (overlay channel) gain is zero
+    crosstalkGain = [p.trial.display.crosstalk(1), 0, p.trial.display.crosstalk(2)];
+    if min(p.trial.display.bgColor) <= 0 || max(p.trial.display.bgColor) >= 1
+        sca;    error('In StereoRb3dCrosstalkReduction: Provided background clear color is not in the normalized range > 0 and < 1 as required.');
+    end
+    
+    % Retrieve existing shader chain
+    [icmShaders, icmIdString, icmConfig] = PsychColorCorrection('GetCompiledShaders', p.trial.display.ptr, 0);
+    % Load StereoRb3dCrosstalkReductionShader.frag.txt from PLDAPS directory & append existing shader chain:
+    shader = LoadGLSLProgramFromFiles(fullfile(p.trial.pldaps.dirs.proot, 'SupportFunctions', 'Utils', 'StereoRb3dCrosstalkReductionShader.frag'), 0, icmShaders);
+    
+    % Init the shader: Assign mapping of shader inputs:
+    glUseProgram(shader);
+    % [Image] will contain the finalized image (after L & R streams have been blitted into R & B channels, respectively)
+    glUniform1i(glGetUniformLocation(shader, 'Image'), 0);
+    % Pass crosstalk gain & background color triplets into shader
+    glUniform3fv(glGetUniformLocation(shader, 'crosstalkGain'), 1, crosstalkGain);
+    glUniform3fv(glGetUniformLocation(shader, 'backGroundClr'), 1, p.trial.display.bgColor);
+    % Shader setup done:
+    glUseProgram(0);
+    
+    p.trial.display.crosstalkShader = shader;
+    % Apply to the FinalOutputFormattingBlit
+    idString = sprintf('Crosstalk Shader : %s', icmIdString);
+    % pString  = [ pString icmConfig ]; ...no additional textureRect2Ds to map
+    Screen('HookFunction', p.trial.display.ptr, 'Reset', 'FinalOutputFormattingBlit');
+    Screen('HookFunction', p.trial.display.ptr, 'AppendShader', 'FinalOutputFormattingBlit', idString, p.trial.display.crosstalkShader, icmConfig);
+    PsychColorCorrection('ApplyPostGLSLLinkSetup', p.trial.display.ptr, 'FinalFormatting');
 end
 
 %% Setup movie creation if desired
@@ -390,7 +406,6 @@ if p.trial.display.movie.create
 end
 
 %% Set up alpha-blending for smooth (anti-aliased) drawing
-disp('****************************************************************')
 disp('****************************************************************')
 fprintf('Setting Blend Function to %s,%s\r', p.trial.display.sourceFactorNew, p.trial.display.destinationFactorNew);
 disp('****************************************************************')
