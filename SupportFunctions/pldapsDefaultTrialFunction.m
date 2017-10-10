@@ -92,7 +92,7 @@ end
     %             p = pdsEyelinkFinish(p);
     %             PDS.timing.timestamplog = PsychDataPixx('GetTimestampLog', 1);
                 p.trial.pldaps.quit = 2;
-                ShowCursor
+                ShowCursor;
             elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) % d=debug
                     disp('stepped into debugger. Type return to start first trial...')
                     keyboard %#ok<MCKBD>

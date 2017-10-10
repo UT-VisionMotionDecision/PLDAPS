@@ -138,8 +138,8 @@ function p = run(p)
     p = beginExperiment(p);
 
     % disable keyboard
-    ListenChar(2)
-    HideCursor
+    ListenChar(2);
+    HideCursor;
     
     p.trial.flagNextTrial  = 0; % flag for ending the trial
     p.trial.iFrame     = 1;  % frame index
@@ -232,7 +232,7 @@ function p = run(p)
                betweenTrialsStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
                if(~isequal(struct,betweenTrialsStruct))
                     p.defaultParameters.addLevels({betweenTrialsStruct}, {sprintf('experimentAfterTrials%dParameters', p.defaultParameters.pldaps.iTrial)});
-                    baseParamsLevels=[baseParamsLevels length(p.defaultParameters.getAllLevels())]; %#ok<AGROW>
+                    baseParamsLevels=[baseParamsLevels length(p.defaultParameters.getAllLevels())];
                end
 
                p.trial=oldptrial;
@@ -330,12 +330,17 @@ function p = run(p)
         PDS.conditions = structs(levelsCondition);
         PDS.conditionNames = structNames(levelsCondition);
         PDS.data = p.data; 
-        PDS.functionHandles = p.functionHandles;
+        PDS.functionHandles = p.functionHandles; %#ok<STRNU>
+        savedFileName = fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file);
         if p.defaultParameters.pldaps.save.v73
-            save(fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file),'PDS','-mat','-v7.3')
+            save(savedFileName,'PDS','-mat','-v7.3')
         else
-            save(fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file),'PDS','-mat')
+            save(savedFileName,'PDS','-mat')
         end
+        disp('****************************************************************')
+        fprintf('\tPLDAPS data file saved as:\n\t\t%s\n', savedFileName)
+        disp('****************************************************************')
+
     end
     
 
