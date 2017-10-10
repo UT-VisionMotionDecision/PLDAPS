@@ -26,9 +26,10 @@ function p = run(p)
     if isField(p.defaultParameters, 'session.initTime')
         warning('pldaps:run', 'pldaps objects appears to have been run before. A new pldaps object is needed for each run');
         return
-    else
-        p.defaultParameters.session.initTime=now;
     end
+    
+    p.defaultParameters.session.initTime=now;
+    p.defaultParameters.pldaps.iTrial = 0; % necessary here to place iTrial counter in SessionParameters level of params hierarchy
         
     if ~p.defaultParameters.pldaps.nosave
         p.defaultParameters.session.dir = p.defaultParameters.pldaps.dirs.data;
@@ -143,9 +144,7 @@ function p = run(p)
     p.trial.flagNextTrial  = 0; % flag for ending the trial
     p.trial.iFrame     = 1;  % frame index
     
-    %save defaultParameters as trial 0
-    trialNr = 0;
-    p.defaultParameters.pldaps.iTrial=0;
+    % Save defaultParameters as trial 0
     % NOTE: the following line converts p.trial into a struct.
     % ------------------------------------------------
     % !!! Beyond this point, p.trial is NO LONGER A POINTER TO p.defaultParameters !!!
@@ -160,49 +159,41 @@ function p = run(p)
     
     %now setup everything for the first trial
     
-    %we'll have a trialNr counter that the trial function can tamper with?
+    % we <will not> have a trialNr counter that the trial function can tamper with?
     % No apparent purpose to this...only invites danger of mismatched data outputs.
     
     % Record of baseline params class levels before start of experiment.
-%     do we need to lock the defaultParameters to prevent tampering there?
-    levelsPreTrials=p.defaultParameters.getAllLevels();
-%     p.defaultParameters.addLevels(p.conditions(p.defaultParameters.pldaps.iTrial), {['Trial' num2str(p.defaultParameters.pldaps.iTrial) 'Parameters']});
-    
-    %for now all structs will be in the parameters class, first
-    %levelsPreTrials, then we'll add the condition struct before each trial.
-%     p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+p.defaultParameters.pldaps.iTrial])
-%     p.defaultParameters.pldaps.iTrial=p.defaultParameters.pldaps.iTrial;
-%     p.trial=mergeToSingleStruct(p.defaultParameters);
-    
-    %only use p.trial from here on!
-    
+    % NOTE: "levelsPreTrials" --> "baseParamsLevels", since former was misnomer now
+    %       that this var must be updated for everytime a non-trial parameters level
+    %       is added (e.g. during every pause) --TBC 2017-10
+    baseParamsLevels = p.defaultParameters.getAllLevels();  %#ok<*AGROW>
+        
     %% main trial loop %%
     while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         
-        if p.trial.pldaps.quit == 0
+        if ~p.trial.pldaps.quit
             
            %load parameters for next trial and lock defaultsParameters
-           % nextTrial=p.defaultParameters.pldaps.iTrial+1;
-           trialNr = trialNr+1;
+           nextTrial = p.defaultParameters.incrementTrial(+1);
            if ~isempty(p.conditions)
-            p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
-            p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr]);
+               p.defaultParameters.addLevels(p.conditions(nextTrial), {sprintf('Trial%dParameters', nextTrial)});
+               p.defaultParameters.setLevels([baseParamsLevels length(baseParamsLevels)+nextTrial]);
            else
-            p.defaultParameters.setLevels([levelsPreTrials]);
+               p.defaultParameters.setLevels([baseParamsLevels]);
            end
-           p.defaultParameters.pldaps.iTrial=trialNr;
-           
 
            %it looks like the trial struct gets really partitioned in
            %memory and this appears to make some get (!) calls slow. 
            %We thus need a deep copy. The superclass matlab.mixin.Copyable
            %is supposed to do that, but that is ver very slow, so we create 
            %a manual deep copy by saving the struct to a file and loading it 
-           %back in.
+           %back in. --JK 2016(?)
            tmpts=mergeToSingleStruct(p.defaultParameters); %#ok<NASGU>
            save( fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'), '-struct', 'tmpts');
            clear tmpts
            p.trial = load(fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'));
+           % Document currently active levels (this will end up saved in data{#} of each trial)
+           p.trial.pldaps.activeLevels = p.defaultParameters.getActiveLevels;
 %             p.trial=mergeToSingleStruct(p.defaultParameters);
             
            p.defaultParameters.setLock(true);
@@ -226,64 +217,50 @@ function p = run(p)
                %store the difference of the trial struct to .data
                dTrialStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
            end
-           %p.data{p.defaultParameters.pldaps.iTrial}=dTrialStruct;
-           p.data{trialNr} = dTrialStruct;
+           p.data{p.defaultParameters.pldaps.iTrial}=dTrialStruct;
            
            if p.trial.pldaps.useModularStateFunctions && ~isempty(p.trial.pldaps.experimentAfterTrialsFunction)
                oldptrial=p.trial;
                [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
-               p.defaultParameters.setLevels(levelsPreTrials);
-               p.defaultParameters.pldaps.iTrial=trialNr;
+               p.defaultParameters.setLevels(baseParamsLevels);
                p.trial=mergeToSingleStruct(p.defaultParameters);
                p.defaultParameters.setLock(true); 
-
+               % Not clear what purpose this serves that could not be accomplished in trial cleanupandsave and/or at start of next trial? --TBC 2017-10
                runStateforModules(p,'experimentAfterTrials',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 
                p.defaultParameters.setLock(false); 
                betweenTrialsStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
                if(~isequal(struct,betweenTrialsStruct))
-                    p.defaultParameters.addLevels({betweenTrialsStruct}, {['experimentAfterTrials' num2str(trialNr) 'Parameters']});
-                    levelsPreTrials=[levelsPreTrials length(p.defaultParameters.getAllLevels())]; %#ok<AGROW>
+                    p.defaultParameters.addLevels({betweenTrialsStruct}, {sprintf('experimentAfterTrials%dParameters', p.defaultParameters.pldaps.iTrial)});
+                    baseParamsLevels=[baseParamsLevels length(p.defaultParameters.getAllLevels())]; %#ok<AGROW>
                end
 
                p.trial=oldptrial;
            end
 
-           %advance to next trial
-%            if(p.trial.pldaps.iTrial ~= p.trial.pldaps.finish)
-%                 %now we add this and the next Trials condition parameters
-%                 p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']},[levelsPreTrials length(levelsPreTrials)+trialNr]);
-%                 p.defaultParameters.pldaps.iTrial=trialNr;
-%                 p.trial=mergeToSingleStruct(p.defaultParameters);
-%            else
-%                 p.trial.pldaps.iTrial=trialNr;
-%            end
-%            
-%            if isfield(dTrialStruct,'pldaps')
-%                if isfield(dTrialStruct.pldaps,'finish') 
-%                     p.trial.pldaps.finish=dTrialStruct.pldaps.finish;
-%                end
-%                if isfield(dTrialStruct.pldaps,'quit') 
-%                     p.trial.pldaps.quit=dTrialStruct.pldaps.quit;
-%                end
-%            end
-            
-        else %dbquit ==1 is meant to be pause. should we halt eyelink, datapixx, etc?
+        else % Pause experiment. should we halt eyelink, datapixx, etc?
             %create a new level to store all changes in, 
-            %load only non trial paraeters
+            %load only non trial parameters (...why?)
             ptype=p.trial.pldaps.pause.type;
-            p.trial=p.defaultParameters;
+
+            % p.trial is once again a pointer after the following call (!)
+            p.trial=p.defaultParameters; % NOTE: This step also resets the .pldaps.quit~=0 that triggered execution of this block
             
-            p.defaultParameters.addLevels({struct}, {['PauseAfterTrial' num2str(trialNr) 'Parameters']});
-            p.defaultParameters.setLevels([levelsPreTrials length(p.defaultParameters.getAllLevels())]);
+            % This will ALWAYS create a new 'level', even if nothing is changed during pause
+            % ...doesn't seem like original intention, but allows changes during pause to be carried
+            % over without overwriting prior settings, or getting lost in .conditions parameters. --TBC 2017-10
+            p.defaultParameters.addLevels({struct}, {sprintf('PauseAfterTrial%dParameters', p.defaultParameters.pldaps.iTrial)});
+            % include this new level in the list of baseline hierarchy levels.
+            baseParamsLevels = [baseParamsLevels length(p.defaultParameters.getAllLevels())];
+            % set baseline levels active (...disabling all trial-specific levels in the process)
+            p.defaultParameters.setLevels(baseParamsLevels);
             
             if ptype==1 %0=don't,1 is debugger, 2=pause loop
                 ListenChar(0);
                 ShowCursor;
                 p.trial
-                disp('Ready to begin trials. Type "dbcont" to start first trial...')
+                disp('Experiment paused. Type "dbcont" to continue...')
                 keyboard %#ok<MCKBD>
-                p.trial.pldaps.quit = 0;
                 ListenChar(2);
                 HideCursor;
             elseif ptype==2
@@ -296,14 +273,17 @@ function p = run(p)
             %you should also now how to not skrew things up
             allStructs=p.defaultParameters.getAllStructs();
             if(~isequal(struct,allStructs{end}))
-                levelsPreTrials=[levelsPreTrials length(allStructs)]; %#ok<AGROW>
+                baseParamsLevels=[baseParamsLevels length(allStructs)];
             end
         end
         
     end
     
     %make the session parameterStruct active
-    p.defaultParameters.setLevels(levelsPreTrials);
+    % NOTE: This potentially obscures hierarchy levels (i.e. "PauseAfterTrial##Parameters") that
+    %       are likely inconsistent throughout session. ...each trial data now includes a list
+    %       of active hierarchy levels in .pldaps.activeLevels
+    p.defaultParameters.setLevels(baseParamsLevels);
     p.trial = p.defaultParameters;
     
     % return cursor and command-line control
@@ -337,19 +317,20 @@ function p = run(p)
     if ~p.defaultParameters.pldaps.nosave
         [structs,structNames] = p.defaultParameters.getAllStructs();
         
-        PDS=struct;
-        PDS.initialParameters=structs(levelsPreTrials);
-        PDS.initialParameterNames=structNames(levelsPreTrials);
+        PDS = struct;
+        PDS.initialParameters = structs(baseParamsLevels);
+        PDS.initialParameterNames = structNames(baseParamsLevels);
+        PDS.initialParameterIndices = baseParamsLevels;
         if p.defaultParameters.pldaps.save.initialParametersMerged
-            PDS.initialParametersMerged=mergeToSingleStruct(p.defaultParameters); %too redundant?
+            PDS.initialParametersMerged = mergeToSingleStruct(p.defaultParameters); %too redundant?
         end
         
-        levelsCondition=1:length(structs);
-        levelsCondition(ismember(levelsCondition,levelsPreTrials))=[];
-        PDS.conditions=structs(levelsCondition);
-        PDS.conditionNames=structNames(levelsCondition);
-        PDS.data=p.data; 
-        PDS.functionHandles=p.functionHandles;
+        levelsCondition = 1:length(structs);
+        levelsCondition(ismember(levelsCondition,baseParamsLevels)) = [];
+        PDS.conditions = structs(levelsCondition);
+        PDS.conditionNames = structNames(levelsCondition);
+        PDS.data = p.data; 
+        PDS.functionHandles = p.functionHandles;
         if p.defaultParameters.pldaps.save.v73
             save(fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file),'PDS','-mat','-v7.3')
         else
@@ -457,10 +438,10 @@ function pauseLoop(p)
                 elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.xKey)
                     activeEditor=matlab.desktop.editor.getActive; 
                     if isempty(activeEditor)
-                        display('No Matlab editor open -> Nothing to execute');
+                        fprintf(2, 'No Matlab editor open -> Nothing to execute\n');
                     else
                         if isempty(activeEditor.SelectedText)
-                            display('Nothing selected in the active editor Widnow -> Nothing to execute');
+                            fprintf(2, 'Nothing selected in the active editor Widnow -> Nothing to execute\n');
                         else
                             try
                                 eval(activeEditor.SelectedText)

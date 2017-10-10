@@ -16,6 +16,10 @@ function p=plain(p,state)
         p.trial.pldaps.maxTrialLength = 3;
         p.trial.pldaps.maxFrames = p.trial.pldaps.maxTrialLength*p.trial.display.frate;
         
+        % dot parameters
+        p.trial.dots.ndots = 10;
+        p.trial.dots.dotcolor = WhiteIndex(p.trial.display.ptr) * [1 .5 0]';
+        
         % Make a simple condition matrix
         dsz = 6:6:24;
         c = [];
@@ -24,7 +28,7 @@ function p=plain(p,state)
             c{i}.dots.dotsz = dsz(i);
         end
         
-        p.conditions=repmat(c, [1,4]);
+        p.conditions=repmat(c, [1,3]);
 
         p.defaultParameters.pldaps.finish = length(p.conditions); 
     else
@@ -36,7 +40,7 @@ function p=plain(p,state)
 %             case p.trial.pldaps.trialStates.frameUpdate
 %             case p.trial.pldaps.trialStates.framePrepareDrawing; 
             case p.trial.pldaps.trialStates.frameDraw
-                    Screen('DrawDots', p.trial.display.ptr, randi([-200,200], 2,10), p.trial.dots.dotsz, [], p.trial.display.ctr(1:2), 1);
+                    Screen('DrawDots', p.trial.display.ptr, randi([-200,200], 2, p.trial.dots.ndots), p.trial.dots.dotsz, p.trial.dots.dotcolor, p.trial.display.ctr(1:2), 1);
 % %             case p.trial.pldaps.trialStates.frameIdlePreLastDraw;
 % %             case p.trial.pldaps.trialStates.frameDrawTimecritical;
 %             case p.trial.pldaps.trialStates.frameDrawingFinished;

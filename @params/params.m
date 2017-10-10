@@ -57,8 +57,10 @@ classdef params < handle
             	active=true(1,length(s));
             end
             p=addStructs(p,s,sN,active);
- 
-            p.MethodsList=sort({'view', 'setLevels','getAllLevels', 'mergeToSingleStruct','getDifferenceFromStruct','addLevels','addStructs','addNewStruct', 'getAllStructs','setLock','getParameter','fieldnames'});
+            % NOTE: Methods not listed here will not be user-accessible
+            %    (...because of way the subsref function is overloaded within the Params class)
+            p.MethodsList=sort({'view', 'setLevels','getAllLevels', 'mergeToSingleStruct','getDifferenceFromStruct','addLevels','addStructs','addNewStruct',...
+                                'getAllStructs','setLock','getParameter','fieldnames','incrementTrial','getActiveLevels'});
             p.Snew1= substruct('.','structs','{}', {NaN});
         end %params(s,sN)
 
@@ -91,6 +93,7 @@ classdef params < handle
             names={p.flatStruct(cellfun(@length,{p.flatStruct(activeFields).parentLevels})==1).identifier};
             names=cellfun(@(x) x(2:end),names,'UniformOutput',false);
         end
+        
         % ...another struct tab completion helper
         function names = properties(p) 
             names = fieldnames(p);
@@ -118,7 +121,8 @@ classdef params < handle
                     active=false(1,length(s));
                 end
             else
-                active=~~active;
+                % ensure logical
+                active= logical(active);
             end
             
             for iStruct=1:length(s)
@@ -156,14 +160,14 @@ classdef params < handle
                  end
             end
             
-            p.structs{end+1}=newStruct;
-            p.structNames{end+1}=newStructName;
-            p.activeLevels(end+1)=makeActive;
-            p.activeLevels=~~p.activeLevels;
+            p.structs{end+1} = newStruct;
+            p.structNames{end+1} = newStructName;
+            p.activeLevels(end+1) = makeActive;
+            p.activeLevels = logical(p.activeLevels);
             p.topLevel=find(p.activeLevels, 1, 'last');
         end
                 
-        %TODO: if we allow dirty structs, we need to cosolidate....
+        %TODO: if we allow dirty structs, we need to cosolidate....(no one knows what this means. --TBC)
         function p = setLevels(p,value)
             if islogical(value)
                 if length(value)==length(p.structs) 
@@ -174,6 +178,11 @@ classdef params < handle
                 p.activeLevels(value)=true;
             end          
             p.topLevel=find(p.activeLevels, 1, 'last');
+        end
+        
+        % Return index(s) of currently active params hierarchy levels
+        function activeLevels = getActiveLevels(p)
+            activeLevels = find(p.activeLevels);
         end
         
         function l = getAllLevels(p)
@@ -339,6 +348,22 @@ classdef params < handle
                    end
                 otherwise
                     error('params:subsref', 'just don''t, ok? I''m a params class, so don''t go all brackety on me. Understood? I''m not an array, nor a cell. Is that explicit enough?');
+            end
+        end
+
+        
+        % Increment iTrial value in the "session" level of p.structs{4}.pldaps.iTrial
+        % Currently a necessary evil to prevent reinitialization of the trial
+        % index from the initial params struct heirarchy levels. Would be nice to
+        % integrate assignment of p.conditions & add/set levels calls here, but 
+        % too many dependent vars in the p.run workspace to do this cleanly. --TBC 2017-10
+        %   (totally cryptic...nothing I can do about it at this point)
+        function varargout = incrementTrial(p, delta)
+            %   NOTE: [delta] input is increment, not actual value.
+            sessionIndex = strcmp(p.structNames, 'SessionParameters');
+            p.structs{sessionIndex}.pldaps.iTrial = p.structs{sessionIndex}.pldaps.iTrial + delta;
+            if nargout
+                varargout{1} = p.structs{sessionIndex}.pldaps.iTrial;
             end
         end
         
