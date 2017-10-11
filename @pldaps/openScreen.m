@@ -415,5 +415,11 @@ if p.trial.display.forceLinearGamma %does't really belong here, but need it befo
     LoadIdentityClut(p.trial.display.ptr);
 end
 
+%% Setup cluts & basic colors
 p=defaultColors(p); % load the default CLUTs -- this is useful for opening overlay window in pds.datapixx.init
+p.trial.display.white = WhiteIndex(p.trial.display.ptr);
+p.trial.display.black = BlackIndex(p.trial.display.ptr);
+
+%% Flip screen to get initial timestamp & finish
 p.trial.display.t0 = Screen('Flip', p.trial.display.ptr);
+
