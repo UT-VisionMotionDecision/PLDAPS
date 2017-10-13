@@ -166,7 +166,12 @@ p.trial.display.info = Screen('GetWindowInfo', p.trial.display.ptr);            
 p.trial.display.pWidth=p.trial.display.winRect(3)-p.trial.display.winRect(1);
 p.trial.display.pHeight=p.trial.display.winRect(4)-p.trial.display.winRect(2);
 % physical [w]orld dimensions (cm)
-p.trial.display.wWidth=p.trial.display.widthcm;
+if p.trial.display.stereoMode >= 2 && p.trial.display.stereoMode <=5
+    % Adjust for half-width stereo display  (...distinct from above correction, where in winRect is already halved)
+    p.trial.display.wWidth=p.trial.display.widthcm/2;
+else
+    p.trial.display.wWidth=p.trial.display.widthcm;
+end
 p.trial.display.wHeight=p.trial.display.heightcm;
 % visual [d]egrees          % updated to ensure this param reflects ppd (i.e. not an independent/redundant calculation)
 p.trial.display.dWidth =  p.trial.display.pWidth/p.trial.display.ppd;   

@@ -50,66 +50,63 @@ function pldapsDefaultTrialFunction(p,state, sn)
             end
     end
 end
-%%% get inputs and check behavior%%%
+
+% % % % % % % % % % % % % % % 
+% % % Sub-functions
+% % % % % % % % % % % % % % % 
+
 %---------------------------------------------------------------------% 
+%% frameUpdate
     function frameUpdate(p)   
-        %%TODO: add buffer for Keyboard presses, nouse position and clicks.
+        %%TODO: add buffer for Keyboard presses, mouse position and clicks.
         
-        %Keyboard    
+        % Check keyboard    
         [p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ, firstRelease, lastPress, lastRelease]=KbQueueCheck(); % fast
         
         if p.trial.keyboard.pressedQ || any(firstRelease)
-    %         [p.trial.keyboard.pressedQ,  p.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
             p.trial.keyboard.samples = p.trial.keyboard.samples+1;
-            p.trial.keyboard.samplesTimes(p.trial.keyboard.samples)=GetSecs;
-            p.trial.keyboard.samplesFrames(p.trial.keyboard.samples)=p.trial.iFrame;
-            p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples)=p.trial.keyboard.pressedQ;
-            p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples)=p.trial.keyboard.firstPressQ;
-            p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples)=firstRelease;
-            p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples)=lastPress;
-            p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples)=lastRelease;
-        end        
+            p.trial.keyboard.samplesTimes(p.trial.keyboard.samples) = GetSecs;
+            p.trial.keyboard.samplesFrames(p.trial.keyboard.samples) = p.trial.iFrame;
+            p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples) = p.trial.keyboard.pressedQ;
+            p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples) = p.trial.keyboard.firstPressQ;
+            p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples) = firstRelease;
+            p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples) = lastPress;
+            p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples) = lastRelease;
+        end
         
+        % Some standard PLDAPS key functions
         if any(p.trial.keyboard.firstPressQ)
+
+            % [M]anual reward
             if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.mKey)
                   pds.behavior.reward.give(p);
-%                 if p.trial.datapixx.use
-%                     pds.datapixx.analogOut(p.trial.stimulus.rewardTime)
-%                     pds.datapixx.flipBit(p.trial.event.REWARD,p.trial.pldaps.iTrial);
-%                 end
-%     %             p.trial.ttime = GetSecs - p.trial.trstart;
-%                 p.trial.stimulus.timeReward(:,p.trial.stimulus.iReward) = [p.trial.ttime p.trial.stimulus.rewardTime];
-%                 p.trial.stimulus.iReward = p.trial.stimulus.iReward + 1;
-%                 PsychPortAudio('Start', p.trial.sound.reward);
-    %         elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.uKey)   % U = user selected targets
-    %             p.trial.targUser = 1;
-            elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.pKey)   % P = pause
+                              
+            % [P]ause
+            elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.pKey)   
                 p.trial.pldaps.quit = 1;
                 ShowCursor;
 
-            elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.qKey) % Q = quit
-
-    %             p = pdsEyelinkFinish(p);
-    %             PDS.timing.timestamplog = PsychDataPixx('GetTimestampLog', 1);
+            % [Q]uit
+            elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.qKey)
                 p.trial.pldaps.quit = 2;
                 ShowCursor;
+                
+            % [D]ebug mode   (...like pause, but doesn't leave workspace of currently executing trial function)
             elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) % d=debug
                     disp('stepped into debugger. Type return to start first trial...')
                     keyboard %#ok<MCKBD>
-    %             dbstop if warning opticflow:debugger_requested;
-    %             warning on opticflow:debugger_requested;
-    %             warning('opticflow:debugger_requested','At your service!');
-    %             warning off opticflow:debugger_requested;
-    %             dbclear if warning opticflow:debugger_requested;
-            end   
+            end
         end
-        % get mouse/eyetracker data
+        
+        % Poll mouse
         if p.trial.mouse.use
             [cursorX,cursorY,isMouseButtonDown] = GetMouse(p.trial.mouse.windowPtr); % ktz - added isMouseButtonDown, 28Mar2013
+            % Pass out data
             p.trial.mouse.samples = p.trial.mouse.samples+1;
             p.trial.mouse.samplesTimes(p.trial.mouse.samples)=GetSecs;
             p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples) = [cursorX;cursorY];
             p.trial.mouse.buttonPressSamples(:,p.trial.mouse.samples) = isMouseButtonDown';
+            % Use as eyepos if requested
             if(p.trial.mouse.useAsEyepos) 
                 if p.trial.pldaps.eyeposMovAv==1
                     p.trial.eyeX = p.trial.mouse.cursorSamples(1,p.trial.mouse.samples);
@@ -121,25 +118,35 @@ end
                 end
             end
         end
+        
         %get analogData from Datapixx
         pds.datapixx.adc.getData(p);
+
         %get eyelink data
         pds.eyelink.getQueue(p); 
+
         %get plexon spikes
 %         pds.plexon.spikeserver.getSpikes(p);
-    end %frameUpdate
-% 
-%     function framePrepareDrawing(p)
-%     end %framePrepareDrawing
 
-    %% frameDraw
+    end %frameUpdate
+    
+%---------------------------------------------------------------------% 
+%%  framePrepareDrawing    
+	function framePrepareDrawing(p)  %#ok<*DEFNU>
+    % This is where you should compute your stimulus features for the next frame.
+    % At this point, the eye position, datapixx info, spike signals (maybe more)
+    % should be as up-to-date as they are going to be before the next display frame
+    
+    % Currently empty in the pldapsDefaultTrialFunction by design.
+
+	end %framePrepareDrawing
+
+%---------------------------------------------------------------------% 
+%%  frameDraw
     function frameDraw(p, sn)
         %this holds the code to draw some stuff to the overlay (using
         %switches, like the grid, the eye Position, etc
-        
-        %consider moving this stuff to an earlier timepoint, to allow GPU
-        %to crunch on this before the real stuff gets added.
-        
+                
         %did the background color change? Usually already applied after
         %frameFlip, but make sure we're not missing anything
         if any(p.trial.pldaps.lastBgColor~=p.trial.display.bgColor)
@@ -147,11 +154,12 @@ end
             p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
         end
         
+        % Grid overlay
         if p.trial.pldaps.draw.grid.use
             Screen('DrawLines',p.trial.display.overlayptr,p.trial.pldaps.draw.grid.tick_line_matrix,1,p.trial.display.clut.window,p.trial.display.ctr(1:2));
         end
         
-        %draw a history of fast inter frame intervals
+        % Framerate history
         if p.trial.pldaps.draw.framerate.use && p.trial.iFrame>2
             %update data
             p.trial.pldaps.draw.framerate.data=circshift(p.trial.pldaps.draw.framerate.data,-1);
@@ -171,9 +179,7 @@ end
             end
          end
         
-         %draw the eyepositon to the second srceen only
-         %move the color and size parameters to
-         %p.trial.pldaps.draw.eyepos?
+         % Eye positon
          if p.trial.pldaps.draw.eyepos.use
             Screen('Drawdots', p.trial.display.overlayptr, [p.trial.eyeX p.trial.eyeY]', ...
                     p.trial.(sn).eyeW, p.trial.display.clut.eyepos, [0 0],0);
@@ -183,8 +189,8 @@ end
             p.trial.(sn).eyeW, p.trial.display.clut.cursor, [0 0],0);
          end
          
+         % Photodiode sync flash
          if p.trial.pldaps.draw.photodiode.use && mod(p.trial.iFrame, p.trial.pldaps.draw.photodiode.everyXFrames) == 0
-%             photodiodecolor = p.trial.display.clut.window;
             photodiodecolor = [1 1 1];
             p.trial.timing.photodiodeTimes(:,p.trial.pldaps.draw.photodiode.dataEnd) = [p.trial.ttime p.trial.iFrame];
             p.trial.pldaps.draw.photodiode.dataEnd=p.trial.pldaps.draw.photodiode.dataEnd+1;
@@ -192,7 +198,11 @@ end
         end
     end %frameDraw
 
-    %% frameIdlePreLastDraw
+    
+%---------------------------------------------------------------------% 
+%%  frameIdlePreLastDraw
+% % These don't appear to have ever been implimented, and will soon be deleted unless someone speaks up.
+% %     --TBC 2017-10  
 %     function frameIdlePreLastDraw(p)
 %         %only execute once, since this is the only part atm, this is done at 0
 %         if p.trial.framePreLastDrawIdleCount==0    
@@ -201,16 +211,27 @@ end
 %         end
 %     end %frameIdlePreLastDraw
 
+
+%---------------------------------------------------------------------% 
+%%  frameDrawTimecritical
+% % These don't appear to have ever been implimented, and will soon be deleted unless someone speaks up.
+% %     --TBC 2017-10
 %     function drawTimecritical(p)
 %     end %drawTimecritical
 
+
+%---------------------------------------------------------------------% 
+%%  frameDrawingFinished
     function frameDrawingFinished(p)
-        Screen('DrawingFinished', p.trial.display.ptr,0,0);
+        Screen('DrawingFinished', p.trial.display.ptr);
 %         Screen('DrawingFinished', p.trial.display.overlayptr);
-        %if we're going async, we'd probably do the flip call here, right? but
-        %could also do it in the flip either way.
     end %frameDrawingFinished
 
+    
+%---------------------------------------------------------------------% 
+%%  frameIdlePostDraw
+% % These don't appear to have ever been implimented, and will soon be deleted unless someone speaks up.
+% %     --TBC 2017-10
 %     function frameIdlePostDraw(p)
 %         if p.trial.framePostLastDrawIdleCount==0  
 %         else
@@ -218,28 +239,32 @@ end
 %         end
 %     end %frameIdlePostDraw
     
-    %% frameFlip
+
+%---------------------------------------------------------------------% 
+%%  frameFlip
     function frameFlip(p)
-    ft=cell(5,1);
-    [ft{:}] = Screen('Flip', p.trial.display.ptr, p.trial.nextFrameTime + p.trial.trstart);
-    
-    p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
-    if p.trial.display.movie.create
-        %we should skip every nth frame depending on the ration of
-        %frame rates, or increase every nth frameduration by 1 every
-        %nth frame
-        if p.trial.display.frate > p.trial.display.movie.frameRate
-            thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.display.movie.frameRate)>0;
-        else
-            thisframe=true;
+        ft=cell(5,1);
+        [ft{:}] = Screen('Flip', p.trial.display.ptr, p.trial.nextFrameTime + p.trial.trstart);
+
+        p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
+
+        % Calls like this should be excised to some type of "movie module"
+        if p.trial.display.movie.create
+            %we should skip every nth frame depending on the ration of
+            %frame rates, or increase every nth frameduration by 1 every
+            %nth frame
+            if p.trial.display.frate > p.trial.display.movie.frameRate
+                thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.display.movie.frameRate)>0;
+            else
+                thisframe=true;
+            end
+
+            if thisframe
+                frameDuration=1;
+                Screen('AddFrameToMovie', p.trial.display.ptr,[],[],p.trial.display.movie.ptr, frameDuration);
+            end
         end
 
-        if thisframe
-            frameDuration=1;
-            Screen('AddFrameToMovie', p.trial.display.ptr,[],[],p.trial.display.movie.ptr, frameDuration);
-        end
-    end
-                  
          %did the background color change?
          %we're doing it here to make sure we don't overwrite anything
          %but this tyically causes a one frame delay until it's applied
@@ -260,6 +285,9 @@ end
          p.trial.framePostLastDrawIdleCount=0;
     end %frameFlip
 
+    
+%---------------------------------------------------------------------% 
+%%  trialSetup
     function trialSetup(p)
         p.trial.timing.flipTimes       = zeros(5,p.trial.pldaps.maxFrames);
         p.trial.timing.frameStateChangeTimes=nan(9,p.trial.pldaps.maxFrames);
@@ -284,11 +312,9 @@ end
         end
         
         %setup a fields for the keyboard data
-%         [~, firstPress]=KbQueueCheck();
         p.trial.keyboard.samples = 0;
         p.trial.keyboard.samplesTimes=zeros(1,round(p.trial.pldaps.maxFrames*1.1));
         p.trial.keyboard.samplesFrames=zeros(1,round(p.trial.pldaps.maxFrames*1.1));
-%         p.trial.keyboard.keyPressSamples = zeros(length(firstPressQ),round(p.trial.pldaps.maxFrames*1.1));
         p.trial.keyboard.pressedSamples=false(1,round(p.trial.pldaps.maxFrames*1.1));
         p.trial.keyboard.firstPressSamples = zeros(p.trial.keyboard.nCodes,round(p.trial.pldaps.maxFrames*1.1));
         p.trial.keyboard.firstReleaseSamples = zeros(p.trial.keyboard.nCodes,round(p.trial.pldaps.maxFrames*1.1));
@@ -333,17 +359,12 @@ end
             p.trial.pldaps.draw.framerate.sf=sf;
         end
 
-%         %setup assignemnt of eyeposition data to eyeX and eyeY
-%         %first create the S structs for subsref.
-%         % Got a big WTF on your face? read up on subsref, subsasgn and substruct
-%         % we need this to dynamically access data deep inside a multilevel struct
-%         % without using eval.
-%         % different approach: have it set by the data collectors
-%         % themselves?
-     
         
     end %trialSetup
     
+    
+%---------------------------------------------------------------------% 
+%%  trialPrepare
     function trialPrepare(p)     
 
         %%% setup PsychPortAudio %%%
@@ -354,14 +375,11 @@ end
         % buffer and can call it instantly without wasting much compute time.
         pds.audio.clearBuffer(p)
 
-
-%TODO        %do we need this?
+        % Ensure anything in the datapixx buffer has been pushed/updated
         if p.trial.datapixx.use
             Datapixx RegWrRd;
         end
         
-
-
         %%% Initalize Keyboard %%%
         %-------------------------------------------------------------------------%
         pds.keyboard.clearBuffer(p);
@@ -383,7 +401,7 @@ end
         % the plexon rig sync up its first trial with whatever trial number is on
         % for stimulus display.
         % SYNC clocks
-%TODO move into a pds.plexon.startTrial(p) file. Also just sent the data along the trialStart flax, or a  least after?        
+
         clocktime = fix(clock);
         if p.trial.datapixx.use
             for ii = 1:6
@@ -392,46 +410,46 @@ end
         end
         p.trial.unique_number = clocktime;    % trial identifier
         
-        %TODO move into a pds.plexon.startTrial(p) file? Or is this a generic
-%datapixx thing? not really....
         if p.trial.datapixx.use
             p.trial.timing.datapixxStartTime = Datapixx('Gettime');
             p.trial.timing.datapixxTRIALSTART = pds.datapixx.flipBit(p.trial.event.TRIALSTART,p.trial.pldaps.iTrial);  % start of trial (Plexon)
         end
         
-%%check reconstruction
-        %old
-%                 p.trial.trstart = GetSecs;
-        %new
-
+        
         %ensure background color is correct
-        Screen('FillRect', p.trial.display.ptr,p.trial.display.bgColor);
-        p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
-         
+        % Not again!?! Why are we doing this over and over? --TBC
+        % % %         Screen('FillRect', p.trial.display.ptr,p.trial.display.bgColor);
+        % % %         p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
+
+        % Why do we keep flipping outside of the trial? ...this makes it impossible to maintain
+        % continuous features (fixation marks, etc) across trials.
+        % ...this *will* be addressed soon. --TBC 2017-10         
         vblTime = Screen('Flip', p.trial.display.ptr,0); 
         p.trial.trstart = vblTime;
-        p.trial.stimulus.timeLastFrame=vblTime-p.trial.trstart;
+        p.trial.stimulus.timeLastFrame = vblTime-p.trial.trstart;
 
         p.trial.ttime  = GetSecs - p.trial.trstart;
         p.trial.timing.syncTimeDuration = p.trial.ttime;
     end %trialPrepare
 
+
+%---------------------------------------------------------------------% 
+%%  cleanUpandSave
     function p = cleanUpandSave(p)
-%TODO move to pds.datapixx.cleanUpandSave
+
         ft=cell(5,1);
-         [ft{:}] =Screen('Flip', p.trial.display.ptr,0);
-         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
+        [ft{:}] =Screen('Flip', p.trial.display.ptr,0);
+        p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
+        % Why do we keep flipping outside of the trial? ...this makes it impossible to maintain
+        % continuous features (fixation marks, etc) across trials.
+        % ...this *will* be addressed soon. --TBC 2017-10
+        
+        % Execute all time-sesitive tasks first
         if p.trial.datapixx.use
             p.trial.datapixx.datapixxstoptime = Datapixx('GetTime');
         end
         p.trial.trialend = GetSecs- p.trial.trstart;
 
-%         [p.trial.timing.flipTimes(:,p.trial.iFrame)] = deal(Screen('Flip', p.trial.display.ptr));
-
-        %do a last frameUpdate
-        frameUpdate(p)
-        
-%TODO move to pds.datapixx.cleanUpandSave
         %clean up analogData collection from Datapixx
         pds.datapixx.adc.cleanUpandSave(p);
          if p.trial.datapixx.use
@@ -441,11 +459,16 @@ end
         if(p.trial.pldaps.draw.photodiode.use)
             p.trial.timing.photodiodeTimes(:,p.trial.pldaps.draw.photodiode.dataEnd:end)=[];
         end
-        % if isfield(p, 'dp') % FIX ME
-        %     p.dp = pds.datapixx.adcStop(p.dp);
-        % end
+        
+        
+        p.trial.trialnumber   = p.trial.pldaps.iTrial;
+        p.trial.timing.flipTimes      = p.trial.timing.flipTimes(:,1:p.trial.iFrame);
+        p.trial.timing.frameStateChangeTimes    = p.trial.timing.frameStateChangeTimes(:,1:p.trial.iFrame-1);
 
-        %% Flush KbQueue %%%
+        %do a last frameUpdate
+        frameUpdate(p)
+        
+        % Flush KbQueue
         KbQueueStop();
         KbQueueFlush();
 
@@ -457,7 +480,6 @@ end
             p.trial.mouse.samplesTimes(:,p.trial.mouse.samples+1:end) = [];
         end
         
-%         p.trial.keyboard.keyPressSamples(:,p.trial.keyboard.samples+1:end) = [];
         p.trial.keyboard.samplesTimes(:,p.trial.keyboard.samples+1:end) = [];
         p.trial.keyboard.samplesFrames(:,p.trial.keyboard.samples+1:end) = [];
         p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples+1:end) = [];
@@ -465,10 +487,11 @@ end
         p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples+1:end) = [];
         p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples+1:end) = [];
         p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples+1:end) = [];
-
-%TODO move to pds.plexon.cleanUpandSave
-        % Get spike server spikes
+        
+        
         %---------------------------------------------------------------------%
+        % Plexon specific:
+        % Get spike server spikes
         if p.trial.plexon.spikeserver.use
             try
                 pds.plexon.spikeserver.getSpikes(p);
@@ -476,33 +499,10 @@ end
                 disp(me.message)
             end
         end
-%             end
-%             try
-%                 [p, p.trial.plexon.spikeserver.spikes] = pds.plexon.spikeserver.getSpikes(p);
-% 
-%                 if ~isempty(p.trial.spikeserver.spikes)
-%                     plbit = p.trial.event.TRIALSTART + 2;
-%                     t0 = find(p.trial.spikeserver.spikes(:,1) == 4 & p.trial.spikeserver.spikes(:,2) == plbit, 1, 'first');
-%                     p.trial.plexon.spikeserver.spikes(:,4) = p.trial.plexon.spikeserver.spikes(:,4) - p.trial.plexon.spikeserver.spikes(t0,4);
-% %                     PDS.spikes{p.j} = spikes;
-%                 else
-% %                     PDS.spikes{p.j} = []; % zeros size of spike matrix
-%                     fprintf('No spikes. Check if server is running\r')
-%                 end
-% 
-%             catch me
-%                 disp(me.message)
-%             end
-%         end
-        %---------------------------------------------------------------------%
-
-        p.trial.trialnumber   = p.trial.pldaps.iTrial;
-
-        % system timing
-        p.trial.timing.flipTimes      = p.trial.timing.flipTimes(:,1:p.trial.iFrame);
-        p.trial.timing.frameStateChangeTimes    = p.trial.timing.frameStateChangeTimes(:,1:p.trial.iFrame-1);
      
-%TODO move to pds.eyelink.cleanUpandSave
+        
+        %---------------------------------------------------------------------%
+        % Eyelink specific:
         if p.trial.eyelink.use
             [Q, rowId] = pds.eyelink.saveQueue(p);
             p.trial.eyelink.samples = Q;
@@ -511,14 +511,7 @@ end
         end
 
         
-       %reward system
+       % reward system
        pds.behavior.reward.cleanUpandSave(p);
        
-        % Update Scope
-    %     try
-    %         pdsScopeUpdate(PDS,p.j)
-    %     catch
-    %         disp('error updating scope')
-    %     end
-
     end %cleanUpandSave

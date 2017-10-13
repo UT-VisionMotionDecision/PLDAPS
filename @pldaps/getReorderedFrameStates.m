@@ -11,6 +11,8 @@ function [stateValue, stateName] = getReorderedFrameStates(trialStates,moduleReq
       [stateValue, stateValueIndecies]=sort(stateValue);
       stateName=stateName(stateValueIndecies);
       
+end
+
 %trial states that are not in a frame are negative, just to allow both
 % to be more independent
 %     p.trial.pldaps.trialStates.trialSetup=-1;
@@ -57,6 +59,5 @@ function [stateValue, stateName] = getReorderedFrameStates(trialStates,moduleReq
 %
 %     %do the flip (or when async) record the time 
 %     p.trial.pldaps.trialStates.frameFlip=8;
-    
-end
+
     
