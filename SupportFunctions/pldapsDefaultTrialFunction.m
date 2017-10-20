@@ -5,25 +5,32 @@ function pldapsDefaultTrialFunction(p,state, sn)
     end
 
     switch state
-        %frameStates
+        % FRAME STATES  (always place these at the top of your switch statement b/c they happen most frequently)
         case p.trial.pldaps.trialStates.frameUpdate
             frameUpdate(p);
+            
         case p.trial.pldaps.trialStates.framePrepareDrawing 
-        %    framePrepareDrawing(p);
+            % ...does nothing by default
+            %    framePrepareDrawing(p);
+            
         case p.trial.pldaps.trialStates.frameDraw
             frameDraw(p,sn);
-        %case p.trial.pldaps.trialStates.frameIdlePreLastDraw
-        %    frameIdlePreLastDraw(p);
-        %case p.trial.pldaps.trialStates.frameDrawTimecritical;
-        %    drawTimecritical(p);
+
         case p.trial.pldaps.trialStates.frameDrawingFinished;
             frameDrawingFinished(p);
-        %case p.trial.pldaps.trialStates.frameIdlePostDraw;
-        %    frameIdlePostDraw(p);
+            
         case p.trial.pldaps.trialStates.frameFlip; 
             frameFlip(p);
             
-        %trialStates
+        % TRIAL STATES
+        case p.trial.pldaps.trialStates.trialItiDraw
+            trialItiDraw(p);
+            % NEED NEW TRIAL/FRAME  state that allows drawing to the screen prior to the intertrial flip
+            % that occurs during trialCleanUpandSave. ...would excise that flip all together, but that
+            % would leave scraps on the screen when most users expect it to be cleared.
+            % ** note, Pause should (optionally?) skip over this drawing step so that an animal doesnt
+            %    keep fixating without any ongoing tracking or reward potential!
+            
         case p.trial.pldaps.trialStates.trialSetup
             trialSetup(p);
         case p.trial.pldaps.trialStates.trialPrepare
@@ -56,7 +63,7 @@ end
 % % % % % % % % % % % % % % % 
 
 %---------------------------------------------------------------------% 
-%% frameUpdate
+%% frameUpdate   (check & refresh keyboard/mouse/analog/eye data)
     function frameUpdate(p)   
         %%TODO: add buffer for Keyboard presses, mouse position and clicks.
         
@@ -91,8 +98,8 @@ end
                 p.trial.pldaps.quit = 2;
                 ShowCursor;
                 
-            % [D]ebug mode   (...like pause, but doesn't leave workspace of currently executing trial function)
-            elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) % d=debug
+            % [D]ebug mode   (...like pause, but does not leave workspace of currently executing trial)
+            elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey)
                     disp('stepped into debugger. Type return to start first trial...')
                     keyboard %#ok<MCKBD>
             end
@@ -100,8 +107,8 @@ end
         
         % Poll mouse
         if p.trial.mouse.use
-            [cursorX,cursorY,isMouseButtonDown] = GetMouse(p.trial.mouse.windowPtr); % ktz - added isMouseButtonDown, 28Mar2013
-            % Pass out data
+            [cursorX,cursorY,isMouseButtonDown] = GetMouse(p.trial.mouse.windowPtr);
+            % Return data in trial struct
             p.trial.mouse.samples = p.trial.mouse.samples+1;
             p.trial.mouse.samplesTimes(p.trial.mouse.samples)=GetSecs;
             p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples) = [cursorX;cursorY];
@@ -130,6 +137,7 @@ end
 
     end %frameUpdate
     
+    
 %---------------------------------------------------------------------% 
 %%  framePrepareDrawing    
 	function framePrepareDrawing(p)  %#ok<*DEFNU>
@@ -140,23 +148,25 @@ end
     % Currently empty in the pldapsDefaultTrialFunction by design.
 
 	end %framePrepareDrawing
-
+    
+    
 %---------------------------------------------------------------------% 
 %%  frameDraw
     function frameDraw(p, sn)
         %this holds the code to draw some stuff to the overlay (using
         %switches, like the grid, the eye Position, etc
-                
-        %did the background color change? Usually already applied after
-        %frameFlip, but make sure we're not missing anything
-        if any(p.trial.pldaps.lastBgColor~=p.trial.display.bgColor)
-        	Screen('FillRect', p.trial.display.ptr,p.trial.display.bgColor);
-            p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
-        end
+
+        % Background color is applied immediately after flip; not over and over again
+        % % %         %did the background color change? Usually already applied after
+        % % %         %frameFlip, but make sure we're not missing anything
+        % % %         if any(p.trial.pldaps.lastBgColor~=p.trial.display.bgColor)
+        % % %         	Screen('FillRect', p.trial.display.ptr, p.trial.display.bgColor);
+        % % %             p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
+        % % %         end
         
         % Grid overlay
         if p.trial.pldaps.draw.grid.use
-            Screen('DrawLines',p.trial.display.overlayptr,p.trial.pldaps.draw.grid.tick_line_matrix,1,p.trial.display.clut.window,p.trial.display.ctr(1:2));
+            Screen('DrawLines', p.trial.display.overlayptr, p.trial.pldaps.draw.grid.tick_line_matrix, 1, p.trial.display.clut.window, p.trial.display.ctr(1:2));
         end
         
         % Framerate history
@@ -191,55 +201,21 @@ end
          
          % Photodiode sync flash
          if p.trial.pldaps.draw.photodiode.use && mod(p.trial.iFrame, p.trial.pldaps.draw.photodiode.everyXFrames) == 0
-            photodiodecolor = [1 1 1];
             p.trial.timing.photodiodeTimes(:,p.trial.pldaps.draw.photodiode.dataEnd) = [p.trial.ttime p.trial.iFrame];
-            p.trial.pldaps.draw.photodiode.dataEnd=p.trial.pldaps.draw.photodiode.dataEnd+1;
-            Screen('FillRect',  p.trial.display.ptr,photodiodecolor, p.trial.pldaps.draw.photodiode.rect');
+            p.trial.pldaps.draw.photodiode.dataEnd = p.trial.pldaps.draw.photodiode.dataEnd+1;
+            Screen('FillRect', p.trial.display.ptr, [1 1 1]', p.trial.pldaps.draw.photodiode.rect');
         end
     end %frameDraw
 
     
-%---------------------------------------------------------------------% 
-%%  frameIdlePreLastDraw
-% % These don't appear to have ever been implimented, and will soon be deleted unless someone speaks up.
-% %     --TBC 2017-10  
-%     function frameIdlePreLastDraw(p)
-%         %only execute once, since this is the only part atm, this is done at 0
-%         if p.trial.framePreLastDrawIdleCount==0    
-%         else %if no one stepped in to execute we might as well skip to the next stage
-%             p.trial.currentFrameState=p.trial.pldaps.trialStates.frameDrawTimecritical;
-%         end
-%     end %frameIdlePreLastDraw
-
-
-%---------------------------------------------------------------------% 
-%%  frameDrawTimecritical
-% % These don't appear to have ever been implimented, and will soon be deleted unless someone speaks up.
-% %     --TBC 2017-10
-%     function drawTimecritical(p)
-%     end %drawTimecritical
-
-
 %---------------------------------------------------------------------% 
 %%  frameDrawingFinished
     function frameDrawingFinished(p)
         Screen('DrawingFinished', p.trial.display.ptr);
 %         Screen('DrawingFinished', p.trial.display.overlayptr);
     end %frameDrawingFinished
-
     
-%---------------------------------------------------------------------% 
-%%  frameIdlePostDraw
-% % These don't appear to have ever been implimented, and will soon be deleted unless someone speaks up.
-% %     --TBC 2017-10
-%     function frameIdlePostDraw(p)
-%         if p.trial.framePostLastDrawIdleCount==0  
-%         else
-%             p.trial.currentFrameState=p.trial.pldaps.trialStates.frameFlip;
-%         end
-%     end %frameIdlePostDraw
     
-
 %---------------------------------------------------------------------% 
 %%  frameFlip
     function frameFlip(p)
@@ -265,24 +241,24 @@ end
             end
         end
 
-         %did the background color change?
-         %we're doing it here to make sure we don't overwrite anything
-         %but this tyically causes a one frame delay until it's applied
-         %i.e. when it's set in frame n, it changes when frame n+1 flips
-         %otherwise we could trust users not to draw before
-         %frameDraw, but we'll check again at frameDraw to be sure
-         if any(p.trial.pldaps.lastBgColor~=p.trial.display.bgColor)
-             Screen('FillRect', p.trial.display.ptr,p.trial.display.bgColor);
-             p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
-         end
+%          %did the background color change?
+%          %we're doing it here to make sure we don't overwrite anything
+%          %but this tyically causes a one frame delay until it's applied
+%          %i.e. when it's set in frame n, it changes when frame n+1 flips
+%          %otherwise we could trust users not to draw before
+%          %frameDraw, but we'll check again at frameDraw to be sure
+%          if any(p.trial.pldaps.lastBgColor~=p.trial.display.bgColor)
+%              Screen('FillRect', p.trial.display.ptr,p.trial.display.bgColor);
+%              p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
+%          end
          
+         % The overlay screen always needs to be initialized with a FillRect call
          if p.trial.display.overlayptr ~= p.trial.display.ptr
             Screen('FillRect', p.trial.display.overlayptr,0);
          end
 
          p.trial.stimulus.timeLastFrame = p.trial.timing.flipTimes(1,p.trial.iFrame)-p.trial.trstart;
-         p.trial.framePreLastDrawIdleCount=0;
-         p.trial.framePostLastDrawIdleCount=0;
+
     end %frameFlip
 
     
@@ -417,32 +393,58 @@ end
         
         
         %ensure background color is correct
-        % Not again!?! Why are we doing this over and over? --TBC
+        % Not again!?! Why are we doing this over and over? Stop drawing to the screen without user
+        % controll or intention. --TBC
         % % %         Screen('FillRect', p.trial.display.ptr,p.trial.display.bgColor);
         % % %         p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
 
-        % Why do we keep flipping outside of the trial? ...this makes it impossible to maintain
+        % No more uncontrolled flipping outside of the trial. ...this makes it now possible to maintain
         % continuous features (fixation marks, etc) across trials.
-        % ...this *will* be addressed soon. --TBC 2017-10         
-        vblTime = Screen('Flip', p.trial.display.ptr,0); 
-        p.trial.trstart = vblTime;
-        p.trial.stimulus.timeLastFrame = vblTime-p.trial.trstart;
 
-        p.trial.ttime  = GetSecs - p.trial.trstart;
-        p.trial.timing.syncTimeDuration = p.trial.ttime;
+        % These params are all predetermined, so just set them equal to 0,
+        % and keep any code post-vblsync to an absolute minimum!  (...yes, even just touching p.trial)
+        p.trial.stimulus.timeLastFrame = 0;     % formerly:  vblTime-p.trial.trstart;
+        p.trial.ttime  = 0;                     % formerly:  GetSecs - p.trial.trstart;
+        p.trial.timing.syncTimeDuration = 0;    % formerly:  p.trial.ttime;
+        
+        % Sync up with screen refresh before jumping into actual trial
+        %   ** this also ensures that the async flip scheduled at the end of the last trial
+        %      has had time to complete & won't interfere with future draws/flips
+        p.trial.timing.itiFrameCount = Screen('WaitBlanking', p.trial.display.ptr);
+        p.trial.trstart = GetSecs;
+        
     end %trialPrepare
 
 
+    
+%---------------------------------------------------------------------% 
+%%  cleanUpandSave
+    function p = trialItiDraw(p)
+        % Only do the basic drawing commands jere
+        %   ...e.g. maybe not eye pos, since it will be static
+        % Grid overlay
+        if p.trial.pldaps.draw.grid.use
+            Screen('DrawLines', p.trial.display.overlayptr, p.trial.pldaps.draw.grid.tick_line_matrix, 1, p.trial.display.clut.window, p.trial.display.ctr(1:2));
+        end
+
+        
+    end
 %---------------------------------------------------------------------% 
 %%  cleanUpandSave
     function p = cleanUpandSave(p)
 
-        ft=cell(5,1);
-        [ft{:}] =Screen('Flip', p.trial.display.ptr,0);
-        p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
-        % Why do we keep flipping outside of the trial? ...this makes it impossible to maintain
-        % continuous features (fixation marks, etc) across trials.
-        % ...this *will* be addressed soon. --TBC 2017-10
+        % % %         ft=cell(5,1);
+        % % %         [ft{:}] =Screen('Flip', p.trial.display.ptr,0);
+        % % %         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
+        
+        % Schedule a flip to occur at the next possible time, but don't bother waiting around for it.
+%         Screen('AsyncFlipBegin', p.trial.display.ptr);
+        Screen('Flip', p.trial.display.ptr, 0, [], 1);
+        % Whatever was drawn to this screen will be visible throughout the inter-trial interval.
+        % This was previously always/only a blank screen, but if you want anything present on
+        % this screen, it can now be drawn during the  .trialItiDraw  state.
+        % NOTE: This is not a time-critical draw, and async flips do not return a valid timestamp
+        %       at time of schedule.
         
         % Execute all time-sesitive tasks first
         if p.trial.datapixx.use
@@ -463,9 +465,9 @@ end
         
         p.trial.trialnumber   = p.trial.pldaps.iTrial;
         p.trial.timing.flipTimes      = p.trial.timing.flipTimes(:,1:p.trial.iFrame);
-        p.trial.timing.frameStateChangeTimes    = p.trial.timing.frameStateChangeTimes(:,1:p.trial.iFrame-1);
+        p.trial.timing.frameStateChangeTimes    = p.trial.timing.frameStateChangeTimes(:,1:p.trial.iFrame);
 
-        %do a last frameUpdate
+        %do a last frameUpdate   (checks & refreshes keyboard/mouse/analog/eye data)
         frameUpdate(p)
         
         % Flush KbQueue
@@ -475,18 +477,20 @@ end
         %will this crash when more samples where created than preallocated?
         % mouse input
         if p.trial.mouse.use
-            p.trial.mouse.cursorSamples(:,p.trial.mouse.samples+1:end) = [];
-            p.trial.mouse.buttonPressSamples(:,p.trial.mouse.samples+1:end) = [];
-            p.trial.mouse.samplesTimes(:,p.trial.mouse.samples+1:end) = [];
+            i0 = p.trial.mouse.samples+1;
+            p.trial.mouse.cursorSamples(:,i0:end) = [];
+            p.trial.mouse.buttonPressSamples(:,i0:end) = [];
+            p.trial.mouse.samplesTimes(:,i0:end) = [];
         end
         
-        p.trial.keyboard.samplesTimes(:,p.trial.keyboard.samples+1:end) = [];
-        p.trial.keyboard.samplesFrames(:,p.trial.keyboard.samples+1:end) = [];
-        p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples+1:end) = [];
-        p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples+1:end) = [];
-        p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples+1:end) = [];
-        p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples+1:end) = [];
-        p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples+1:end) = [];
+        i0 = p.trial.keyboard.samples+1;
+        p.trial.keyboard.samplesTimes(:,i0:end) = [];
+        p.trial.keyboard.samplesFrames(:,i0:end) = [];
+        p.trial.keyboard.pressedSamples(:,i0:end) = [];
+        p.trial.keyboard.firstPressSamples(:,i0:end) = [];
+        p.trial.keyboard.firstReleaseSamples(:,i0:end) = [];
+        p.trial.keyboard.lastPressSamples(:,i0:end) = [];
+        p.trial.keyboard.lastReleaseSamples(:,i0:end) = [];
         
         
         %---------------------------------------------------------------------%
@@ -514,4 +518,7 @@ end
        % reward system
        pds.behavior.reward.cleanUpandSave(p);
        
+% % %        % ensure our intertrial interval flip has completed
+% % %        Screen('AsyncFlipEnd', p.trial.display.ptr);
+% % %        Screen('WaitBlanking', p.trial.display.ptr);
     end %cleanUpandSave

@@ -69,7 +69,20 @@ if isfield(p.trial.pldaps,'trialFunction') && ~isempty(p.trial.pldaps.trialFunct
 end
 
 % Format requested states to a struct of each available trialState, with logical flags for each module
-moduleRequestedStates=cellfun(@(x) reshape(x,1,numel(x)), moduleRequestedStates, 'UniformOutput', false);
+% No, logical flags force use of a "find" call every time a module is called on every state (mmany times per frame!!)
+% ...instead, do the find just once here
+moduleRequestedStates=cellfun(@(x) find(x), moduleRequestedStates, 'UniformOutput', false);
+    % NOTE: Something very strange happens here...
+    %   Somewhere in the mergeToSingleStruct method of Params class,
+    %   1-by-n fields get flipped into n-by-1 (and vice versa!@)
+    %   So when this function is called it returns differently shaped inputs
+    %   depending on whether its outside or inside the trialMasterFunction  (i.e. experimentPostOpenScreen vs. trialSetup)
+    %   ...a proper fix to mergeToSingleStruct should be determined --TBC Oct. 2017
+    %
+    % The following line normalizes output, but does not fix the source.=
+    %   (...only trial & error to find out why this line was here in first place...--TBC)
+    moduleRequestedStates=cellfun(@(x) reshape(x,1,numel(x)), moduleRequestedStates, 'UniformOutput', false);
+
 moduleRequestedStates=cell2struct(moduleRequestedStates,availiableStates);
 
 

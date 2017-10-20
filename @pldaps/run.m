@@ -156,7 +156,7 @@ function p = run(p)
     HideCursor;
     
     p.trial.flagNextTrial  = 0; % flag for ending the trial
-    p.trial.iFrame     = 1;  % frame index
+    p.trial.iFrame     = 0;  % frame index
     
     % Save defaultParameters as trial 0
     % NOTE: the following line converts p.trial into a struct.
@@ -384,6 +384,10 @@ function p = run(p)
         glDeleteTextures(2,p.trial.display.lookupstexs(1));
     end
     
+    % Make sure enough time passes for any pending async flips to occur
+    Screen('WaitBlanking', p.trial.display.ptr);
+    
+    % close up shop
     Screen('CloseAll');
     IOPort('CloseAll');
 

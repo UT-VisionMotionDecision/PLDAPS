@@ -9,53 +9,72 @@ function p = runTrial(p)
     %the trialFunctionHandle
     tfh=str2func(p.trial.pldaps.trialFunction);
     
-    %trial states that are not in a frame are negative, just to allow both
-    %to be more independent
-    p.trial.pldaps.trialStates.trialSetup=-1;
-    p.trial.pldaps.trialStates.trialPrepare=-2;
-    p.trial.pldaps.trialStates.trialCleanUpandSave=-3;
-    
-    %ok, what are the options?
-    %we'll make them states
-    %is called once after the last frame is done (or even before)
-    %get current eyepostion, curser position or keypresses 
-    p.trial.pldaps.trialStates.frameUpdate=1;
-    %here you can prepare all drawing, e.g. have the dots move
-    %if you need to update to the latest e.g. eyeposition
-    %you can still do that later, this could be all expected heavy
-    %calculations
-    p.trial.pldaps.trialStates.framePrepareDrawing=2; 
-    %once you know you've calculated the final image, draw it
-    p.trial.pldaps.trialStates.frameDraw=3;
-    %
-    p.trial.pldaps.trialStates.frameIdlePreLastDraw=4;
-    %if there is something that needs updating. here is a fucntion to do it
-    %as late as possible
-    p.trial.pldaps.trialStates.frameDrawTimecritical=5;
-    %if this function is not used, drawingFinished will be called after
-    %frameDraw is done, otherwise drawingFinished will not be called
-    p.trial.pldaps.trialStates.frameDrawingFinished=6;
+    %% Initialize state values
+    % Different phases in a trial are called trialStates
 
-    %this function gets called once everything got drawn, until it's time
-    %to expect (and do) the flip
-    p.trial.pldaps.trialStates.frameIdlePostDraw=7;
-    %do the flip (or when async) record the time 
-    p.trial.pldaps.trialStates.frameFlip=8;
+    % -- States that are executed once on every trial are called "trial states",
+    % and their name begins with 'trial'
+    %   (...yes, there's some confusing redundancy here...sorry, just go with it.)
     
-    p.trial.currentFrameState=1;    
+    % Trial states have a negative value, indiciating that they should not be cycled through
+    % on every display frame.
+    % Their absolute value generally corresponds to the order in which they occur. However,
+    % that sequence is [for the most part] hard-coded in the structure of pldaps run function(s).
+    % (i.e. if you change a state from a positive to a negative value it will no longer be 
+    % called on every display frame, but that DOES NOT mean that it will get called outside of
+    % the frame updating portion of the trial)
+    p.trial.pldaps.trialStates.trialSetup = -1;
+    p.trial.pldaps.trialStates.trialPrepare = -2;
     
+    % ----------- A subset of states are cycled through on every display frame until trial is finished
+    
+    % -- States that are executed on every display frame are called "frame states",
+    % and their name begins with 'frame'.
+    % Unless otherwise stated, each frame state is called once per display frame interval (.display.ifi) 
+    % They are executed in order accorting to state number:
+    
+    % 1) frameUpdate:
+    %   gets current eyepostion, cursor position, keypresses, etc.
+    %   ...do your basic IO checks here
+    p.trial.pldaps.trialStates.frameUpdate = 1;
+    
+    % 2) framePrepareDrawing:
+    %   here you can prepare all drawing, e.g. update stimulus positions/features/etc
+    %   Do whatever frame-dependent calculations you need here...if you're dropping frames,
+    %   try precomputing things in trialSetup, then index into them here with p.trial.iFrame
+    p.trial.pldaps.trialStates.framePrepareDrawing = 2; 
+    
+    % 3) frameDraw:
+    %   Do all the drawing
+    p.trial.pldaps.trialStates.frameDraw = 3;
+    
+    % 4) frameDrawingFinished
+    %   Tell PTB that all drawing is complete so that it can begin final compositing & shader operations
+    p.trial.pldaps.trialStates.frameDrawingFinished = 4;
+
+    % 5) frameFlip
+    %   do the flip, record the time 
+    p.trial.pldaps.trialStates.frameFlip = 5;
+    
+    % ----------- After all trial frames have been displayed..
+
+    % -3) trialItiDraw
+    %   This is a new state that allows you to draw onto the screen that will remain
+    %   visible throughout the intertrial interval. 
+    p.trial.pldaps.trialStates.trialItiDraw = -3;
+
+    % -4) trialCleanUpandSave
+    %   Bookkeeping, clearing of extraneous variables/arrays created during trial,
+    %   dotting of eyes, crossing of tees,...
+    p.trial.pldaps.trialStates.trialCleanUpandSave = -4;
+    
+    
+    %% Pre-trial states & tasks
+    p.trial.currentFrameState = 1;    
+    
+    % trialSetup
     tfh(p, p.trial.pldaps.trialStates.trialSetup);
     
-%     timeNeeded(p.trial.pldaps.trialStates.frameUpdate)=0.5;
-%     timeNeeded(p.trial.pldaps.trialStates.framePrepareDrawing)=2;
-%     timeNeeded(p.trial.pldaps.trialStates.frameDraw)=2;
-%     timeNeeded(p.trial.pldaps.trialStates.frameIdlePreLastDraw)=2;
-%     timeNeeded(p.trial.pldaps.trialStates.frameDrawTimecritical)=0.5;
-%     timeNeeded(p.trial.pldaps.trialStates.frameDrawingFinished)=2;
-%     timeNeeded(p.trial.pldaps.trialStates.frameIdlePostDraw)=0.5;
-%     timeNeeded(p.trial.pldaps.trialStates.frameFlip)=5;
-%     timeNeeded=timeNeeded/1000;%convert to seconds
-
     %switch to high priority mode
     if p.trial.pldaps.maxPriority
         oldPriority=Priority;
@@ -65,22 +84,23 @@ function p = runTrial(p)
         end
     end
 
-    %will be called just before the trial starts for time critical calls to
-    %start data aquisition
+    % trialPrepare
+    %   called just before the trial starts for time critical calls
+    %   (e.g. to start data aquisition)
     tfh(p, p.trial.pldaps.trialStates.trialPrepare);
-
-    p.trial.framePreLastDrawIdleCount=0;
-    p.trial.framePostLastDrawIdleCount=0;
 
 
     %%% MAIN WHILE LOOP %%%
     %-------------------------------------------------------------------------%
     while ~p.trial.flagNextTrial && p.trial.pldaps.quit == 0
         %go through one frame by calling tfh with the different states.
-        %Save the times each state is finished.
+        % (The time each state is finished will be saved in p.trial.timing.frameStateChangeTimes)
+        
+        % update frame index (this should have been initialized to 0 before the trial started)
+        p.trial.iFrame = p.trial.iFrame + 1;
 
         % Time of next flip
-        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + p.trial.display.ifi;
+        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + 0.98*p.trial.display.ifi;
 
         % Start timer for GPU rendering operations
         Screen('GetWindowInfo', p.trial.display.ptr, 5);
@@ -96,43 +116,10 @@ function p = runTrial(p)
         setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDraw);
         tfh(p, p.trial.pldaps.trialStates.frameDraw);
         
-        % frameIdlePreLastDraw
-        %   (...state does not appear to have ever been fully implemented...??)
-        %             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePreLastDraw);
-        %             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
-        %
-        %             p.trial.framePreLastDrawIdleCount = p.trial.framePreLastDrawIdleCount +1;
-        % %             p.trial.ttime = GetSecs - p.trial.trstart;
-        % %             p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
-        % %             while (p.trial.remainingFrameTime>sum(timeNeeded(p.trial.pldaps.trialStates.frameIdlePreLastDraw+1:end)))
-        % %                 tfh(dv, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
-        % %                 p.trial.framePreLastDrawIdleCount = p.trial.framePreLastDrawIdleCount +1;
-        % %                 p.trial.ttime = GetSecs - p.trial.trstart;
-        % %                 p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
-        % %             end
-        %             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawTimecritical);
-        %
-        %             tfh(p, p.trial.pldaps.trialStates.frameIdlePreLastDraw);
-
         % frameDrawingFinished
         setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameDrawingFinished);
         tfh(p, p.trial.pldaps.trialStates.frameDrawingFinished);
-        
-        % frameIdlePostDraw
-        %   (...state does not appear to have ever been fully implemented...??)
-        %             setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameIdlePostDraw);
-        %             tfh(p, p.trial.pldaps.trialStates.frameIdlePostDraw);
-        %
-        %             p.trial.framePostLastDrawIdleCount = p.trial.framePostLastDrawIdleCount +1;
-        % %             p.trial.ttime = GetSecs - p.trial.trstart;
-        % %             p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
-        % %             while (p.trial.remainingFrameTime>sum(timeNeeded(p.trial.pldaps.trialStates.frameIdlePostDraw+1:end)))
-        % %                 tfh(dv, p.trial.pldaps.trialStates.frameIdlePostDraw);
-        % %                 p.trial.framePostLastDrawIdleCount = p.trial.framePostLastDrawIdleCount +1;
-        % %                 p.trial.ttime = GetSecs - p.trial.trstart;
-        % %                 p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
-        %             end
-        
+                
         % frameFlip
         setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameFlip)
         tfh(p, p.trial.pldaps.trialStates.frameFlip);
@@ -142,10 +129,15 @@ function p = runTrial(p)
         p.trial.frameRenderTime(p.trial.iFrame) = dinfo.GPULastFrameRenderTime;
         
         %advance to next frame
-        setTimeAndFrameState(p,p.trial.pldaps.trialStates.frameUpdate);           
-        p.trial.iFrame = p.trial.iFrame + 1;  % update frame index
+        setTimeAndFrameState(p, p.trial.pldaps.trialStates.frameUpdate);           
+
     end %while Trial running
 
+    % trialItiDraw
+    %  ** Inherently not a time-critical operation, so no call to setTimeAndFrameState necessary
+    %   ...also, setTimeAndFrameState uses current state as an index, so using with this would break
+    tfh(p, p.trial.pldaps.trialStates.trialItiDraw);
+    
     if p.trial.pldaps.maxPriority
         newPriority=Priority;
         if round(oldPriority) ~= round(newPriority)
@@ -156,13 +148,14 @@ function p = runTrial(p)
         end
     end
     
+    % trialCleanUpandSave
     tfh(p, p.trial.pldaps.trialStates.trialCleanUpandSave);
 
 end %runTrial
     
 function setTimeAndFrameState(p,state)
         p.trial.ttime = GetSecs - p.trial.trstart;
-        p.trial.remainingFrameTime=p.trial.nextFrameTime-p.trial.ttime;
-        p.trial.timing.frameStateChangeTimes(p.trial.currentFrameState,p.trial.iFrame)=p.trial.ttime-p.trial.nextFrameTime+p.trial.display.ifi;
-        p.trial.currentFrameState=state;        
+        p.trial.remainingFrameTime = p.trial.nextFrameTime - p.trial.ttime;
+        p.trial.timing.frameStateChangeTimes(p.trial.currentFrameState, p.trial.iFrame) = p.trial.ttime - p.trial.nextFrameTime + p.trial.display.ifi;
+        p.trial.currentFrameState = state;
 end

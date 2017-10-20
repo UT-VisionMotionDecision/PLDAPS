@@ -4,8 +4,9 @@ function runStateforModules(p, state, modules, moduleFunctionHandles, moduleRequ
 %execution in order of the arrays. Not sure if save. Ideally it would be
 %     cellfun(@(x) x(p, p.trial.pldaps.trialStates.(state)), modules(moduleRequestedStates.(state)));
 
-tmpModules = moduleRequestedStates.(state);
-for iModule = find(tmpModules(:))'
+% tmpModules = moduleRequestedStates.(state);
+% for iModule = find(tmpModules(:))'
+for iModule = moduleRequestedStates.(state)
     if moduleLocationInputs(iModule)
         moduleFunctionHandles{iModule}(p, p.trial.pldaps.trialStates.(state), modules{iModule});
     else

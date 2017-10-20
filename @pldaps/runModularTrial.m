@@ -27,6 +27,7 @@ function p = runModularTrial(p, replay)
     [stateValue, stateName] = p.getReorderedFrameStates(p.trial.pldaps.trialStates, moduleRequestedStates);
     nStates=length(stateValue);
 
+    % trialSetup
     runStateforModules(p, 'trialSetup', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
     %switch to high priority mode
@@ -38,18 +39,22 @@ function p = runModularTrial(p, replay)
         end
     end
 
-    %will be called just before the trial starts for time critical calls to
-    %start data aquisition
+    % trialPrepare
+    %   called just before the trial starts for time critical calls
+    %   (e.g. to start data aquisition)
     runStateforModules(p, 'trialPrepare', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
     %%% MAIN WHILE LOOP %%%
     %-------------------------------------------------------------------------%
     while ~p.trial.flagNextTrial && p.trial.pldaps.quit == 0
+        % Advance to next frame, update frame index
+        p.trial.iFrame = p.trial.iFrame + 1;
+        
         %go through one frame by calling the modules with the different states.
         %Save the times each state is finished.
 
         %time of the next flip request
-        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + p.trial.display.ifi;
+        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + .98*p.trial.display.ifi;
         % Start timer for GPU rendering operations
         Screen('GetWindowInfo', p.trial.display.ptr, 5);
         
@@ -70,9 +75,12 @@ function p = runModularTrial(p, replay)
         dinfo = Screen('GetWindowInfo', p.trial.display.ptr);
         p.trial.frameRenderTime(p.trial.iFrame) = dinfo.GPULastFrameRenderTime;
 
-        % Advance to next frame, update frame index
-        p.trial.iFrame = p.trial.iFrame + 1;
     end %while Trial running
+
+    % trialItiDraw
+    %  ** Inherently not a time-critical operation, so no call to setTimeAndFrameState necessary
+    %   ...also, setTimeAndFrameState uses current state as an index, so using with this would break
+    runStateforModules(p, 'trialItiDraw', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
     if p.trial.pldaps.maxPriority
         newPriority=Priority;
@@ -84,6 +92,7 @@ function p = runModularTrial(p, replay)
         end
     end
 
+    % trialCleanUpandSave
     runStateforModules(p, 'trialCleanUpandSave', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
 end %runModularTrial
