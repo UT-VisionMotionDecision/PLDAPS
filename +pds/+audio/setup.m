@@ -8,6 +8,10 @@ function p = setup(p)
 %              wavfiles in the wavfiles directory
 %     jly 2016 changed to handle audio slaves - deals with bug on linux
 if p.trial.sound.use && isField(p.trial, 'pldaps.dirs.wavfiles')
+
+    % Blind attempt at preventing infinite hang that somtimes occurs during pldaps startup --TBC Oct. 2017
+    PsychPortAudio('Close');
+    
     % initalize
     InitializePsychSound;
     
