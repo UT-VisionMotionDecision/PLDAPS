@@ -200,6 +200,8 @@ if p.trial.display.useOverlay==1
             p.trial.display.overlayptr = PsychImaging('GetOverlayWindow', p.trial.display.ptr); % , dv.params.bgColor);
             
         elseif p.trial.datapixx.rb3d
+            Screen('Preference', 'TextAntiAliasing', 0);
+            
             % RB3d mode needs special shaders to encode overlay in the green channel
             oldColRange = Screen('ColorRange', p.trial.display.ptr, 255);
             %             p.trial.display.overlayptr = SetAnaglyphStereoParameters('CreateGreenOverlay', p.trial.display.ptr);
