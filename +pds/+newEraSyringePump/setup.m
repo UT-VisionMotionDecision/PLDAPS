@@ -9,9 +9,10 @@ function p = setup(p)
 
 if p.trial.newEraSyringePump.use
     cs='BaudRate=19200 DTR=1 RTS=1 ReceiveTimeout=1';
-    IOPort('closeAll'); %risky. for now....
-    WaitSecs(0.1);
-    [h,errmsg]=IOPort('OpenSerialPort',p.trial.newEraSyringePump.port,cs);%'/dev/cu.usbserial'
+    % Nooo. All IOPort connections now closed at start of p.run
+    %     IOPort('closeAll'); %risky. for now....
+    %     WaitSecs(0.1);
+    [h, errmsg]=IOPort('OpenSerialPort',p.trial.newEraSyringePump.port,cs);%'/dev/cu.usbserial'
     WaitSecs(0.1);
     if ~isempty(errmsg)
         error('pds:newEraSyringePump:setup',['Failed to open serial Port with message ' char(10) errmsg]);

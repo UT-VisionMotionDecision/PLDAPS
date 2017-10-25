@@ -28,9 +28,27 @@ classdef params < handle
         Snew1
     end
     
-    methods 
+    
+    methods
+        function view(p)
+            p.structviewer(p);
+        end
+        
+        function setLock(p,lock)
+            p.locked = lock;
+        end
+        
+    end
 
-        %% start new functions for new approach
+    %% Hide extraneous methods [overloaded & innerworkings] 
+    %   They can still be called directly & will show up in our manual list of methods,
+    %   but this way they won't muddle tab completion for actual fields of interest.
+    %   (e.g. .disp & .display !!)
+    %   ...know what, forget it! Lets just hide them all and see if anyone complains.
+    
+    methods (Hidden)
+
+        % internal params methods
         function p=params(s,sN,active)
             if nargin<2
             	sN=cellfun(@(x) sprintf('level%i',x),num2cell(1:length(s)),'UniformOutput',false);
@@ -39,10 +57,35 @@ classdef params < handle
             	active=true(1,length(s));
             end
             p=addStructs(p,s,sN,active);
- 
-            p.MethodsList={'view', 'setLevels','getAllLevels', 'mergeToSingleStruct','getDifferenceFromStruct','addLevels','addStructs','addNewStruct', 'getAllStructs','setLock','getParameter','fieldnames'};
+            % NOTE: Methods not listed here will not be user-accessible
+            %    (...because of way the subsref function is overloaded within the Params class)
+            p.MethodsList=sort({'view', 'setLevels','getAllLevels', 'mergeToSingleStruct','getDifferenceFromStruct','addLevels','addStructs','addNewStruct',...
+                                'getAllStructs','setLock','getParameter','fieldnames','incrementTrial','getActiveLevels'});
             p.Snew1= substruct('.','structs','{}', {NaN});
         end %params(s,sN)
+
+        % Overload some standard/builtin functions
+        function disp(p)
+            % Is there really any need to still call the builtin?
+            % ...you can't actually manipulate the contents of this class directly
+            % builtin('disp',p);
+            fprintf('PARAMS class object');
+            if p.locked == 1
+                fprintf('\t(Locked)\n')
+            else
+                fprintf('\t(UNlocked)\n')
+            end
+            fprintf('  [active]\tstructName\n')
+            disp([num2cell(p.activeLevels)', p.structNames'])
+            
+            fprintf('\n\tMethods (public):\n')
+            fprintf('\t\t%s\n',p.MethodsList{:});
+            
+            names=fieldnames(p);
+            fprintf('\n\tFieldnames:\n');
+            fprintf('\t\t%s\n',names{:});
+            fprintf('\n')
+        end
         
         % Overload fieldnames retrieval
         function names = fieldnames(p) 
@@ -51,21 +94,19 @@ classdef params < handle
             names=cellfun(@(x) x(2:end),names,'UniformOutput',false);
         end
         
+        % ...another struct tab completion helper
         function names = properties(p) 
             names = fieldnames(p);
         end
+        
+        function is = isField(p,fieldname)
+            if(fieldname(1)~='.')
+                fieldname=['.' fieldname];
+            end
             
-        function disp(p)
-            builtin('disp',p);
-            
-            fprintf('    with public methods:\n')
-            fprintf('\t%s\n',p.MethodsList{:});
-            
-            fprintf('\n');
-            names=fieldnames(p);
-            fprintf('    with fieldnames:\n');
-            fprintf('\t%s\n',names{:});
+            is = ismember(fieldname,{p.flatStruct.identifier});
         end
+           
         
         function p=addStructs(p,s,sN,active)
             if nargin<3
@@ -80,7 +121,8 @@ classdef params < handle
                     active=false(1,length(s));
                 end
             else
-                active=~~active;
+                % ensure logical
+                active= logical(active);
             end
             
             for iStruct=1:length(s)
@@ -94,11 +136,11 @@ classdef params < handle
         
         function p=addNewStruct(p,newStruct,newStructName,makeActive)
            %first get at flat version of that Struct
-            levelNr=length(p.structs)+1;
+            iLevel=length(p.structs)+1;
             fs=p.getNextStructLevel(newStruct,{},[]);
             id=cellfun(@(x) sprintf('.%s',x{:}), {fs.parentLevels}, 'UniformOutput', false);   
             [fs.identifier]=deal(id{:});
-            [fs.hierarchyLevels]=deal(levelNr);
+            [fs.hierarchyLevels]=deal(iLevel);
             
             %now merge with the current masterFlatStruct:
             if(isempty(p.flatStruct))
@@ -111,29 +153,21 @@ classdef params < handle
                  nFields=length(fs);
                  for iField=1:nFields
                     if(overruled(iField))
-                        p.flatStruct(overruledPos(iField)).hierarchyLevels(end+1) = levelNr; 
+                        p.flatStruct(overruledPos(iField)).hierarchyLevels(end+1) = iLevel; 
                     else
                         p.flatStruct(end+1)=fs(iField);
                     end
                  end
             end
             
-            p.structs{end+1}=newStruct;
-            p.structNames{end+1}=newStructName;
-            p.activeLevels(end+1)=makeActive;
-            p.activeLevels=~~p.activeLevels;
+            p.structs{end+1} = newStruct;
+            p.structNames{end+1} = newStructName;
+            p.activeLevels(end+1) = makeActive;
+            p.activeLevels = logical(p.activeLevels);
             p.topLevel=find(p.activeLevels, 1, 'last');
         end
-        
-        function is = isField(p,fieldname)
-            if(fieldname(1)~='.')
-                fieldname=['.' fieldname];
-            end
-            
-            is = ismember(fieldname,{p.flatStruct.identifier});
-        end
-        
-        %TODO: if we allow dirty structs, we need to cosolidate....
+                
+        %TODO: if we allow dirty structs, we need to cosolidate....(no one knows what this means. --TBC)
         function p = setLevels(p,value)
             if islogical(value)
                 if length(value)==length(p.structs) 
@@ -146,6 +180,11 @@ classdef params < handle
             p.topLevel=find(p.activeLevels, 1, 'last');
         end
         
+        % Return index(s) of currently active params hierarchy levels
+        function activeLevels = getActiveLevels(p)
+            activeLevels = find(p.activeLevels);
+        end
+        
         function l = getAllLevels(p)
             l=1:length(p.structs);
         end
@@ -156,11 +195,11 @@ classdef params < handle
             active=p.activeLevels;
         end
         
-        function p = addField(p,id,value,levelNr) 
+        function p = addField(p,id,value,iLevel) 
             %most ineficient way ever: but we are not planning on running
             %this during a trial (for now)
             if nargin<4
-                levelNr=p.topLevel;
+                iLevel=p.topLevel;
             end
             
             parentLevels=textscan(id,'%s','delimiter','.');
@@ -170,22 +209,22 @@ classdef params < handle
             Spartial=p.Snew1(ones(1,length(parentLevels)));
             [Spartial.subs]=deal(parentLevels{:});
             S=[p.Snew1 Spartial];
-            S(2).subs={levelNr};
+            S(2).subs={iLevel};
             [~]=builtin('subsasgn',p,S,value);
             
             if isstruct(value) %need to flatten that.
                 addFlatStruct=p.getNextStructLevel(tmp,parentLevels,[]);
                 id=cellfun(@(x) sprintf('.%s',x{:}), {addFlatStruct.parentLevels}, 'UniformOutput', false);   
                 [addFlatStruct.identifier]=deal(id{:});
-                [addFlatStruct.hierarchyLevels]=levelNr;
+                [addFlatStruct.hierarchyLevels]=iLevel;
             
                 [overruled, overruledPos]=ismember({addFlatStruct.identifier},{p.flatStruct.identifier});
                 
                 nFields=length(addFlatStruct);
                 for iField=1:nFields
                     if overruled(iField)
-                        if ~any(p.flatStruct(overruledPos(iField)).hierarchyLevels==levelNr) 
-                            p.flatStruct(overruledPos(iField)).hierarchyLevels(end+1) = levelNr; 
+                        if ~any(p.flatStruct(overruledPos(iField)).hierarchyLevels==iLevel) 
+                            p.flatStruct(overruledPos(iField)).hierarchyLevels(end+1) = iLevel; 
                         end
                     else
                         p.flatStruct(end+1)=addFlatStruct(iField);
@@ -195,8 +234,8 @@ classdef params < handle
             else %simpler...but maybe not worth it
                 [overruled, overruledPos]=ismember(id,{p.flatStruct.identifier});
                 if overruled 
-                    if ~any(p.flatStruct(overruledPos).hierarchyLevels==levelNr) 
-                        p.flatStruct(overruledPos).hierarchyLevels(end+1)=levelNr;
+                    if ~any(p.flatStruct(overruledPos).hierarchyLevels==iLevel) 
+                        p.flatStruct(overruledPos).hierarchyLevels(end+1)=iLevel;
                     end
                 else
                     addFlatStruct.parentLevels=textscan(id,'%s','delimiter','.');
@@ -204,13 +243,13 @@ classdef params < handle
                     
                     addFlatStruct.isNode=false;
                     addFlatStruct.identifier=id;
-                    addFlatStruct.hierarchyLevels=levelNr;
+                    addFlatStruct.hierarchyLevels=iLevel;
                     p.flatStruct(end+1) = addFlatStruct;
                 end                
             end
         end
         
-        function varargout =getParameter(p,id,levelNr)
+        function varargout =getParameter(p,id,iLevel)
             parentLevels=textscan(id,'%s','delimiter','.');
             parentLevels=parentLevels{1}(2:end);
 
@@ -221,21 +260,11 @@ classdef params < handle
                 [varargout{1:nargout}] = subsref(p,Spartial);
             else
                 S=[p.Snew1 Spartial];
-                S(2).subs={levelNr};
+                S(2).subs={iLevel};
                 [varargout{1:nargout}] = builtin('subsref',p, S);
             end
         end
-        
-        %% end new functions for new approach
-        
-        function view(p)
-           p.structviewer(p);
-        end
-
-        function setLock(p,lock)
-           p.locked = lock;
-        end
-        
+                
         function varargout = subsref(p,S)
             if(p.locked)
                 if ~strcmp(S(1).type,'.') || ~strcmp(S(1).subs,'setLock')
@@ -287,34 +316,54 @@ classdef params < handle
                             %now if it's a struct, we at least know that
                             %only one output argument is requested, but we
                             %need to mix the struct from all levels
-
-                            %first assign the whole substruct from the
-                            %lowest
-                            %level that defined it?
-                            min_level=min(level_index);
-                            Snew(2).subs={min_level};
-                            tmp=builtin('subsref',p, Snew);
-                            
-                            covered_inds=level_index==min_level;
-                            parts_inds(covered_inds | nodes)=[];
-                            level_index(covered_inds| nodes)=[];
-                            
-                            %now loop over the remaining ones...
-                            for iPart=1:length(parts_inds)
-                                thisSubID=p.flatStruct(parts_inds(iPart)).parentLevels(length(S)+1:end);
-                                Spartial=S(ones(1,length(thisSubID)));
-                                [Spartial.subs]=deal(thisSubID{:});
+                            try
+                                %first assign the whole substruct from the
+                                %lowest
+                                %level that defined it?
+                                min_level=min(level_index);
+                                Snew(2).subs={min_level};
+                                tmp=builtin('subsref',p, Snew);
                                 
-                                Snew(2).subs={level_index(iPart)};
-                                tmp=builtin('subsasgn',tmp,Spartial,builtin('subsref',p,[Snew Spartial]));
+                                covered_inds=level_index==min_level;
+                                parts_inds(covered_inds | nodes)=[];
+                                level_index(covered_inds| nodes)=[];
+                                
+                                %now loop over the remaining ones...
+                                for iPart=1:length(parts_inds)
+                                    thisSubID=p.flatStruct(parts_inds(iPart)).parentLevels(length(S)+1:end);
+                                    Spartial=S(ones(1,length(thisSubID)));
+                                    [Spartial.subs]=deal(thisSubID{:});
+                                    
+                                    Snew(2).subs={level_index(iPart)};
+                                    tmp=builtin('subsasgn',tmp,Spartial,builtin('subsref',p,[Snew Spartial]));
+                                end
+                                varargout{1}=tmp;
+                            catch
+                                % Still ambiguous, but better than maddeningly perpetual "subsref" errors
+                                jnk = {S.type; S.subs}; jnk = [jnk{:}];
+                                warning('Requested params field  %s  is inaccessible or does not exist.', jnk)
                             end
-                            varargout{1}=tmp;
-                                
                         end
 
                    end
                 otherwise
                     error('params:subsref', 'just don''t, ok? I''m a params class, so don''t go all brackety on me. Understood? I''m not an array, nor a cell. Is that explicit enough?');
+            end
+        end
+
+        
+        % Increment iTrial value in the "session" level of p.structs{4}.pldaps.iTrial
+        % Currently a necessary evil to prevent reinitialization of the trial
+        % index from the initial params struct heirarchy levels. Would be nice to
+        % integrate assignment of p.conditions & add/set levels calls here, but 
+        % too many dependent vars in the p.run workspace to do this cleanly. --TBC 2017-10
+        %   (totally cryptic...nothing I can do about it at this point)
+        function varargout = incrementTrial(p, delta)
+            %   NOTE: [delta] input is increment, not actual value.
+            sessionIndex = strcmp(p.structNames, 'SessionParameters');
+            p.structs{sessionIndex}.pldaps.iTrial = p.structs{sessionIndex}.pldaps.iTrial + delta;
+            if nargout
+                varargout{1} = p.structs{sessionIndex}.pldaps.iTrial;
             end
         end
         
@@ -504,7 +553,8 @@ classdef params < handle
         
     end %methods
     
-    methods(Static)
+    
+    methods(Static, Hidden)
         function vs=valueString(value)
             if isstruct(value)
                 vs=[];

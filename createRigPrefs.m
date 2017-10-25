@@ -8,10 +8,12 @@ function outStruct=createRigPrefs(additionalSettings)
 % outStruct is the final struct of settings that were also stored in the
 % matlab preference system.
 
+    fprintf('\n****************************************************************\n')
+
     %to we already have current settings?
     a=getpref('pldaps');
     if ~isempty(a)
-        warning('you already have a pldaps setting, be sure not no lose those seetings....');
+        fprintf('Existing pldaps rigPrefs loaded.\n\tIf changes are made, a backup of previous settings will be saved.\n');
     end
     
     %do we have and old PLDAPS Version setting?
@@ -74,20 +76,24 @@ function outStruct=createRigPrefs(additionalSettings)
     
     p=pldaps('test','nothing');
     if isstruct(fromOldPrefs)
-        p.defaultParameters.addLevels({fromOldPrefs}, {'PLDAPS 3 Prefs'})
-    end
-    if nargin>0
-        p.defaultParameters.addLevels({additionalSettings}, {'additional Settings'})
+        p.defaultParameters.addLevels({fromOldPrefs}, {'PLDAPS 3 Prefs'});
+        fprintf('Legacy (ver. 3) PLDAPS prefs appended.\n');
     end
     
-    p.defaultParameters
+    if nargin>0
+        p.defaultParameters.addLevels({additionalSettings}, {'additional Settings'});
+        fprintf('User input settings struct %s appended.\n', inputname(1));
+    end
+    
+    p.defaultParameters;
     p.defaultParameters.view
-    warning('Loaded default values, any previous preferences and also preferences from the PLDAPS3.');
-    fprintf(2,[...
-        '\n\nINSTRUCTIONS for setting local rig preferences:\n'...
-        'The local default settings are stored in pldapsRigPrefs. There\n'...
-        'are two ways to change the value stored in pldapsRigPrefs for a\n'...
-        'given parameter:'...
+    
+    % Print instructions to command window
+    fprintf([...
+        '\n****************************************************************\n'...
+        'INSTRUCTIONS for setting local rig preferences\n'...
+        '****************************************************************\n'...
+        'There are two ways to change rigPref values using this function:'...
         '\n\nOption 1: Move the value you want as rig default to \n'...
         'pldapsRigPrefs from another set of preferences (e.g. \n'...
         'SessionParameters, PLDAPS3).  Double click on the value and \n'...
@@ -95,20 +101,21 @@ function outStruct=createRigPrefs(additionalSettings)
         '\n\nOption 2: Define the values yourself by clicking on the value\n'...
         'field of pldapsRigPrefs for the parameter you want to change. Type\n'...
         'the new value in the box below (you will have to physically click\n'...
-        'on this box with the mouse) and press enter.'...
-        '\n\nVERY IMPORTANT for both options: When you are done adding new \n' ...
-        'parameters, type dbcont into the command line and press enter. \n'...
-        '(If you forget to type dbcont, createRigPrefs will forget the \n'...
-        'new rig prefs).\n\n']);
-        
+        'on this box with the mouse) and press enter.\n'...
+        '\nYour rig preferences are saved within Matlab''s preferences\n'...
+        'framework:\t\tgetpref(''pldaps'')\n'...
+        'Touching them directly is frowned upon though, and only\n'...
+        'interactions through createRigPrefs.m are supported.\n'...
+        ]);
+    fprintf(2,[...
+        '\nVERY IMPORTANT for both options: When you are done adding new \n' ...
+        'parameters, type dbcont into the command line and press enter.\n\n'...
+        '!If you forget to type dbcont, all your changes will be lost!\n'...
+        ]);
+    fprintf('****************************************************************\n'...
+        );
+    
 
-    %save old prefs
-    if ~isempty(a)
-        sfn=['Saved_pldaps_prefs' sprintf('_%i', clock)];
-        warning(['saving old pladps prefs to ' sfn]);
-        save(sfn, 'a');
-    end
-     
     keyboard
     %make changes in the viewer and press done. move things you want in the
     %pldapsRifPrefs to there (doule click in the right value list on the value you want to move and select to move it to pldapsRigPrefs)
@@ -121,17 +128,31 @@ function outStruct=createRigPrefs(additionalSettings)
     %now, to ensure that you are adding the values at the correct hierarchy
     %level
     
-    %once all is set, call
+    
+    % Save old prefs before removing them from matlab prefs storage
+    if ~isempty(a)
+        sfn = sprintf('pldaps_prefs_pre%s.mat', datestr(now, 'yyyy-mm-dd_HH-MM-SS'));
+        try % to be cleaner
+            sfn = fullfile( p.defaultParameters.pldaps.dirs.proot, 'rigPrefs', sfn);
+            if ~exist(fileparts(sfn),'dir'), mkdir(fileparts(sfn)); end
+        catch
+            sfn = fullfile( pwd, sfn);
+        end
+        fprintf('\nPrior PLDAPS prefs saved to:\n\t%s\n\n', sfn);
+        save(sfn, 'a');
+
+        rmpref('pldaps'); %remove current
+    end
+    
+    % Package current prefs for saving
     p.defaultParameters.setLevels(2);
     outStruct=p.defaultParameters.mergeToSingleStruct();
     
     fn=fieldnames(outStruct);
     outStructc=struct2cell(outStruct);
+
+    % Set new prefs
+    setpref('pldaps',fn(:),outStructc);
     
-    if ~isempty(a)
-        rmpref('pldaps'); %remove current
-    end
-    setpref('pldaps',fn(:),outStructc); %set new
-    
-    warning('Done. saved the output of this function as new pldaps prefs');
+    fprintf('Done. Your new pldaps rig prefs have been saved.\n');
 end

@@ -11,6 +11,7 @@ function s=pldapsClassDefaultParameters(s)
 %s.	datapixx.
  s.	datapixx.	enablePropixxCeilingMount = false;
  s.	datapixx.	enablePropixxRearProjection = false;
+ s. datapixx.   rb3d = 0;
  s.	datapixx.	LogOnsetTimestampLevel = 2;
  s.	datapixx.	use = true;
  s.	datapixx.	useAsEyepos = false;
@@ -42,12 +43,13 @@ function s=pldapsClassDefaultParameters(s)
  s.	display.	displayName = 'defaultScreenParameters';
  s.	display.	forceLinearGamma = false;
  s.	display.	heightcm = 45;
- s.	display.	normalizeColor = 0;
+ s.	display.	normalizeColor = 1;
  s.	display.	screenSize = [ ];
  s.	display.	scrnNum = max(Screen('Screens'));
  s.	display.	sourceFactorNew = 'GL_SRC_ALPHA';
  s.	display.	stereoFlip = [ ];
  s.	display.	stereoMode = 0;
+ s. display.    crosstalk = 0;
  s.	display.	switchOverlayCLUTs = false;
  s.	display.	useOverlay = 1;
  s.	display.	viewdist = 57;
@@ -98,9 +100,10 @@ function s=pldapsClassDefaultParameters(s)
 %s.	pldaps.
  s.	pldaps.	experimentAfterTrialsFunction = [ ];
  s.	pldaps.	eyeposMovAv = 1;
+ s. pldaps. lastBgColor = s.display.bgColor;
  s.	pldaps.	finish = Inf;
- s.	pldaps.	goodtrial = 0;
- s.	pldaps.	iTrial = 1;
+ s.	pldaps.	goodtrial = 0; % This is old; now in p.trial.good. Marking for future deletion. --TBC 2017
+ s.	pldaps.	iTrial = 0;
  s.	pldaps.	maxPriority = true;
  s.	pldaps.	maxTrialLength = 300;
  s.	pldaps.	nosave = false;
@@ -112,7 +115,8 @@ function s=pldapsClassDefaultParameters(s)
 
 %s.	pldaps.	dirs.
  s.	pldaps.	dirs.	data = '/Data';
- s.	pldaps.	dirs.	wavfiles = fullfile( fileparts( which('createRigPrefs.m')), 'beepsounds'); %'~/PLDAPS/beepsounds';
+ s. pldaps. dirs.   proot = fileparts(fileparts(mfilename('fullpath'))); % proot == PLDAPS root directory
+ s.	pldaps.	dirs.	wavfiles = fullfile( s.pldaps.dirs.proot, 'beepsounds'); %'[proot]/beepsounds';
 
 %s.	pldaps.	draw.
 %s.	pldaps.	draw.	cursor.
@@ -147,21 +151,35 @@ function s=pldapsClassDefaultParameters(s)
  s.	pldaps.	save.	v73 = 0;
 
 %s.	pldaps.	trialStates.
- s.	pldaps.	trialStates.	experimentAfterTrials = -7;
- s.	pldaps.	trialStates.	experimentCleanUp = -6;
- s.	pldaps.	trialStates.	experimentPostOpenScreen = -4;
+ s.	pldaps.	trialStates.	experimentAfterTrials = -8;
+ s.	pldaps.	trialStates.	experimentCleanUp = -7;
+ s.	pldaps.	trialStates.	experimentPostOpenScreen = -6;
  s.	pldaps.	trialStates.	experimentPreOpenScreen = -5;
+ s.	pldaps.	trialStates.	trialCleanUpandSave = -4;
+ s. pldaps. trialStates.    trialItiDraw = -3;
+ s.	pldaps.	trialStates.	frameFlip = 5;
+ s.	pldaps.	trialStates.	frameDrawingFinished = 4;
  s.	pldaps.	trialStates.	frameDraw = 3;
- s.	pldaps.	trialStates.	frameDrawingFinished = 6;
- s.	pldaps.	trialStates.	frameDrawTimecritical = -Inf;
- s.	pldaps.	trialStates.	frameFlip = 8;
- s.	pldaps.	trialStates.	frameIdlePostDraw = -Inf;
- s.	pldaps.	trialStates.	frameIdlePreLastDraw = -Inf;
  s.	pldaps.	trialStates.	framePrepareDrawing = 2;
  s.	pldaps.	trialStates.	frameUpdate = 1;
- s.	pldaps.	trialStates.	trialCleanUpandSave = -3;
  s.	pldaps.	trialStates.	trialPrepare = -2;
  s.	pldaps.	trialStates.	trialSetup = -1;
+        % % % % Keeping here short-term to see if removing unused/defunct unknowingly breaks too much --TBC Oct. 2017
+        % % %  s.	pldaps.	trialStates.	experimentAfterTrials = -7;
+        % % %  s.	pldaps.	trialStates.	experimentCleanUp = -6;
+        % % %  s.	pldaps.	trialStates.	experimentPostOpenScreen = -4;
+        % % %  s.	pldaps.	trialStates.	experimentPreOpenScreen = -5;
+        % % %  s.	pldaps.	trialStates.	frameDraw = 3;
+        % % %  s.	pldaps.	trialStates.	frameDrawingFinished = 6;
+        % % %  s.	pldaps.	trialStates.	frameDrawTimecritical = -Inf;
+        % % %  s.	pldaps.	trialStates.	frameFlip = 8;
+        % % %  s.	pldaps.	trialStates.	frameIdlePostDraw = -Inf;
+        % % %  s.	pldaps.	trialStates.	frameIdlePreLastDraw = -Inf;
+        % % %  s.	pldaps.	trialStates.	framePrepareDrawing = 2;
+        % % %  s.	pldaps.	trialStates.	frameUpdate = 1;
+        % % %  s.	pldaps.	trialStates.	trialCleanUpandSave = -3;
+        % % %  s.	pldaps.	trialStates.	trialPrepare = -2;
+        % % %  s.	pldaps.	trialStates.	trialSetup = -1;
 
 %s.	plexon.
 %s.	plexon.	spikeserver.
@@ -172,6 +190,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	plexon.	spikeserver.	selfip = 'xx.xx.xx.xx';
  s.	plexon.	spikeserver.	selfport = 3332;
  s.	plexon.	spikeserver.	use = 0;
+ s. plexon. spikeserver.    spikeCount = 0;
 
 %s.	session.
  s.	session.	experimentSetupFile = [ ];

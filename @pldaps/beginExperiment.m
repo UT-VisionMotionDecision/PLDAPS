@@ -15,7 +15,7 @@ function p = beginExperiment(p)
 %% set version. make sure to also use the git version for finer control of subversions
 p.defaultParameters.pldaps.version.number=4.2;
 p.defaultParameters.pldaps.version.name='openreception';
-p.defaultParameters.pldaps.version.logo='http://www.digitalmomblog.com/wp-content/uploads/2012/06/baby-platypus.jpg';
+p.defaultParameters.pldaps.version.logo='https://motion.cps.utexas.edu/wp-content/uploads/2013/07/platypus-300x221.gif';
 
 
 %multiple sessions not supported for now

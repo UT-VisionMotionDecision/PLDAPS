@@ -11,6 +11,8 @@ function [stateValue, stateName] = getReorderedFrameStates(trialStates,moduleReq
       [stateValue, stateValueIndecies]=sort(stateValue);
       stateName=stateName(stateValueIndecies);
       
+end
+
 %trial states that are not in a frame are negative, just to allow both
 % to be more independent
 %     p.trial.pldaps.trialStates.trialSetup=-1;
@@ -38,25 +40,24 @@ function [stateValue, stateName] = getReorderedFrameStates(trialStates,moduleReq
 %     %once you know you've calculated the final image, draw it
 %     p.trial.pldaps.trialStates.frameDraw=3;
 %     
-%     %!removed for now!
+%     %----------!removed for now!----------
 %     p.trial.pldaps.trialStates.frameIdlePreLastDraw=-Inf;%4;
 %     %if there is something that needs updating. here is a fucntion to do it
 %     %as late as possible
 %
-%     %!removed for now!
+%     %----------!removed for now!----------
 %     p.trial.pldaps.trialStates.frameDrawTimecritical=-Inf;%5;
 %     %if this function is not used, drawingFinished will be called after
 %     %frameDraw is done, otherwise drawingFinished will not be called
 %
 %     p.trial.pldaps.trialStates.frameDrawingFinished=6;
 % 
-%     %!removed for now!
-%     %this function gets called once everything got drawn, until it's time
-%     %to expect (and do) the flip
+%     %----------!removed for now!----------
+%     %this function gets called after everything has been drawn, and repeatedly
+%     %until it's time to expect (and do) the flip
 %     p.trial.pldaps.trialStates.frameIdlePostDraw=-Inf;%7;
 %
 %     %do the flip (or when async) record the time 
 %     p.trial.pldaps.trialStates.frameFlip=8;
-    
-end
+
     

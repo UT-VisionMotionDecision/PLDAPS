@@ -1,7 +1,7 @@
 function p = run(p)
 %run    run a new experiment for a previuously created pldaps class
 % p = run(p)
-% PLDAPS (Plexon Datapixx PsychToolbox) version 4.1
+% PLDAPS (Plexon Datapixx PsychToolbox) version 4.2
 %       run is a wrapper for calling PLDAPS package files
 %           It opens the PsychImaging pipeline and initializes datapixx for
 %           dual color lookup tables. 
@@ -17,20 +17,27 @@ function p = run(p)
 
 % try
     %% Setup and File management
+    % clean IOPort handles (no PTB method to retrieve previously opened IOPort handles, so might as well clean slate)
+    IOPort('CloseAll');
+    
     % Enure we have an experimentSetupFile set and verify output file
     
     %make sure we are not running an experiment twice
     if isField(p.defaultParameters, 'session.initTime')
         warning('pldaps:run', 'pldaps objects appears to have been run before. A new pldaps object is needed for each run');
         return
-    else
-        p.defaultParameters.session.initTime=now;
     end
+    
+    p.defaultParameters.session.initTime=now;
+    p.defaultParameters.pldaps.iTrial = 0; % necessary here to place iTrial counter in SessionParameters level of params hierarchy
         
     if ~p.defaultParameters.pldaps.nosave
         p.defaultParameters.session.dir = p.defaultParameters.pldaps.dirs.data;
-        p.defaultParameters.session.file = [p.defaultParameters.session.subject datestr(p.defaultParameters.session.initTime, 'yyyymmdd') p.defaultParameters.session.experimentSetupFile datestr(p.defaultParameters.session.initTime, 'HHMM') '.PDS'];
-%         p.defaultParameters.session.file = fullfile(p.defaultParameters.pldaps.dirs.data, [p.defaultParameters.session.subject datestr(p.defaultParameters.session.initTime, 'yyyymmdd') p.defaultParameters.session.experimentSetupFile datestr(p.defaultParameters.session.initTime, 'HHMM') '.PDS']);
+        p.defaultParameters.session.file = sprintf('%s%s%s%s.PDS',...
+                                                   p.defaultParameters.session.subject,...
+                                                   datestr(p.defaultParameters.session.initTime, 'yyyymmdd'),...
+                                                   p.defaultParameters.session.experimentSetupFile, ...
+                                                   datestr(p.defaultParameters.session.initTime, 'HHMM'));
         
         if p.defaultParameters.pldaps.useFileGUI
             [cfile, cdir] = uiputfile('.PDS', 'specify data storage file', fullfile( p.defaultParameters.session.dir,  p.defaultParameters.session.file));
@@ -50,24 +57,32 @@ function p = run(p)
         p.defaultParameters.session.dir='';
     end
 
+    
+    %% experimentPreOpenScreen
     if p.trial.pldaps.useModularStateFunctions
         %experimentSetup before openScreen to allow modifyiers
         [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
         runStateforModules(p,'experimentPreOpenScreen',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
     end
     
+    
     %% Open PLDAPS windows
     % Open PsychToolbox Screen
     p = openScreen(p);
     
     % Setup PLDAPS experiment condition
-    p.defaultParameters.pldaps.maxFrames=p.defaultParameters.pldaps.maxTrialLength*p.defaultParameters.display.frate;
+    p.defaultParameters.pldaps.maxFrames = p.defaultParameters.pldaps.maxTrialLength * p.defaultParameters.display.frate;
 
-    if ~isempty(p.defaultParameters.session.experimentSetupFile)
+
+    %% experimentSetupFunction
+    %   (i.e. fxn handle input w/ initial pldaps object creation)
+    if ~isempty(p.defaultParameters.session.experimentSetupFile) && ~strcmp(p.defaultParameters.session.experimentSetupFile, 'none')
         feval(p.defaultParameters.session.experimentSetupFile, p);
     end
     
-            %
+    
+    %% Basic environment initialization
+            
             % Setup Photodiode stimuli
             %-------------------------------------------------------------------------%
             if(p.trial.pldaps.draw.photodiode.use)
@@ -77,129 +92,138 @@ function p = run(p)
             % Tick Marks
             %-------------------------------------------------------------------------%
             if(p.trial.pldaps.draw.grid.use)
-                p = initTicks(p);
+                initTicks(p);
             end
 
-
+            % Codebase / version control
+            %-------------------------------------------------------------------------%
             %get and store changes of current code to the git repository
-            p = pds.git.setup(p);
+            pds.git.setup(p);
             
-            %things that were in the conditionFile
-            p = pds.eyelink.setup(p);
-    
-            %things that where in the default Trial Structure
-            
+            % Eye tracking
+            %-------------------------------------------------------------------------%
+            pds.eyelink.setup(p);
+                
             % Audio
             %-------------------------------------------------------------------------%
-            p = pds.audio.setup(p);
+            pds.audio.setup(p);
             
             % PLEXON
             %-------------------------------------------------------------------------%
-            p = pds.plexon.spikeserver.connect(p);
+            pds.plexon.spikeserver.connect(p);
             
             % REWARD
             %-------------------------------------------------------------------------%
-            p = pds.behavior.reward.setup(p);
+            pds.behavior.reward.setup(p);
                      
             % Initialize Datapixx including dual CLUTS and timestamp
             % logging
-            p = pds.datapixx.init(p);
+            pds.datapixx.init(p);
             
+            % HID
             pds.keyboard.setup(p);
 
             if p.trial.mouse.useLocalCoordinates
                 p.trial.mouse.windowPtr=p.trial.display.ptr;
             end
             if ~isempty(p.trial.mouse.initialCoordinates)
-                SetMouse(p.trial.mouse.initialCoordinates(1),p.trial.mouse.initialCoordinates(2),p.trial.mouse.windowPtr)
+                SetMouse(p.trial.mouse.initialCoordinates(1),p.trial.mouse.initialCoordinates(2),p.trial.mouse.windowPtr);
             end
     
-            if p.trial.pldaps.useModularStateFunctions
-                [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
-                runStateforModules(p,'experimentPostOpenScreen',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
-            end
+            
+        %% experimentPostOpenScreen
+        if p.trial.pldaps.useModularStateFunctions
+            [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+            runStateforModules(p,'experimentPostOpenScreen',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+        end
 
+        
     %% Last chance to check variables
     if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
         p  %#ok<NOPRT>
-        disp('Ready to begin trials. Type return to start first trial...')
-        keyboard %#ok<MCKBD>
+        disp('Ready to begin trials. Type "dbcont" to start first trial...')
+        keyboard
     end
  
+    
+    %% Final preparations before trial loop begins
     %%%%start recoding on all controlled components this in not currently done here
     % save timing info from all controlled components (datapixx, eyelink, this pc)
     p = beginExperiment(p);
 
     % disable keyboard
-    ListenChar(2)
-    HideCursor
+    ListenChar(2);
+    HideCursor;
     
     p.trial.flagNextTrial  = 0; % flag for ending the trial
-    p.trial.iFrame     = 1;  % frame index
+    p.trial.iFrame     = 0;  % frame index
     
-    %save defaultParameters as trial 0
-    trialNr=0;
-    p.trial.pldaps.iTrial=0;
+    % Save defaultParameters as trial 0
+    % NOTE: the following line converts p.trial into a struct.
+    % ------------------------------------------------
+    % !!! Beyond this point, p.trial is NO LONGER A POINTER TO p.defaultParameters !!!
+    % ------------------------------------------------
     p.trial=mergeToSingleStruct(p.defaultParameters);
     result = saveTempFile(p); 
     if ~isempty(result)
         disp(result.message)
     end
         
-    
-    
     %now setup everything for the first trial
-   
-%     dv.defaultParameters.pldaps.iTrial=trialNr;
     
-    %we'll have a trialNr counter that the trial function can tamper with?
-    %do we need to lock the defaultParameters to prevent tampering there?
-    levelsPreTrials=p.defaultParameters.getAllLevels();
-%     dv.defaultParameters.addLevels(dv.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
+    % we <will not> have a trialNr counter that the trial function can tamper with?
+    % No apparent purpose to this...only invites danger of mismatched data outputs.
     
-    %for now all structs will be in the parameters class, first
-    %levelsPreTrials, then we'll add the condition struct before each trial.
-%     dv.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr])
-%     dv.defaultParameters.pldaps.iTrial=trialNr;
-%     dv.trial=mergeToSingleStruct(dv.defaultParameters);
+    % Record of baseline params class levels before start of experiment.
+    % NOTE: "levelsPreTrials" --> "baseParamsLevels", since former was misnomer now
+    %       that this var must be updated for everytime a non-trial parameters level
+    %       is added (e.g. during every pause) --TBC 2017-10
+    baseParamsLevels = p.defaultParameters.getAllLevels();  %#ok<*AGROW>
+        
     
-    %only use dv.trial from here on!
-    
-    %% main trial loop %%
+    %% Main trial loop
     while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         
-        if p.trial.pldaps.quit == 0
+        if ~p.trial.pldaps.quit
             
            %load parameters for next trial and lock defaultsParameters
-           trialNr=trialNr+1;
+           nextTrial = p.defaultParameters.incrementTrial(+1);
            if ~isempty(p.conditions)
-            p.defaultParameters.addLevels(p.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']});
-            p.defaultParameters.setLevels([levelsPreTrials length(levelsPreTrials)+trialNr]);
+               p.defaultParameters.addLevels(p.conditions(nextTrial), {sprintf('Trial%dParameters', nextTrial)});
+               p.defaultParameters.setLevels([baseParamsLevels length(baseParamsLevels)+nextTrial]);
            else
-            p.defaultParameters.setLevels([levelsPreTrials]);
+               p.defaultParameters.setLevels([baseParamsLevels]);
            end
-           p.defaultParameters.pldaps.iTrial=trialNr;
-           
 
+           % ---------- p.defaultParameters >>to>> p.trial [struct!] ----------
            %it looks like the trial struct gets really partitioned in
            %memory and this appears to make some get (!) calls slow. 
            %We thus need a deep copy. The superclass matlab.mixin.Copyable
            %is supposed to do that, but that is ver very slow, so we create 
            %a manual deep copy by saving the struct to a file and loading it 
-           %back in.
-           tmpts=mergeToSingleStruct(p.defaultParameters);
-           save([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct'], 'tmpts');
+           %back in. --JK 2016(?)
+           % Profiler suggests the overloaded subsref function of the params class
+           % is a culprit; repeated "find" & "cellfun" calls in particular. Flipping
+           % p.trial to a normal struct bypasses these overloaded class invocations.
+           % There has to be a way to revise params class (particularly removing "find"
+           % calls, which are known to be very slow), but have had little success at
+           % deciphering the params.m code so far. --TBC 2017-10
+           tmpts=mergeToSingleStruct(p.defaultParameters); %#ok<NASGU>
+           save( fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'), '-struct', 'tmpts');
            clear tmpts
-           load([p.trial.pldaps.dirs.data filesep 'TEMP' filesep 'deepTrialStruct']);
-           p.trial=tmpts;
-           clear tmpts;
+           p.trial = load(fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'));
 %             p.trial=mergeToSingleStruct(p.defaultParameters);
             
+           % Document currently active levels for this trial
+           p.trial.pldaps.activeLevels = p.defaultParameters.getActiveLevels;
 
+           % lock the defaultParameters structure
            p.defaultParameters.setLock(true);
             
-           % run trial
+           %---------------------------------------------------------------------% 
+           % RUN THE TRIAL
            p = feval(p.trial.pldaps.trialMasterFunction,  p);
+           %---------------------------------------------------------------------% 
             
            %unlock the defaultParameters
            p.defaultParameters.setLock(false); 
@@ -215,86 +239,79 @@ function p = run(p)
                dTrialStruct = p.trial;
            else
                %store the difference of the trial struct to .data
-               dTrialStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
+               dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial);
            end
-           p.data{trialNr}=dTrialStruct;
+           p.data{p.defaultParameters.pldaps.iTrial} = dTrialStruct;
            
-           
-           if p.trial.pldaps.useModularStateFunctions
+           % experimentAfterTrials  (Modular PLDAPS)
+           if p.trial.pldaps.useModularStateFunctions && ~isempty(p.trial.pldaps.experimentAfterTrialsFunction)
+               % Not clear what purpose this serves that could not be accomplished in trial cleanupandsave
+               % and/or at start of next trial? ...open to suggestions. --TBC 2017-10
                oldptrial=p.trial;
                [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
-               p.defaultParameters.setLevels(levelsPreTrials);
-               p.defaultParameters.pldaps.iTrial=trialNr;
+               p.defaultParameters.setLevels(baseParamsLevels);
                p.trial=mergeToSingleStruct(p.defaultParameters);
                p.defaultParameters.setLock(true); 
-
                runStateforModules(p,'experimentAfterTrials',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 
                p.defaultParameters.setLock(false); 
                betweenTrialsStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
                if(~isequal(struct,betweenTrialsStruct))
-                    p.defaultParameters.addLevels({betweenTrialsStruct}, {['experimentAfterTrials' num2str(trialNr) 'Parameters']});
-                    levelsPreTrials=[levelsPreTrials length(p.defaultParameters.getAllLevels())]; %#ok<AGROW>
+                    p.defaultParameters.addLevels({betweenTrialsStruct}, {sprintf('experimentAfterTrials%dParameters', p.defaultParameters.pldaps.iTrial)});
+                    baseParamsLevels=[baseParamsLevels length(p.defaultParameters.getAllLevels())];
                end
 
                p.trial=oldptrial;
            end
 
-           %advance to next trial
-%            if(dv.trial.pldaps.iTrial ~= dv.trial.pldaps.finish)
-%                 %now we add this and the next Trials condition parameters
-%                 dv.defaultParameters.addLevels(dv.conditions(trialNr), {['Trial' num2str(trialNr) 'Parameters']},[levelsPreTrials length(levelsPreTrials)+trialNr]);
-%                 dv.defaultParameters.pldaps.iTrial=trialNr;
-%                 dv.trial=mergeToSingleStruct(dv.defaultParameters);
-%            else
-%                 dv.trial.pldaps.iTrial=trialNr;
-%            end
-%            
-%            if isfield(dTrialStruct,'pldaps')
-%                if isfield(dTrialStruct.pldaps,'finish') 
-%                     dv.trial.pldaps.finish=dTrialStruct.pldaps.finish;
-%                end
-%                if isfield(dTrialStruct.pldaps,'quit') 
-%                     dv.trial.pldaps.quit=dTrialStruct.pldaps.quit;
-%                end
-%            end
+        else
             
-        else %dbquit ==1 is meant to be pause. should we halt eyelink, datapixx, etc?
-            %create a new level to store all changes in, 
-            %load only non trial paraeters
-            pause=p.trial.pldaps.pause.type;
-            p.trial=p.defaultParameters;
+            % Pause experiment. should we halt eyelink, datapixx, etc?
+            ptype=p.trial.pldaps.pause.type;
+                        
+            % p.trial is once again a pointer after the following call (!)
+            p.trial=p.defaultParameters; % NOTE: This step also resets the .pldaps.quit~=0 that triggered execution of this block
             
-            p.defaultParameters.addLevels({struct}, {['PauseAfterTrial' num2str(trialNr) 'Parameters']});
-            p.defaultParameters.setLevels([levelsPreTrials length(p.defaultParameters.getAllLevels())]);
+            % This will ALWAYS create a new 'level' (even if nothing is changed during pause)
+            % ...doesn't seem to be the original intention, but allows changes during pause to be carried
+            % over without overwriting prior settings, or getting lost in .conditions parameters. --TBC 2017-10
+            p.defaultParameters.addLevels({struct}, {sprintf('PauseAfterTrial%dParameters', p.defaultParameters.pldaps.iTrial)});
+            % include this new level in the list of baseline hierarchy levels.
+            baseParamsLevels = [baseParamsLevels length(p.defaultParameters.getAllLevels())];
+            % set baseline levels active (NOTE:  disables all trial-specific levels/params in the process)
+            p.defaultParameters.setLevels(baseParamsLevels);
             
-            if pause==1 %0=don't,1 is debugger, 2=pause loop
+            if ptype==1 %0=don't,1 is debugger, 2=pause loop
                 ListenChar(0);
                 ShowCursor;
                 p.trial
-                disp('Ready to begin trials. Type return to start first trial...')
+                disp('Experiment paused. Type "dbcont" to continue...')
                 keyboard %#ok<MCKBD>
-                p.trial.pldaps.quit = 0;
                 ListenChar(2);
                 HideCursor;
-            elseif pause==2
+            elseif ptype==2
                 pauseLoop(p);
             end           
-%             pds.datapixx.refresh(dv);
+%             pds.datapixx.refresh(p);
 
             %now I'm assuming that nobody created new levels,
             %but I guess when you know how to do that
             %you should also now how to not skrew things up
             allStructs=p.defaultParameters.getAllStructs();
             if(~isequal(struct,allStructs{end}))
-                levelsPreTrials=[levelsPreTrials length(allStructs)]; %#ok<AGROW>
+                baseParamsLevels=[baseParamsLevels length(allStructs)];
             end
         end
         
     end
     
+    %% Clean up & bookkeeping post-trial execution loop
+    
     %make the session parameterStruct active
-    p.defaultParameters.setLevels(levelsPreTrials);
+    % NOTE: This potentially obscures hierarchy levels (i.e. "PauseAfterTrial##Parameters") that
+    %       are likely inconsistent throughout session. ...each trial data now includes a list
+    %       of active hierarchy levels in .pldaps.activeLevels. --TBC 2017-10
+    p.defaultParameters.setLevels(baseParamsLevels);
     p.trial = p.defaultParameters;
     
     % return cursor and command-line control
@@ -302,10 +319,10 @@ function p = run(p)
     ListenChar(0);
     Priority(0);
     
-    p = pds.eyelink.finish(p);
-    p = pds.plexon.finish(p);
+    pds.eyelink.finish(p);  % p =  ; These should be operating on pldaps class handles, thus no need for outputs. --tbc.
+    pds.plexon.finish(p);
     if(p.defaultParameters.datapixx.use)
-        %start adc data collection if requested
+        % stop adc data collection
         pds.datapixx.adc.stop(p);
         
         status = PsychDataPixx('GetStatus');
@@ -328,24 +345,34 @@ function p = run(p)
     if ~p.defaultParameters.pldaps.nosave
         [structs,structNames] = p.defaultParameters.getAllStructs();
         
-        PDS=struct;
-        PDS.initialParameters=structs(levelsPreTrials);
-        PDS.initialParameterNames=structNames(levelsPreTrials);
+        PDS = struct;
+        PDS.initialParameters = structs(baseParamsLevels);
+        PDS.initialParameterNames = structNames(baseParamsLevels);
+        PDS.initialParameterIndices = baseParamsLevels;
+        % Include a less user-hostile output struct
         if p.defaultParameters.pldaps.save.initialParametersMerged
-            PDS.initialParametersMerged=mergeToSingleStruct(p.defaultParameters); %too redundant?
+            % Should be noted that baseParamsLevels may have been changed throughout
+            % course of experiment, so this merged struct could be misleading.
+            % ...activeLevels now documented for every trial though:    data{}.pldaps.activeLevels
+            PDS.initialParametersMerged = mergeToSingleStruct(p.defaultParameters);
         end
         
-        levelsCondition=1:length(structs);
-        levelsCondition(ismember(levelsCondition,levelsPreTrials))=[];
-        PDS.conditions=structs(levelsCondition);
-        PDS.conditionNames=structNames(levelsCondition);
-        PDS.data=p.data; 
-        PDS.functionHandles=p.functionHandles;
+        levelsCondition = 1:length(structs);
+        levelsCondition(ismember(levelsCondition,baseParamsLevels)) = [];
+        PDS.conditions = structs(levelsCondition);
+        PDS.conditionNames = structNames(levelsCondition);
+        PDS.data = p.data; 
+        PDS.functionHandles = p.functionHandles; %#ok<STRNU>
+        savedFileName = fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file);
         if p.defaultParameters.pldaps.save.v73
-            save(fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file),'PDS','-mat','-v7.3')
+            save(savedFileName,'PDS','-mat','-v7.3')
         else
-            save(fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file),'PDS','-mat')
+            save(savedFileName,'PDS','-mat')
         end
+        disp('****************************************************************')
+        fprintf('\tPLDAPS data file saved as:\n\t\t%s\n', savedFileName)
+        disp('****************************************************************')
+
     end
     
 
@@ -356,7 +383,13 @@ function p = run(p)
     if p.defaultParameters.display.useOverlay==2
         glDeleteTextures(2,p.trial.display.lookupstexs(1));
     end
+    
+    % Make sure enough time passes for any pending async flips to occur
+    Screen('WaitBlanking', p.trial.display.ptr);
+    
+    % close up shop
     Screen('CloseAll');
+    IOPort('CloseAll');
 
     sca;
     
@@ -382,70 +415,68 @@ function p = run(p)
 % end
 
 end
+
+
+% % % % % % % % % % % % 
+% % Sub-Functions
+% % % % % % % % % % % % 
+
 %we are pausing, will create a new defaultParaneters Level where changes
 %would go.
-function pauseLoop(dv)
+function pauseLoop(p)
         ShowCursor;
 %         ListenChar(1); % is this necessary
         KbQueueRelease();
         KbQueueCreate();
         KbQueueStart();
-        altLastPressed=0;
-        ctrlLastPressed=0;
-        ctrlPressed=false;
-        altPressed=false;
+%         altLastPressed=0;
+%         ctrlLastPressed=0;
+%         ctrlPressed=false;
+%         altPressed=false;
         
-        while dv.trial.pldaps.quit==1
+        while p.trial.pldaps.quit==1
             %the keyboard chechking we only capture ctrl+alt key presses.
-            [dv.trial.keyboard.pressedQ,  dv.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
-            if dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lctrl)&&dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.Lalt)
+            [p.trial.keyboard.pressedQ,  p.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
+            if p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.Lctrl)&&p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.Lalt)
                 %D: Debugger
-                if  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.dKey) 
-                    disp('stepped into debugger. Type return to start first trial...')
+                if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) 
+                    disp('stepped into debugger. Type "dbcont" to start first trial...')
                     keyboard %#ok<MCKBD>
 
                 %E: Eyetracker Setup
-                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.eKey)
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.eKey)
                     try
-                       if(dv.trial.eyelink.use) 
-                           pds.eyelink.calibrate(dv);
+                       if(p.trial.eyelink.use) 
+                           pds.eyelink.calibrate(p);
                        end
                     catch ME
                         display(ME);
                     end
 
                 %M: Manual reward
-                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.mKey)
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.mKey)
                     pds.behavior.reward.give(p);
-%                     if dv.trial.datapixx.use
-%                         pds.datapixx.analogOut(dv.trial.stimulus.rewardTime)
-%                         pds.datapixx.flipBit(dv.trial.event.REWARD);
-%                     end
-%                     dv.trial.ttime = GetSecs - dv.trial.trstart;
-%                     dv.trial.stimulus.timeReward(:,dv.trial.iReward) = [dv.trial.ttime dv.trial.stimulus.rewardTime];
-%                     dv.trial.stimulus.iReward = dv.trial.iReward + 1;
-%                     PsychPortAudio('Start', dv.trial.sound.reward);
 
                 %P: PAUSE (end the pause) 
-                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.pKey)
-                    dv.trial.pldaps.quit = 0;
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.pKey)
+                    p.trial.pldaps.quit = 0;
                     ListenChar(2);
                     HideCursor;
                     break;
 
                 %Q: QUIT
-                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.qKey)
-                    dv.trial.pldaps.quit = 2;
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.qKey)
+                    p.trial.pldaps.quit = 2;
                     break;
                 
                 %X: Execute text selected in Matlab editor
-                elseif  dv.trial.keyboard.firstPressQ(dv.trial.keyboard.codes.xKey)
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.xKey)
                     activeEditor=matlab.desktop.editor.getActive; 
                     if isempty(activeEditor)
-                        display('No Matlab editor open -> Nothing to execute');
+                        fprintf(2, 'No Matlab editor open -> Nothing to execute\n');
                     else
                         if isempty(activeEditor.SelectedText)
-                            display('Nothing selected in the active editor Widnow -> Nothing to execute');
+                            fprintf(2, 'Nothing selected in the active editor Widnow -> Nothing to execute\n');
                         else
                             try
                                 eval(activeEditor.SelectedText)

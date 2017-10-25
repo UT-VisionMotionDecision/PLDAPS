@@ -1,13 +1,13 @@
 function p = pdsGetEyePosition(p)
 % dv = pdsGetEyePosition(dv)
 % Update eye position
-% Inputs: dv struct
+% Inputs: p struct
 %       .trial
 %           .cursorX   [1 x 1] - x position of cursor (pixels)
 %           .cursorY   [1 x 1] - y position of the cursor (pixels
 %       .useEyelink  [boolean] - use the eyelink IP connection
 %
-% Outputs: dv struct (modified)
+% Outputs: p struct (modified)
 %       .trial
 %           .eyeX   [1 x 1] - horizontal eye position (pixels)
 %           .eyeY   [1 x 1] - vertical eye position (pixels)

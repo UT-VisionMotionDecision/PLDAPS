@@ -1,6 +1,6 @@
 function p = pdsDefaultTrialStructure(p, stimulusname)
 % p = pdsDefaultTrialStructure(p)
-% pdsDefaultTrialStructure sets up the dv struct for displaying all the
+% pdsDefaultTrialStructure sets up the p struct for displaying all the
 % standard task parameters we use in huk lab
 
 if nargin<2

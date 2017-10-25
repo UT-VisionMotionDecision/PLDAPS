@@ -95,5 +95,26 @@ KbQueueStart(devIdx);
 p.trial.keyboard.nCodes = length(p.trial.keyboard.firstPressQ);
 p.trial.keyboard.devIdx = devIdx;
 
+% match functionality of standard trial setup & cleanup to prevent extraneous empty fields in saved data struct (see pldapsDefaultTrialFunction.m)
+        p.trial.keyboard.samples = 0;
+        p.trial.keyboard.samplesTimes=zeros(1,round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.samplesFrames=zeros(1,round(p.trial.pldaps.maxFrames*1.1));
+%         p.trial.keyboard.keyPressSamples = zeros(length(firstPressQ),round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.pressedSamples=false(1,round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.firstPressSamples = zeros(p.trial.keyboard.nCodes,round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.firstReleaseSamples = zeros(p.trial.keyboard.nCodes,round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.lastPressSamples = zeros(p.trial.keyboard.nCodes,round(p.trial.pldaps.maxFrames*1.1));
+        p.trial.keyboard.lastReleaseSamples = zeros(p.trial.keyboard.nCodes,round(p.trial.pldaps.maxFrames*1.1));
+
+% now clear them
+%   ...annoyingly no, this is not the same as initializing as empty: size(this)=[1,0]; size([])=[0,0]
+        p.trial.keyboard.samplesTimes(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.samplesFrames(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples+1:end) = [];
+        p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples+1:end) = [];
+        
 
 end

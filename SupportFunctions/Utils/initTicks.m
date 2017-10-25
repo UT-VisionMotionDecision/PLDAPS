@@ -32,137 +32,53 @@ function p = initTicks(p)
 %                  output is now in pixels
 %                  grid is now made of '+'s instead of 'L's
 %                  converted loops to one liners 
+% 2017-08-14 tbc Converted one liners to functional form
+%                  less tick redundancy (~80 fewer)
 
 if nargin < 1
     help initTicks
     return
 end
 
-small_tick_length = 2;
-small_tick_length=small_tick_length(1);
-big_tick_length = 5;
-big_tick_length = big_tick_length(1);
+%% functional form of tick init
+gridSize_sm = 1; % (deg)
+gridSize_lg = 5; % large grid must be a multiple of small grid (...a reasonable constraint, amirite)
+tickSize = 0.05 * p.trial.display.ppd;  % (deg)
 
-screen_size_h = floor(p.trial.display.dWidth/2);
-screen_size_v = floor(p.trial.display.dHeight/2);
+hgrid = gridSize_sm:gridSize_sm:(p.trial.display.dWidth/2);
+vgrid = gridSize_sm:gridSize_sm:(p.trial.display.dHeight/2);
 
-small_vert_degrees=-screen_size_v:screen_size_v;
-small_horiz_degrees=-screen_size_h:screen_size_h;
+[xgrid, ygrid] = meshgrid( [0, -hgrid, hgrid], [0, -vgrid, vgrid]);
+tgrid = [xgrid(:), ygrid(:)];
 
-big_grid_size=5;
-screen_size_h = floor(screen_size_h/big_grid_size)*big_grid_size;
-screen_size_v = floor(screen_size_v/big_grid_size)*big_grid_size;
+% make tick endpoints for each grid location
+tks = zeros([ size(ygrid), 3]);
+tks(:,:,1) = 1;
+tks(:,:,2) = ~rem(xgrid, gridSize_lg); % identify large grid columns
+tks(:,:,3) = ~rem(ygrid, gridSize_lg); % identify large grid rows
+tks = tks(:,:,1) + (tks(:,:,2) & tks(:,:,3));
+tks = tks(:);
 
-big_vert_degrees=-screen_size_v:big_grid_size:screen_size_v;
-big_horiz_degrees=-screen_size_h:big_grid_size:screen_size_h;
+% remove redundancy
+[tgrid, di] = unique(tgrid, 'rows');
+tks = tks(di);
 
-small_horizontal_matrix=pds.deg2px([reshape(repmat(small_horiz_degrees,[2,1]),1,2*length(small_horiz_degrees)); zeros(1,2*length(small_horiz_degrees))],p.trial.display.viewdist,p.trial.display.w2px);
-small_horizontal_matrix(2,:)= small_horizontal_matrix(2,:)+repmat([-small_tick_length small_tick_length],[1,length(small_horiz_degrees)]);
-    
-small_vertical_matrix=pds.deg2px([zeros(1,2*length(small_vert_degrees)); reshape(repmat(small_vert_degrees,[2,1]),1,2*length(small_vert_degrees))],p.trial.display.viewdist,p.trial.display.w2px);
-small_vertical_matrix(1,:)=small_vertical_matrix(1,:)+repmat([-small_tick_length small_tick_length],[1,length(small_vert_degrees)]);
+% limit to only large spacing & on-axis ticks
+i = prod(tgrid,2)==0 | tks>1;
+tgrid = tgrid( i, :);
+tks = tks(i);
 
-big_horizontal_matrix=pds.deg2px([reshape(repmat(big_horiz_degrees,[2,1]),1,2*length(big_horiz_degrees)); zeros(1,2*length(big_horiz_degrees))],p.trial.display.viewdist,p.trial.display.w2px);
-big_horizontal_matrix(2,:)=big_horizontal_matrix(2,:)+repmat([-big_tick_length big_tick_length],[1,length(big_horiz_degrees)]);
+% Convert grid points to projection mapped pixels & add tick lengths to each
+% horizontal ticks
+i = (tgrid(:,1)==0 & tgrid(:,2)~=0) | tks>1;
+tpos = pds.deg2px(kron(tgrid(i,:), [1;1])', p.trial.display.viewdist, p.trial.display.w2px)'...
+       + kron(tks(i), tickSize*[-1,0; 1,0]);
+% vertical ticks
+i = (tgrid(:,2)==0 & tgrid(:,1)~=0) | tks>1;
+tpos = [tpos; pds.deg2px(kron(tgrid(i,:), [1;1])', p.trial.display.viewdist, p.trial.display.w2px)'...
+              + kron(tks(i), tickSize*[0,-1; 0,1])];
+          
+% pass out
+p.trial.pldaps.draw.grid.tick_line_matrix = tpos';
 
-big_vertical_matrix=pds.deg2px([zeros(1,2*length(big_vert_degrees));reshape(repmat(big_vert_degrees,[2,1]),1,2*length(big_vert_degrees))],p.trial.display.viewdist,p.trial.display.w2px);
-big_vertical_matrix(1,:)=big_vertical_matrix(1,:)+repmat([-big_tick_length big_tick_length],[1,length(big_vert_degrees)]);
-
-big_vertical_grid_matrix=pds.deg2px([reshape(repmat(big_horiz_degrees,[2*length(big_vert_degrees),1]),1,2*length(big_horiz_degrees)*length(big_vert_degrees)); ...
-repmat(reshape([big_vert_degrees; big_vert_degrees],1,2*length(big_vert_degrees)), [1, length(big_horiz_degrees)])],p.trial.display.viewdist,p.trial.display.w2px);
-big_vertical_grid_matrix(2,:)=big_vertical_grid_matrix(2,:)+...
-repmat(reshape([-small_tick_length; small_tick_length],1,2), [1, length(big_horiz_degrees)*length(big_vert_degrees)]);
-
-big_horizontal_grid_matrix=pds.deg2px([repmat(reshape([big_horiz_degrees; big_horiz_degrees],1,2*length(big_horiz_degrees)), [1, length(big_vert_degrees)]);...
-    reshape(repmat(big_vert_degrees,[2*length(big_horiz_degrees),1]),1,2*length(big_vert_degrees)*length(big_horiz_degrees))],p.trial.display.viewdist,p.trial.display.w2px);
-big_horizontal_grid_matrix(1,:)=big_horizontal_grid_matrix(1,:)+...
-    repmat(reshape([-small_tick_length;small_tick_length],1,2), [1, length(big_vert_degrees)*length(big_horiz_degrees)]);
-
-
-line_matrix = [small_horizontal_matrix,small_vertical_matrix,big_horizontal_matrix,big_vertical_matrix,big_vertical_grid_matrix,big_horizontal_grid_matrix];
-
-p.trial.pldaps.draw.grid.tick_line_matrix = line_matrix;
-
-
-% small_horizontal_matrix=[reshape(repmat(small_horiz_degrees,[2,1]),1,2*length(small_horiz_degrees)); repmat([-small_tick_length small_tick_length],[1,length(small_horiz_degrees)])];
-% small_vertical_matrix=[repmat([-small_tick_length small_tick_length],[1,length(small_vert_degrees)]); reshape(repmat(small_vert_degrees,[2,1]),1,2*length(small_vert_degrees))];
-% big_horizontal_matrix=[reshape(repmat(big_horiz_degrees,[2,1]),1,2*length(big_horiz_degrees)); repmat([-big_tick_length big_tick_length],[1,length(big_horiz_degrees)])];
-% big_vertical_matrix=[repmat([-big_tick_length big_tick_length],[1,length(big_vert_degrees)]);reshape(repmat(big_vert_degrees,[2,1]),1,2*length(big_vert_degrees))];
-% 
-% big_vertical_grid_matrix=[reshape(repmat(big_horiz_degrees,[2*length(big_vert_degrees),1]),1,2*length(big_horiz_degrees)*length(big_vert_degrees)); ...
-% repmat(reshape([big_vert_degrees-small_tick_length; big_vert_degrees+small_tick_length],1,2*length(big_vert_degrees)), [1, length(big_horiz_degrees)])];
-% 
-% big_horizontal_grid_matrix=[repmat(reshape([big_horiz_degrees-small_tick_length; big_horiz_degrees+small_tick_length],1,2*length(big_horiz_degrees)), [1, length(big_vert_degrees)]);...
-%     reshape(repmat(big_vert_degrees,[2*length(big_horiz_degrees),1]),1,2*length(big_vert_degrees)*length(big_horiz_degrees))];
-% 
-% line_matrix = [small_horizontal_matrix,small_vertical_matrix,big_horizontal_matrix,big_vertical_matrix,big_vertical_grid_matrix,big_horizontal_grid_matrix];
-% 
-% dv.trial.pldaps.draw.grid.tick_line_matrix = dv.deg2px(line_matrix);
-
-
-% screen_size_h = dv.trial.display.winRect(3)/dv.trial.display.ppd; 
-% screen_size_v = dv.trial.display.winRect(4)/dv.trial.display.ppd; 
-% 
-% screen_size_h = dv.px2deg([dv.trial.display.winRect(3)/2;0]); 
-% screen_size_v = dv.px2deg([0;dv.trial.display.winRect(4)/2]); 
-%
-% sH = 0:screen_size_h/2;
-% bH = 0:5:screen_size_h/2;
-% sV = 0:screen_size_v/2;
-% bV = 0:5:screen_size_v/2;
-% 
-% 
-% small_vert_degrees  = [-sV(2:end) sV];
-% small_horiz_degrees = [-sH(2:end) sH];
-% big_vert_degrees    = [-bV(2:end) bV];
-% big_horiz_degrees   = [-bH(2:end) bH];
-% 
-% line_matrix = [];
-% for i = 1:length(small_horiz_degrees)
-%     line_matrix = [line_matrix,[small_horiz_degrees(i) small_horiz_degrees(i);pix2deg([0 small_tick_length],dv)]];
-% end
-% 
-% small horizontal matrix
-% for i = 1:length(small_vert_degrees)
-%     line_matrix = [line_matrix,[pix2deg([0 small_tick_length],dv);small_vert_degrees(i) small_vert_degrees(i)]];
-% end
-% 
-% big vertical matrix
-% for i = 1:length(big_horiz_degrees)
-%     line_matrix = [line_matrix,[big_horiz_degrees(i) big_horiz_degrees(i);pix2deg([0 big_tick_length],dv)]];
-% end
-% 
-% big horizontal matrix
-% for i = 1:length(big_vert_degrees)
-%     line_matrix = [line_matrix,[pix2deg([0 big_tick_length],dv);big_vert_degrees(i) big_vert_degrees(i)]];
-% end
-% 
-% big horizontal matrix
-% for i = 1:length(big_horiz_degrees)
-%     for j = 1:length(big_vert_degrees)
-%         line_matrix = [line_matrix,[big_horiz_degrees(i) big_horiz_degrees(i);big_vert_degrees(j) big_vert_degrees(j)+pix2deg(small_tick_length,dv)]];
-%         line_matrix = [line_matrix,[big_horiz_degrees(i) big_horiz_degrees(i)+pix2deg(small_tick_length,dv);big_vert_degrees(j) big_vert_degrees(j)]];
-%     end
-% end
-% 
-% dv.trial.display.tick_line_matrix = line_matrix;
-
-
-end
-% 
-%     
-% 
-% % inline functions
-% function d = pix2deg(x, dv)
-% 
-% d = x / dv.trial.display.ppd;
-% end
-% 
-
-
-
-
-
-
-
-
+return

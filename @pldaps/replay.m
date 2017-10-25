@@ -128,7 +128,7 @@ try
     %% Last chance to check variables
     if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
         p  %#ok<NOPRT>
-        disp('Ready to begin trials. Type return to start first trial...')
+        disp('Ready to begin trials. Type "dbcont" to start first trial...')
         keyboard %#ok<MCKBD>
     end
  
@@ -194,7 +194,7 @@ try
                 ListenChar(0);
                 ShowCursor;
                 p.trial
-                disp('Ready to begin trials. Type return to start first trial...')
+                disp('Ready to begin trials. Type "dbcont" to start first trial...')
                 keyboard %#ok<MCKBD>
                 p.trial.pldaps.quit = 0;
                 ListenChar(2);
@@ -270,7 +270,7 @@ function pauseLoop(dv)
             if p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.Lctrl)&&p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.Lalt)
                 %D: Debugger
                 if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) 
-                    disp('stepped into debugger. Type return to start first trial...')
+                    disp('stepped into debugger. Type "dbcont" to start first trial...')
                     keyboard %#ok<MCKBD>
 
                 %E: Eyetracker Setup
