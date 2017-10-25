@@ -29,7 +29,6 @@ function p = openScreen(p)
 % 05/2015    jk  update     changed for use with version 4.1
 %                           moved default parameters to the
 %                           pldapsClassDefaultParameters
-% 06/26/2017 lpl update     edited so can use datapixx for I/O with software overlay
 
 
 InitializeMatlabOpenGL(0,0); %second 0: debug level =0 for speed
@@ -41,70 +40,90 @@ PsychImaging('PrepareConfiguration');
 %% Setup Psych Imaging
 % Add appropriate tasks to psych imaging pipeline
 
-% set the size of the screen
-if p.trial.display.stereoMode >= 6 || p.trial.display.stereoMode <=1
-    p.trial.display.width = 2*atand(p.trial.display.widthcm/2/p.trial.display.viewdist);
-else
-    p.trial.display.width = 2*atand((p.trial.display.widthcm/4)/p.trial.display.viewdist);
-end
-
 if p.trial.display.normalizeColor == 1
     disp('****************************************************************')
-    disp('****************************************************************')
     disp('Turning on Normalized High res Color Range')
-    disp('Sets all displays to use color range from 0-1 (e.g. NOT 0-255)')
-    disp('Potential danger: this fxn sets color range to unclamped...don''t')
-    disp('know if this will cause issue. TBC 12-18-2012')
+    disp('Sets all displays to use color range from 0-1 (e.g. NOT 0-255),')
+    disp('while also setting color range to ''unclamped''.')
     disp('****************************************************************')
     PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange');
 end
 
 if p.trial.datapixx.use
-    if p.trial.display.useOverlay~=2
-        disp('****************************************************************')
-        disp('****************************************************************')
-        disp('Adds flags for UseDataPixx')
-        disp('****************************************************************')
-        % Tell PTB we are using Datapixx
-        PsychImaging('AddTask', 'General', 'UseDataPixx');
-        PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
-    end
-    if p.trial.display.useOverlay==1
-        % Turn on the overlay
-        disp('Using overlay window (EnableDataPixxM16OutputWithOverlay)')
-        disp('****************************************************************')
+    disp('****************************************************************')
+    disp('Adds flags for UseDataPixx')
+    disp('****************************************************************')
+    % Tell PTB we are using Datapixx
+    PsychImaging('AddTask', 'General', 'UseDataPixx');
+    PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
+    
+    if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1
+        % With RB3d, all overlay init must be performed after window has been created.
+        if p.trial.display.useOverlay==1
+            disp('Using RB3d with overlay window (via Datapixx VideoMode==9)')
+        else
+            disp('Using RB3d without overlay window (via Datapixx VideoMode==9)')
+        end
+        
+    elseif p.trial.display.useOverlay==1
+        % Turn on the standard overlay
+        disp('Using standard overlay window (EnableDataPixxM16OutputWithOverlay)')
         PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
+        
     end
+    disp('****************************************************************')
+    
 else
-%     disp('****************************************************************')
-%     disp('****************************************************************')
-%     disp('No overlay window')
-%     disp('****************************************************************')
     PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
+
 end
 
-if strcmp(p.trial.display.stereoFlip,'right');
-    disp('****************************************************************')
-    disp('****************************************************************')
-    disp('Setting stereo mode for use with planar')
-    disp('Flipping the RIGHT monitor to be a mirror image')
-    disp('****************************************************************')
-    PsychImaging('AddTask', 'RightView', 'FlipHorizontal');
-elseif strcmp(p.trial.display.stereoFlip,'left')
-    disp('****************************************************************')
-    disp('****************************************************************')
-    disp('Setting stereo mode for use with planar')
-    disp('Flipping the LEFT monitor to be a mirror image')
-    disp('****************************************************************')
-    PsychImaging('AddTask', 'LeftView', 'FlipHorizontal');
+%% Stereo specific adjustments
+if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1
+    % Ensure stereomode==8 (Red-Blue anaglyph) for proper assignment of L/R stereobuffers into R & B channels
+   p.trial.display.stereoMode = 8;
 end
 
-% fancy gamma table for each screen
-% if 2 gamma tables
-% PsychImaging('AddTask', 'LeftView', 'DisplayColorCorrection', 'LookupTable');
-% PsychImaging('AddTask', 'RightView', 'DisplayColorCorrection', 'LookupTable');
-% end
-disp('****************************************************************')
+if p.trial.display.stereoMode > 0
+    % PTB stereo crosstalk correction
+    if isfield(p.trial.display, 'crosstalk') && any(p.trial.display.crosstalk(:))
+        % Crosstalk gains == [Lr Lg Lb; Rr Rg Rb]'; 
+        disp('****************************************************************')
+        if numel(p.trial.display.crosstalk)==2
+            fprintf('Stereo Crosstalk correction implemented by custom PLDAPS shader:\n');
+        else
+            %   Will apply same crosstalk correction to both eyes if only one column of [RGB] gains provided
+            PsychImaging('AddTask', 'LeftView',  'StereoCrosstalkReduction', 'subtractOther', p.trial.display.crosstalk(:,1));
+            PsychImaging('AddTask', 'RightView', 'StereoCrosstalkReduction', 'subtractOther', p.trial.display.crosstalk(:,end));
+            fprintf('Stereo Crosstalk correction implemented by PTB:\n');
+        end
+        fprintf('\tL-(gain*R): [')
+        fprintf('%05.2f, ', p.trial.display.crosstalk(:,1).*100)
+        fprintf('\b\b]%%\n')
+        fprintf('\tR-(gain*L): [')
+        fprintf('%05.2f, ', p.trial.display.crosstalk(:,end).*100)
+        fprintf('\b\b]%%\n')
+        fprintf('****************************************************************\n')
+    end
+    
+    % Planar display setup
+    if strcmp(p.trial.display.stereoFlip,'right')
+        disp('****************************************************************')
+        disp('Setting stereo mode for use with planar')
+        disp('Flipping the RIGHT monitor to be a mirror image')
+        disp('****************************************************************')
+        PsychImaging('AddTask', 'RightView', 'FlipHorizontal');
+    elseif strcmp(p.trial.display.stereoFlip,'left')
+        disp('****************************************************************')
+        disp('Setting stereo mode for use with planar')
+        disp('Flipping the LEFT monitor to be a mirror image')
+        disp('****************************************************************')
+        PsychImaging('AddTask', 'LeftView', 'FlipHorizontal');
+    end
+
+end
+
+%% Color correction
 disp('****************************************************************')
 disp('Adding DisplayColorCorrection to FinalFormatting')
 disp('****************************************************************')
@@ -117,18 +136,24 @@ end
 
 %% Open double-buffered onscreen window with the requested stereo mode
 disp('****************************************************************')
-disp('****************************************************************')
 fprintf('Opening screen %d with background %s in stereo mode %d\r', p.trial.display.scrnNum, mat2str(p.trial.display.bgColor), p.trial.display.stereoMode)
 disp('****************************************************************')
 [ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, 0);
 p.trial.display.ptr=ptr;
 p.trial.display.winRect=winRect;
+
 % Software overlay is half-width; adjust winRect accordingly
 if p.trial.display.useOverlay==2
     p.trial.display.winRect(3)=p.trial.display.winRect(3)/2;
 end
 
 %% Set some basic variables about the display
+% Compute visual angle of the display (while accounting for any stereomode splits)
+if p.trial.display.stereoMode >= 6 || p.trial.display.stereoMode <=1
+    p.trial.display.width = 2*atand(p.trial.display.widthcm/2/p.trial.display.viewdist);
+else
+    p.trial.display.width = 2*atand((p.trial.display.widthcm/4)/p.trial.display.viewdist);
+end
 p.trial.display.ppd = p.trial.display.winRect(3)/p.trial.display.width; % calculate pixels per degree
 p.trial.display.frate = round(1/Screen('GetFlipInterval',p.trial.display.ptr));   % frame rate (in Hz)
 p.trial.display.ifi=Screen('GetFlipInterval', p.trial.display.ptr);               % Inter-frame interval (frame rate in seconds)
@@ -141,7 +166,12 @@ p.trial.display.info = Screen('GetWindowInfo', p.trial.display.ptr);            
 p.trial.display.pWidth=p.trial.display.winRect(3)-p.trial.display.winRect(1);
 p.trial.display.pHeight=p.trial.display.winRect(4)-p.trial.display.winRect(2);
 % physical [w]orld dimensions (cm)
-p.trial.display.wWidth=p.trial.display.widthcm;
+if p.trial.display.stereoMode >= 2 && p.trial.display.stereoMode <=5
+    % Adjust for half-width stereo display  (...distinct from above correction, where in winRect is already halved)
+    p.trial.display.wWidth=p.trial.display.widthcm/2;
+else
+    p.trial.display.wWidth=p.trial.display.widthcm;
+end
 p.trial.display.wHeight=p.trial.display.heightcm;
 % visual [d]egrees          % updated to ensure this param reflects ppd (i.e. not an independent/redundant calculation)
 p.trial.display.dWidth =  p.trial.display.pWidth/p.trial.display.ppd;   
@@ -160,23 +190,77 @@ Screen('TextFont',p.trial.display.ptr,'Helvetica');
 Screen('TextSize',p.trial.display.ptr,16);
 Screen('TextStyle',p.trial.display.ptr,1);
 
+
 %% Assign overlay pointer
 if p.trial.display.useOverlay==1
     if p.trial.datapixx.use
-        p.trial.display.overlayptr = PsychImaging('GetOverlayWindow', p.trial.display.ptr); % , dv.params.bgColor);
+        if ~isfield(p.trial.datapixx, 'rb3d') || ~p.trial.datapixx.rb3d
+            % Standard PLDAPS overlay mode.
+            % Overlay infrastructure has already been created by PsychImaging, just retrieve the pointer
+            p.trial.display.overlayptr = PsychImaging('GetOverlayWindow', p.trial.display.ptr); % , dv.params.bgColor);
+            
+        elseif p.trial.datapixx.rb3d
+            Screen('Preference', 'TextAntiAliasing', 0);
+            
+            % RB3d mode needs special shaders to encode overlay in the green channel
+            oldColRange = Screen('ColorRange', p.trial.display.ptr, 255);
+            %             p.trial.display.overlayptr = SetAnaglyphStereoParameters('CreateGreenOverlay', p.trial.display.ptr);
+            % Manually create overlay window so we can make tweaks to setup performed by SetAnaglyphStereoParameters
+            glUseProgram(0);
+            p.trial.display.overlayptr = Screen('OpenOffscreenWindow', p.trial.display.ptr, 0, [0 0 p.trial.display.pWidth p.trial.display.pHeight], 8, 32);            
+            % Put stimulus color range back how it was
+            Screen('ColorRange', p.trial.display.ptr, oldColRange);
+            
+            p.trial.display.overlaytex = Screen('GetOpenGLTexture', p.trial.display.ptr, p.trial.display.overlayptr);
+            % Super cryptic copy-pasta from SetAnaglyphStereoParameters('CreateGreenOverlay'...)
+            Screen('Hookfunction', p.trial.display.ptr, 'AppendMFunction', 'StereoCompositingBlit', 'Setup1 Green only mask for Overlay', 'glColorMask(0, 1, 0, 0);');
+            Screen('Hookfunction', p.trial.display.ptr, 'AppendMFunction', 'StereoCompositingBlit', 'Setup2 Texunit1 off for Overlay', 'glActiveTexture(33985);');
+            Screen('Hookfunction', p.trial.display.ptr, 'AppendMFunction', 'StereoCompositingBlit', 'Setup3 Texunit1 off for Overlay', 'glDisable(34037);');
+            Screen('Hookfunction', p.trial.display.ptr, 'AppendMFunction', 'StereoCompositingBlit', 'Setup4 Texunit1 off for Overlay', 'glActiveTexture(33984);');
+            Screen('Hookfunction', p.trial.display.ptr, 'AppendBuiltin',   'StereoCompositingBlit', 'Builtin:IdentityBlit', sprintf('TEXTURERECT2D(0)=%i', p.trial.display.overlaytex));
+            Screen('Hookfunction', p.trial.display.ptr, 'AppendMFunction', 'StereoCompositingBlit', 'Reset colormask after Overlay blit', 'glColorMask(1, 1, 1, 1);');
+            
+            % Disable bilinear filtering on this texture - always use nearest neighbour sampling to avoid interpolation artifacts
+            glBindTexture(GL.TEXTURE_RECTANGLE_EXT, p.trial.display.overlaytex);
+            glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+            glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+            glBindTexture(GL.TEXTURE_RECTANGLE_EXT, 0);
+
+            
+            %             p.trial.display.overlayptr = p.trial.display.ptr;            
+        end        
     else
         warning('pldaps:openScreen', 'Datapixx Overlay requested but datapixx disabled. No Dual head overlay availiable!')
         p.trial.display.overlayptr = p.trial.display.ptr;
+        
     end
 elseif p.trial.display.useOverlay==2
-    % if using a software overlay, adjust the window size to be half
-    disp('****************************************************************')
+    
+            % Create additional shader for overlay texel fetch:
+            % Our gpu panel scaler might be active, so the size of the
+            % virtual window - and thereby our overlay window - can be
+            % different from the output framebuffer size. As the sampling
+            % 'pos'ition for the overlay is always provided in framebuffer
+            % coordinates, we need to subsample in the overlay fetch.
+            % Calculate proper scaling factor, based on virtual and real
+            % framebuffer size:
+            [wC, hC] = Screen('WindowSize', p.trial.display.ptr);
+            [wF, hF] = Screen('WindowSize', p.trial.display.ptr, 1);
+            sampleX =  wC / wF;
+            sampleY = hC / hF;
+            
+            % String definition of overlay panel-filter index shader
+            % (...for dealing with retina resolution displays; solution carried over from BitsPlusPlus.m)
+            shSrc = sprintf('uniform sampler2DRect overlayImage; float getMonoOverlayIndex(vec2 pos) { return(texture2DRect(overlayImage, pos * vec2(%f, %f)).r); }', sampleX, sampleY);
+
+    % if using a software overlay, the window size needs to [already] be halved.
     disp('****************************************************************')
     disp('Using software overlay window')
     disp('****************************************************************')
-    Screen('ColorRange', p.trial.display.ptr, 255)
+	oldColRange = Screen('ColorRange', p.trial.display.ptr, 255);
     p.trial.display.overlayptr=Screen('OpenOffscreenWindow', p.trial.display.ptr, 0, [0 0 p.trial.display.pWidth p.trial.display.pHeight], 8, 32);
-    Screen('ColorRange', p.trial.display.ptr, 1);
+    % Put stimulus color range back how it was
+    Screen('ColorRange', p.trial.display.ptr, oldColRange);
     
     % Retrieve low-level OpenGl texture handle to the window:
     p.trial.display.overlaytex = Screen('GetOpenGLTexture', p.trial.display.ptr, p.trial.display.overlayptr);
@@ -193,8 +277,16 @@ elseif p.trial.display.useOverlay==2
     debuglevel = 1;
     [icmShaders, icmIdString, icmConfig] = PsychColorCorrection('GetCompiledShaders', p.trial.display.ptr, debuglevel);
 
+            % Build panel-filter compatible shader from source:
+            overlayShader = glCreateShader(GL.FRAGMENT_SHADER);
+            glShaderSource(overlayShader, shSrc);
+            glCompileShader(overlayShader);
+
+            % Attach to list of shaders:
+            icmShaders(end+1) = overlayShader;
+
     pathtopldaps=which('pldaps.m');
-    p.trial.display.shader = LoadGLSLProgramFromFiles(fullfile(pathtopldaps, '..', '..', 'SupportFunctions', 'Utils', 'overlay_shader.frag'),2,icmShaders);
+    p.trial.display.shader = LoadGLSLProgramFromFiles(fullfile(pathtopldaps, '..', '..', 'SupportFunctions', 'Utils', 'overlay_shader.frag'), 2, icmShaders);
 
     if p.trial.display.info.GLSupportsTexturesUpToBpc >= 32
         % Full 32 bits single precision float:
@@ -215,8 +307,8 @@ elseif p.trial.display.useOverlay==2
     glUseProgram(p.trial.display.shader);
     glUniform1i(glGetUniformLocation(p.trial.display.shader,'lookup1'),3);
     glUniform1i(glGetUniformLocation(p.trial.display.shader,'lookup2'),4);
-
-    glUniform2f(glGetUniformLocation(p.trial.display.shader, 'res'), p.trial.display.pWidth, p.trial.display.pHeight);
+    
+    glUniform2f(glGetUniformLocation(p.trial.display.shader, 'res'), p.trial.display.pWidth*(1/sampleX), p.trial.display.pHeight);  % [partially] corrects overaly width & position on retina displays
     bgColor=p.trial.display.bgColor;
     glUniform3f(glGetUniformLocation(p.trial.display.shader, 'transparencycolor'), bgColor(1), bgColor(2), bgColor(3));
     glUniform1i(glGetUniformLocation(p.trial.display.shader, 'overlayImage'), 1);
@@ -243,7 +335,6 @@ end
 % % Set gamma lookup table
 if isField(p.trial, 'display.gamma')
     disp('****************************************************************')
-    disp('****************************************************************')
     disp('Loading gamma correction')
     disp('****************************************************************')
     if isfield(p.trial.display.gamma, 'table')
@@ -267,10 +358,42 @@ end
 % % This seems redundant. Is it necessary?
 if p.trial.display.colorclamp == 1
     disp('****************************************************************')
-    disp('****************************************************************')
     disp('clamping color range')
     disp('****************************************************************')
     Screen('ColorRange', p.trial.display.ptr, 1, 0);
+end
+
+%% Rb3d stereo crosstalk correction using custom shader (mmmuch faster than version built into PTB)
+% If crosstalk format must be [1x2]; will be interpreted as (1)==crosstalk gain for L-gain*R, (2)==crosstalk gain for R-gain*L
+if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1 &&  numel(p.trial.display.crosstalk)==2
+    % setup crosstalk gains, ensuring the G (overlay channel) gain is zero
+    crosstalkGain = [p.trial.display.crosstalk(1), 0, p.trial.display.crosstalk(2)];
+    if min(p.trial.display.bgColor) <= 0 || max(p.trial.display.bgColor) >= 1
+        sca;    error('In StereoRb3dCrosstalkReduction: Provided background clear color is not in the normalized range > 0 and < 1 as required.');
+    end
+    
+    % Retrieve existing shader chain
+    [icmShaders, icmIdString, icmConfig] = PsychColorCorrection('GetCompiledShaders', p.trial.display.ptr, 0);
+    % Load StereoRb3dCrosstalkReductionShader.frag.txt from PLDAPS directory & append existing shader chain:
+    shader = LoadGLSLProgramFromFiles(fullfile(p.trial.pldaps.dirs.proot, 'SupportFunctions', 'Utils', 'StereoRb3dCrosstalkReductionShader.frag'), 0, icmShaders);
+    
+    % Init the shader: Assign mapping of shader inputs:
+    glUseProgram(shader);
+    % [Image] will contain the finalized image (after L & R streams have been blitted into R & B channels, respectively)
+    glUniform1i(glGetUniformLocation(shader, 'Image'), 0);
+    % Pass crosstalk gain & background color triplets into shader
+    glUniform3fv(glGetUniformLocation(shader, 'crosstalkGain'), 1, crosstalkGain);
+    glUniform3fv(glGetUniformLocation(shader, 'backGroundClr'), 1, p.trial.display.bgColor);
+    % Shader setup done:
+    glUseProgram(0);
+    
+    p.trial.display.crosstalkShader = shader;
+    % Apply to the FinalOutputFormattingBlit
+    idString = sprintf('Crosstalk Shader : %s', icmIdString);
+    % pString  = [ pString icmConfig ]; ...no additional textureRect2Ds to map
+    Screen('HookFunction', p.trial.display.ptr, 'Reset', 'FinalOutputFormattingBlit');
+    Screen('HookFunction', p.trial.display.ptr, 'AppendShader', 'FinalOutputFormattingBlit', idString, p.trial.display.crosstalkShader, icmConfig);
+    PsychColorCorrection('ApplyPostGLSLLinkSetup', p.trial.display.ptr, 'FinalFormatting');
 end
 
 %% Setup movie creation if desired
@@ -291,7 +414,6 @@ end
 
 %% Set up alpha-blending for smooth (anti-aliased) drawing
 disp('****************************************************************')
-disp('****************************************************************')
 fprintf('Setting Blend Function to %s,%s\r', p.trial.display.sourceFactorNew, p.trial.display.destinationFactorNew);
 disp('****************************************************************')
 Screen('BlendFunction', p.trial.display.ptr, p.trial.display.sourceFactorNew, p.trial.display.destinationFactorNew);  % alpha blending for anti-aliased dots
@@ -300,5 +422,11 @@ if p.trial.display.forceLinearGamma %does't really belong here, but need it befo
     LoadIdentityClut(p.trial.display.ptr);
 end
 
+%% Setup cluts & basic colors
 p=defaultColors(p); % load the default CLUTs -- this is useful for opening overlay window in pds.datapixx.init
+p.trial.display.white = WhiteIndex(p.trial.display.ptr);
+p.trial.display.black = BlackIndex(p.trial.display.ptr);
+
+%% Flip screen to get initial timestamp & finish
 p.trial.display.t0 = Screen('Flip', p.trial.display.ptr);
+
