@@ -61,8 +61,19 @@ function p = run(p)
     %% experimentPreOpenScreen
     if p.trial.pldaps.useModularStateFunctions
         %experimentSetup before openScreen to allow modifyiers
-        [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+        [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs,moduleOrder] = getModules(p);
         runStateforModules(p,'experimentPreOpenScreen',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+        
+        fprintf('****************************************************************\n');
+        fprintf('Using modular state functions:\n');
+        fprintf('%s %-6s %-30s %-30s %s\n','#','order','module name','function handle','accepts location input');
+        for i=1:numel(modulesNames)
+            fprintf('%d %-6d %-30s %-30s %d\n',i,moduleOrder(i),modulesNames{i},strcat('@',func2str(moduleFunctionHandles{i})),moduleLocationInputs(i));
+        end
+        fprintf('\nRequested states:\n');        
+        disp(moduleRequestedStates)
+        fprintf('****************************************************************\n');
+        
     end
     
     

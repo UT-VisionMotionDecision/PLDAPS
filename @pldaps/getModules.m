@@ -1,4 +1,4 @@
-function [modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p)
+function [modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs,moduleOrder] = getModules(p)
 % function [modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p)
 % 
 % Parse currently active modules, execution order, and trialStates during which they should be active.
