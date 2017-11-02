@@ -76,8 +76,11 @@ goDef = input('Accept all defaults? [1=yes, 0=no]');
 if ~goDef
     % Grid size
     gridSize = input(sprintf('Size of grid dimensions (format: [x,y]; def: [%d,%d]): ', defaultGridSize));
-    if isempty(gridSize), gridSize = defaultGridSize; end
+    if isscalar(gridSize),      gridSize = gridSize*[1 1];
+    elseif isempty(gridSize),   gridSize = defaultGridSize; end
     disp(eval(mat2str(reshape(1:prod(gridSize),gridSize))))
+    % ensure defaultGridPts is within current range of gridSize
+    if any(defaultGridPts > prod(gridSize)), defaultGridPts = round(prod(gridSize)/2);   end
     
     % Grid points to use
     gridPts = input(sprintf('Grid locations to sample (available: %s; def: %s): ', mat2str(1:prod(gridSize)), mat2str(defaultGridPts)));
@@ -315,6 +318,11 @@ for r = 1:length(gridPts)   % for each calibration location
     end
     
 end
+
+if ~exist('measSpd','var')
+    measSpd = [];
+end
+
 
 %% Fit the data
 [fx, fo] = deal(nan(size(measInt)));
