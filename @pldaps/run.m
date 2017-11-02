@@ -58,11 +58,14 @@ function p = run(p)
     end
 
     
-    %% experimentPreOpenScreen
+    %% experimentPreOpenScreen (...& modularPldaps setup)
     if p.trial.pldaps.useModularStateFunctions
+        % Establish list of all module names
+        p.trial.pldaps.modNames.all = getModules(p, 0);
+
         %experimentSetup before openScreen to allow modifyiers
-        [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
-        runStateforModules(p,'experimentPreOpenScreen',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+        [moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p);        
+        runStateforModules(p,'experimentPreOpenScreen', moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
     end
     
     
@@ -133,8 +136,8 @@ function p = run(p)
             
         %% experimentPostOpenScreen
         if p.trial.pldaps.useModularStateFunctions
-            [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
-            runStateforModules(p,'experimentPostOpenScreen',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+            [moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+            runStateforModules(p,'experimentPostOpenScreen',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
         end
 
         
@@ -248,11 +251,11 @@ function p = run(p)
                % Not clear what purpose this serves that could not be accomplished in trial cleanupandsave
                % and/or at start of next trial? ...open to suggestions. --TBC 2017-10
                oldptrial=p.trial;
-               [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+               [moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
                p.defaultParameters.setLevels(baseParamsLevels);
                p.trial=mergeToSingleStruct(p.defaultParameters);
                p.defaultParameters.setLock(true); 
-               runStateforModules(p,'experimentAfterTrials',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+               runStateforModules(p,'experimentAfterTrials',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 
                p.defaultParameters.setLock(false); 
                betweenTrialsStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
@@ -338,8 +341,8 @@ function p = run(p)
     end
     
     if p.trial.pldaps.useModularStateFunctions
-        [modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
-        runStateforModules(p,'experimentCleanUp',modulesNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+        [moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
+        runStateforModules(p,'experimentCleanUp',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
     end
     
     if ~p.defaultParameters.pldaps.nosave

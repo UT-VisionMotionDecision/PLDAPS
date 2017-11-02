@@ -1,4 +1,4 @@
-function [modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p)
+function [moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p, onlyActive)
 % function [modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p)
 % 
 % Parse currently active modules, execution order, and trialStates during which they should be active.
@@ -11,22 +11,28 @@ function [modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationI
 %       Recommend only using positive values to order your modules to be more 'future proof' [hint].
 %       --TBC 2017-10
 
+if nargin<2 || isempty(onlyActive)
+    onlyActive = 1;
+end
 %% Find all modules in p.trial struct
-modules=fieldnames(p.trial);
-modules(cellfun(@(x) ~isstruct(p.trial.(x)),modules))=[]; %remove non struct candidates
-modules(cellfun(@(x) ~isfield(p.trial.(x),'stateFunction'),modules))=[]; %remove candidates without a stateFucntion specified
-modules(cellfun(@(x) (~isfield(p.trial.(x),'use') || ~p.trial.(x).use ),modules))=[]; %remove modules not activated
+moduleNames=fieldnames(p.trial);
+moduleNames(cellfun(@(x) ~isstruct(p.trial.(x)),moduleNames))=[]; %remove non struct candidates
+moduleNames(cellfun(@(x) ~isfield(p.trial.(x),'stateFunction'),moduleNames))=[]; %remove candidates without a stateFucntion specified
+% Remove modules not activated
+if onlyActive
+    moduleNames(cellfun(@(x) (~isfield(p.trial.(x),'use') || ~p.trial.(x).use ),moduleNames))=[];
+end
 
 
 %% Sort module execution by requested .stateFunction.order:
 %      -Inf to 0 Default to Inf, (...Nan even after Inf, but don't do that)
 % If no order specified, defaults to Inf.
-moduleOrder = inf(size(modules));
+moduleOrder = inf(size(moduleNames));
 % if .order defined, retrieve it
-hasOrder = cellfun(@(x) isfield(p.trial.(x).stateFunction,'order'), modules);
-moduleOrder(hasOrder) = cellfun(@(x) p.trial.(x).stateFunction.order, modules(hasOrder));
+hasOrder = cellfun(@(x) isfield(p.trial.(x).stateFunction,'order'), moduleNames);
+moduleOrder(hasOrder) = cellfun(@(x) p.trial.(x).stateFunction.order, moduleNames(hasOrder));
 [moduleOrder,so]=sort(moduleOrder);
-modules=modules(so);
+moduleNames=moduleNames(so);
 
 
 %% "acceptsLocationInput"
@@ -36,9 +42,9 @@ modules=modules(so);
 %
 %   (...this should always be used. May only be here for backwards compatibility, but it
 %       makes module creation more tedious/essoteric; consider removing. --TBC 2017-10)
-moduleLocationInputs=cellfun(@(x) (isfield(p.trial.(x).stateFunction,'acceptsLocationInput') && p.trial.(x).stateFunction.acceptsLocationInput),modules);
+moduleLocationInputs=cellfun(@(x) (isfield(p.trial.(x).stateFunction,'acceptsLocationInput') && p.trial.(x).stateFunction.acceptsLocationInput),moduleNames);
 
-moduleFunctionHandles=cellfun(@(x) str2func(p.trial.(x).stateFunction.name), modules, 'UniformOutput', false);
+moduleFunctionHandles=cellfun(@(x) str2func(p.trial.(x).stateFunction.name), moduleNames, 'UniformOutput', false);
 
 
 %% Limit module execution to certain trialStates
@@ -54,12 +60,12 @@ moduleRequestedStates = cellfun(@(x)...
                                             || (isfield(p.trial.(y).stateFunction.requestedStates,'all') && p.trial.(y).stateFunction.requestedStates.all)...
                                             || (isfield(p.trial.(y).stateFunction.requestedStates,x)...
                                             && p.trial.(y).stateFunction.requestedStates.(x))),... % end @(y) customFxn
-                                modules)),... % end @(x) customFxn
+                                moduleNames)),... % end @(x) customFxn
                         availiableStates, 'UniformOutput', false);
 
 % not totally clear what this special case is...backwards compatibility?
 if isfield(p.trial.pldaps,'trialFunction') && ~isempty(p.trial.pldaps.trialFunction)
-    modules{end+1}='stimulus';
+    moduleNames{end+1}='stimulus';
     moduleFunctionHandles{end+1}=str2func(p.trial.pldaps.trialFunction);
     for iState=1:length(moduleRequestedStates)
         moduleRequestedStates{iState}(end+1)=true;
