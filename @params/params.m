@@ -30,8 +30,8 @@ classdef params < handle
     
     
     methods
-        function view(p)
-            p.structviewer(p);
+        function structviewerHandle = view(p)
+            structviewerHandle = p.structviewer(p);
         end
         
         function setLock(p,lock)

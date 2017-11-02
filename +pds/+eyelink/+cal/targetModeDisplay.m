@@ -1,5 +1,6 @@
 function result=targetModeDisplay(p)
-%pds.eyelink.targetModeDisplay   set eyelink into target mode
+% function result = pds.eyelink.cal.targetModeDisplay(p)
+% set eyelink into target mode
 %
 % 
 %
@@ -15,7 +16,7 @@ function result=targetModeDisplay(p)
 
 result=-1; % initialize
 if nargin < 1
-	error( 'USAGE: result=EyelinkTargetModeDisplay(el)' );
+	error( 'USAGE: result = pds.eyelink.cal.targetModeDisplay(p)' );
 end
 
 targetvisible = 0;	% target currently drawn
@@ -27,7 +28,7 @@ ty=p.trial.eyelink.setup.MISSING;
 otx=p.trial.eyelink.setup.MISSING;    % current target position
 oty=p.trial.eyelink.setup.MISSING;
 
-pds.eyelink.clearCalDisplay(p);	% setup_cal_display()
+pds.eyelink.cal.clearDisplay(p);	% setup_cal_display()
 
 key=1;
 while key~= 0
@@ -46,7 +47,7 @@ while stop==0 && bitand(Eyelink('CurrentMode'), p.trial.eyelink.setup.IN_TARGET_
 
 	switch key 
 		case p.trial.eyelink.setup.TERMINATE_KEY,       % breakout key code
-			pds.eyelink.clearCalDisplay(p); % clear_cal_display();
+			pds.eyelink.cal.clearDisplay(p);
 			result=p.trial.eyelink.setup.TERMINATE_KEY;
 			return;
 		case p.trial.eyelink.setup.SPACE_BAR,	         		% 32: accept fixation
@@ -77,14 +78,14 @@ while stop==0 && bitand(Eyelink('CurrentMode'), p.trial.eyelink.setup.IN_TARGET_
 	
 	% erased or moved: erase target
 	if (targetvisible==1 && result==0) || tx~=otx || ty~=oty
-		pdsEyelinkEraseCalTarget(p, tx,ty);
+		pds.eyelink.cal.eraseTarget(p, tx,ty);
 		targetvisible = 0;
 	end
 	% redraw if invisible
 	if targetvisible==0 && result==1
 % 		fprintf( 'Target drawn at: x=%d, y=%d\n', tx, ty );
 		
-		pdsEyelinkDrawCalTarget(p, tx, ty);
+		pds.eyelink.cal.drawTarget(p, tx, ty);
 		targetvisible = 1;
 		otx = tx;		% record position for future tests
 		oty = ty;
@@ -106,9 +107,9 @@ if p.trial.eyelink.setup.targetbeep==1 && p.trial.sound.use
 end
   
 if targetvisible==1
-	pdsEyelinkEraseCalTarget(p, tx,ty);   % erase target on exit, bit superfluous actually
+	pds.eyelink.cal.eraseTarget(p, tx,ty);   % erase target on exit, bit superfluous actually
 end
-pds.eyelink.clearCalDisplay(p); % clear_cal_display();
+pds.eyelink.cal.clearDisplay(p);
 
 result=0;
 return;

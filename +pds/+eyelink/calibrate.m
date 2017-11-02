@@ -1,15 +1,27 @@
 function p=calibrate(p)
 %pds.eyelink.calibrate    start eyelink calibration routines
-% dv = pds.eyelink.calibrate(dv)
+% p = pds.eyelink.calibrate(p)
 %
-% USAGE: result=EyelinkDoTrackerSetup(el [, sendkey])
+% Run basic eyelink calibration sequence, using pldaps to present stimuli (via PTB)
+% and send/receive communication from Eyelink.
+% 
+% [p]   Pldaps structure (should be currently running/paused)
 %
-%		dv.el: Eyelink default values
+% All relevant subfunctions located in pds.eyelink.cal
+% 
+% 12/12/2013 jly  adapted from EyelinkDoTrackerSetup.m
+% 2017-11-02 TBC  Remove dependency on ".stimulus" field for fixdotW size
+%                 Added .trialSetup of reward structures to prevent error (via pds.behavior.reward.trialSetup)
+% 
+       
 
-% 12/12/2013 jly adapted from EyelinkDoTrackerSetup.m
+if ~isfield(p.trial.eyelink, 'fixdotW')
+    p.trial.eyelink.fixdotW = ceil(0.2 * p.trial.display.ppd);
+end
 
-if ~isfield(p.trial.stimulus, 'fixdotW')
-    p.trial.stimulus.fixdotW = 15;
+% Prepare reward system
+if isempty(p.trial.behavior.reward.timeReward)
+    pds.behavior.reward.trialSetup(p);
 end
 
 commandwindow
@@ -39,22 +51,6 @@ if nargin < 1
     error( 'USAGE: result=EyelinkDoTrackerSetup(el [,sendkey])' );
 end
 ListenChar(2)
-% if we have the new callback code, we call it.
-% if ~isempty(dv.el.callback)
-%     if Eyelink('IsConnected') ~= dv.el.notconnected
-%         if ~isempty(dv.el.window)
-%             rect=Screen(dv.el.window,'Rect');
-%             % make sure we use the correct screen coordinates
-%             Eyelink('Command', 'screen_pixel_coords = %d %d %d %d',rect(1),rect(2),rect(3)-1,rect(4)-1);
-%         end
-%     else
-%         return
-%     end
-%     result = Eyelink( 'StartSetup', 1 );
-%
-%     return;
-% end
-% else we continue with the old version
 
 % if Eyelink('CheckRecording')==0
 %     fprintf('Eyelink is recording')
@@ -78,10 +74,10 @@ while stop==0 && bitand(Eyelink( 'CurrentMode'), p.trial.eyelink.setup.IN_SETUP_
     
     if bitand(i, p.trial.eyelink.setup.IN_TARGET_MODE)			% calibrate, validate, etc: show targets
         fprintf ('%s\n', 'dotrackersetup: in targetmodedisplay' );
-        pds.eyelink.targetModeDisplay(p);
+        pds.eyelink.cal.targetModeDisplay(p);
     elseif bitand(i, p.trial.eyelink.setup.IN_IMAGE_MODE)		% display image until we're back
         fprintf ('%s\n', 'EyelinkDoTrackerSetup: in ''ImageModeDisplay''' );
-        pds.eyelink.clearCalDisplay(p);	% setup_cal_display()
+        pds.eyelink.cal.clearDisplay(p);
         
     end
     
@@ -104,7 +100,7 @@ while stop==0 && bitand(Eyelink( 'CurrentMode'), p.trial.eyelink.setup.IN_SETUP_
     end
 end % while IN_SETUP_MODE
 
-pds.eyelink.clearCalDisplay(p);	% exit_cal_display()
+pds.eyelink.cal.clearDisplay(p);	% exit_cal_display()
 % dv = pds.eyelink.setup(dv);
 Eyelink('StartRecording');
 Eyelink( 'WaitForModeReady', p.trial.eyelink.setup.waitformodereadytime );  % time for mode change

@@ -23,7 +23,7 @@ if p.trial.eyelink.use && Eyelink('IsConnected')
            if(result==-1)
               warning('pds:EyelinkGetFiles', ['receiving ' edfFile '.edf for pds file ' file ' failed!']);
            else
-               display(['EDF file received: ' edfFile '.edf for pds file ' file '.']);
+               fprintf('EDF file received: %s.edf \n\tfor pds file: %s.', edfFile, file);
            end
         catch rdf
             fprintf('Problem receiving EDF data file ''%s''\n', edfFile );

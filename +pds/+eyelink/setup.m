@@ -46,6 +46,12 @@ if p.trial.eyelink.use
     p.trial.eyelink.setup.eyeimgsize=50;
     EyelinkUpdateDefaults(p.trial.eyelink.setup);
     
+    % some default values (used in calibration; relieves dependency on other pldaps modules/subfields
+    if ~isfield(p.trial.eyelink, 'fixdotW')
+        p.trial.eyelink.fixdotW = ceil(0.2 * p.trial.display.ppd);
+    end
+
+    
     % check if eyelink initializes
     if ~Eyelink('IsConnected')
         fprintf('****************************************************************\r')

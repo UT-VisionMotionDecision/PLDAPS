@@ -1,5 +1,7 @@
-function clearCalDisplay(p)
-%pds.eyelink.clearCalDisplay    clears the display
+function clearDisplay(p)
+% function clearDisplay(p)
+% pds.eyelink.cal.clearDisplay    
+% clears the display
 
 if nargin < 1
     help pds.eyelink.calibrate

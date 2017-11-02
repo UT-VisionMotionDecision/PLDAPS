@@ -86,7 +86,7 @@ function outStruct=createRigPrefs(additionalSettings)
     end
     
     p.defaultParameters;
-    p.defaultParameters.view
+    H = p.defaultParameters.view;
     
     % Print instructions to command window
     fprintf([...
@@ -153,6 +153,9 @@ function outStruct=createRigPrefs(additionalSettings)
 
     % Set new prefs
     setpref('pldaps',fn(:),outStructc);
+    
+    % Close the params structviewer
+    close(H);
     
     fprintf('Done. Your new pldaps rig prefs have been saved.\n');
 end
