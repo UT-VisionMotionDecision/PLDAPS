@@ -42,7 +42,10 @@ moduleNames=moduleNames(so);
 %
 %   (...this should always be used. May only be here for backwards compatibility, but it
 %       makes module creation more tedious/essoteric; consider removing. --TBC 2017-10)
-moduleLocationInputs=cellfun(@(x) (isfield(p.trial.(x).stateFunction,'acceptsLocationInput') && p.trial.(x).stateFunction.acceptsLocationInput),moduleNames);
+moduleLocationInputs=cellfun(@(x)...
+    (isfield(p.trial.(x).stateFunction,'modName') && ~isempty(p.trial.(x).stateFunction.modName))...
+    || (isfield(p.trial.(x).stateFunction,'acceptsLocationInput') && p.trial.(x).stateFunction.acceptsLocationInput),...
+    moduleNames);
 
 moduleFunctionHandles=cellfun(@(x) str2func(p.trial.(x).stateFunction.name), moduleNames, 'UniformOutput', false);
 
