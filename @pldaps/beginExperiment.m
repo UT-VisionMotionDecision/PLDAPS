@@ -17,6 +17,11 @@ p.defaultParameters.pldaps.version.number=4.2;
 p.defaultParameters.pldaps.version.name='openreception';
 p.defaultParameters.pldaps.version.logo='https://motion.cps.utexas.edu/wp-content/uploads/2013/07/platypus-300x221.gif';
 
+% get Matlab version
+p.defaultParameters.pldaps.matlabversion = version;
+
+% get Psychtoolbox version
+p.defaultParameters.pldaps.psychtoolboxversion = PsychtoolboxVersion;
 
 %multiple sessions not supported for now
 p.defaultParameters.session.experimentStart = GetSecs; 
