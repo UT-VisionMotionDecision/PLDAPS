@@ -463,30 +463,33 @@ while isempty(strfind(retval,'REMOTE')) && ntries<4
     
     oldverbo = IOPort('Verbosity', 0);
     pause(pdur);
+    
+    % usb-serial settings that seem to make PR655 especially happy
+    baudRate = 9600;
+    parity = 'None';
+    dataBits = 8;
+    stopBits = 1;
+    flowControl = 'None';
+    % Compile settings string
+    portSettings = sprintf('BaudRate=%i Parity=%s DataBits=%i StopBits=%i FlowControl=%s ',...  %  PollLatency=%2.5f StartBackgroundRead=%i ReadFilterFlags=%i
+        baudRate, parity, dataBits, stopBits, flowControl);
+    
     if IsOSX
         % Must flush on write, ie., not don't flush on write, at least with PR655
         % on OSX 10.10, as reported in forum message #19808 for more reliable
         % connections:
-        baudRate = 9600;
-        parity = 'None';
-        dataBits = 8;
-        stopBits = 1;
-        flowControl = 'None';
-        dontWriteFlush = 0;
-        portSettings = sprintf('BaudRate=%i Parity=%s DataBits=%i StopBits=%i FlowControl=%s DontFlushOnWrite=%d ',...  %  PollLatency=%2.5f StartBackgroundRead=%i ReadFilterFlags=%i
-            baudRate, parity, dataBits, stopBits, flowControl, dontWriteFlush); % Lenient
         try
-            g_serialPort = IOPort('OpenSerialPort', portNumber, portSettings);  %'Lenient DontFlushOnWrite=0');
+            g_serialPort = IOPort('OpenSerialPort', portNumber, [portSettings, 'Lenient DontFlushOnWrite=0']);
         catch
             IOPort closeall % ...this is aggressive
             pause(pdur*10)
-            g_serialPort = IOPort('OpenSerialPort', portNumber, portSettings);  %'Lenient DontFlushOnWrite=0');
+            g_serialPort = IOPort('OpenSerialPort', portNumber, [portSettings, 'Lenient DontFlushOnWrite=0']);
         end
         
     else
         % On at least Linux (status on Windows is unknown atm.), we must not flush
         % on write - the opposite of OSX behaviour (see forum msg thread #15565):
-        g_serialPort = IOPort('OpenSerialPort', portNumber, 'Lenient DontFlushOnWrite=1');
+        g_serialPort = IOPort('OpenSerialPort', portNumber, [portSettings, 'Lenient DontFlushOnWrite=1']);
     end
     pause(pdur)
     IOPort('Verbosity', oldverbo);
