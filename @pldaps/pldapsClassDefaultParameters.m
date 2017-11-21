@@ -55,14 +55,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	display.	viewdist = 57;
  s.	display.	widthcm = 63;
 
-%s.	display.	movie.
- s.	display.	movie.	create = false;
- s.	display.	movie.	dir = [ ];
- s.	display.	movie.	file = [ ];
- s.	display.	movie.	frameRate = [ ];
- s.	display.	movie.	height = [ ];
- s.	display.	movie.	options = ':CodecType=x264enc :EncodingQuality=1.0';
- s.	display.	movie.	width = [ ];
+% Movie making moved to pds.pldapsMovie module
 
 %s.	eyelink.
  s.	eyelink.	buffereventlength = 30;
@@ -151,35 +144,23 @@ function s=pldapsClassDefaultParameters(s)
  s.	pldaps.	save.	v73 = 0;
 
 %s.	pldaps.	trialStates.
- s.	pldaps.	trialStates.	experimentAfterTrials = -8;
- s.	pldaps.	trialStates.	experimentCleanUp = -7;
- s.	pldaps.	trialStates.	experimentPostOpenScreen = -6;
- s.	pldaps.	trialStates.	experimentPreOpenScreen = -5;
- s.	pldaps.	trialStates.	trialCleanUpandSave = -4;
- s. pldaps. trialStates.    trialItiDraw = -3;
- s.	pldaps.	trialStates.	frameFlip = 5;
- s.	pldaps.	trialStates.	frameDrawingFinished = 4;
- s.	pldaps.	trialStates.	frameDraw = 3;
- s.	pldaps.	trialStates.	framePrepareDrawing = 2;
- s.	pldaps.	trialStates.	frameUpdate = 1;
- s.	pldaps.	trialStates.	trialPrepare = -2;
- s.	pldaps.	trialStates.	trialSetup = -1;
-        % % % % Keeping here short-term to see if removing unused/defunct unknowingly breaks too much --TBC Oct. 2017
-        % % %  s.	pldaps.	trialStates.	experimentAfterTrials = -7;
-        % % %  s.	pldaps.	trialStates.	experimentCleanUp = -6;
-        % % %  s.	pldaps.	trialStates.	experimentPostOpenScreen = -4;
-        % % %  s.	pldaps.	trialStates.	experimentPreOpenScreen = -5;
-        % % %  s.	pldaps.	trialStates.	frameDraw = 3;
-        % % %  s.	pldaps.	trialStates.	frameDrawingFinished = 6;
-        % % %  s.	pldaps.	trialStates.	frameDrawTimecritical = -Inf;
-        % % %  s.	pldaps.	trialStates.	frameFlip = 8;
-        % % %  s.	pldaps.	trialStates.	frameIdlePostDraw = -Inf;
-        % % %  s.	pldaps.	trialStates.	frameIdlePreLastDraw = -Inf;
-        % % %  s.	pldaps.	trialStates.	framePrepareDrawing = 2;
-        % % %  s.	pldaps.	trialStates.	frameUpdate = 1;
-        % % %  s.	pldaps.	trialStates.	trialCleanUpandSave = -3;
-        % % %  s.	pldaps.	trialStates.	trialPrepare = -2;
-        % % %  s.	pldaps.	trialStates.	trialSetup = -1;
+	tsNeg = -1; tsPos = 1;
+ s.	pldaps.	trialStates.        trialSetup = tsNeg;             tsNeg = tsNeg-1;
+ s.	pldaps.	trialStates.        trialPrepare = tsNeg;           tsNeg = tsNeg-1;
+ s.	pldaps.	trialStates.	frameUpdate = tsPos;            tsPos = tsPos+1;
+ s.	pldaps.	trialStates.	framePrepareDrawing = tsPos;    tsPos = tsPos+1;
+ s.	pldaps.	trialStates.	frameDraw = tsPos;              tsPos = tsPos+1;
+ s.	pldaps.	trialStates.	frameDrawLeftGL = tsPos;        tsPos = tsPos+1;
+ s.	pldaps.	trialStates.	frameDrawRightGL = tsPos;       tsPos = tsPos+1;
+ s.	pldaps.	trialStates.	frameDrawingFinished = tsPos;   tsPos = tsPos+1;
+ s.	pldaps.	trialStates.	frameFlip = tsPos;              tsPos = tsPos+1;
+ s. pldaps. trialStates.        trialItiDraw = tsNeg;           tsNeg = tsNeg-1;
+ s.	pldaps.	trialStates.        trialCleanUpandSave = tsNeg;    tsNeg = tsNeg-1;
+ s.	pldaps.	trialStates.	experimentPreOpenScreen = tsNeg;    tsNeg = tsNeg-1;
+ s.	pldaps.	trialStates.	experimentPostOpenScreen = tsNeg;   tsNeg = tsNeg-1;
+ s.	pldaps.	trialStates.	experimentAfterTrials = tsNeg;      tsNeg = tsNeg-1;
+ s.	pldaps.	trialStates.	experimentCleanUp = tsNeg;          tsNeg = tsNeg-1;
+ 
 
 %s.	plexon.
 %s.	plexon.	spikeserver.

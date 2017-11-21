@@ -55,9 +55,12 @@ if p.trial.datapixx.use
     disp('****************************************************************')
     % Tell PTB we are using Datapixx
     PsychImaging('AddTask', 'General', 'UseDataPixx');
-    PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
     
     if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1
+        % This overlay mode not subject to same bpc constraints as "M16 mode", so
+        % no reason to massively over-sample color depth (relative to displays that
+        % are typically only 8-bit)
+        PsychImaging('AddTask', 'General', 'FloatingPoint16Bit','disableDithering',1);
         % With RB3d, all overlay init must be performed after window has been created.
         if p.trial.display.useOverlay==1
             disp('Using RB3d with overlay window (via Datapixx VideoMode==9)')
@@ -68,14 +71,16 @@ if p.trial.datapixx.use
     elseif p.trial.display.useOverlay==1
         % Turn on the standard overlay
         disp('Using standard overlay window (EnableDataPixxM16OutputWithOverlay)')
+        PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
         PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
         
     end
     disp('****************************************************************')
     
 else
-    PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
-
+    % No...32 bpc is massive overkill, and significantly slows rendering time
+    % PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
+    PsychImaging('AddTask', 'General', 'FloatingPoint16Bit');
 end
 
 %% Stereo specific adjustments
@@ -138,7 +143,7 @@ end
 disp('****************************************************************')
 fprintf('Opening screen %d with background %s in stereo mode %d\r', p.trial.display.scrnNum, mat2str(p.trial.display.bgColor), p.trial.display.stereoMode)
 disp('****************************************************************')
-[ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, 0);
+[ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, 4);
 p.trial.display.ptr=ptr;
 p.trial.display.winRect=winRect;
 
@@ -394,22 +399,6 @@ if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1 &&  numel(p.tri
     Screen('HookFunction', p.trial.display.ptr, 'Reset', 'FinalOutputFormattingBlit');
     Screen('HookFunction', p.trial.display.ptr, 'AppendShader', 'FinalOutputFormattingBlit', idString, p.trial.display.crosstalkShader, icmConfig);
     PsychColorCorrection('ApplyPostGLSLLinkSetup', p.trial.display.ptr, 'FinalFormatting');
-end
-
-%% Setup movie creation if desired
-if p.trial.display.movie.create
-    movie=p.trial.display.movie;
-    if isempty(movie.file)
-        movie.file=p.trial.session.file(1:end-4);
-    end
-    if isempty(movie.dir)
-        movie.dir=p.trial.session.dir;
-    end
-    if isempty(movie.frameRate)
-        movie.frameRate = p.trial.display.frate;
-    end
-    movie.ptr = Screen('CreateMovie', ptr, fullfile(movie.dir, [movie.file '.mp4']), movie.width, movie.height, movie.frameRate, movie.options);
-    p.trial.display.movie=movie;
 end
 
 %% Set up alpha-blending for smooth (anti-aliased) drawing

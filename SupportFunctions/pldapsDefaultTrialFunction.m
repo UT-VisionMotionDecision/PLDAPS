@@ -3,7 +3,10 @@ function pldapsDefaultTrialFunction(p,state, sn)
     if nargin<3
         sn='stimulus';
     end
-
+%     if p.trial.display.useGL
+%         global GL
+%     end
+    
     switch state
         % FRAME STATES  (always place these at the top of your switch statement b/c they happen most frequently)
         case p.trial.pldaps.trialStates.frameUpdate
@@ -15,8 +18,29 @@ function pldapsDefaultTrialFunction(p,state, sn)
             
         case p.trial.pldaps.trialStates.frameDraw
             frameDraw(p,sn);
+            
+        case p.trial.pldaps.trialStates.frameDrawLeftGL
+            % Skip altogether if not enabled
+            if p.trial.display.useGL
+                % Only pass in the needed display structure
+                frameDrawLeftGL(p.trial.display);
+            end
+            
+        case p.trial.pldaps.trialStates.frameDrawRightGL
+            % Skip altogether if not enabled & not stereomode
+            if p.trial.display.useGL && p.trial.display.stereoMode~=0
+                % Only pass in the needed display structure
+                frameDrawRightGL(p.trial.display);
+            end
 
         case p.trial.pldaps.trialStates.frameDrawingFinished;
+            if p.trial.display.useGL
+                % Check & disable OpenGL mode before any Screen() calls (else will crash)
+                [~, IsOpenGLRendering] = Screen('GetOpenGLDrawMode');
+                if IsOpenGLRendering
+                    Screen('EndOpenGL', p.trial.display.ptr);
+                end
+            end            
             frameDrawingFinished(p);
             
         case p.trial.pldaps.trialStates.frameFlip; 
@@ -50,13 +74,16 @@ function pldapsDefaultTrialFunction(p,state, sn)
             if ~isField(p.trial,'event')
                 defaultBitNames(p);
             end
-            %defaultColors get's called by pldaps.openScreen since overlay2
-            %got introduced
-            if ~isfield(p.defaultParameters.display,'humanCLUT')
-                defaultColors(p);
+            if isfield(p.trial.display, 'useGL') && p.trial.display.useGL
+                %   .display.glPerspective == [fovy, aspect, zNear, zFar]
+                p.trial.display.glPerspective = [atand(p.trial.display.wHeight/2/p.trial.display.viewdist)*2,...
+                    p.trial.display.wWidth/p.trial.display.wHeight,...
+                    p.trial.display.zNear,... % near clipping plane (cm)
+                    p.trial.display.zFar];  % far clipping plane (cm)
             end
+                
     end
-end
+end           % % % ****!!!!**** Moved overall function end below all subfunctions (makng them nested functions
 
 % % % % % % % % % % % % % % % 
 % % % Sub-functions
@@ -133,7 +160,7 @@ end
         pds.eyelink.getQueue(p); 
 
         %get plexon spikes
-%         pds.plexon.spikeserver.getSpikes(p);
+        % pds.plexon.spikeserver.getSpikes(p);
 
     end %frameUpdate
     
@@ -141,11 +168,11 @@ end
 %---------------------------------------------------------------------% 
 %%  framePrepareDrawing    
 	function framePrepareDrawing(p)  %#ok<*DEFNU>
-    % This is where you should compute your stimulus features for the next frame.
-    % At this point, the eye position, datapixx info, spike signals (maybe more)
-    % should be as up-to-date as they are going to be before the next display frame
-    
-    % Currently empty in the pldapsDefaultTrialFunction by design.
+        % This is where you should compute your stimulus features for the next frame.
+        % At this point, the eye position, datapixx info, spike signals (maybe more)
+        % should be as up-to-date as they are going to be before the next display frame
+
+        % Currently empty in the pldapsDefaultTrialFunction by design.
 
 	end %framePrepareDrawing
     
@@ -155,14 +182,6 @@ end
     function frameDraw(p, sn)
         %this holds the code to draw some stuff to the overlay (using
         %switches, like the grid, the eye Position, etc
-
-        % Background color is applied immediately after flip; not over and over again
-        % % %         %did the background color change? Usually already applied after
-        % % %         %frameFlip, but make sure we're not missing anything
-        % % %         if any(p.trial.pldaps.lastBgColor~=p.trial.display.bgColor)
-        % % %         	Screen('FillRect', p.trial.display.ptr, p.trial.display.bgColor);
-        % % %             p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
-        % % %         end
         
         % Grid overlay
         if p.trial.pldaps.draw.grid.use
@@ -209,8 +228,82 @@ end
 
     
 %---------------------------------------------------------------------% 
+%%  frameDrawLeftGL
+    function frameDrawLeftGL(ds)
+        global GL
+
+        % % gluLookAt params
+        % obsPos = [0 0 0];
+        % fixPos = [0 0 ds.viewdist];
+        % upVect = [0 1 0]; % Y is up...this just "is" in PTB & PLDAPS land.
+
+% % %         % first(LEFT) eye can be selected with normal PTB method
+% % %         Screen('SelectStereoDrawBuffer', ds.ptr, 0);
+
+        % Switch to 3D mode:
+        Screen('BeginOpenGL', ds.ptr);
+
+        % Select stereo draw buffer WITHIN a 3D openGL context!
+        % unbind current FBOS first     (per PTB source:  "otherwise bad things can happen...")
+        glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, uint32(0))
+
+        fbo = uint32(1); % FBO index for RIGHT eye
+        glBindFramebufferEXT(GL.READ_FRAMEBUFFER_EXT, fbo);
+        glBindFramebufferEXT(GL.DRAW_FRAMEBUFFER_EXT, fbo);
+        glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, fbo);
+
+        % Clear depth (and color?) buffers:
+        glClear(GL.DEPTH_BUFFER_BIT);
+        % glDisable(GL.BLEND);
+        
+        % Setup camera for this eyes 'view':
+        glMatrixMode(GL.MODELVIEW);
+        glLoadIdentity;
+        % OBSERVER-CENTRIC; (0,0,0) should be observer location
+        %   gluLookAt( eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ )
+        %   !!**!! OpenGL space z-space is in the negative direction (else z-buffer doesn't work!)
+        gluLookAt(ds.obsPos(1)-0.5*ds.ipd, ds.obsPos(2), -ds.obsPos(3),...
+                  ds.fixPos(1), ds.fixPos(2), -ds.fixPos(3),...
+                  ds.upVect(1), ds.upVect(2), ds.upVect(3));
+
+    end%  frameDrawLeftGL
+
+
+%---------------------------------------------------------------------% 
+%%  frameDrawRightGL
+    function frameDrawRightGL(ds)
+        global GL
+
+        % We are already inside 3D openGL 'BeginOpenGL' mode at this point
+        % Select stereo draw buffer WITHIN a 3D openGL context!
+        % unbind current FBOS first     (per PTB source:  "otherwise bad things can happen...")
+        glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, uint32(0))
+
+        fbo = uint32(2); % FBO index for RIGHT eye
+        glBindFramebufferEXT(GL.READ_FRAMEBUFFER_EXT, fbo);
+        glBindFramebufferEXT(GL.DRAW_FRAMEBUFFER_EXT, fbo);
+        glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, fbo);
+
+        % Clear depth buffers:  (CONFIRMED:  This must be done for each eye on each frame. --TBC)
+        glClear(GL.DEPTH_BUFFER_BIT);
+
+        % Setup camera for RIGHT eye 'view':
+        glMatrixMode(GL.MODELVIEW);
+        glLoadIdentity;
+        % OBSERVER-CENTRIC; (0,0,0) should be observer location
+        %   gluLookAt( eyeX, eyeY, -eyeZ, centerX, centerY, -centerZ, upX, upY, upZ )
+        %   !!**!! OpenGL space z-space is in the negative direction (else z-buffer doesn't work!)
+        gluLookAt(ds.obsPos(1)+0.5*ds.ipd, ds.obsPos(2), -ds.obsPos(3),...
+            ds.fixPos(1), ds.fixPos(2), -ds.fixPos(3),...
+            ds.upVect(1), ds.upVect(2), ds.upVect(3));
+
+    end %frameDrawRightGL
+
+
+%---------------------------------------------------------------------% 
 %%  frameDrawingFinished
     function frameDrawingFinished(p)
+    
         Screen('DrawingFinished', p.trial.display.ptr);
 %         Screen('DrawingFinished', p.trial.display.overlayptr);
     end %frameDrawingFinished
@@ -220,37 +313,9 @@ end
 %%  frameFlip
     function frameFlip(p)
         ft=cell(5,1);
-        [ft{:}] = Screen('Flip', p.trial.display.ptr, p.trial.nextFrameTime + p.trial.trstart);
+        [ft{:}] = Screen('Flip', p.trial.display.ptr, 0); %p.trial.nextFrameTime + p.trial.trstart);
 
         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
-
-        % Calls like this should be excised to some type of "movie module"
-        if p.trial.display.movie.create
-            %we should skip every nth frame depending on the ration of
-            %frame rates, or increase every nth frameduration by 1 every
-            %nth frame
-            if p.trial.display.frate > p.trial.display.movie.frameRate
-                thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.display.movie.frameRate)>0;
-            else
-                thisframe=true;
-            end
-
-            if thisframe
-                frameDuration=1;
-                Screen('AddFrameToMovie', p.trial.display.ptr,[],[],p.trial.display.movie.ptr, frameDuration);
-            end
-        end
-
-%          %did the background color change?
-%          %we're doing it here to make sure we don't overwrite anything
-%          %but this tyically causes a one frame delay until it's applied
-%          %i.e. when it's set in frame n, it changes when frame n+1 flips
-%          %otherwise we could trust users not to draw before
-%          %frameDraw, but we'll check again at frameDraw to be sure
-%          if any(p.trial.pldaps.lastBgColor~=p.trial.display.bgColor)
-%              Screen('FillRect', p.trial.display.ptr,p.trial.display.bgColor);
-%              p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
-%          end
          
          % The overlay screen always needs to be initialized with a FillRect call
          if p.trial.display.overlayptr ~= p.trial.display.ptr
@@ -335,6 +400,73 @@ end
             p.trial.pldaps.draw.framerate.sf=sf;
         end
 
+        if p.trial.display.useGL
+            global GL %#ok<TLEV>
+            
+            % readibility & avoid digging into this struct over & over
+            glP = p.trial.display.glPerspective;
+            
+            % Setup projection matrix for each eye
+            % (** this does not change per-eye & [unlikely] between frames, so just do it once here)
+            Screen('BeginOpenGL', p.trial.display.ptr)
+            
+            for view = 0:double(p.trial.display.stereoMode>0)
+                % for view = 0:1
+
+                % Select stereo draw buffer WITHIN a 3D openGL context!
+                % unbind current FBOS first (per PTB source:  "otherwise bad things can happen...")
+                glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, uint32(0))
+
+                % Bind this view's buffers
+                fbo = uint32(view+1);
+                glBindFramebufferEXT(GL.READ_FRAMEBUFFER_EXT, fbo);
+                glBindFramebufferEXT(GL.DRAW_FRAMEBUFFER_EXT, fbo);
+                glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, fbo);
+
+                if ~view % things that apply to BOTH eyes when implimented
+                    % Setup projection for stereo viewing
+                    glMatrixMode(GL.PROJECTION)
+                    glLoadIdentity;
+                    % glPerspective inputs: ( fovy, aspect, zNear, zFar )
+                    gluPerspective(glP(1), glP(2), glP(3), glP(4));
+                    
+                    % Enable proper occlusion handling via depth tests:
+                    glEnable(GL.DEPTH_TEST);
+                    
+                    % Enable alpha-blending for smooth dot drawing:
+                    glEnable(GL.BLEND);
+                    glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+                    
+                    % 3D anti-aliasing?
+                    % NOTE: None of these improve rendering of gluDisk or sphere.
+                    % Only opening PTB window with multisampling (==4) has any effect
+                    %     glEnable(GL.POLYGON_SMOOTH);%     glHint(GL.POLYGON_SMOOTH_HINT, GL.NICEST);
+                    %     glEnable(GL.LINE_SMOOTH);%     glHint(GL.LINE_SMOOTH_HINT, GL.NICEST);
+                    
+                    % basic colors
+                    glClearColor(p.trial.display.bgColor(1), p.trial.display.bgColor(2), p.trial.display.bgColor(3), 1);
+                    glColor4f(1,1,1,1);
+                    
+                    % Disable lighting
+                    % glDisable(GL.LIGHTING);
+                    % glDisable(GL.BLEND);
+                    
+                    % ...or DO ALL THE THINGS!!!!
+                    % %                     % Enable lighting
+                    % %                     glEnable(GL.LIGHTING);
+                    % %                     glEnable(GL.LIGHT0);
+                    % %                     % Set light position:
+                    % %                     glLightfv(GL.LIGHT0,GL.POSITION, [1 2 3 0]);   %[1 3 -p.trial.display.viewdist+10 0]
+                    % %                     % Enable material colors based on glColorfv()
+                    % %                     glEnable(GL.COLOR_MATERIAL);
+                    % %                     glColorMaterial(GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
+                    % %                     glMaterialf(GL.FRONT_AND_BACK, GL.SHININESS, 48);
+                    % %                     glMaterialfv(GL.FRONT_AND_BACK, GL.SPECULAR, [.8 .8 .8 1]);
+                end
+                
+            end
+            Screen('EndOpenGL', p.trial.display.ptr)
+        end
         
     end %trialSetup
     
@@ -522,3 +654,5 @@ end
 % % %        Screen('AsyncFlipEnd', p.trial.display.ptr);
 % % %        Screen('WaitBlanking', p.trial.display.ptr);
     end %cleanUpandSave
+
+% end

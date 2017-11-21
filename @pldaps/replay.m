@@ -75,7 +75,9 @@ p.trial.display.scrnNum=newDisplay.scrnNum;
 p.trial.display.useOverlay=newDisplay.useOverlay;
 p.trial.display.colorclamp=newDisplay.colorclamp;
 p.trial.display.forceLinearGamma=newDisplay.forceLinearGamma;
-p.trial.display.movie=newDisplay.movie;
+if isfield(newDisplay,'movie')
+    p.trial.display.movie=newDisplay.movie;
+end
 if isfield(newDisplay,'gamma')
     p.trial.display.gamma=newDisplay.gamma;
 end
@@ -235,7 +237,7 @@ try
         end
     end
         
-    if p.trial.display.movie.create
+    if isfield(p.trial.display, 'movie') && p.trial.display.movie.create
         Screen('FinalizeMovie', p.trial.display.movie.ptr);
     end
     Screen('CloseAll');

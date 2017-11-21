@@ -225,6 +225,9 @@ function p = run(p)
             
            %---------------------------------------------------------------------% 
            % RUN THE TRIAL
+% % %            KbQueueStop
+% % %            keyboard
+% % %            KbQueueStart
            p = feval(p.trial.pldaps.trialMasterFunction,  p);
            %---------------------------------------------------------------------% 
             
@@ -376,11 +379,15 @@ function p = run(p)
         fprintf('\tPLDAPS data file saved as:\n\t\t%s\n', savedFileName)
         disp('****************************************************************')
 
-    end
-    
+        % Detect & report dropped frames
+        frameDrops = cell2mat(cellfun(@(x) [sum(diff(x.timing.flipTimes(1,:))>(1.1*p.trial.display.ifi)), x.iFrame], p.data, 'uni',0)');
+        ifiMu = mean(cell2mat(cellfun(@(x) diff(x.timing.flipTimes(1,:)), p.data, 'uni',0)));
+        if sum(frameDrops(:,1))>0
+            fprintf(2, '\t----------\n\tNOTICE:\t%d (of %d) trial frames exceeded 110%% of expected ifi\n', sum(frameDrops,1));
+            fprintf('\t\tAverage ifi = %3.4f ms;\t~%2.2f Hz effective\n', ifiMu, 1/ifiMu);
+            fprintf(2, '\t----------\n');
+        end
 
-    if p.trial.display.movie.create
-        Screen('FinalizeMovie', p.trial.display.movie.ptr);
     end
     
     if p.defaultParameters.display.useOverlay==2
