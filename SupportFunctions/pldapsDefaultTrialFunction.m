@@ -451,17 +451,19 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
                     % glDisable(GL.LIGHTING);
                     % glDisable(GL.BLEND);
                     
-                    % ...or DO ALL THE THINGS!!!!
-                    % %                     % Enable lighting
-                    % %                     glEnable(GL.LIGHTING);
-                    % %                     glEnable(GL.LIGHT0);
-                    % %                     % Set light position:
-                    % %                     glLightfv(GL.LIGHT0,GL.POSITION, [1 2 3 0]);   %[1 3 -p.trial.display.viewdist+10 0]
-                    % %                     % Enable material colors based on glColorfv()
-                    % %                     glEnable(GL.COLOR_MATERIAL);
-                    % %                     glColorMaterial(GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
-                    % %                     glMaterialf(GL.FRONT_AND_BACK, GL.SHININESS, 48);
-                    % %                     glMaterialfv(GL.FRONT_AND_BACK, GL.SPECULAR, [.8 .8 .8 1]);
+                    if p.trial.display.goNuts
+                        % ...or DO ALL THE THINGS!!!!
+                        % Enable lighting
+                        glEnable(GL.LIGHTING);
+                        glEnable(GL.LIGHT0);
+                        % Set light position:
+                        glLightfv(GL.LIGHT0,GL.POSITION, [1 2 3 0]);
+                        % Enable material colors based on glColorfv()
+                        glEnable(GL.COLOR_MATERIAL);
+                        glColorMaterial(GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
+                        glMaterialf(GL.FRONT_AND_BACK, GL.SHININESS, 48);
+                        glMaterialfv(GL.FRONT_AND_BACK, GL.SPECULAR, [.8 .8 .8 1]);
+                    end
                 end
                 
             end

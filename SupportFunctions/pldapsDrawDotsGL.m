@@ -78,6 +78,8 @@ end
 
 if nargin < 3 || isempty(dotsz)
     dotsz = 2;
+else
+    dotsz = dotsz(:);
 end
 
 nsizes = length(dotsz);
@@ -192,7 +194,7 @@ if useDiskMode
             % glTranslated(xyz(1,i), xyz(2,i), xyz(3,i));
             % draw it:  gluDisk( quad, inner, outer, slices, loops );  inner always == 0...our dots are unholy!
             % moglcore('gluDisk', diskQuadric, 0, dotsz(:,ii(1,i)), dotType, 1);
-            moglcore( 'glutSolidSphere', dotsz(:,ii(1,i)), dotType, dotType/2);
+            moglcore( 'glutSolidSphere', dotsz(ii(1,i)), dotType, dotType/2);
             % moglcore( 'glutSolidTeapot', dotsz(:,ii(1,i)) );
         end
     else
@@ -202,7 +204,7 @@ if useDiskMode
             % set color
             glColor4fv( dotcolor(:,i) );
             % moglcore('gluDisk', diskQuadric, 0, dotsz(:,ii(1,i)), dotType, 1);
-            moglcore( 'glutSolidSphere', dotsz(:,ii(1,i)), dotType, dotType/2);
+            moglcore( 'glutSolidSphere', dotsz(ii(1,i)), dotType, dotType/2);
         end
     end
     glPopMatrix;
@@ -214,7 +216,7 @@ else
 
     if isRel
         % vertex array expects absolute positions of each dot
-        xyz = cumsum( xyz );
+        xyz = cumsum(xyz, 2);
     end
     
     % Point smoothing wanted?
