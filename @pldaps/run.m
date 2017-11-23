@@ -385,7 +385,7 @@ function p = run(p)
         if sum(frameDrops(:,1))>0
             fprintf(2, '\t**********\n');
             fprintf('\t%d (of %d) trial frames exceeded 110%% of expected ifi\n', sum(frameDrops,1));
-            fprintf('\tAverage ifi = %3.4f ms;\t~%2.2f Hz effective\n', ifiMu, 1/ifiMu);
+            fprintf('\tAverage ifi = %3.2f ms;\t~%2.2f Hz effective\n', ifiMu*1000, 1/ifiMu);
             fprintf(2, '\t**********\n');
         end
 

@@ -19,21 +19,21 @@ function pldapsDefaultTrialFunction(p,state, sn)
         case p.trial.pldaps.trialStates.frameDraw
             frameDraw(p,sn);
             
-        case p.trial.pldaps.trialStates.frameDrawLeftGL
+        case p.trial.pldaps.trialStates.frameGLDrawLeft
             % Skip altogether if not enabled
             if p.trial.display.useGL
                 % Only pass in the needed display structure
-                frameDrawLeftGL(p.trial.display);
+                frameGLDrawLeft(p.trial.display);
             end
             
-        case p.trial.pldaps.trialStates.frameDrawRightGL
+        case p.trial.pldaps.trialStates.frameGLDrawRight
             % Skip altogether if not enabled & not stereomode
             if p.trial.display.useGL && p.trial.display.stereoMode~=0
                 % Only pass in the needed display structure
-                frameDrawRightGL(p.trial.display);
+                frameGLDrawRight(p.trial.display);
             end
 
-        case p.trial.pldaps.trialStates.frameDrawingFinished;
+        case p.trial.pldaps.trialStates.frameDrawingFinished
             if p.trial.display.useGL
                 % Check & disable OpenGL mode before any Screen() calls (else will crash)
                 [~, IsOpenGLRendering] = Screen('GetOpenGLDrawMode');
@@ -228,17 +228,9 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 
     
 %---------------------------------------------------------------------% 
-%%  frameDrawLeftGL
-    function frameDrawLeftGL(ds)
+%%  frameGLDrawLeft
+    function frameGLDrawLeft(ds)
         global GL
-
-        % % gluLookAt params
-        % obsPos = [0 0 0];
-        % fixPos = [0 0 ds.viewdist];
-        % upVect = [0 1 0]; % Y is up...this just "is" in PTB & PLDAPS land.
-
-% % %         % first(LEFT) eye can be selected with normal PTB method
-% % %         Screen('SelectStereoDrawBuffer', ds.ptr, 0);
 
         % Switch to 3D mode:
         Screen('BeginOpenGL', ds.ptr);
@@ -266,12 +258,12 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
                   ds.fixPos(1), ds.fixPos(2), -ds.fixPos(3),...
                   ds.upVect(1), ds.upVect(2), ds.upVect(3));
 
-    end%  frameDrawLeftGL
+    end%  frameGLDrawLeft
 
 
 %---------------------------------------------------------------------% 
-%%  frameDrawRightGL
-    function frameDrawRightGL(ds)
+%%  frameGLDrawRight
+    function frameGLDrawRight(ds)
         global GL
 
         % We are already inside 3D openGL 'BeginOpenGL' mode at this point
@@ -297,7 +289,7 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
             ds.fixPos(1), ds.fixPos(2), -ds.fixPos(3),...
             ds.upVect(1), ds.upVect(2), ds.upVect(3));
 
-    end %frameDrawRightGL
+    end %frameGLDrawRight
 
 
 %---------------------------------------------------------------------% 
@@ -305,7 +297,6 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
     function frameDrawingFinished(p)
     
         Screen('DrawingFinished', p.trial.display.ptr);
-%         Screen('DrawingFinished', p.trial.display.overlayptr);
     end %frameDrawingFinished
     
     
@@ -401,73 +392,7 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         end
 
         if p.trial.display.useGL
-            global GL %#ok<TLEV>
-            
-            % readibility & avoid digging into this struct over & over
-            glP = p.trial.display.glPerspective;
-            
-            % Setup projection matrix for each eye
-            % (** this does not change per-eye & [unlikely] between frames, so just do it once here)
-            Screen('BeginOpenGL', p.trial.display.ptr)
-            
-            for view = 0:double(p.trial.display.stereoMode>0)
-                % for view = 0:1
-
-                % Select stereo draw buffer WITHIN a 3D openGL context!
-                % unbind current FBOS first (per PTB source:  "otherwise bad things can happen...")
-                glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, uint32(0))
-
-                % Bind this view's buffers
-                fbo = uint32(view+1);
-                glBindFramebufferEXT(GL.READ_FRAMEBUFFER_EXT, fbo);
-                glBindFramebufferEXT(GL.DRAW_FRAMEBUFFER_EXT, fbo);
-                glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, fbo);
-
-                if ~view % things that apply to BOTH eyes when implimented
-                    % Setup projection for stereo viewing
-                    glMatrixMode(GL.PROJECTION)
-                    glLoadIdentity;
-                    % glPerspective inputs: ( fovy, aspect, zNear, zFar )
-                    gluPerspective(glP(1), glP(2), glP(3), glP(4));
-                    
-                    % Enable proper occlusion handling via depth tests:
-                    glEnable(GL.DEPTH_TEST);
-                    
-                    % Enable alpha-blending for smooth dot drawing:
-                    glEnable(GL.BLEND);
-                    glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
-                    
-                    % 3D anti-aliasing?
-                    % NOTE: None of these improve rendering of gluDisk or sphere.
-                    % Only opening PTB window with multisampling (==4) has any effect
-                    %     glEnable(GL.POLYGON_SMOOTH);%     glHint(GL.POLYGON_SMOOTH_HINT, GL.NICEST);
-                    %     glEnable(GL.LINE_SMOOTH);%     glHint(GL.LINE_SMOOTH_HINT, GL.NICEST);
-                    
-                    % basic colors
-                    glClearColor(p.trial.display.bgColor(1), p.trial.display.bgColor(2), p.trial.display.bgColor(3), 1);
-                    glColor4f(1,1,1,1);
-                    
-                    % Disable lighting
-                    % glDisable(GL.LIGHTING);
-                    % glDisable(GL.BLEND);
-                    
-                    if p.trial.display.goNuts
-                        % ...or DO ALL THE THINGS!!!!
-                        % Enable lighting
-                        glEnable(GL.LIGHTING);
-                        glEnable(GL.LIGHT0);
-                        % Set light position:
-                        glLightfv(GL.LIGHT0,GL.POSITION, [1 2 3 0]);
-                        % Enable material colors based on glColorfv()
-                        glEnable(GL.COLOR_MATERIAL);
-                        glColorMaterial(GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
-                        glMaterialf(GL.FRONT_AND_BACK, GL.SHININESS, 48);
-                        glMaterialfv(GL.FRONT_AND_BACK, GL.SPECULAR, [.8 .8 .8 1]);
-                    end
-                end
-                
-            end
-            Screen('EndOpenGL', p.trial.display.ptr)
+            setupGLPerspective(p.trial.display); % subfunction
         end
         
     end %trialSetup
@@ -525,15 +450,6 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
             p.trial.timing.datapixxTRIALSTART = pds.datapixx.flipBit(p.trial.event.TRIALSTART,p.trial.pldaps.iTrial);  % start of trial (Plexon)
         end
         
-        
-        %ensure background color is correct
-        % Not again!?! Why are we doing this over and over? Stop drawing to the screen without user
-        % controll or intention. --TBC
-        % % %         Screen('FillRect', p.trial.display.ptr,p.trial.display.bgColor);
-        % % %         p.trial.pldaps.lastBgColor = p.trial.display.bgColor;
-
-        % No more uncontrolled flipping outside of the trial. ...this makes it now possible to maintain
-        % continuous features (fixation marks, etc) across trials.
 
         % These params are all predetermined, so just set them equal to 0,
         % and keep any code post-vblsync to an absolute minimum!  (...yes, even just touching p.trial)
@@ -549,7 +465,6 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         
     end %trialPrepare
 
-
     
 %---------------------------------------------------------------------% 
 %%  cleanUpandSave
@@ -563,7 +478,9 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 
         
     end
-%---------------------------------------------------------------------% 
+    
+    
+%---------------------------------------------------------------------%
 %%  cleanUpandSave
     function p = cleanUpandSave(p)
 
@@ -652,9 +569,76 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
        % reward system
        pds.behavior.reward.cleanUpandSave(p);
        
-% % %        % ensure our intertrial interval flip has completed
-% % %        Screen('AsyncFlipEnd', p.trial.display.ptr);
-% % %        Screen('WaitBlanking', p.trial.display.ptr);
     end %cleanUpandSave
 
-% end
+    
+    
+    
+
+    %% setupGLPerspective
+    function setupGLPerspective(ds)
+        global GL
+        
+        % readibility & avoid digging into this struct over & over
+        glP = ds.glPerspective;
+        
+        % Setup projection matrix for each eye
+        % (** this does not change per-eye & [unlikely] between frames, so just do it once here)
+        Screen('BeginOpenGL', ds.ptr)
+        
+        for view = 0%:double(ds.stereoMode>0)
+            % All of these settings will apply to BOTH eyes once implimented
+            
+            % Select stereo draw buffer WITHIN a 3D openGL context!
+            % unbind current FBOS first (per PTB source:  "otherwise bad things can happen...")
+            glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, uint32(0))
+            
+            % Bind this view's buffers
+            fbo = uint32(view+1);
+            glBindFramebufferEXT(GL.READ_FRAMEBUFFER_EXT, fbo);
+            glBindFramebufferEXT(GL.DRAW_FRAMEBUFFER_EXT, fbo);
+            glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, fbo);
+            
+            
+            % Setup projection for stereo viewing
+            glMatrixMode(GL.PROJECTION)
+            glLoadIdentity;
+            % glPerspective inputs: ( fovy, aspect, zNear, zFar )
+            gluPerspective(glP(1), glP(2), glP(3), glP(4));
+            
+            % Enable proper occlusion handling via depth tests:
+            glEnable(GL.DEPTH_TEST);
+            
+            % Enable alpha-blending for smooth dot drawing:
+            glEnable(GL.BLEND);
+            glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+            
+            % 3D anti-aliasing?
+            % NOTE: None of the standard smoothing enables improve rendering of gluDisk or sphere.
+            % Only opening PTB window with multisampling (==4) has any effect
+            
+            % basic colors
+            glClearColor(ds.bgColor(1), ds.bgColor(2), ds.bgColor(3), 1);
+            glColor4f(1,1,1,1);
+            
+            % Disable lighting
+            glDisable(GL.LIGHTING);
+            % glDisable(GL.BLEND);
+            
+            if ds.goNuts
+                % ...or DO ALL THE THINGS!!!!
+                % Enable lighting
+                glEnable(GL.LIGHTING);
+                glEnable(GL.LIGHT0);
+                % Set light position:
+                glLightfv(GL.LIGHT0,GL.POSITION, [1 2 3 0]);
+                % Enable material colors based on glColorfv()
+                glEnable(GL.COLOR_MATERIAL);
+                glColorMaterial(GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
+                glMaterialf(GL.FRONT_AND_BACK, GL.SHININESS, 48);
+                glMaterialfv(GL.FRONT_AND_BACK, GL.SPECULAR, [.8 .8 .8 1]);
+            end
+        end
+        Screen('EndOpenGL', ds.ptr)
+    end %setupGLPerspective
+    

@@ -150,8 +150,8 @@ function s=pldapsClassDefaultParameters(s)
  s.	pldaps.	trialStates.	frameUpdate = tsPos;            tsPos = tsPos+1;
  s.	pldaps.	trialStates.	framePrepareDrawing = tsPos;    tsPos = tsPos+1;
  s.	pldaps.	trialStates.	frameDraw = tsPos;              tsPos = tsPos+1;
- s.	pldaps.	trialStates.	frameDrawLeftGL = tsPos;        tsPos = tsPos+1;
- s.	pldaps.	trialStates.	frameDrawRightGL = tsPos;       tsPos = tsPos+1;
+ s.	pldaps.	trialStates.	frameGLDrawLeft = tsPos;        tsPos = tsPos+1;
+ s.	pldaps.	trialStates.	frameGLDrawRight = tsPos;       tsPos = tsPos+1;
  s.	pldaps.	trialStates.	frameDrawingFinished = tsPos;   tsPos = tsPos+1;
  s.	pldaps.	trialStates.	frameFlip = tsPos;              tsPos = tsPos+1;
  s. pldaps. trialStates.        trialItiDraw = tsNeg;           tsNeg = tsNeg-1;
