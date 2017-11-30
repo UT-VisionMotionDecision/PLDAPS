@@ -225,9 +225,9 @@ function p = run(p)
             
            %---------------------------------------------------------------------% 
            % RUN THE TRIAL
-% % %            KbQueueStop
-% % %            keyboard
-% % %            KbQueueStart
+           KbQueueStop
+           keyboard
+           KbQueueStart
            p = feval(p.trial.pldaps.trialMasterFunction,  p);
            %---------------------------------------------------------------------% 
             
@@ -384,8 +384,11 @@ function p = run(p)
         ifiMu = mean(cell2mat(cellfun(@(x) diff(x.timing.flipTimes(1,:)), p.data, 'uni',0)));
         if sum(frameDrops(:,1))>0
             fprintf(2, '\t**********\n');
-            fprintf('\t%d (of %d) trial frames exceeded 110%% of expected ifi\n', sum(frameDrops,1));
-            fprintf('\tAverage ifi = %3.2f ms;\t~%2.2f Hz effective\n', ifiMu*1000, 1/ifiMu);
+            fprintf(2,'\t%d (of %d) ', sum(frameDrops,1)); fprintf('trial frames exceeded 110%% of expected ifi\n');
+            fprintf('\tAverage ifi = %3.2f ms (%2.2f Hz)', ifiMu*1000, 1/ifiMu);
+            if isfield(p.data{1},'frameRenderTime')
+                fprintf(',\t  median frameRenderTime = %3.2f ms\n', 1000*median(cell2mat(cellfun(@(x) x.frameRenderTime', p.data, 'uni',0)')));
+            end
             fprintf(2, '\t**********\n');
         end
 
