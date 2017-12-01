@@ -1,4 +1,4 @@
-function pldapsDrawDotsGL(xyz, isRel, dotsz, dotcolor, center3D, dotType, glslshader)
+function pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader)
 % Streamlined version of PTB moglDrawDots3d.m (circa ver. 3.0.14)
 %   -- Removes preliminary safety checks
 % Draw a large number of dots in 3D very efficiently.
@@ -60,6 +60,9 @@ function pldapsDrawDotsGL(xyz, isRel, dotsz, dotcolor, center3D, dotType, glslsh
 
 % Need global GL definitions:
 global GL;
+
+% Persistent struct for buffer objects
+persistent glb
 
 if nargin <2
     error('Not enough inputs to %s. Must at least provide xyz position & flag for absolute or relative position state.',mfilename);
@@ -124,8 +127,8 @@ if nargin < 7
 end
 
 %% Basic params & flags from the p.trial.display structure
-if dotType>2
-    % 3D opject sizes are radians, but typical unit expectation is dot diameter
+if dotType>10
+    % gluSphere sizes need radians, but all others are diameter...
     dotsz = dotsz./2;
 end
 
@@ -158,19 +161,117 @@ if ~isempty(center3D)
     end
 end
 
-%% Fork to draw as gluDisk (new 3d-centric mode)  -- or --  as GL.POINTS (2d-centric; typ. Screen('DrawDots') mode)
-% [dotType] == 0,1, or 2 define classic dot style/anti-aliasing modes
-% [dotType] >= 3 will be used gluDisk resolution parameter (n-slices)
-%               (12-30 is good...depends on size/position range of your stim, so must leave up to experimenter)
-useDiskMode = dotType >2;
+%% Fork to draw as gluDisk (new 3d-centric modes)  -- or --  as GL.POINTS (2d-centric; typ. Screen('DrawDots') mode)
+useDiskMode = dotType>2 + dotType>10;
+        % [dotType] is interpreted as follows:
+        % 0-2 	standard DrawDots type (square, anti-aliased, xtra-nice anti-aliased)
+        % 3-9   geodesic sphere resolution, n-3==icosahedron scale factor
+        %           !!NOTE!! Requires OpenGL >= 3.3  (...currently Matlab on OSX limited to v.2.1 [wtf?!?] --TBC Nov. 2017)
+        %           [dotType]==[nSides]: 3==20, 4==80, 5==320, 6==1280, 7==5120, 8==20,480, 9==81,920 sides
+        %           recommended: 5-6  (i.e. 320-1280 sides)
+        % >=10  n-segments of a mercator sphere (...simple, but over-samples poles)
+        %           recommended: 12-22;
 
-if useDiskMode
-    %% Draw as 3D objects
-    
-    if ~isRel
-        % get relative translation steps between each dot for faster drawing
-        xyz = diff([[0 0 0]', xyz], 1,2);
+
+if useDiskMode==1
+    %% Draw as 3D geodesic spheres (soo nice, but needs Linux atm.)
+
+    % Dot size gets tacked onto xyz buffer data
+    xyz(4,:) = dotsz;
+
+    % Initialize buffers (only once!)
+    if ~isfield(glb,'glsl')
+        % Load the speedy shader
+        shaderpath = {fullfile(pwd, 'geosphere.vert'), fullfile(pwd, 'geosphere.frag')};
+        glb.glsl = LoadGLSLProgramFromFiles(shaderpath,1);
+
+        [vv,ff] = glDraw.icosphere(dotType);
+        % convert vv into direct triangles (...would be better if indexed vectors, but whatever)
+        ff = ff';
+        vv = 0.5*vv(ff(:),:)'; % expand indexing & convert to unit diameter (size == [3, ntriangles]);
+        glb.ntris = size(vv,2);
+        
+        % vertex buffer
+        % jnk = whos('vv'); glb.vert.mem=jnk.bytes; % gets memory size of var
+        glb.vert.mem = numel(vv)*4; % will become GL.FLOAT, 4 bytes/el.  
+        glb.vert.h = glGenBuffers(1);
+        glb.vert.i = 0; % attribute index   (must correspond to init order inside shader)
+        glBindBuffer(GL.ARRAY_BUFFER, glb.vert.h);
+        glBufferData(GL.ARRAY_BUFFER, glb.vert.mem, vv(:), GL.STATIC_DRAW);
+        
+        % position buffer: [x, y, z, size]
+        % Data will stream to this buffer for each frame
+        %jnk = whos('dotPos'); glb.pos.mem = jnk.bytes;  % gets memory size of var
+        glb.pos.mem = numel(dotPos)*4;  % 4 bytes/el.  
+        glb.pos.h = glGenBuffers(1);
+        glb.pos.i = 1; % attribute index
+        glBindBuffer(GL.ARRAY_BUFFER, glb.pos.h);
+        glBufferData(GL.ARRAY_BUFFER, glb.pos.mem, xyz(:), GL.STREAM_DRAW);
+        
+        % color buffer: [r, g, b, a]
+        % Data will stream to this buffer for each frame
+        % jnk = whos('col'); glb.col.mem = jnk.bytes;   % gets memory size of var
+        glb.col.mem = numel(dotcolor)*4;  % 4 bytes/el.  
+        glb.col.h = glGenBuffers(1);
+        glb.col.i = 2; % attribute index
+        glBindBuffer(GL.ARRAY_BUFFER, glb.col.h);
+        glBufferData(GL.ARRAY_BUFFER, glb.col.mem, dotcolor(:), GL.STREAM_DRAW);
+        
+    else
+        % Update position buffer (via "orphaning")
+        glBindBuffer(GL.ARRAY_BUFFER, glb.pos.h);
+        glBufferData(GL.ARRAY_BUFFER, glb.pos.mem, 0, GL.STREAM_DRAW); % for gl___() calls 0=="NULL"
+        glBufferSubData(GL.ARRAY_BUFFER, 0, glb.pos.mem, xyz(:));
+        
+        % Update color buffer
+        %  ....not yet implemented.
+        
     end
+
+    % Backup old shader binding:
+    oldShader = glGetIntegerv(GL.CURRENT_PROGRAM);
+    % Set new one:
+    glUseProgram(glb.glsl);
+
+    % vertex buffer
+    glEnableVertexAttribArray(glb.vert.i);  %(GL attribute index starts at zero)
+    glBindBuffer(GL.ARRAY_BUFFER, glb.vert.h);
+    glVertexAttribPointer(glb.vert.i, 3, GL.FLOAT, GL.FALSE, 0, 0);
+    % pos & size buffer
+    glEnableVertexAttribArray(glb.pos.i);
+    glBindBuffer(GL.ARRAY_BUFFER, glb.pos.h);
+    glVertexAttribPointer(glb.pos.i, 4, GL.FLOAT, GL.FALSE, 0, 0);
+    % color buffer
+    glEnableVertexAttribArray(glb.col.i);
+    glBindBuffer(GL.ARRAY_BUFFER, glb.col.h);
+    glVertexAttribPointer(glb.col.i, 4, GL.FLOAT, GL.TRUE, 0, 0);
+
+    % Assign buffer usage   (!!specific to glDrawArrays*Instanced*!!)
+    % // The first parameter is the attribute buffer #
+    % // The second parameter is the "rate at which generic vertex attributes advance when rendering multiple instances"
+    glVertexAttribDivisor(0, 0); % particles vertices : always reuse the same n vertices -> 0
+    glVertexAttribDivisor(1, 1); % positions : one per element (its center) -> 1
+    glVertexAttribDivisor(2, 1); % color : one per element -> 1
+    
+    % % % % % %
+    % DRAW IT!!
+    % % % % % %
+    glDrawArraysInstanced(GL.TRIANGLES, 0, glb.ntris, ndots);
+    
+    % disable dot attribute buffers & clean up
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
+    
+    % Reset old shader binding:
+    glUseProgram(oldShader);
+
+    
+elseif useDiskMode==2
+    %% Draw as Mercactor spheres
+    
+    % get relative translation steps between each dot for faster drawing
+    xyz = diff([[0 0 0]', xyz], 1,2);
 
     % No choice but to draw each 'dot' in a loop, so expand size indices
     % Dot size
@@ -180,22 +281,16 @@ if useDiskMode
         ii = ones(1, ndots);
     end
     
-    % diskQuadric = gluNewQuadric;  % Quad only needed for gluDisk, which is degenerate & not much faster than spheres
-
     % Loop through each dot
     glPushMatrix;
     if ncolors == 1
         % Set color just once
-        %   (TBC: setting color on each dot draw can add up to ~10-20% total execution time)
+        %   (TBC: setting color on each dot draw can add 10-20% total execution time)
         glColor4fv( dotcolor(:,1) );
         for i = 1:ndots
             % set position
             glTranslated(xyz(1,i), xyz(2,i), -xyz(3,i));
-            % glTranslated(xyz(1,i), xyz(2,i), xyz(3,i));
-            % draw it:  gluDisk( quad, inner, outer, slices, loops );  inner always == 0...our dots are unholy!
-            % moglcore('gluDisk', diskQuadric, 0, dotsz(:,ii(1,i)), dotType, 1);
-            moglcore( 'glutSolidSphere', dotsz(ii(1,i)), dotType, dotType/2);
-            % moglcore( 'glutSolidTeapot', dotsz(:,ii(1,i)) );
+            moglcore( 'glutSolidSphere', dotsz(ii(1,i)), dotType, dotType);
         end
     else
         for i = 1:ndots
@@ -203,22 +298,14 @@ if useDiskMode
             glTranslated(xyz(1,i), xyz(2,i), -xyz(3,i));
             % set color
             glColor4fv( dotcolor(:,i) );
-            % moglcore('gluDisk', diskQuadric, 0, dotsz(:,ii(1,i)), dotType, 1);
-            moglcore( 'glutSolidSphere', dotsz(ii(1,i)), dotType, dotType/2);
+            moglcore( 'glutSolidSphere', dotsz(ii(1,i)), dotType, dotType);
         end
     end
     glPopMatrix;
-
-    % gluDeleteQuadric(diskQuadric);
     
 else
-    %% draw dots as GL.POINTS (like normal PTB; super fast, but size defined in pixels, not space!)
+    %% Draw dots as GL.POINTS (like normal PTB; super fast, but size defined in pixels, not space!)
 
-    if isRel
-        % vertex array expects absolute positions of each dot
-        xyz = cumsum(xyz, 2);
-    end
-    
     % Point smoothing wanted?
     if dotType > 0
         
@@ -304,7 +391,7 @@ if ~useDiskMode % clean up after drawing GL.POINTS
     % Reset dot size to 1.0:
     glPointSize(1);
     
-end % No specific glDisk/Sphere drawing clean up to do (...maybe once an indexed list drawing method is found)
+end % No specific Sphere drawing clean up to do
 
 
 if ~isempty(center3D)
