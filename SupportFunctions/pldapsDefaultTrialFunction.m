@@ -246,7 +246,6 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 
         % Clear depth (and color?) buffers:
         glClear(GL.DEPTH_BUFFER_BIT);
-        % glDisable(GL.BLEND);
         
         % Setup camera for this eyes 'view':
         glMatrixMode(GL.MODELVIEW);
@@ -305,7 +304,7 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
     function frameFlip(p)
         ft=cell(5,1);
         [ft{:}] = Screen('Flip', p.trial.display.ptr, 0); %p.trial.nextFrameTime + p.trial.trstart);
-
+        
         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
          
          % The overlay screen always needs to be initialized with a FillRect call

@@ -1,9 +1,19 @@
 function pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader)
+% function pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader)
+% 
 % Streamlined version of PTB moglDrawDots3d.m (circa ver. 3.0.14)
 %   -- Removes preliminary safety checks
+%   -- [dotType] controls 3D dot rendering mode/quality as:
+%         0-2 	standard DrawDots type (square, anti-aliased, xtra-nice anti-aliased)
+%         3-9   geodesic sphere resolution, n-3==icosahedron scale factor
+%                   !!NOTE!! Requires OpenGL >= 3.3  (...only functional on Linux atm. --TBC Nov. 2017)
+%                   [dotType]==[nSides]: 3==20, 4==80, 5==320, 6==1280, 7==5120, 8==20,480, 9==81,920 sides
+%                   recommended: 5-6  (i.e. 320-1280 sides)
+%         >=10  n-segments of a mercator sphere (...simple, but over-samples poles)
+%                   recommended: 12-22;
+%       
 % Draw a large number of dots in 3D very efficiently.
 %
-% Usage: moglDrawDots3D(windowPtr, xyz [,dotdiameter] [,dotcolor] [,center3D] [,dotType] [, glslshader]);
 %
 % This function is the 3D equivalent of the Screen('DrawDots') subfunction
 % for fast drawing of 2D dots. It has mostly the same paramters as that
@@ -61,15 +71,11 @@ function pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader)
 % Need global GL definitions:
 global GL;
 
-% Persistent struct for buffer objects
-persistent glb
+% Global struct for buffer objects
+global glB
 
 if nargin <2
-    error('Not enough inputs to %s. Must at least provide xyz position & flag for absolute or relative position state.',mfilename);
-end
-
-if isempty(isRel)
-    isRel = false;
+    error('Not enough inputs to %s.',mfilename);
 end
 
 nvc = size(xyz, 1);
@@ -79,7 +85,7 @@ if ~(nvc == 3 || nvc == 4) || ndots < 1
     error('"xyz" argument must have 3 or 4 rows for x,y,z or x,y,z,w components and at least 1 column for at least one dot to draw!');
 end
 
-if nargin < 3 || isempty(dotsz)
+if nargin < 2 || isempty(dotsz)
     dotsz = 2;
 else
     dotsz = dotsz(:);
@@ -90,7 +96,7 @@ if ~isvector(dotsz) || (nsizes~=1 && nsizes~=ndots)
     error('"dotdiameter" argument must be a vector with same number of elements as dots to draw, or a single scalar value!');
 end
 
-if nargin < 4 || isempty(dotcolor)
+if nargin < 3 || isempty(dotcolor)
     dotcolor = [1 1 1 1]';
 end
 
@@ -109,27 +115,29 @@ if ncolcomps ~=4
     end
 end
 
-if nargin < 5
+if nargin < 4
     % Default to "no center set"; all positions relative to observer (@ glLoadIdentity) :
     center3D = [];
 end
 
-if nargin < 6 || isempty(dotType)
+if nargin < 5 || isempty(dotType)
     % Default to use gluDisk mode (with 22 slices):
-    dotType = 22;
+    dotType = 12;
+else
+    if ~IsLinux && (dotType>2 && dotType<10)
+        dotType = dotType+7;
+        warning(['Attempted to use geodesic sphere rendering, but this machine is not Linux.\n',...
+                 '\tDowngrading dotType to %d for standard gluSphere dots (muuuch slower!).\n',...
+                 '\tFor more info, see help text of:  %s\n'], dotType, mfilename('fullpath'))
+        %error('Requested dotType of (%d) from %s,\nBut geodesic sphere drawing on GPU only compatible on Linux', dotType, mfilename);
+    end
 end
 % must be integer input, so impose by setting class here
 dotType = uint8(dotType);
 
-if nargin < 7
+if nargin < 6
     % Default to no change of shader bindings:
     glslshader = [];
-end
-
-%% Basic params & flags from the p.trial.display structure
-if dotType>10
-    % gluSphere sizes need radians, but all others are diameter...
-    dotsz = dotsz./2;
 end
 
 %% Drawing loop
@@ -162,7 +170,16 @@ if ~isempty(center3D)
 end
 
 %% Fork to draw as gluDisk (new 3d-centric modes)  -- or --  as GL.POINTS (2d-centric; typ. Screen('DrawDots') mode)
-useDiskMode = dotType>2 + dotType>10;
+if dotType>2
+    useDiskMode = 1;
+    if dotType>9
+        useDiskMode = 2;
+        % gluSphere sizes need radius, but all others are diameter...normalize
+        dotsz = dotsz./2;
+    end
+else
+    useDiskMode = 0;
+end
         % [dotType] is interpreted as follows:
         % 0-2 	standard DrawDots type (square, anti-aliased, xtra-nice anti-aliased)
         % 3-9   geodesic sphere resolution, n-3==icosahedron scale factor
@@ -177,51 +194,51 @@ if useDiskMode==1
     %% Draw as 3D geodesic spheres (soo nice, but needs Linux atm.)
 
     % Dot size gets tacked onto xyz buffer data
-    xyz(4,:) = dotsz;
+    xyz(4,:) = dotsz(:);
 
     % Initialize buffers (only once!)
-    if ~isfield(glb,'glsl')
+    if ~isfield(glB,'glsl')
         % Load the speedy shader
-        shaderpath = {fullfile(pwd, 'geosphere.vert'), fullfile(pwd, 'geosphere.frag')};
-        glb.glsl = LoadGLSLProgramFromFiles(shaderpath,1);
+        shaderpath = {fullfile(glslshader, 'geosphere.vert'), fullfile(glslshader, 'geosphere.frag')};
+        glB.glsl = LoadGLSLProgramFromFiles(shaderpath,1);
 
-        [vv,ff] = glDraw.icosphere(dotType);
+        [vv,ff] = glDraw.icosphere(dotType-3);
         % convert vv into direct triangles (...would be better if indexed vectors, but whatever)
         ff = ff';
         vv = 0.5*vv(ff(:),:)'; % expand indexing & convert to unit diameter (size == [3, ntriangles]);
-        glb.ntris = size(vv,2);
+        glB.ntris = size(vv,2);
         
         % vertex buffer
-        % jnk = whos('vv'); glb.vert.mem=jnk.bytes; % gets memory size of var
-        glb.vert.mem = numel(vv)*4; % will become GL.FLOAT, 4 bytes/el.  
-        glb.vert.h = glGenBuffers(1);
-        glb.vert.i = 0; % attribute index   (must correspond to init order inside shader)
-        glBindBuffer(GL.ARRAY_BUFFER, glb.vert.h);
-        glBufferData(GL.ARRAY_BUFFER, glb.vert.mem, vv(:), GL.STATIC_DRAW);
+        % jnk = whos('vv'); glB.vert.mem=jnk.bytes; % gets memory size of var
+        glB.vert.mem = numel(vv)*4; % will become GL.FLOAT, 4 bytes/el.  
+        glB.vert.h = glGenBuffers(1);
+        glB.vert.i = 0; % attribute index   (must correspond to init order inside shader)
+        glBindBuffer(GL.ARRAY_BUFFER, glB.vert.h);
+        glBufferData(GL.ARRAY_BUFFER, glB.vert.mem, single(vv(:)), GL.STATIC_DRAW);
         
         % position buffer: [x, y, z, size]
         % Data will stream to this buffer for each frame
-        %jnk = whos('dotPos'); glb.pos.mem = jnk.bytes;  % gets memory size of var
-        glb.pos.mem = numel(dotPos)*4;  % 4 bytes/el.  
-        glb.pos.h = glGenBuffers(1);
-        glb.pos.i = 1; % attribute index
-        glBindBuffer(GL.ARRAY_BUFFER, glb.pos.h);
-        glBufferData(GL.ARRAY_BUFFER, glb.pos.mem, xyz(:), GL.STREAM_DRAW);
+        %jnk = whos('xyz'); glB.pos.mem = jnk.bytes;  % gets memory size of var
+        glB.pos.mem = numel(xyz)*4;  % 4 bytes/el.  
+        glB.pos.h = glGenBuffers(1);
+        glB.pos.i = 1; % attribute index
+        glBindBuffer(GL.ARRAY_BUFFER, glB.pos.h);
+        glBufferData(GL.ARRAY_BUFFER, glB.pos.mem, single(xyz(:)), GL.STREAM_DRAW);
         
         % color buffer: [r, g, b, a]
         % Data will stream to this buffer for each frame
-        % jnk = whos('col'); glb.col.mem = jnk.bytes;   % gets memory size of var
-        glb.col.mem = numel(dotcolor)*4;  % 4 bytes/el.  
-        glb.col.h = glGenBuffers(1);
-        glb.col.i = 2; % attribute index
-        glBindBuffer(GL.ARRAY_BUFFER, glb.col.h);
-        glBufferData(GL.ARRAY_BUFFER, glb.col.mem, dotcolor(:), GL.STREAM_DRAW);
+        % jnk = whos('col'); glB.col.mem = jnk.bytes;   % gets memory size of var
+        glB.col.mem = numel(dotcolor)*4;  % 4 bytes/el.  
+        glB.col.h = glGenBuffers(1);
+        glB.col.i = 2; % attribute index
+        glBindBuffer(GL.ARRAY_BUFFER, glB.col.h);
+        glBufferData(GL.ARRAY_BUFFER, glB.col.mem, single(dotcolor(:)), GL.STREAM_DRAW);
         
     else
         % Update position buffer (via "orphaning")
-        glBindBuffer(GL.ARRAY_BUFFER, glb.pos.h);
-        glBufferData(GL.ARRAY_BUFFER, glb.pos.mem, 0, GL.STREAM_DRAW); % for gl___() calls 0=="NULL"
-        glBufferSubData(GL.ARRAY_BUFFER, 0, glb.pos.mem, xyz(:));
+        glBindBuffer(GL.ARRAY_BUFFER, glB.pos.h);
+        glBufferData(GL.ARRAY_BUFFER, glB.pos.mem, 0, GL.STREAM_DRAW); % for gl___() calls 0=="NULL"
+        glBufferSubData(GL.ARRAY_BUFFER, 0, glB.pos.mem, single(xyz(:)));
         
         % Update color buffer
         %  ....not yet implemented.
@@ -231,20 +248,20 @@ if useDiskMode==1
     % Backup old shader binding:
     oldShader = glGetIntegerv(GL.CURRENT_PROGRAM);
     % Set new one:
-    glUseProgram(glb.glsl);
+    glUseProgram(glB.glsl);
 
     % vertex buffer
-    glEnableVertexAttribArray(glb.vert.i);  %(GL attribute index starts at zero)
-    glBindBuffer(GL.ARRAY_BUFFER, glb.vert.h);
-    glVertexAttribPointer(glb.vert.i, 3, GL.FLOAT, GL.FALSE, 0, 0);
+    glEnableVertexAttribArray(glB.vert.i);  %(GL attribute index starts at zero)
+    glBindBuffer(GL.ARRAY_BUFFER, glB.vert.h);
+    glVertexAttribPointer(glB.vert.i, 3, GL.FLOAT, GL.FALSE, 0, 0);
     % pos & size buffer
-    glEnableVertexAttribArray(glb.pos.i);
-    glBindBuffer(GL.ARRAY_BUFFER, glb.pos.h);
-    glVertexAttribPointer(glb.pos.i, 4, GL.FLOAT, GL.FALSE, 0, 0);
+    glEnableVertexAttribArray(glB.pos.i);
+    glBindBuffer(GL.ARRAY_BUFFER, glB.pos.h);
+    glVertexAttribPointer(glB.pos.i, 4, GL.FLOAT, GL.FALSE, 0, 0);
     % color buffer
-    glEnableVertexAttribArray(glb.col.i);
-    glBindBuffer(GL.ARRAY_BUFFER, glb.col.h);
-    glVertexAttribPointer(glb.col.i, 4, GL.FLOAT, GL.TRUE, 0, 0);
+    glEnableVertexAttribArray(glB.col.i);
+    glBindBuffer(GL.ARRAY_BUFFER, glB.col.h);
+    glVertexAttribPointer(glB.col.i, 4, GL.FLOAT, GL.TRUE, 0, 0);
 
     % Assign buffer usage   (!!specific to glDrawArrays*Instanced*!!)
     % // The first parameter is the attribute buffer #
@@ -256,15 +273,15 @@ if useDiskMode==1
     % % % % % %
     % DRAW IT!!
     % % % % % %
-    glDrawArraysInstanced(GL.TRIANGLES, 0, glb.ntris, ndots);
+    glDrawArraysInstanced(GL.TRIANGLES, 0, glB.ntris, ndots);
     
     % disable dot attribute buffers & clean up
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
     
-    % Reset old shader binding:
-    glUseProgram(oldShader);
+%     % Reset old shader binding:
+%     glUseProgram(oldShader);
 
     
 elseif useDiskMode==2

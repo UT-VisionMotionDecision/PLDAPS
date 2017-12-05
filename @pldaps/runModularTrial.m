@@ -88,7 +88,7 @@ function p = runModularTrial(p, replay)
             Priority(oldPriority);
         end
         if round(newPriority)<maxPriority
-            warning('pldaps:runTrial', 'Thread priority was degraded by operating system during the trial.')
+%             warning('pldaps:runTrial', 'Thread priority was degraded by operating system during the trial.')
         end
     end
 
