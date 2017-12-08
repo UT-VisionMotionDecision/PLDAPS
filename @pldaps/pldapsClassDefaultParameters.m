@@ -54,6 +54,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	display.	useOverlay = 1;
  s.	display.	viewdist = 57;
  s.	display.	widthcm = 63;
+ s. display.    useGL   = false;
 
 % Movie making moved to pds.pldapsMovie module
 
