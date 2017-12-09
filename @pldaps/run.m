@@ -19,10 +19,14 @@ function p = run(p)
     %% Setup and File management
     % clean IOPort handles (no PTB method to retrieve previously opened IOPort handles, so might as well clean slate)
     IOPort('CloseAll');
+    if ~isfield(p.trial.pldaps,'verbosity')
+        p.trial.pldaps.verbosity = 3;
+    end
+    Screen('Preference','Verbosity', p.trial.pldaps.verbosity);
+    IOPort('Verbosity', p.trial.pldaps.verbosity-1); % quieter
+    PsychPortAudio('Verbosity', p.trial.pldaps.verbosity-1); % quieter
     
-    % Enure we have an experimentSetupFile set and verify output file
-    
-    %make sure we are not running an experiment twice
+    % Each PLDAPS instance can only be run once. Abort if it appears this has already occurred
     if isField(p.defaultParameters, 'session.initTime')
         warning('pldaps:run', 'pldaps objects appears to have been run before. A new pldaps object is needed for each run');
         return
@@ -49,8 +53,15 @@ function p = run(p)
         end
 
          if ~exist(p.trial.session.dir, 'dir')
-            warning('pldaps:run','Data directory specified in .pldaps.dirs.data does not exist. Quitting PLDAPS. p.trial.pldaps.dirs.data=%s\nPlease create the directory along with a subdirectory called TEMP',p.trial.session.dir);
-            return;
+            warning('pldaps:run','Data directory specified in .pldaps.dirs.data does not exist.\n');
+            ans = input(sprintf('\tShould I create Data & TEMP dirs in: %s? (...if not, will quit PLDAPS)\n\t\t(y/n): ',p.trial.pldaps.dirs.data), 's');
+            if ~isempty(ans) && lower(ans(1))=='y'
+                mkdir(fullfile(p.trial.pldaps.dirs.data));
+                mkdir(fullfile(p.trial.pldaps.dirs.data, 'TEMP'));
+            else
+                fprintf(2, '\n\tQuitting PLDAPS. Please run createRigPrefs to update your data dirs,\n\tor create directory %s, containing a subdirectory called ''TEMP''\n\n', p.trial.pldaps.dirs.data)
+                return;
+            end
          end
     else
         p.defaultParameters.session.file='';
@@ -407,7 +418,7 @@ function p = run(p)
                 if isstruct(glB.(fn1{i})) && isfield(glB.(fn1{i}),'h')
                     % contains buffer handle
                     glDeleteBuffers(1, glB.(fn1{i}).h);
-                    fprintf('\tDeleted glBuffer glB.%s\n', fn1{i});
+                    % fprintf('\tDeleted glBuffer glB.%s\n', fn1{i});
                     glB = rmfield(glB, fn1{i});
                     
                 elseif glGetProgramiv(glB.(fn1{i}), GL.PROGRAM_BINARY_LENGTH)
