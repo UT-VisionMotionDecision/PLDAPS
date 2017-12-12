@@ -50,7 +50,9 @@ function p = runModularTrial(p, replay)
     while ~p.trial.flagNextTrial && p.trial.pldaps.quit == 0
         %go through one frame by calling the modules with the different states.
         %Save the times each state is finished.
-
+        %advance to next frame, update frame index
+        p.trial.iFrame = p.trial.iFrame + 1;
+        
         %time of the estimated next flip
         if replay
             if p.trial.iFrame==1
@@ -65,11 +67,12 @@ function p = runModularTrial(p, replay)
         %iterate through frame states
         for iState=1:nStates
             runStateforModules(p,stateName{iState},modules,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
-
-            if p.trial.iFrame>size(p.data{p.trial.pldaps.iTrial}.timing.frameStateChangeTimes,2)
-                break;
-            end
+            
             if replay
+                if p.trial.iFrame>size(p.data{p.trial.pldaps.iTrial}.timing.frameStateChangeTimes,2)
+                break;
+                end
+            
                 p.trial.ttime=p.data{p.trial.pldaps.iTrial}.timing.frameStateChangeTimes(iState,p.trial.iFrame)+ p.trial.nextFrameTime-p.trial.display.ifi;
             else
                 p.trial.ttime = GetSecs - p.trial.trstart;
@@ -78,8 +81,6 @@ function p = runModularTrial(p, replay)
             p.trial.timing.frameStateChangeTimes(iState,p.trial.iFrame)=p.trial.ttime-p.trial.nextFrameTime+p.trial.display.ifi;
         end
 
-        %advance to next frame, update frame index
-        p.trial.iFrame = p.trial.iFrame + 1;
     end %while Trial running
     
 	% trialItiDraw
