@@ -44,7 +44,7 @@ p.trial=p.defaultParameters;
 
 p.defaultParameters.setLevels(preLevels);
 %convert luts
-if p.defaultParameters.datapixx.use
+if p.defaultParameters.datapixx.use && ~newDisplay.useOverlay
     clutNames=fieldnames(p.trial.display.clut);
     for c=1:length(clutNames)
         cind=p.trial.display.clut.(clutNames{c})(1);
@@ -75,9 +75,8 @@ p.trial.display.scrnNum=newDisplay.scrnNum;
 p.trial.display.useOverlay=newDisplay.useOverlay;
 p.trial.display.colorclamp=newDisplay.colorclamp;
 p.trial.display.forceLinearGamma=newDisplay.forceLinearGamma;
-if isfield(newDisplay,'movie')
-    p.trial.display.movie=newDisplay.movie;
-end
+p.trial.display.movie=newDisplay.movie;
+p.trial.display.switchOverlayCLUTs=newDisplay.switchOverlayCLUTs;
 if isfield(newDisplay,'gamma')
     p.trial.display.gamma=newDisplay.gamma;
 end
@@ -93,6 +92,7 @@ try
     p = openScreen(p);
     
     %% rescale dot drawing
+    p.trial.display.frate = PDS.initialParametersMerged.display.frate;
     p.trial.replay.xfactor= p.trial.display.pWidth/PDS.initialParametersMerged.display.pWidth;
     p.trial.replay.yfactor= p.trial.display.pHeight/PDS.initialParametersMerged.display.pHeight;
 
@@ -130,7 +130,7 @@ try
     %% Last chance to check variables
     if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
         p  %#ok<NOPRT>
-        disp('Ready to begin trials. Type "dbcont" to start first trial...')
+        disp('Ready to begin trials. Type return to start first trial...')
         keyboard %#ok<MCKBD>
     end
  
@@ -196,7 +196,7 @@ try
                 ListenChar(0);
                 ShowCursor;
                 p.trial
-                disp('Ready to begin trials. Type "dbcont" to start first trial...')
+                disp('Ready to begin trials. Type return to start first trial...')
                 keyboard %#ok<MCKBD>
                 p.trial.pldaps.quit = 0;
                 ListenChar(2);
@@ -237,7 +237,7 @@ try
         end
     end
         
-    if isfield(p.trial.display, 'movie') && p.trial.display.movie.create
+    if p.trial.display.movie.create
         Screen('FinalizeMovie', p.trial.display.movie.ptr);
     end
     Screen('CloseAll');
@@ -272,7 +272,7 @@ function pauseLoop(dv)
             if p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.Lctrl)&&p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.Lalt)
                 %D: Debugger
                 if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey) 
-                    disp('stepped into debugger. Type "dbcont" to start first trial...')
+                    disp('stepped into debugger. Type return to start first trial...')
                     keyboard %#ok<MCKBD>
 
                 %E: Eyetracker Setup
