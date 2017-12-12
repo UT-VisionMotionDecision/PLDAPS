@@ -125,11 +125,14 @@ if nargin < 5 || isempty(dotType)
     dotType = 12;
 else
     if ~IsLinux && (dotType>2 && dotType<10)
-        dotType = dotType+7;
-        warning(['Attempted to use geodesic sphere rendering, but this machine is not Linux.\n',...
-                 '\tDowngrading dotType to %d for standard gluSphere dots (muuuch slower!).\n',...
-                 '\tFor more info, see help text of:  %s\n'], dotType, mfilename('fullpath'))
-        %error('Requested dotType of (%d) from %s,\nBut geodesic sphere drawing on GPU only compatible on Linux', dotType, mfilename);
+            dotType = dotType+7;
+        persistent beenWarned %#ok<TLEV>
+        if isempty(beenWarned)
+            warning(['Attempted to use geodesic sphere rendering, but this machine is not Linux.\n',...
+                '\tDowngrading dotType to %d for standard gluSphere dots (will be muuuch slower!).\n',...
+                '\tFor more info, see help text of:  %s\n'], dotType, mfilename('fullpath'))
+            beenWarned = true;
+        end
     end
 end
 % must be integer input, so impose by setting class here
@@ -280,8 +283,8 @@ if useDiskMode==1
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
     
-%     % Reset old shader binding:
-%     glUseProgram(oldShader);
+    % Reset old shader binding:
+    glUseProgram(oldShader);
 
     
 elseif useDiskMode==2
@@ -382,13 +385,14 @@ else
         glPointSize(dotsz);
         glDrawArrays(GL.POINTS, 0, ndots);
     end
+    
+    if ~isempty(glslshader)
+        % Reset old shader binding:
+        glUseProgram(oldShader);
+    end
 end
 
 %% Clean up
-if ~isempty(glslshader)
-    % Reset old shader binding:
-    glUseProgram(oldShader);
-end
 
 if ~useDiskMode % clean up after drawing GL.POINTS
     if ncolors > 1
