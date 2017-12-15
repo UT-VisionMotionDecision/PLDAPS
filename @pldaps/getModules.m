@@ -68,13 +68,25 @@ moduleRequestedStates = cellfun(@(x)...
 
 % not totally clear what this special case is...backwards compatibility?
 if isfield(p.trial.pldaps,'trialFunction') && ~isempty(p.trial.pldaps.trialFunction)
-    moduleNames{end+1}='stimulus';
-    moduleFunctionHandles{end+1}=str2func(p.trial.pldaps.trialFunction);
+    beforeZero = moduleOrder < 0;
+    afterZero  = moduleOrder >=0;
+    
+    % place at front
+    moduleNames = [moduleNames(beforeZero) {'stimulus'} moduleNames(afterZero)];
+    moduleFunctionHandles = [moduleFunctionHandles(beforeZero) {str2func(p.trial.pldaps.trialFunction)} moduleFunctionHandles(afterZero)];
     for iState=1:length(moduleRequestedStates)
-        moduleRequestedStates{iState}(end+1)=true;
+        moduleRequestedStates{iState} = [moduleRequestedStates{iState}(beforeZero) true moduleRequestedStates{iState}(afterZero)];
     end
-    moduleOrder(end+1)=NaN; %#ok<NASGU>
-    moduleLocationInputs(end+1)=false;
+%     moduleOrder = [{0} moduleOrder];
+    moduleLocationInputs = [moduleLocationInputs(beforeZero) false moduleLocationInputs(afterZero)];
+%    % place at end    
+%     moduleNames{end+1}='stimulus';
+%     moduleFunctionHandles{end+1}=str2func(p.trial.pldaps.trialFunction);
+%     for iState=1:length(moduleRequestedStates)
+%         moduleRequestedStates{iState}(end+1)=true;
+%     end
+%     moduleOrder(end+1)=0; %#ok<NASGU>
+%     moduleLocationInputs(end+1)=false;
 end
 
 % Format requested states to a struct of each available trialState, with logical flags for each module

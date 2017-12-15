@@ -33,11 +33,20 @@ function p = run(p)
         
     if ~p.defaultParameters.pldaps.nosave
         p.defaultParameters.session.dir = p.defaultParameters.pldaps.dirs.data;
-        p.defaultParameters.session.file = sprintf('%s%s%s%s.PDS',...
+        
+        if isfield(p.defaultParameters.session, 'experimentName')
+            p.defaultParameters.session.file = sprintf('%s%s%s%s.PDS',...
+                                                   p.defaultParameters.session.subject,...
+                                                   datestr(p.defaultParameters.session.initTime, 'yyyymmdd'),...
+                                                   p.defaultParameters.session.experimentName, ...
+                                                   datestr(p.defaultParameters.session.initTime, 'HHMM'));
+        else
+            p.defaultParameters.session.file = sprintf('%s%s%s%s.PDS',...
                                                    p.defaultParameters.session.subject,...
                                                    datestr(p.defaultParameters.session.initTime, 'yyyymmdd'),...
                                                    p.defaultParameters.session.experimentSetupFile, ...
                                                    datestr(p.defaultParameters.session.initTime, 'HHMM'));
+        end
         
         if p.defaultParameters.pldaps.useFileGUI
             [cfile, cdir] = uiputfile('.PDS', 'specify data storage file', fullfile( p.defaultParameters.session.dir,  p.defaultParameters.session.file));
@@ -64,7 +73,11 @@ function p = run(p)
         p.trial.pldaps.modNames.all = getModules(p, 0);
 
         %experimentSetup before openScreen to allow modifyiers
-        [moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p);        
+        [moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p);
+        
+        % run all modules state experimentPreOpenScreen
+        moduleRequestedStates.experimentPreOpenScreen = 1:numel(moduleNames);
+        
         runStateforModules(p,'experimentPreOpenScreen', moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
     end
     

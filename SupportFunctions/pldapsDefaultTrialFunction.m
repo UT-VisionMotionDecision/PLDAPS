@@ -36,7 +36,7 @@ function pldapsDefaultTrialFunction(p,state, sn)
         case p.trial.pldaps.trialStates.frameDrawingFinished
             frameDrawingFinished(p);
             
-        case p.trial.pldaps.trialStates.frameFlip; 
+        case p.trial.pldaps.trialStates.frameFlip
             frameFlip(p);
             
         % TRIAL STATES
@@ -154,6 +154,9 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 
         %get plexon spikes
         % pds.plexon.spikeserver.getSpikes(p);
+        
+        % save eye position at each frame
+        p.trial.behavior.eyeAtFrame(:,p.trial.iFrame) = [p.trial.eyeX; p.trial.eyeY];
 
     end %frameUpdate
     
@@ -396,6 +399,8 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
             setupGLPerspective(p.trial.display); % subfunction
         end
         
+        p.trial.behavior.eyeAtFrame = nan(2, p.trial.pldaps.maxFrames);
+        
     end %trialSetup
     
     
@@ -569,6 +574,9 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         
        % reward system
        pds.behavior.reward.cleanUpandSave(p);
+       
+       % eye position tracking
+       p.trial.behavior.eyeAtFrame = p.trial.behavior.eyeAtFrame(:,1:p.trial.iFrame);
        
     end %cleanUpandSave
 
