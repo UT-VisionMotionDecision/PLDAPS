@@ -34,13 +34,6 @@ function pldapsDefaultTrialFunction(p,state, sn)
             end
 
         case p.trial.pldaps.trialStates.frameDrawingFinished
-            if p.trial.display.useGL
-                % Check & disable OpenGL mode before any Screen() calls (else will crash)
-                [~, IsOpenGLRendering] = Screen('GetOpenGLDrawMode');
-                if IsOpenGLRendering
-                    Screen('EndOpenGL', p.trial.display.ptr);
-                end
-            end            
             frameDrawingFinished(p);
             
         case p.trial.pldaps.trialStates.frameFlip; 
@@ -294,7 +287,16 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 %---------------------------------------------------------------------% 
 %%  frameDrawingFinished
     function frameDrawingFinished(p)
-    
+        % Check for & disable OpenGL mode before any Screen() calls (else will crash)
+        if p.trial.display.useGL
+            [~, IsOpenGLRendering] = Screen('GetOpenGLDrawMode');
+            % NOTE: polling opengl for info is slow; might make sense to go-for-broke here
+            % and assume an 'EndOpenGL' call is necessary given .useGL==true. Play it safe for now. --TBC Dec 2017
+            if IsOpenGLRendering
+                Screen('EndOpenGL', p.trial.display.ptr);
+            end
+        end
+
         Screen('DrawingFinished', p.trial.display.ptr);
     end %frameDrawingFinished
     
@@ -466,9 +468,9 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 
     
 %---------------------------------------------------------------------% 
-%%  cleanUpandSave
+%%  trialItiDraw
     function p = trialItiDraw(p)
-        % Only do the basic drawing commands jere
+        % Only do the basic drawing commands here
         %   ...e.g. maybe not eye pos, since it will be static
         % Grid overlay
         if p.trial.pldaps.draw.grid.use
