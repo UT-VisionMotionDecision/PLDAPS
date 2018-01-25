@@ -244,7 +244,9 @@ if useDiskMode==1
         glBufferSubData(GL.ARRAY_BUFFER, 0, glB.pos.mem, single(xyz(:)));
         
         % Update color buffer
-        %  ....not yet implemented.
+        glBindBuffer(GL.ARRAY_BUFFER, glB.col.h);
+        glBufferData(GL.ARRAY_BUFFER, glB.col.mem, 0, GL.STREAM_DRAW); % for gl___() calls 0=="NULL"
+        glBufferSubData(GL.ARRAY_BUFFER, 0, glB.col.mem, single(dotcolor(:)));
         
     end
 
