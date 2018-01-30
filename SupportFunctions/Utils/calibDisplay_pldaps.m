@@ -438,13 +438,9 @@ function retval = PR655init
 % 11/26/07    mpr   added timeout if nothing is returned within 10 seconds.
 % 01/16/09    tbc   Adapted from PR650Toolbox for use with PR655
 % 05/05/17    tbc   Hardcoded PR655 port settings for OSX
+% 2018-01-30  tbc   Let FindSerialPort make best guess for port name depending on OS.
+%                   (works on OSX & Linux rigs I've used)
 %
-% It seems the iterative CMCheckInit method of initialization is not
-% necessary with the PR655, so one run of this seems to do the trick.
-% "usbmodem*" seems to cover every instance I've run into. Not sure about
-% the prevalance of using usbmodem as a generic identifier, but if you can
-% afford the PR655, you're probably on some more respectable form of internet
-% connection. -TBC
 %
 
 global g_serialPort;
@@ -452,7 +448,7 @@ pdur = 0.05; % pause duration between IO
 
 % This seems to be the default name on OS/X. We don't know about other
 % operating systems defaults:
-portNumber = FindSerialPort('usbmodem', 1, 1);
+portNumber = FindSerialPort([], 1, 1);
 
 retval = [];
 ntries = 0;
@@ -489,7 +485,14 @@ while isempty(strfind(retval,'REMOTE')) && ntries<4
     else
         % On at least Linux (status on Windows is unknown atm.), we must not flush
         % on write - the opposite of OSX behaviour (see forum msg thread #15565):
-        g_serialPort = IOPort('OpenSerialPort', portNumber, [portSettings, 'Lenient DontFlushOnWrite=1']);
+        try
+            g_serialPort = IOPort('OpenSerialPort', portNumber, [portSettings, 'Lenient DontFlushOnWrite=1']);
+        catch
+            IOPort closeall % ...this is aggressive
+            pause(pdur*10)
+            g_serialPort = IOPort('OpenSerialPort', portNumber, [portSettings, 'Lenient DontFlushOnWrite=1']);
+        end
+            
     end
     pause(pdur)
     IOPort('Verbosity', oldverbo);
