@@ -1,4 +1,4 @@
-#version 330 compatibility
+//#version 330 compatibility
 #extension GL_ARB_explicit_attrib_location : require
 #extension GL_ARB_explicit_uniform_location : require
 

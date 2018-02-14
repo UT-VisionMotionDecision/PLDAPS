@@ -421,7 +421,7 @@ function p = run(p)
                     % fprintf('\tDeleted glBuffer glB.%s\n', fn1{i});
                     glB = rmfield(glB, fn1{i});
                     
-                elseif glGetProgramiv(glB.(fn1{i}), GL.PROGRAM_BINARY_LENGTH)
+                elseif glIsProgram(glB.(fn1{i}))
                     % is a GLSL program
                     glDeleteProgram(glB.(fn1{i}))
                 end

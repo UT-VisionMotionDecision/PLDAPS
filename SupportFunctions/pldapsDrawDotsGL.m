@@ -203,7 +203,7 @@ if useDiskMode==1
     if ~isfield(glB,'glsl')
         % Load the speedy shader
         shaderpath = {fullfile(glslshader, 'geosphere.vert'), fullfile(glslshader, 'geosphere.frag')};
-        glB.glsl = LoadGLSLProgramFromFiles(shaderpath,1);
+        glB.glsl = LoadGLSLProgramFromFiles(shaderpath, 0);
 
         [vv,ff] = glDraw.icosphere(dotType-3);
         % convert vv into direct triangles (...would be better if indexed vectors, but whatever)
@@ -240,12 +240,12 @@ if useDiskMode==1
     else
         % Update position buffer (via "orphaning")
         glBindBuffer(GL.ARRAY_BUFFER, glB.pos.h);
-        glBufferData(GL.ARRAY_BUFFER, glB.pos.mem, 0, GL.STREAM_DRAW); % for gl___() calls 0=="NULL"
+        glBufferData(GL.ARRAY_BUFFER, glB.pos.mem, 0, GL.STREAM_DRAW);
         glBufferSubData(GL.ARRAY_BUFFER, 0, glB.pos.mem, single(xyz(:)));
         
         % Update color buffer
         glBindBuffer(GL.ARRAY_BUFFER, glB.col.h);
-        glBufferData(GL.ARRAY_BUFFER, glB.col.mem, 0, GL.STREAM_DRAW); % for gl___() calls 0=="NULL"
+        glBufferData(GL.ARRAY_BUFFER, glB.col.mem, 0, GL.STREAM_DRAW);
         glBufferSubData(GL.ARRAY_BUFFER, 0, glB.col.mem, single(dotcolor(:)));
         
     end
@@ -271,19 +271,19 @@ if useDiskMode==1
     % Assign buffer usage   (!!specific to glDrawArrays*Instanced*!!)
     % // The first parameter is the attribute buffer #
     % // The second parameter is the "rate at which generic vertex attributes advance when rendering multiple instances"
-    glVertexAttribDivisor(0, 0); % particles vertices : always reuse the same n vertices -> 0
-    glVertexAttribDivisor(1, 1); % positions : one per element (its center) -> 1
-    glVertexAttribDivisor(2, 1); % color : one per element -> 1
+    glVertexAttribDivisorARB(0, 0); % particles vertices : always reuse the same n vertices -> 0
+    glVertexAttribDivisorARB(1, 1); % positions : one per element (its center) -> 1
+    glVertexAttribDivisorARB(2, 1); % color : one per element -> 1
     
     % % % % % %
     % DRAW IT!!
     % % % % % %
-    glDrawArraysInstanced(GL.TRIANGLES, 0, glB.ntris, ndots);
+    glDrawArraysInstancedARB(GL.TRIANGLES, 0, glB.ntris, ndots);
     
     % disable dot attribute buffers & clean up
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
+    glDisableVertexAttribArrayARB(0);
+    glDisableVertexAttribArrayARB(1);
+    glDisableVertexAttribArrayARB(2);
     
     % Reset old shader binding:
     glUseProgram(oldShader);

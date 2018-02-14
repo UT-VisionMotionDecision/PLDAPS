@@ -1,8 +1,8 @@
-#version 330 compatibility
+//#version 330 compatibility
 #extension GL_ARB_explicit_attrib_location : require
-#extension GL_ARB_explicit_uniform_location : require
+//#extension GL_ARB_explicit_uniform_location : require
 
-// Corresponding fragment shader to geosphere.vert (suuuper ghetto!)
+// Corresponding fragment shader to geosphere.vert
 // Hacked attempt at vertex shader for drawing geodesic spheres
 // as dots in PLDAPS (Matlab>PTB>openGL)
 //
