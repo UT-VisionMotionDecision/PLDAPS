@@ -73,6 +73,8 @@ if p.trial.datapixx.use
         disp('Using standard overlay window (EnableDataPixxM16OutputWithOverlay)')
         PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
         PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
+    else
+        PsychImaging('AddTask', 'General', 'FloatingPoint16Bit');
         
     end
     disp('****************************************************************')
