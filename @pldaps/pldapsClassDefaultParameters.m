@@ -146,8 +146,8 @@ function s=pldapsClassDefaultParameters(s)
 
 %s.	pldaps.	trialStates.
 	tsNeg = -1; tsPos = 1;
- s.	pldaps.	trialStates.        trialSetup = tsNeg;             tsNeg = tsNeg-1;
- s.	pldaps.	trialStates.        trialPrepare = tsNeg;           tsNeg = tsNeg-1;
+ s.	pldaps.	trialStates.    trialSetup = tsNeg;             tsNeg = tsNeg-1;
+ s.	pldaps.	trialStates.    trialPrepare = tsNeg;           tsNeg = tsNeg-1;
  s.	pldaps.	trialStates.	frameUpdate = tsPos;            tsPos = tsPos+1;
  s.	pldaps.	trialStates.	framePrepareDrawing = tsPos;    tsPos = tsPos+1;
  s.	pldaps.	trialStates.	frameDraw = tsPos;              tsPos = tsPos+1;
@@ -155,8 +155,8 @@ function s=pldapsClassDefaultParameters(s)
  s.	pldaps.	trialStates.	frameGLDrawRight = tsPos;       tsPos = tsPos+1;
  s.	pldaps.	trialStates.	frameDrawingFinished = tsPos;   tsPos = tsPos+1;
  s.	pldaps.	trialStates.	frameFlip = tsPos;              tsPos = tsPos+1;
- s. pldaps. trialStates.        trialItiDraw = tsNeg;           tsNeg = tsNeg-1;
- s.	pldaps.	trialStates.        trialCleanUpandSave = tsNeg;    tsNeg = tsNeg-1;
+ s. pldaps. trialStates.    trialItiDraw = tsNeg;           tsNeg = tsNeg-1;
+ s.	pldaps.	trialStates.    trialCleanUpandSave = tsNeg;    tsNeg = tsNeg-1;
  s.	pldaps.	trialStates.	experimentPreOpenScreen = tsNeg;    tsNeg = tsNeg-1;
  s.	pldaps.	trialStates.	experimentPostOpenScreen = tsNeg;   tsNeg = tsNeg-1;
  s.	pldaps.	trialStates.	experimentAfterTrials = tsNeg;      tsNeg = tsNeg-1;
