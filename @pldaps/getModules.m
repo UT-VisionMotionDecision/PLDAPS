@@ -32,8 +32,8 @@ moduleOrder = inf(size(moduleNames));
 hasOrder = cellfun(@(x) isfield(p.trial.(x).stateFunction,'order'), moduleNames);
 moduleOrder(hasOrder) = cellfun(@(x) p.trial.(x).stateFunction.order, moduleNames(hasOrder));
 [moduleOrder,so]=sort(moduleOrder);
-moduleNames=moduleNames(so);
-
+moduleNames = moduleNames(so);
+moduleNames = moduleNames(:)'; % enforce row vector (TODO: column better?)
 
 %% "acceptsLocationInput"
 % Means the function accepts a 3rd [string] input specifying the p.trial structure fieldname
@@ -68,8 +68,9 @@ moduleRequestedStates = cellfun(@(x)...
 
 % not totally clear what this special case is...backwards compatibility?
 if isfield(p.trial.pldaps,'trialFunction') && ~isempty(p.trial.pldaps.trialFunction)
-    beforeZero = moduleOrder < 0;
-    afterZero  = moduleOrder >=0;
+    beforeZero = find(moduleOrder < 0);
+    afterZero  = find(moduleOrder >=0);
+    
     
     % place at front
     moduleNames = [moduleNames(beforeZero) {'stimulus'} moduleNames(afterZero)];
