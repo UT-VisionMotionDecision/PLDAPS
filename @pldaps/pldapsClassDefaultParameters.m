@@ -54,6 +54,8 @@ function s=pldapsClassDefaultParameters(s)
  s.	display.	useOverlay = 1;
  s.	display.	viewdist = 57;
  s.	display.	widthcm = 63;
+ s. display.    ipd = 6.5;
+ s. display.    useGL = false; % flag for custom 3D rendering features
 
 % Movie making moved to pds.pldapsMovie module
 
