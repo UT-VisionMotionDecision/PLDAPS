@@ -1,4 +1,4 @@
-function p = track(p, fname)
+function p = track(p, fname, gname)
 % tack git repo for specified file
 % p = pds.git.track(p, fname)
 % Input:
@@ -13,6 +13,11 @@ fpath = which(fname);
 
 [fpath, fname, ~] = fileparts(fpath);
 
-p.defaultParameters.git.(fname).status = pds.git.git(['-C ' fpath ' status']);
-p.defaultParameters.git.(fname).diff = pds.git.git(['-C ' fpath ' diff']);
-p.defaultParameters.git.(fname).revision = pds.git.git(['-C '  fpath ' rev-parse HEAD']);
+if nargin < 3
+    gname = fname;
+    gname = strrep(gname, '.', '');
+end
+
+p.defaultParameters.git.(gname).status = pds.git.git(['-C ' fpath ' status']);
+p.defaultParameters.git.(gname).diff = pds.git.git(['-C ' fpath ' diff']);
+p.defaultParameters.git.(gname).revision = pds.git.git(['-C '  fpath ' rev-parse HEAD']);

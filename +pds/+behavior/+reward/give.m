@@ -25,5 +25,9 @@ function p = give(p, amount)
     end
     
     %% store data
-	p.trial.behavior.reward.timeReward(:,p.trial.behavior.reward.iReward) = [GetSecs amount];
+    if p.trial.behavior.reward.iReward==1%~isfield(p.trial.behavior.reward, 'iReward')
+        p.trial.behavior.reward.timeReward = [GetSecs; amount];
+    else
+        p.trial.behavior.reward.timeReward(:,p.trial.behavior.reward.iReward) = [GetSecs amount];
+    end
 	p.trial.behavior.reward.iReward = p.trial.behavior.reward.iReward + 1;
