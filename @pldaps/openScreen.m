@@ -46,7 +46,7 @@ if p.trial.display.normalizeColor == 1
     disp('Sets all displays to use color range from 0-1 (e.g. NOT 0-255),')
     disp('while also setting color range to ''unclamped''.')
     disp('****************************************************************')
-    PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange');
+    PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange', 1);
 end
 
 if p.trial.datapixx.use
