@@ -444,6 +444,10 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         % SYNC clocks
 
         clocktime = fix(clock);
+        % we're only using the last two digits of the year so we can save
+        % on bits
+        clocktime(1) = clocktime(1) - 2e3; % only keep last two digits of year
+        assert((clocktime(1) > -1) & (clocktime(1) < 64), 'Something is up, or it is the year 2065')
         if p.trial.datapixx.use
             for ii = 1:6
                 p.trial.datapixx.unique_number_time(ii,:)=pds.datapixx.strobe(clocktime(ii));

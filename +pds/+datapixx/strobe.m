@@ -20,7 +20,7 @@ function timings=strobe(lowWord,highWord)
 if nargin < 2 
     highWord=0;
 end
-word=mod(lowWord, 2^8) + mod(highWord,2^8)*2^8;
+word=mod(lowWord, 2^6) + mod(highWord,2^6)*2^6;
 
 if nargout==0
     %first we set the bits without the strobe, to ensure they are all
