@@ -40,20 +40,23 @@ function s=pldapsClassDefaultParameters(s)
  s.	display.	bgColor = [ 0.5000    0.5000    0.5000 ];
  s.	display.	colorclamp = 0;
  s.	display.	destinationFactorNew = 'GL_ONE_MINUS_SRC_ALPHA';
+ s.	display.	sourceFactorNew = 'GL_SRC_ALPHA';
  s.	display.	displayName = 'defaultScreenParameters';
  s.	display.	forceLinearGamma = false;
- s.	display.	heightcm = 45;
+ s. display.    ipd = 6.5;
  s.	display.	normalizeColor = 1;
  s.	display.	screenSize = [ ];
  s.	display.	scrnNum = max(Screen('Screens'));
- s.	display.	sourceFactorNew = 'GL_SRC_ALPHA';
  s.	display.	stereoFlip = [ ];
  s.	display.	stereoMode = 0;
  s. display.    crosstalk = 0;
  s.	display.	switchOverlayCLUTs = false;
  s.	display.	useOverlay = 1;
+ s. display.    useGL = 0;
  s.	display.	viewdist = 57;
- s.	display.	widthcm = 63;
+ [w,h] =        Screen('DisplaySize', s.display.scrnNum);
+ s.	display.	widthcm = w/10;
+ s.	display.	heightcm = h/10;
 
 %s.	display.	movie.
  s.	display.	movie.	create = false;
@@ -109,7 +112,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	pldaps.	nosave = false;
  s.	pldaps.	pass = false;
  s.	pldaps.	quit = 0;
- s.	pldaps.	trialMasterFunction = 'runTrial';
+ s.	pldaps.	trialMasterFunction = 'runModularTrial';
  s.	pldaps.	useFileGUI = false;
  s.	pldaps.	useModularStateFunctions = false;
 
@@ -164,22 +167,6 @@ function s=pldapsClassDefaultParameters(s)
  s.	pldaps.	trialStates.	frameUpdate = 1;
  s.	pldaps.	trialStates.	trialPrepare = -2;
  s.	pldaps.	trialStates.	trialSetup = -1;
-        % % % % Keeping here short-term to see if removing unused/defunct unknowingly breaks too much --TBC Oct. 2017
-        % % %  s.	pldaps.	trialStates.	experimentAfterTrials = -7;
-        % % %  s.	pldaps.	trialStates.	experimentCleanUp = -6;
-        % % %  s.	pldaps.	trialStates.	experimentPostOpenScreen = -4;
-        % % %  s.	pldaps.	trialStates.	experimentPreOpenScreen = -5;
-        % % %  s.	pldaps.	trialStates.	frameDraw = 3;
-        % % %  s.	pldaps.	trialStates.	frameDrawingFinished = 6;
-        % % %  s.	pldaps.	trialStates.	frameDrawTimecritical = -Inf;
-        % % %  s.	pldaps.	trialStates.	frameFlip = 8;
-        % % %  s.	pldaps.	trialStates.	frameIdlePostDraw = -Inf;
-        % % %  s.	pldaps.	trialStates.	frameIdlePreLastDraw = -Inf;
-        % % %  s.	pldaps.	trialStates.	framePrepareDrawing = 2;
-        % % %  s.	pldaps.	trialStates.	frameUpdate = 1;
-        % % %  s.	pldaps.	trialStates.	trialCleanUpandSave = -3;
-        % % %  s.	pldaps.	trialStates.	trialPrepare = -2;
-        % % %  s.	pldaps.	trialStates.	trialSetup = -1;
 
 %s.	plexon.
 %s.	plexon.	spikeserver.
