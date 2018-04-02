@@ -285,8 +285,7 @@ elseif p.trial.display.useOverlay==2
             % Attach to list of shaders:
             icmShaders(end+1) = overlayShader;
 
-    pathtopldaps=which('pldaps.m');
-    p.trial.display.shader = LoadGLSLProgramFromFiles(fullfile(pathtopldaps, '..', '..', 'SupportFunctions', 'Utils', 'overlay_shader.frag'), 2, icmShaders);
+    p.trial.display.shader = LoadGLSLProgramFromFiles(fullfile(p.trial.pldaps.dirs.proot, 'SupportFunctions', 'Utils', 'overlay_shader.frag'), 2, icmShaders);
 
     if p.trial.display.info.GLSupportsTexturesUpToBpc >= 32
         % Full 32 bits single precision float:
