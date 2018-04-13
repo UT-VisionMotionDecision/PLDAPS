@@ -75,9 +75,6 @@ if p.trial.datapixx.use
         PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
         PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
     
-    else 
-        PsychImaging('AddTask', 'General', 'FloatingPoint16Bit', 'disableDithering',1);
-        
     else
         % Use at least 16-bit framebuffers & always disable dithering
         PsychImaging('AddTask', 'General', 'FloatingPoint16Bit','disableDithering',1);
