@@ -54,7 +54,9 @@ function p = runModularTrial(p, replay)
         %Save the times each state is finished.
 
         %time of the next flip request
-        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + .98*p.trial.display.ifi;
+        %   --see pldapsDefaultTrialFunction.m>>frameFlip to determine if imposed
+        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + 0.9 * p.trial.display.ifi;
+
         % Start timer for GPU rendering operations
         Screen('GetWindowInfo', p.trial.display.ptr, 5);
         
@@ -88,7 +90,7 @@ function p = runModularTrial(p, replay)
             Priority(oldPriority);
         end
         if round(newPriority)<maxPriority
-%             warning('pldaps:runTrial', 'Thread priority was degraded by operating system during the trial.')
+            warning('pldaps:runTrial', 'Thread priority was degraded by operating system during the trial.')
         end
     end
 

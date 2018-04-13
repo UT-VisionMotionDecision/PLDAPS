@@ -31,9 +31,10 @@ function p = openScreen(p)
 %                           pldapsClassDefaultParameters
 
 
-InitializeMatlabOpenGL(0,0); %second 0: debug level =0 for speed
 % prevent splash screen
 Screen('Preference','VisualDebugLevel',3);
+InitializeMatlabOpenGL(0, 0); %second 0: debug level =0 for speed, debug level=3 == "very verbose" (slow, but incl. error msgs from w/in OpenGL/mogl functions)
+
 % Initiate Psych Imaging screen configs
 PsychImaging('PrepareConfiguration');
 
@@ -63,24 +64,29 @@ if p.trial.datapixx.use
         PsychImaging('AddTask', 'General', 'FloatingPoint16Bit','disableDithering',1);
         % With RB3d, all overlay init must be performed after window has been created.
         if p.trial.display.useOverlay==1
-            disp('Using RB3d with overlay window (via Datapixx VideoMode==9)')
+            disp('Using RB3d with hardware overlay (via Datapixx VideoMode==9)')
         else
-            disp('Using RB3d without overlay window (via Datapixx VideoMode==9)')
+            disp('Using RB3d without hardware overlay')
         end
         
     elseif p.trial.display.useOverlay==1
         % Turn on the standard overlay
-        disp('Using standard overlay window (EnableDataPixxM16OutputWithOverlay)')
+        disp('Using standard hardware overlay (EnableDataPixxM16OutputWithOverlay)')
         PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
         PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
+        
+    else
+        % Use at least 16-bit framebuffers & always disable dithering
+        PsychImaging('AddTask', 'General', 'FloatingPoint16Bit','disableDithering',1);
         
     end
     disp('****************************************************************')
     
 else
-    % No...32 bpc is massive overkill, and significantly slows rendering time
+    % No...32 bpc is massive overkill ([ab]used by datapixx M16 overlay),
+    % & significantly impacts rendering time with little to no benefit under most conditions
     % PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
-    PsychImaging('AddTask', 'General', 'FloatingPoint16Bit');
+    PsychImaging('AddTask', 'General', 'FloatingPoint16Bit', 'disableDithering',1);
 end
 
 %% Stereo specific adjustments
@@ -143,7 +149,7 @@ end
 disp('****************************************************************')
 fprintf('Opening screen %d with background %s in stereo mode %d\r', p.trial.display.scrnNum, mat2str(p.trial.display.bgColor), p.trial.display.stereoMode)
 disp('****************************************************************')
-[ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, 4);
+[ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, 0);
 p.trial.display.ptr=ptr;
 p.trial.display.winRect=winRect;
 
@@ -231,9 +237,7 @@ if p.trial.display.useOverlay==1
             glTexParameteri(GL.TEXTURE_RECTANGLE_EXT, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
             glBindTexture(GL.TEXTURE_RECTANGLE_EXT, 0);
 
-            
-            %             p.trial.display.overlayptr = p.trial.display.ptr;            
-        end        
+        end
     else
         warning('pldaps:openScreen', 'Datapixx Overlay requested but datapixx disabled. No Dual head overlay availiable!')
         p.trial.display.overlayptr = p.trial.display.ptr;
@@ -290,8 +294,7 @@ elseif p.trial.display.useOverlay==2
             % Attach to list of shaders:
             icmShaders(end+1) = overlayShader;
 
-    pathtopldaps=which('pldaps.m');
-    p.trial.display.shader = LoadGLSLProgramFromFiles(fullfile(pathtopldaps, '..', '..', 'SupportFunctions', 'Utils', 'overlay_shader.frag'), 2, icmShaders);
+    p.trial.display.shader = LoadGLSLProgramFromFiles(fullfile(p.trial.pldaps.dirs.proot, 'SupportFunctions', 'Utils', 'overlay_shader.frag'), debuglevel, icmShaders);
 
     if p.trial.display.info.GLSupportsTexturesUpToBpc >= 32
         % Full 32 bits single precision float:
