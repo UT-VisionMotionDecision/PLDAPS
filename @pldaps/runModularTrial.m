@@ -54,7 +54,7 @@ function p = runModularTrial(p, replay)
         %Save the times each state is finished.
 
         %time of the next flip request
-        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + .98*p.trial.display.ifi;
+        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + .9*p.trial.display.ifi;
         % Start timer for GPU rendering operations
         Screen('GetWindowInfo', p.trial.display.ptr, 5);
         
