@@ -61,7 +61,7 @@ if p.trial.datapixx.use
         % This overlay mode not subject to same bpc constraints as "M16 mode", so
         % no reason to massively over-sample color depth (relative to displays that
         % are typically only 8-bit)
-        PsychImaging('AddTask', 'General', 'FloatingPoint16Bit','disableDithering',1);
+        PsychImaging('AddTask', 'General', 'FloatingPoint16Bit', 'disableDithering',1);
         % With RB3d, all overlay init must be performed after window has been created.
         if p.trial.display.useOverlay==1
             disp('Using RB3d with hardware overlay (via Datapixx VideoMode==9)')
@@ -74,6 +74,9 @@ if p.trial.datapixx.use
         disp('Using standard hardware overlay (EnableDataPixxM16OutputWithOverlay)')
         PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
         PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
+    
+    else 
+        PsychImaging('AddTask', 'General', 'FloatingPoint16Bit', 'disableDithering',1);
         
     else
         % Use at least 16-bit framebuffers & always disable dithering
@@ -89,13 +92,17 @@ else
     PsychImaging('AddTask', 'General', 'FloatingPoint16Bit', 'disableDithering',1);
 end
 
+
 %% Stereo specific adjustments
 if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1
     % Ensure stereomode==8 (Red-Blue anaglyph) for proper assignment of L/R stereobuffers into R & B channels
    p.trial.display.stereoMode = 8;
 end
 
+p.trial.display.bufferIdx = 0; % basic/monocular Screen buffer index;
 if p.trial.display.stereoMode > 0
+    p.trial.display.bufferIdx(end+1) = 1; % buffer index for right eye
+
     % PTB stereo crosstalk correction
     if isfield(p.trial.display, 'crosstalk') && any(p.trial.display.crosstalk(:))
         % Crosstalk gains == [Lr Lg Lb; Rr Rg Rb]'; 

@@ -316,7 +316,7 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 %%  frameFlip
     function frameFlip(p)
         ft=cell(5,1);
-        [ft{:}] = Screen('Flip', p.trial.display.ptr, 0); %p.trial.nextFrameTime + p.trial.trstart);
+        [ft{:}] = Screen('Flip', p.trial.display.ptr, p.trial.nextFrameTime + p.trial.trstart);
         
         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
          
