@@ -17,7 +17,9 @@ function pldapsDefaultTrialFunction(p,state, sn)
             %    framePrepareDrawing(p);
             
         case p.trial.pldaps.trialStates.frameDraw
-            frameDraw(p,sn);
+            for i = p.trial.display.bufferIdx
+                frameDraw(p, sn, i);
+            end
             
         case p.trial.pldaps.trialStates.frameGLDrawLeft
             % Skip altogether if not enabled
@@ -175,17 +177,20 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
     
 %---------------------------------------------------------------------% 
 %%  frameDraw
-    function frameDraw(p, sn)
+    function frameDraw(p, sn, drawBuffer)
         %this holds the code to draw some stuff to the overlay (using
         %switches, like the grid, the eye Position, etc
+        
+        % be smart(ish) about binocular rendering
+        Screen('SelectStereoDrawBuffer', p.trial.display.ptr, drawBuffer);
         
         % Grid overlay
         if p.trial.pldaps.draw.grid.use
             Screen('DrawLines', p.trial.display.overlayptr, p.trial.pldaps.draw.grid.tick_line_matrix, 1, p.trial.display.clut.window, p.trial.display.ctr(1:2));
         end
         
-        % Framerate history
-        if p.trial.pldaps.draw.framerate.use && p.trial.iFrame>2
+        % Framerate history (only render once, to left eye)
+        if p.trial.pldaps.draw.framerate.use && p.trial.iFrame>2 && ~drawBuffer
             %update data
             p.trial.pldaps.draw.framerate.data=circshift(p.trial.pldaps.draw.framerate.data,-1);
             p.trial.pldaps.draw.framerate.data(end)=p.trial.timing.flipTimes(1,p.trial.iFrame-1)-p.trial.timing.flipTimes(1,p.trial.iFrame-2);
@@ -205,11 +210,17 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
          end
         
          % Eye positon
-         if p.trial.pldaps.draw.eyepos.use
-            Screen('Drawdots', p.trial.display.overlayptr, [p.trial.eyeX p.trial.eyeY]', ...
-                    p.trial.(sn).eyeW, p.trial.display.clut.eyepos, [0 0],0);
+         if  p.trial.pldaps.draw.eyepos.use
+             if ~p.trial.eyelink.use || numel(p.trial.eyelink.eyeIdx)==1
+                 Screen('Drawdots', p.trial.display.overlayptr, [p.trial.eyeX p.trial.eyeY]', ...
+                     p.trial.(sn).eyeW, p.trial.display.clut.eyepos, [0 0],0);
+             else
+                 Screen('Drawdots', p.trial.display.overlayptr, [p.trial.eyeX(drawBuffer+1) p.trial.eyeY(drawBuffer+1)]', ...
+                     p.trial.(sn).eyeW, p.trial.display.clut.(['eye',num2str(drawBuffer)]), [0 0],0);                  
+             end
          end
-         if p.trial.mouse.use && p.trial.pldaps.draw.cursor.use
+         
+         if p.trial.mouse.use && p.trial.pldaps.draw.cursor.use && ~drawBuffer
             Screen('Drawdots',  p.trial.display.overlayptr,  p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples), ...
             p.trial.(sn).eyeW, p.trial.display.clut.cursor, [0 0],0);
          end
@@ -308,7 +319,7 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 %%  frameFlip
     function frameFlip(p)
         ft=cell(5,1);
-        [ft{:}] = Screen('Flip', p.trial.display.ptr, 0); %p.trial.nextFrameTime + p.trial.trstart);
+        [ft{:}] = Screen('Flip', p.trial.display.ptr, p.trial.nextFrameTime + p.trial.trstart);
         
         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
          
@@ -480,14 +491,23 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 %%  trialItiDraw
     function p = trialItiDraw(p)
         % Only do the basic drawing commands here
-        %   ...e.g. maybe not eye pos, since it will be static
+        %   ...e.g. maybe not eye pos, since it cannot be updated during this phase
+
+        % Be smart(ish) about binocular rendering
+        Screen('SelectStereoDrawBuffer', p.trial.display.ptr, 0);
+        
         % Grid overlay
         if p.trial.pldaps.draw.grid.use
+            % render grid to monocular or left eye buffer
             Screen('DrawLines', p.trial.display.overlayptr, p.trial.pldaps.draw.grid.tick_line_matrix, 1, p.trial.display.clut.window, p.trial.display.ctr(1:2));
+            if any( (2:5)==p.trial.display.stereoMode )
+                % also render overlay grid to other eye for non-overlapping stereomodes
+                Screen('SelectStereoDrawBuffer', p.trial.display.ptr, 1);
+                Screen('DrawLines', p.trial.display.overlayptr, p.trial.pldaps.draw.grid.tick_line_matrix, 1, p.trial.display.clut.window, p.trial.display.ctr(1:2));
+            end
         end
-
         
-    end
+    end %trialItiDraw
     
     
 %---------------------------------------------------------------------%

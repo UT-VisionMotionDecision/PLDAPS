@@ -3,14 +3,9 @@ function p = setup(p)
 %
 % p = pds.eyelink.setup(p)
 % Setup PLDAPS to use Eyelink toolbox
-    
-    % What is the utility in stating what we're NOT using? --TBC 2017
-    % if ~p.trial.eyelink.use
-    %     fprintf('****************************************************************\r')
-    %     fprintf('****************************************************************\r')
-    %     fprintf('PLDAPS is NOT using EYELINK Toolbox for eyetrace. \r')
-    %     return
-    % else
+%
+% 20xx-xx-xx  AAA   Wrote it.
+% 2018-03-28  TBC   Binocular compatibility
     
 if p.trial.eyelink.use 
     
@@ -19,9 +14,9 @@ if p.trial.eyelink.use
     fprintLineBreak;
 
         
-    Eyelink('Initialize')
+    Eyelink('Initialize');
     
-    if p.trial.eyelink.custom_calibration;
+    if p.trial.eyelink.custom_calibration
         error('pldaps:eyelinkSetup','custom_calibration doesn''t work yet');
 %         dv.defaultParameters.eyelink.custom_calibration = false; % this doesnt work yet
     end
@@ -87,22 +82,22 @@ if p.trial.eyelink.use
     w = round(10*p.trial.display.widthcm/2);
     h = round(10*p.trial.display.heightcm/2);
     Eyelink('command',  'screen_phys_coords = %1d, %1d, %1d, %1d', -w, h, w, -h);
-    Eyelink('command',  'screen_distance = %1d', p.trial.display.viewdist*10);
+    Eyelink('command',  'screen_distance = %1d', round(p.trial.display.viewdist*10)); % must be integer mm
     
     
-    [v,vs] = Eyelink('GetTrackerVersion');
+    [~, vs] = Eyelink('GetTrackerVersion');
     disp('***************************************************************')
     fprintf('\tReading Values from %sEyetracker\r', vs)
     disp('***************************************************************')
-    [result, reply] = Eyelink('ReadFromTracker', 'screen_pixel_coords');
+    [~, reply] = Eyelink('ReadFromTracker', 'screen_pixel_coords');
     fprintf(['Screen pixel coordinates are:\t\t' reply '\r'])
-    [result, reply] = Eyelink('ReadFromTracker', 'screen_phys_coords');
+    [~, reply] = Eyelink('ReadFromTracker', 'screen_phys_coords');
     fprintf(['Screen physical coordinates are:\t' reply ' (in mm)\r'])
-    [result, reply] = Eyelink('ReadFromTracker', 'screen_distance');
+    [~, reply] = Eyelink('ReadFromTracker', 'screen_distance');
     fprintf(['Screen distance is:\t\t\t' reply '\r'])
-    [result, reply] = Eyelink('ReadFromTracker', 'analog_dac_range');
+    [~, reply] = Eyelink('ReadFromTracker', 'analog_dac_range');
     fprintf(['Analog output range is constraiend to:\t' reply ' (volts)\r'])
-    [result, srate] = Eyelink('ReadFromTracker', 'sample_rate');
+    [~, srate] = Eyelink('ReadFromTracker', 'sample_rate');
     fprintf(['Sampling rate is:\t\t\t' srate 'Hz\r'])
     p.trial.eyelink.srate = str2double(srate);
     pause(.05)
@@ -114,7 +109,7 @@ if p.trial.eyelink.use
         eyelinkI = 0;
     end
     
-    [result,reply]=Eyelink('ReadFromTracker','elcl_select_configuration');
+    [~, reply]=Eyelink('ReadFromTracker','elcl_select_configuration');
     p.trial.eyelink.trackerversion = vs;
     p.trial.eyelink.trackermode    = reply;
     
@@ -178,7 +173,7 @@ if p.trial.eyelink.use
     % ReadFromTracker needs to have 2 outputs.
     % variables querable are listed in the .ini files in the host
     % directories. Note that not all variables are querable.
-    [result, reply]=Eyelink('ReadFromTracker','enable_automatic_calibration');
+    [~, reply]=Eyelink('ReadFromTracker','enable_automatic_calibration');
     
     if reply % reply = 1
         fprintf('Automatic sequencing ON\r');
@@ -191,12 +186,22 @@ if p.trial.eyelink.use
     
     pause(.05)
     
-    [result, p.trial.eyelink.EYE_USED] = Eyelink('ReadFromTracker', 'active_eye');
+    % Map Eyelink eye-tracked settings to PLDAPS
+    [~, p.trial.eyelink.EYE_USED] = Eyelink('ReadFromTracker', 'active_eye');
     
+    [~, isBino] = Eyelink('ReadFromTracker', 'binocular_enabled');
+    if isBino
+        p.trial.eyelink.EYE_USED = 'BINO';
+    end
     
     p.trial.eyelink.eyeIdx = 1;
-    if strcmp(p.trial.eyelink.EYE_USED, 'RIGHT')
+    if strcmpi(p.trial.eyelink.EYE_USED, 'RIGHT')
         p.trial.eyelink.eyeIdx = 2;
+    elseif strcmpi(p.trial.eyelink.EYE_USED, 'BINO')
+        p.trial.eyelink.eyeIdx = [1, 2];
+        % Nope. Assigning different colors for each eye causes error
+        % when only one 'eyepos' value returned (e.g. .mouse.useAsEyepos==1)
+        %   p.defaultParameters.display.clut.eyepos = [p.defaultParameters.display.clut.eye1, p.defaultParameters.display.clut.eye2];
     end
     
     Eyelink('message', 'SETUP');
