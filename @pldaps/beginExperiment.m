@@ -11,10 +11,24 @@ function p = beginExperiment(p)
 %               from it
 % 05/2015 jk    adapted it to pldaps 4.1
 % 10/2016 jk    bumped version to 4.2
+% 2018-04-18 tbc    Updated to query git branch/tag name
+%                   otherwise, default to hardcoded string
 
-%% set version. make sure to also use the git version for finer control of subversions
+%% set version. make sure to use the git version for better documentation
 p.defaultParameters.pldaps.version.number=4.2;
-p.defaultParameters.pldaps.version.name='openreception';
+defName = 'glDraw_nonGit';
+try
+    % Get the current git branch (or tag) name of the PLDAPS codebase in use
+    %       (a frustratingly cryptic looking string command...sorry, blame git)
+    [err, branchTag] = system( sprintf('git -C %s symbolic-ref -q --short HEAD || git -C %s describe --tags --exact-match', p.trial.pldaps.dirs.proot, p.trial.pldaps.dirs.proot) );
+    if err, error(''), end
+    p.defaultParameters.pldaps.version.name = branchTag(1:end-1); % remove pesky '\n' at end of returned string
+catch
+    fprintf(2, '!Notice:\tFailed to retrieve the git branch/tag information from this PLDAPS installation.\n')
+    p.defaultParameters.pldaps.version.name = defName;
+    fprintf(2, '!Notice:\t    <%s>    will be stored as the version name for now, but follow-up is recommended.\n', p.defaultParameters.pldaps.version.name)
+end
+
 p.defaultParameters.pldaps.version.logo='https://motion.cps.utexas.edu/wp-content/uploads/2013/07/platypus-300x221.gif';
 
 % get Matlab version
