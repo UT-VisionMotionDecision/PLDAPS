@@ -52,31 +52,27 @@ end
 if p.trial.datapixx.use
     disp('****************************************************************')
     disp('Adds flags for UseDataPixx')
-    disp('****************************************************************')
     % Tell PTB we are using Datapixx
     PsychImaging('AddTask', 'General', 'UseDataPixx');
-    PsychImaging('AddTask', 'General', 'FloatingPoint32Bit','disableDithering',1);
     
-    if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1
-        % With RB3d, all overlay init must be performed after window has been created.
-        if p.trial.display.useOverlay==1
-            disp('Using RB3d with overlay window (via Datapixx VideoMode==9)')
-        else
-            disp('Using RB3d without overlay window (via Datapixx VideoMode==9)')
-        end
-        
-    elseif p.trial.display.useOverlay==1
-        % Turn on the standard overlay
-        disp('Using standard overlay window (EnableDataPixxM16OutputWithOverlay)')
+    if p.trial.display.useOverlay==1 && (~isfield(p.trial.datapixx, 'rb3d') || p.trial.datapixx.rb3d==0)
+        % Turn on the Datapixx "M16" hardware overlay
+        disp('Using Datapixx hardware overlay (EnableDataPixxM16OutputWithOverlay)')
         PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
-        
+        % This overlay implementation needs [jumbo!] 32-bit framebuffers
+        framebufferResolution = 'FloatingPoint32Bit';
+    else
+        % Use at least 16-bit framebuffers
+        framebufferResolution = 'FloatingPoint16Bit';
     end
-    disp('****************************************************************')
-    
+    disp('****************************************************************')    
 else
-    PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
-
+    % 16-bit framebuffers should be more than enough (even for 10-bit displays).
+    framebufferResolution = 'FloatingPoint16Bit';
 end
+% Request appropriate framebuffer resolution & always disable dithering
+PsychImaging('AddTask', 'General', framebufferResolution, 'disableDithering',1);
+
 
 %% Stereo specific adjustments
 if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1
