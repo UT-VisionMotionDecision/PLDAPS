@@ -13,38 +13,97 @@ function p = beginExperiment(p)
 % 10/2016 jk    bumped version to 4.2
 % 2018-04-18 tbc    Updated to query git branch/tag name
 %                   otherwise, default to hardcoded string
+% 2018-05-01 tbc    Expanded git version tracking information
 
-%% set version. make sure to use the git version for better documentation
-p.defaultParameters.pldaps.version.number=4.2;
+%% get PLDAPS version
+% Pldaps root directory shorthand
+proot = p.trial.pldaps.dirs.proot;
+% Go to pldaps root dir to execute the following git commands (...could use -C flag, but makes this code gangly & unreadable)
+here = pwd;
+cd(proot);
+
 defName = 'glDraw_nonGit';
+p.trial.pldaps.version.number = 4.2;
+
+[name, remoteUrl, commit, info, status, gdiff] = deal([]);
 try
-    % Get the current git branch (or tag) name of the PLDAPS codebase in use
-    %       (a frustratingly cryptic looking string command...sorry, blame git)
-    [err, branchTag] = system( sprintf('git -C %s symbolic-ref -q --short HEAD || git -C %s describe --tags --exact-match', p.trial.pldaps.dirs.proot, p.trial.pldaps.dirs.proot) );
-    if err, error(''), end
-    p.defaultParameters.pldaps.version.name = branchTag(1:end-1); % remove pesky '\n' at end of returned string
+    % Retrieve Git info of the PLDAPS codebase in use
+    % Branch or tag name       (a frustratingly cryptic looking string command...such is git.)
+    [err, name] = system( 'git symbolic-ref -q --short HEAD || git describe --tags --exact-match --long' );
+    name(name==10) = []; % remove pesky '\n' at end of returned string
+    
+    % URL of the remote repository (identifies source fork of this install)
+    [err, remoteUrl] = system( 'git config --get remote.origin.url' );
+    remoteUrl(remoteUrl==10) = []; % remove pesky '\n' at end of returned string
+    
+    % Full hash of most recent commit
+    [err, commit] = system( 'git --no-pager show -s --pretty=format:''%H''' );
+    
+    % Info on commit state, tags, date, 
+    [err, info] = system( 'git --no-pager show -s --pretty=format:''%h %d %ci''' );
+    info(info==10) = []; % remove pesky '\n' at end of returned string
+    
+    % Status of local repo
+    [err, status] = system( 'git --no-pager status -s');
+    
+    if ~err && ~isempty(status)
+        status = [sprintf('Locally modified:\n-------------------------------\n'), status];
+        [err, gdiff] = system('git --no-pager diff --minimal');
+    end
 catch
     fprintf(2, '!Notice:\tFailed to retrieve the git branch/tag information from this PLDAPS installation.\n')
-    p.defaultParameters.pldaps.version.name = defName;
-    fprintf(2, '!Notice:\t    <%s>    will be stored as the version name for now, but follow-up is recommended.\n', p.defaultParameters.pldaps.version.name)
+    name = defName;
+    fprintf(2, '!Notice:\t    <%s>    will be stored as the version name for now, but follow-up is recommended.\n', p.trial.pldaps.version.name)
 end
 
-p.defaultParameters.pldaps.version.logo='https://motion.cps.utexas.edu/wp-content/uploads/2013/07/platypus-300x221.gif';
+% Compile outputs into version struct
+p.trial.pldaps.version.name = name;
+p.trial.pldaps.version.remoteUrl = remoteUrl;
+p.trial.pldaps.version.commit = commit;
+p.trial.pldaps.version.info = info;
+p.trial.pldaps.version.status = status;
+p.trial.pldaps.version.diff = gdiff;
 
-% get Matlab version
-p.defaultParameters.pldaps.matlabversion = version;
-
-% get Psychtoolbox version
-p.defaultParameters.pldaps.psychtoolboxversion = PsychtoolboxVersion;
-
-%multiple sessions not supported for now
-p.defaultParameters.session.experimentStart = GetSecs; 
-
-if p.defaultParameters.datapixx.use && Datapixx('IsReady')
-    p.defaultParameters.datapixx.experimentStartDatapixx = Datapixx('GetTime');
+% If a specific commit/tag state of the PLDAPS repository was requested,
+% check that it matches current.  Error & alert user if not.
+if isfield(p.trial.pldaps.version, 'tag')
+    tagRequested = p.trial.pldaps.version.tag;
+    if isempty(strfind(info, ['tag: ',tagRequested])) || ~strcmpi(commit(1:length(tag)), tagRequested)
+        fprintf(2, [fprintLineBreak fprintLineBreak...
+            'Error:  PLDAPS source does not match the requested tag/commit:\n'...
+            '\tRequested tag/commit:\t%s\n'...
+            '\t\tCurrent version:\t%s\n'...
+            fprintLineBreak fprintLineBreak], tagRequested, info);
+        fprintf('Resolve by checking out proper PLDAPS state from git repository,\nor clearing\n\t\tp.trial.pldaps.version.tag\nbefore beginning experiment.\n\n');
+        fprintLineBreak, fprintLineBreak 
+        error('pldaps:beginExperiment:versionCheck', '');
+    end
 end
 
-if p.defaultParameters.eyelink.use && Eyelink('IsConnected')
-	p.defaultParameters.eyelink.experimentStartEyelink = Eyelink('TrackerTime');
+
+p.trial.pldaps.version.logo='https://motion.cps.utexas.edu/wp-content/uploads/2013/07/platypus-300x221.gif';
+
+% return to starting directory
+cd(here);
+
+%% get Matlab version
+p.trial.pldaps.matlabversion = version;
+
+%% get Psychtoolbox version
+p.trial.pldaps.psychtoolboxversion = PsychtoolboxVersion;
+
+
+%% Compile experiment start time(s) from devices
+p.trial.session.experimentStart = GetSecs; 
+
+if p.trial.datapixx.use && Datapixx('IsReady')
+    p.trial.datapixx.experimentStartDatapixx = Datapixx('GetTime');
+end
+
+if p.trial.eyelink.use && Eyelink('IsConnected')
+	p.trial.eyelink.experimentStartEyelink = Eyelink('TrackerTime');
     Eyelink('message', 'BEGINEXPERIMENT');
+end
+
+
 end

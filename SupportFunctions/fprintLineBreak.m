@@ -1,8 +1,12 @@
-function fprintLineBreak(txt, n)
-% function fprintLineBreak(txt, n)
+function output = fprintLineBreak(txt, n)
+% function [output] = fprintLineBreak(txt, n)
 % 
-% Print a standardized line of text[txt] to the command window [n] times,
+% --If no output assigned in caller:
+%   Print a standardized line of text[txt] to the command window [n] times,
 %   defaults:  tex='*';  n=65;
+% 
+% --If output assigned in caller:
+%   Return string instead of printing to command window
 % 
 %   fprintf( [repmat(txt ,[1,n]), '\n']);
 % 
@@ -19,4 +23,9 @@ if nargin<2 || isempty(n)
     n = 65;
 end
 
-fprintf( [repmat(txt ,[1,n]), '\n']);
+if nargout<1
+    fprintf( [repmat(txt ,[1,n]), '\n']);
+    return;%
+else
+    output = sprintf( [repmat(txt ,[1,n]), '\n']);
+end
