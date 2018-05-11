@@ -1,16 +1,24 @@
-function p = defaultColors(p)
-% p = defaultColors(p)
+function p = defaultColors(p, activeClut)
+% p = defaultColors(p, [activeClut])
 % Setup default color lookup tables for huklab experiments. You can modify
-% these later as long as it's done before pdsDatapixxInit
-
+% these later as long as it's done BEFORE p.run (technically before pds.datapixx.init)
+% 
+% [p]           pldaps object structure that should have p.trial.display
+% [activeClut]  optional string to select visible clut when not using Overlay
+%               'monkeyCLUT'(default) or 'humanCLUT'
+%
 % 12/13/2013 jly    Wrote it
 % 2018-03-28  TBC   Polished, binocular compat.
 
 bgColor = p.defaultParameters.display.bgColor;
 clutDepth = 2^8;
 
-%%% CLUT colors %%%
-% note: CLUT indexing and MATLAB indexing are zero and 1-based, respectively
+if nargin<2
+    activeClut = [];
+end
+
+%% CLUT colors %%%
+% note: CLUT indexing is 0-based, MATLAB indexing is 1-based
 p.defaultParameters.display.humanCLUT = [0, 0, 0;  % IGNORE THIS LINE
     bgColor;    % background            1
     0.8, 0, 0.5;% cursor                2
@@ -19,14 +27,14 @@ p.defaultParameters.display.humanCLUT = [0, 0, 0;  % IGNORE THIS LINE
     1, 1, 1;    % window color          5
     1, 0, 0;    % fixation color        6
     1, 1, 1;    % white (dots)          7
-    0, 1, 1;    % eye1 (turqoise)       8
+    0, 1, 1;    % eyepos/eye0 (cyan)    8
     0, 0, 0;    % black (dots)          9
     0, 0, 1;    % blue                  10
     1, 0, 0;    % red/green             11
     0, 1, 0;    % green/bg              12
     1, 0, 0;    % red/bg                13
     0, 0, 0;    % black/bg              14
-    0, 0.7, 1]; % eye2 (blue-green)     15
+    0, 0.6, 1]; % eye1 (blue-green)     15
     
     % extend clut length to clutDepth (8-bit)
     p.defaultParameters.display.humanCLUT(clutDepth, 1:3) = 0;
@@ -40,20 +48,20 @@ p.defaultParameters.display.monkeyCLUT = [0,0,0; % IGNORE THIS LINE (CLUT is 0 b
     bgColor;    % window color          5
     1, 0, 0;    % fixation color        6
     1, 1, 1;    % white (dots)          7
-    bgColor;    % eyepos (bg)           8
+    bgColor;    % eyepos/eye0 (bg)      8
     0,0,0       % black (dots)          9
     0,0,1;      % blue                  10
     0,1,0;      % red/green             11
     bgColor;    % green/bg              12
     bgColor;    % red/bg                13
     bgColor;    % black/bg              14
-    bgColor];   % eye2 (bg)             15
+    bgColor];   % eye1 (bg)             15
 
     % extend clut length to clutDepth (8-bit)
     p.defaultParameters.display.monkeyCLUT(clutDepth, 1:3) = 0;
 
-%%% keeping track of which color is which
-if p.defaultParameters.display.useOverlay %TODO make this separate from useDatapixx %(p.defaultParameters.datapixx.use && p.defaultParameters.display.useOverlay)
+%% Add symantic labels for clut values
+if p.defaultParameters.display.useOverlay % Overlay clut must be indexed 8-bit 
     p.defaultParameters.display.clut.bg         = 1*[1 1 1]';
     p.defaultParameters.display.clut.cursor     = 2*[1 1 1]';
     p.defaultParameters.display.clut.targetgood = 3*[1 1 1]';
@@ -68,42 +76,29 @@ if p.defaultParameters.display.useOverlay %TODO make this separate from useDatap
     p.defaultParameters.display.clut.greenbg    = 12*[1 1 1]';
     p.defaultParameters.display.clut.redbg      = 13*[1 1 1]';
     p.defaultParameters.display.clut.blackbg    = 14*[1 1 1]';
-    p.defaultParameters.display.clut.eye1       = 8*[1 1 1]';
-    p.defaultParameters.display.clut.eye2       = 15*[1 1 1]';
+    p.defaultParameters.display.clut.eye0       = 8*[1 1 1]';
+    p.defaultParameters.display.clut.eye1       = 15*[1 1 1]';
     
-elseif p.defaultParameters.display.useOverlay %TODO add switch so choose between monkey and human clut
-    p.defaultParameters.display.clut.bg         = p.defaultParameters.display.humanCLUT(1+1,:)';
-    p.defaultParameters.display.clut.cursor     = p.defaultParameters.display.humanCLUT(2+1,:)';
-    p.defaultParameters.display.clut.targetgood = p.defaultParameters.display.humanCLUT(3+1,:)';
-    p.defaultParameters.display.clut.targetnull = p.defaultParameters.display.humanCLUT(4+1,:)';
-    p.defaultParameters.display.clut.window     = p.defaultParameters.display.humanCLUT(5+1,:)';
-    p.defaultParameters.display.clut.fixation   = p.defaultParameters.display.humanCLUT(6+1,:)';
-    p.defaultParameters.display.clut.white      = p.defaultParameters.display.humanCLUT(7+1,:)';
-    p.defaultParameters.display.clut.eyepos     = p.defaultParameters.display.humanCLUT(8+1,:)';
-    p.defaultParameters.display.clut.black      = p.defaultParameters.display.humanCLUT(9+1,:)';
-    p.defaultParameters.display.clut.blue       = p.defaultParameters.display.humanCLUT(10+1,:)';
-    p.defaultParameters.display.clut.red        = p.defaultParameters.display.humanCLUT(4+1,:)';
-    p.defaultParameters.display.clut.greenbg    = p.defaultParameters.display.humanCLUT(12+1,:)';
-    p.defaultParameters.display.clut.redbg      = p.defaultParameters.display.humanCLUT(13+1,:)';
-    p.defaultParameters.display.clut.blackbg    = p.defaultParameters.display.humanCLUT(14+1,:)';
-    p.defaultParameters.display.clut.eye1       = p.defaultParameters.display.humanCLUT(8+1,:)';
-    p.defaultParameters.display.clut.eye2       = p.defaultParameters.display.humanCLUT(15+1,:)';
+else
+    if isempty(activeClut)
+        activeClut = 'monkeyCLUT';
+    end
     
-else %TODO add switch so choose between monkey and human clut
-    p.defaultParameters.display.clut.bg         = p.defaultParameters.display.monkeyCLUT(1+1,:)';
-    p.defaultParameters.display.clut.cursor     = p.defaultParameters.display.monkeyCLUT(2+1,:)';
-    p.defaultParameters.display.clut.targetgood = p.defaultParameters.display.monkeyCLUT(3+1,:)';
-    p.defaultParameters.display.clut.targetnull = p.defaultParameters.display.monkeyCLUT(4+1,:)';
-    p.defaultParameters.display.clut.window     = p.defaultParameters.display.monkeyCLUT(5+1,:)';
-    p.defaultParameters.display.clut.fixation   = p.defaultParameters.display.monkeyCLUT(6+1,:)';
-    p.defaultParameters.display.clut.white      = p.defaultParameters.display.monkeyCLUT(7+1,:)';
-    p.defaultParameters.display.clut.eyepos     = p.defaultParameters.display.monkeyCLUT(8+1,:)';
-    p.defaultParameters.display.clut.black      = p.defaultParameters.display.monkeyCLUT(9+1,:)';
-    p.defaultParameters.display.clut.blue       = p.defaultParameters.display.monkeyCLUT(10+1,:)';
-    p.defaultParameters.display.clut.red        = p.defaultParameters.display.monkeyCLUT(4+1,:)';
-    p.defaultParameters.display.clut.greenbg    = p.defaultParameters.display.monkeyCLUT(12+1,:)';
-    p.defaultParameters.display.clut.redbg      = p.defaultParameters.display.monkeyCLUT(13+1,:)';
-    p.defaultParameters.display.clut.blackbg    = p.defaultParameters.display.monkeyCLUT(14+1,:)';
-    p.defaultParameters.display.clut.eye1       = p.defaultParameters.display.monkeyCLUT(8+1,:)';
-    p.defaultParameters.display.clut.eye2       = p.defaultParameters.display.monkeyCLUT(15+1,:)';
+    p.defaultParameters.display.clut.bg         = p.defaultParameters.display.(activeClut)(1+1,:)';
+    p.defaultParameters.display.clut.cursor     = p.defaultParameters.display.(activeClut)(2+1,:)';
+    p.defaultParameters.display.clut.targetgood = p.defaultParameters.display.(activeClut)(3+1,:)';
+    p.defaultParameters.display.clut.targetnull = p.defaultParameters.display.(activeClut)(4+1,:)';
+    p.defaultParameters.display.clut.window     = p.defaultParameters.display.(activeClut)(5+1,:)';
+    p.defaultParameters.display.clut.fixation   = p.defaultParameters.display.(activeClut)(6+1,:)';
+    p.defaultParameters.display.clut.white      = p.defaultParameters.display.(activeClut)(7+1,:)';
+    p.defaultParameters.display.clut.eyepos     = p.defaultParameters.display.(activeClut)(8+1,:)';
+    p.defaultParameters.display.clut.black      = p.defaultParameters.display.(activeClut)(9+1,:)';
+    p.defaultParameters.display.clut.blue       = p.defaultParameters.display.(activeClut)(10+1,:)';
+    p.defaultParameters.display.clut.red        = p.defaultParameters.display.(activeClut)(4+1,:)';
+    p.defaultParameters.display.clut.greenbg    = p.defaultParameters.display.(activeClut)(12+1,:)';
+    p.defaultParameters.display.clut.redbg      = p.defaultParameters.display.(activeClut)(13+1,:)';
+    p.defaultParameters.display.clut.blackbg    = p.defaultParameters.display.(activeClut)(14+1,:)';
+    p.defaultParameters.display.clut.eye0       = p.defaultParameters.display.(activeClut)(8+1,:)';
+    p.defaultParameters.display.clut.eye1       = p.defaultParameters.display.(activeClut)(15+1,:)';
+    
 end
