@@ -1,22 +1,20 @@
-PLDAPS 4.2
+PLDAPS 4.3.0
 ==========
 
 **PL**exon **DA**tapixx **PS**ychtoolbox - Neurophysiology experiment toolbox for MATLAB
 
-Version 4.1 incorporated some larger changes that will break previous code. 
-Version 4.2 is fully compatible with 4.1 but adds a new, cleaner trial function that allows 
-for a modularization of pldaps for new software components and potentially also for stimulus interactions.
+Version 4.3.0 (glDraw commit 354b233) brings additional low-level OpenGL drawing functionality, improved compatibility with various stereo drawing modes, and overall refinements.
 
-In 4.1 the new concept attempts to preserve and extend the flexibility of PLDAPS while allowing 
-to reduce code multiplication when desired. 
-It is still possible to copy code, but it provides a framework that makes it unneccessary. 
-This has the advantage that bugs do not have to be fixed in many many files but just once.
-It also reduced the required knowledge to start the first experiemnts as a new user.
-Of course over time, any user should be familiar with all code, but learning may be easier if
-a new experiment can be setup without this knowledge.
+##### *Changes to Overlay drawing functionality soon...*
+> The ability to draw elements to the overlay pointer *once*, then have them magically show up on both the overlay/experimenter display *&* the subject display is a cute feature, but it's time is coming to an end. **Very soon, things rendered to the Overlay pointer will only appear on the overlay window**. Dealing with the ambiguity of 'which eye should the overlay render to during stereomodes?' is a major reason for this change. I can see of no current solution that doesn't require tedious piles of checks & drawBuffer changes that wouldn't outweigh their utility. In most all cases, the things being rendered this way are not so computationally intensive that there is a large benefit to only rendering them once in code, and the inherent limitations of indexd drawing (no alpha blending or smooth motion) make it unsuitable for many experimental stimulus applications anyway.
+
+> This may break/change functionality of some code (e.g. eyelink calibration targets), but fixes are being implemented as they come up. If you do come across an unfixed instance, feel free to contribute a solution.  --czuba, 2018-05-11
+
+...for now, on with the [outdated] readme!
 
 ## Before we start
-- PLDAPS has only been tested on Matlab 2014b and 2015b on OSX 10.10 and on  Matlab 2015b and 2016a on Ubuntu 16.04
+- PLDAPS is primarily developed/tested/supported on OSX (ver 10.10) and Ubuntu (ver 16.04)
+- Most modern Matlab versions should suffice; >=2016b is recommended
 - Psychtoolbox needs to be installed
 - If you are planning to use Datapixx, you should download a current version of the datapixx toolbox from vpixx.com and place it in the matlab path above PTB. The toolbox provided with PTB tends to be outdated.
 - For a recording rig, all basic testing should be done (e.g. VBLSyncTest with and without datapixx, etc)

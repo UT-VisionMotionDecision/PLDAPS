@@ -82,8 +82,9 @@ if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1
 end
 
 p.trial.display.bufferIdx = 0; % basic/monocular Screen buffer index;
+
 if p.trial.display.stereoMode > 0
-    p.trial.display.bufferIdx(end+1) = 1; % buffer index for right eye
+    p.trial.display.bufferIdx(end+1) = p.trial.display.bufferIdx(end)+1; % buffer index for right eye
 
     % PTB stereo crosstalk correction
     if isfield(p.trial.display, 'crosstalk') && any(p.trial.display.crosstalk(:))
@@ -138,7 +139,7 @@ end
 disp('****************************************************************')
 fprintf('Opening screen %d with background %s in stereo mode %d\r', p.trial.display.scrnNum, mat2str(p.trial.display.bgColor), p.trial.display.stereoMode)
 disp('****************************************************************')
-[ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, 0);
+[ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, p.trial.display.multisample);
 p.trial.display.ptr=ptr;
 p.trial.display.winRect=winRect;
 
@@ -284,6 +285,8 @@ elseif p.trial.display.useOverlay==2
             icmShaders(end+1) = overlayShader;
 
     p.trial.display.shader = LoadGLSLProgramFromFiles(fullfile(p.trial.pldaps.dirs.proot, 'SupportFunctions', 'Utils', 'overlay_shader.frag'), debuglevel, icmShaders);
+    % Incremement overlay window index to allow for stereo buffer creation (buffer object indexing --e.g. onscreen & overlay windows-- starts at 0)
+    p.trial.display.overlayShaderIdx = 0+length(p.trial.display.bufferIdx);
 
     if p.trial.display.info.GLSupportsTexturesUpToBpc >= 32
         % Full 32 bits single precision float:
@@ -308,14 +311,14 @@ elseif p.trial.display.useOverlay==2
     glUniform2f(glGetUniformLocation(p.trial.display.shader, 'res'), p.trial.display.pWidth*(1/sampleX), p.trial.display.pHeight);  % [partially] corrects overaly width & position on retina displays
     bgColor=p.trial.display.bgColor;
     glUniform3f(glGetUniformLocation(p.trial.display.shader, 'transparencycolor'), bgColor(1), bgColor(2), bgColor(3));
-    glUniform1i(glGetUniformLocation(p.trial.display.shader, 'overlayImage'), 1);
+    glUniform1i(glGetUniformLocation(p.trial.display.shader, 'overlayImage'), p.trial.display.overlayShaderIdx);
     glUniform1i(glGetUniformLocation(p.trial.display.shader, 'Image'), 0);
     glUseProgram(0);
 
     %% assign the overlay texture as the input 1 (which mapps to 'overlayImage' as set above)
     % It gets passed to the HookFunction call.
     % Input 0 is the main pointer by default.
-    pString = sprintf('TEXTURERECT2D(1)=%i ', p.trial.display.overlaytex);
+    pString = sprintf('TEXTURERECT2D(%i)=%i ', p.trial.display.overlayShaderIdx, p.trial.display.overlaytex);
     pString = [pString sprintf('TEXTURERECT2D(3)=%i ', p.trial.display.lookupstexs(1))];
     pString = [pString sprintf('TEXTURERECT2D(4)=%i ', p.trial.display.lookupstexs(2))];
     

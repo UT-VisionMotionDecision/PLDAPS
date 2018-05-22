@@ -38,23 +38,24 @@ function s=pldapsClassDefaultParameters(s)
 
 %s.	display.
  s.	display.	bgColor = [ 0.5000    0.5000    0.5000 ];
- s.	display.	colorclamp = 0;
- s.	display.	destinationFactorNew = 'GL_ONE_MINUS_SRC_ALPHA';
  s.	display.	displayName = 'defaultScreenParameters';
- s.	display.	forceLinearGamma = false;
- s.	display.	heightcm = 45;
- s.	display.	normalizeColor = 1;
- s.	display.	screenSize = [ ];
  s.	display.	scrnNum = max(Screen('Screens'));
+ s.	display.	useOverlay = 1;
+ s.	display.	screenSize = [ ];
+ s.	display.	heightcm = 45;
+ s.	display.	widthcm = 63;
+ s.	display.	viewdist = 57;
+ s. display.    ipd = 6.5;
+ s. display.    multisample = 0;
+ s.	display.	colorclamp = 0;
+ s.	display.	forceLinearGamma = false;
+ s.	display.	normalizeColor = 1;
  s.	display.	sourceFactorNew = 'GL_SRC_ALPHA';
+ s.	display.	destinationFactorNew = 'GL_ONE_MINUS_SRC_ALPHA';
  s.	display.	stereoFlip = [ ];
  s.	display.	stereoMode = 0;
  s. display.    crosstalk = 0;
  s.	display.	switchOverlayCLUTs = false;
- s.	display.	useOverlay = 1;
- s.	display.	viewdist = 57;
- s.	display.	widthcm = 63;
- s. display.    ipd = 6.5;
  s. display.    useGL = false; % flag for custom 3D rendering features
 
 % Movie making moved to pds.pldapsMovie module

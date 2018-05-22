@@ -346,6 +346,11 @@ function p = run(p)
         if status.timestampLogCount
             p.defaultParameters.datapixx.timestamplog = PsychDataPixx('GetTimestampLog', 1);
         end
+        
+        % If in ProPixx RB3D mode, return DLP sequence to normal
+        if p.trial.datapixx.rb3d
+            Datapixx('SetPropixxDlpSequenceProgram',0);
+        end
     end
     
     if p.defaultParameters.sound.use
@@ -391,11 +396,12 @@ function p = run(p)
         disp('****************************************************************')
 
         % Detect & report dropped frames
-        frameDrops = cell2mat(cellfun(@(x) [sum(diff(x.timing.flipTimes(1,:))>(1.1*p.trial.display.ifi)), x.iFrame], p.data, 'uni',0)');
-        ifiMu = mean(cell2mat(cellfun(@(x) diff(x.timing.flipTimes(1,:)), p.data, 'uni',0)));
+        frameDropCutoff = 1.1;
+        frameDrops = cell2mat(cellfun(@(x) [sum(diff(x.timing.flipTimes(3,:))>(frameDropCutoff*p.trial.display.ifi)), x.iFrame], p.data, 'uni',0)');
+        ifiMu = mean(cell2mat(cellfun(@(x) diff(x.timing.flipTimes(3,:)), p.data, 'uni',0)));
         if 1%sum(frameDrops(:,1))>0
             fprintf(2, '\t**********\n');
-            fprintf(2,'\t%d (of %d) ', sum(frameDrops,1)); fprintf('trial frames exceeded 110%% of expected ifi\n');
+            fprintf(2,'\t%d (of %d) ', sum(frameDrops,1)); fprintf('trial frames exceeded %3.0f%% of expected ifi\n', frameDropCutoff*100);
             fprintf('\tAverage ifi = %3.2f ms (%2.2f Hz)', ifiMu*1000, 1/ifiMu);
             if isfield(p.data{1},'frameRenderTime')
                 fprintf(',\t  median frameRenderTime = %3.2f ms\n', 1000*median(cell2mat(cellfun(@(x) x.frameRenderTime', p.data, 'uni',0)')));

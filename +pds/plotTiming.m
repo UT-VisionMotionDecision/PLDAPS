@@ -30,10 +30,10 @@ end
 trData = p.data(goodtr);
 
 % Max common frame count
-minf = min(cellfun(@(x) x.iFrame, trData));
+minf = min(cellfun(@(x) x.iFrame, trData))
 
 % fliptimes btwn frames (msec)
-ftd = 1000* cell2mat(cellfun(@(x) diff(x.timing.flipTimes(3,1:minf)), trData, 'uni',0)');
+ftd = 1000* cell2mat(cellfun(@(x) diff(x.timing.flipTimes(3,1:minf))', trData, 'uni',0));
 drops = sum(ftd(:) >= dropThresh);
 
 %% Plot fliptimes
@@ -46,7 +46,7 @@ pbaspect = [2,1,1];
 figure;%(1),clf,
 % Plot fliptimes & drops
 subplot(spy, spx, 1);
-imagesc(ftd);
+imagesc(ftd');
 title( {p.trial.session.file, sprintf('FlipTimes;  %d/%d dropped (%2.3f%%)', drops, numel(ftd), drops/numel(ftd)*100)} );
 xlabel('frame #'), ylabel('trial')
 set(gca,'plotboxaspectratio',pbaspect, 'clim',cl, 'tickdir','out');  box off
@@ -70,18 +70,18 @@ end
 %% Plot frame rendertime (if available)
 if renderTimesToo
     % render time/frame (msec)
-    fr = 1000* cell2mat(cellfun(@(x) x.frameRenderTime(1:minf), trData, 'uni',0)');
+    fr = 1000* cell2mat(cellfun(@(x) x.frameRenderTime(1:minf)', trData, 'uni',0));
     
     % Plot render times
     subplot(spy, spx, 2);
-    imagesc(fr);
+    imagesc(fr');
     title('RenderTimes')
     xlabel('frame #'), ylabel('trial')
-    set(gca,'plotboxaspectratio',pbaspect, 'clim',prctile(fr(:),[10, 99.9]), 'tickdir','out'); box off
-    colormap(gca, flipud(hot)); cb = colorbar; ylabel(cb, 'msec')
+    set(gca,'plotboxaspectratio',pbaspect, 'clim',prctile(fr(:),[5, 99.9]), 'tickdir','out'); box off
+    cb = colorbar; ylabel(cb, 'msec')
     
     subplot(spy, spx, 4);
-    h = histogram(diff(fr,[],2), 'BinLimits',.5*[-1,1], 'Normalization','probability');
+    h = histogram(diff(fr,[],2), 200, 'BinLimits',.5*[-1,1], 'Normalization','probability');
     title('inter-frame rendering deltas'); xlabel('msec');
     set(gca,'plotboxaspectratio',pbaspect); box off; grid on;
 

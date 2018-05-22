@@ -83,7 +83,9 @@ if p.trial.datapixx.use
         end
         
         if isfield(p.trial.datapixx,'rb3d') && p.trial.datapixx.rb3d
-            Datapixx('SetVideoMode', 9); % Enable the overlay on the PPX CTRL
+            if p.trial.display.useOverlay==1
+                Datapixx('SetVideoMode', 9); % Enable the overlay on the PPX CTRL
+            end
             Datapixx('SetPropixxDlpSequenceProgram', 1); %, 1);
             Datapixx('RegWrRd');
         end
