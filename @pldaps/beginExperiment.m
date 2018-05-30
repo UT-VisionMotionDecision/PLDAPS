@@ -66,7 +66,7 @@ p.trial.pldaps.version.diff = gdiff;
 
 % If a specific commit/tag state of the PLDAPS repository was requested,
 % check that it matches current.  Error & alert user if not.
-if isfield(p.trial.pldaps.version, 'tag') || ~isempty(p.trial.pldaps.version.tag)
+if isfield(p.trial.pldaps.version, 'tag') && ~isempty(p.trial.pldaps.version.tag)
     tagRequested = p.trial.pldaps.version.tag;
     if isempty(strfind(info, ['tag: ',tagRequested])) || ~strcmpi(commit(1:length(tag)), tagRequested)
         fprintf(2, [fprintLineBreak fprintLineBreak...
