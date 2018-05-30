@@ -452,14 +452,15 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         clocktime = fix(clock);
         if p.trial.datapixx.use
             for ii = 1:6
-                p.trial.datapixx.unique_number_time(ii,:)=pds.datapixx.strobe(clocktime(ii));
+                p.trial.datapixx.unique_number_time(ii,:) = pds.datapixx.strobe(clocktime(ii));
             end
         end
         p.trial.unique_number = clocktime;    % trial identifier
         
         if p.trial.datapixx.use
             p.trial.timing.datapixxStartTime = Datapixx('Gettime');
-            p.trial.timing.datapixxTRIALSTART = pds.datapixx.flipBit(p.trial.event.TRIALSTART,p.trial.pldaps.iTrial);  % start of trial (Plexon)
+            p.trial.timing.datapixxTRIALSTART = pds.datapixx.strobe(p.trial.event.TRIALSTART);  % start of trial (Plexon)
+            %   previously:  pds.datapixx.flipBit(p.trial.event.TRIALSTART,p.trial.pldaps.iTrial);  
         end
         
 
@@ -527,7 +528,8 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         %clean up analogData collection from Datapixx
         pds.datapixx.adc.cleanUpandSave(p);
          if p.trial.datapixx.use
-            p.trial.timing.datapixxTRIALEND = pds.datapixx.flipBit(p.trial.event.TRIALEND,p.trial.pldaps.iTrial);  % start of trial (Plexon)
+            p.trial.timing.datapixxTRIALEND = pds.datapixx.strobe(p.trial.event.TRIALEND);  % start of trial (Plexon)
+            % previously:  pds.datapixx.flipBit(p.trial.event.TRIALEND,p.trial.pldaps.iTrial);
         end
         
         if(p.trial.pldaps.draw.photodiode.use)
