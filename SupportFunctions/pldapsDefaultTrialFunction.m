@@ -448,19 +448,28 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         % the plexon rig sync up its first trial with whatever trial number is on
         % for stimulus display.
         % SYNC clocks
-
-        clocktime = fix(clock);
-        if p.trial.datapixx.use
-            for ii = 1:6
-                p.trial.datapixx.unique_number_time(ii,:) = pds.datapixx.strobe(clocktime(ii));
-            end
-        end
-        p.trial.unique_number = clocktime;    % trial identifier
+        
+        % Construct a unique trial number based on:
+        %   6 element clock time: [year, month, day, 24hour, minute, second]
+        unique_number = fix(clock); 
+        % 	substitute year with trial number (i.e. something actually relevant on the scale of an experimental session)
+        unique_number(1) = p.trial.pldaps.iTrial; 
+        %   shift unique numbers into the upper half of our 15-bit strobed word range
+        unique_number = unique_number + 2^14;
+        %  ...leaving the lower 16,383 values for easily identifiable event values (p.trial.event).
         
         if p.trial.datapixx.use
+            % Strobe unique_number via datapixx
+            for i = 1:numel(unique_number)
+                p.trial.datapixx.unique_number_time(i,:) = pds.datapixx.strobe(unique_number(i));
+            end
+        end
+        p.trial.unique_number = unique_number;    % trial identifier
+        
+        if p.trial.datapixx.use
+            % start of trial sync signal (Plexon)
             p.trial.timing.datapixxStartTime = Datapixx('Gettime');
-            p.trial.timing.datapixxTRIALSTART = pds.datapixx.strobe(p.trial.event.TRIALSTART);  % start of trial (Plexon)
-            %   previously:  pds.datapixx.flipBit(p.trial.event.TRIALSTART,p.trial.pldaps.iTrial);  
+            p.trial.timing.datapixxTRIALSTART = pds.datapixx.strobe(p.trial.event.TRIALSTART);
         end
         
 
@@ -527,9 +536,9 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 
         %clean up analogData collection from Datapixx
         pds.datapixx.adc.cleanUpandSave(p);
-         if p.trial.datapixx.use
-            p.trial.timing.datapixxTRIALEND = pds.datapixx.strobe(p.trial.event.TRIALEND);  % start of trial (Plexon)
-            % previously:  pds.datapixx.flipBit(p.trial.event.TRIALEND,p.trial.pldaps.iTrial);
+        if p.trial.datapixx.use
+            % end of trial sync signal (Plexon)
+            p.trial.timing.datapixxTRIALEND = pds.datapixx.strobe(p.trial.event.TRIALEND);
         end
         
         if(p.trial.pldaps.draw.photodiode.use)
