@@ -47,7 +47,7 @@ cols = 'rgb';
 
 % Prepare for test 
 PsychDataPixx('open');
-% Datapixx('open');  % ...direct Datapixx('open') call won't create necessary [dpx] var
+% ...direct Datapixx('open') call doesn't create necessary [dpx] var
 global dpx;
 
 for smode = [0,1,2]
@@ -90,7 +90,7 @@ for smode = [0,1,2]
     durConfMed = prctile(durConf',90);
     
     % Plot dur test results
-    if exist('fig1','var')
+    if exist('fig1','var') && dpx.syncmode~=0
         figure(fig1);
     else
         fig1 = figure;
@@ -140,7 +140,7 @@ for smode = [0,1,2]
     
     
     % Plot Minwin test results
-    if exist('fig2','var')
+    if exist('fig2','var') && dpx.syncmode~=0
         figure(fig2);
     else
         fig2 = figure;

@@ -16,10 +16,10 @@ if p.trial.eyelink.use
         
     Eyelink('Initialize');
     
-    if p.trial.eyelink.custom_calibration
-        error('pldaps:eyelinkSetup','custom_calibration doesn''t work yet');
-%         dv.defaultParameters.eyelink.custom_calibration = false; % this doesnt work yet
-    end
+% %     if p.trial.eyelink.custom_calibration
+% %         error('pldaps:eyelinkSetup','custom_calibration doesn''t work yet');
+% % %         dv.defaultParameters.eyelink.custom_calibration = false; % this doesnt work yet
+% %     end
     
     p.trial.eyelink.setup=EyelinkInitDefaults(); % don't pass in the window pointer or you can mess up the color range
     
@@ -73,6 +73,7 @@ if p.trial.eyelink.use
         return;
     end
     
+    %% Setup Eyelink enviro & report values in cmd window
     % Eyelink commands to setup the eyelink environment
     datestr(now);
     Eyelink('command',  ['add_file_preamble_text ''Recorded by PLDAPS'  '''']);
@@ -82,37 +83,62 @@ if p.trial.eyelink.use
     w = round(10*p.trial.display.widthcm/2);
     h = round(10*p.trial.display.heightcm/2);
     Eyelink('command',  'screen_phys_coords = %1d, %1d, %1d, %1d', -w, h, w, -h);
-    Eyelink('command',  'screen_distance = %1d', round(p.trial.display.viewdist*10)); % must be integer mm
+    % Better estimates if screen_distance is provided in [<mm to top>, <mm to bottom>] than only [<mm to center>]  (per eyelink PHYSICAL.INI)
+    %       Previously:   Eyelink('command',  'screen_distance = %1d', round(p.trial.display.viewdist*10)); % must be integer mm
+    if ~isfield(p.trial.display, 'obsPos') % explicit observer position in cm xyz
+        screenTopDist = hypot( p.trial.display.heightcm/2, p.trial.display.viewdist);
+        screenBtmDist = screenTopDist;
+    else
+        screenTopDist = hypot( p.trial.display.heightcm/2 + p.trial.display.obsPos(2), p.trial.display.viewdist);
+        screenBtmDist = hypot( p.trial.display.heightcm/2 - p.trial.display.obsPos(2), p.trial.display.viewdist);
+    end
+    Eyelink('command',  'screen_distance = %d, %d\n', 10*round(screenTopDist), 10*round(screenBtmDist) ); % cm to mm
     
     
+    % Read & report eyelink values
     [~, vs] = Eyelink('GetTrackerVersion');
+    p.trial.eyelink.trackerversion = vs;
     disp('***************************************************************')
     fprintf('\tReading Values from %sEyetracker\r', vs)
     disp('***************************************************************')
-    [~, reply] = Eyelink('ReadFromTracker', 'screen_pixel_coords');
-    fprintf(['Screen pixel coordinates are:\t\t' reply '\r'])
-    [~, reply] = Eyelink('ReadFromTracker', 'screen_phys_coords');
-    fprintf(['Screen physical coordinates are:\t' reply ' (in mm)\r'])
-    [~, reply] = Eyelink('ReadFromTracker', 'screen_distance');
-    fprintf(['Screen distance is:\t\t\t' reply '\r'])
-    [~, reply] = Eyelink('ReadFromTracker', 'analog_dac_range');
-    fprintf(['Analog output range is constraiend to:\t' reply ' (volts)\r'])
-    [~, srate] = Eyelink('ReadFromTracker', 'sample_rate');
-    fprintf(['Sampling rate is:\t\t\t' srate 'Hz\r'])
-    p.trial.eyelink.srate = str2double(srate);
-    pause(.05)
-    
-    vsn = regexp(vs,'\d','match'); % wont work on EL I
-    if isempty(vsn)
-        eyelinkI = 1;
-    else
-        eyelinkI = 0;
-    end
-    
+
+    reportStr = cell(3,1); % reportStr{:,i) == {description, value, units}
     [~, reply]=Eyelink('ReadFromTracker','elcl_select_configuration');
-    p.trial.eyelink.trackerversion = vs;
-    p.trial.eyelink.trackermode    = reply;
+    i = 1;    reportStr{1,i} = 'Eyelink mode:'; reportStr{2,i} = reply;
+    p.trial.eyelink.trackermode = reply;
     
+    [~, reply] = Eyelink('ReadFromTracker', 'screen_pixel_coords');
+    i = i+1;  reportStr{1,i} = 'Screen pixel coords:'; reportStr{2,i} = reply; reportStr{3,i} = 'px';
+    
+    [~, reply] = Eyelink('ReadFromTracker', 'screen_phys_coords');
+    i = i+1;  reportStr{1,i} = 'Screen physical coords:'; reportStr{2,i} = reply; reportStr{3,i} = 'mm';
+    
+    reply = sprintf('%2.2f, %2.2f', screenTopDist, screenBtmDist); % no eyelink readout of screen_distance
+    i = i+1;  reportStr{1,i} = 'Subject viewing distance:'; reportStr{2,i} = reply; reportStr{3,i} = '[cm_to_top, cm_to_btm]';
+    p.trial.eyelink.screenTopBtmDist = [screenTopDist, screenBtmDist];
+    
+    [~, reply] = Eyelink('ReadFromTracker', 'analog_dac_range');
+    i = i+1;  reportStr{1,i} = 'Analog output range:'; reportStr{2,i} = reply; reportStr{3,i} = 'V';
+    
+    [~, reply] = Eyelink('ReadFromTracker', 'sample_rate');
+    i = i+1;  reportStr{1,i} = 'Sampling rate:'; reportStr{2,i} = reply; reportStr{3,i} = 'Hz';
+    p.trial.eyelink.srate = str2double(reply);
+    
+    % show output in command window
+    fprintf('%s\n\t\t\t\t\t\t%s  %s\n', reportStr{:});
+    
+%     fprintf(['Screen pixel coordinates:\t\t' elVal.px_coords '\r'])
+%     fprintf('Screen physical coordinates:\t%2.2f, %2.2f, %2.2f, %2.2f  cm\r', str2num(reply)/10)
+%     % [~, reply] = Eyelink('ReadFromTracker', 'screen_distance');  % % ..."Variable read not supported"
+%     fprintf('Screen distance:\t%2.2f\t%2.2f  [cm_to_top, cm_to_btm]\r', screenTopDist, screenBtmDist)
+%     [~, reply] = Eyelink('ReadFromTracker', 'analog_dac_range');
+%     fprintf(['Analog output range:\t' reply '  V\r'])
+%     [~, srate] = Eyelink('ReadFromTracker', 'sample_rate');
+%     fprintf(['Sampling rate:\t\t\t' srate 'Hz\r'])
+%     p.trial.eyelink.srate = str2double(srate);
+%     pause(.05)
+    
+    %% Mode-specific setup
     switch p.trial.eyelink.trackermode
         case {'RTABLER'}
             fprintf('\rSetting up tracker for remote mode\r')
@@ -133,31 +159,42 @@ if p.trial.eyelink.use
     end
     
     
-    % custom calibration points
+    %% Eyelink calibration setup
     if p.trial.eyelink.custom_calibration
-        width  = p.trial.display.winRect(3);
-        height = p.trial.display.winRect(4);
-        disp('setting up custom calibration')
-        disp('this is not properly implemented yet on 64-bit Eyelink. Works for 32-bit')
-        Eyelink('command', 'generate_default_targets = NO');
-        %     Eyelink('command','calibration_samples = 5');
-        %     Eyelink('command','calibration_sequence = 1,2,3,4,5');
-        scale = p.trial.eyelink.custom_calibrationScale;
-
-        cx = (width/2);
-        cy = (height/2);
-        Eyelink('command','calibration_targets = %d,%d %d,%d %d,%d %d,%d %d,%d',...
-            cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
         
-        fprintf('calibration_targets = %d,%d %d,%d %d,%d %d,%d %d,%d\r',...
-            cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
-        %     Eyelink('command','validation_samples = 5');
-        %     Eyelink('command','validation_sequence = 0,1,2,3,4,5');
-        Eyelink('command','validation_targets = %d,%d %d,%d %d,%d %d,%d %d,%d',...
-            cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
-        
-        %TODO: what? that's not how it should be done, why not send the
-        %calibration scale??
+        if isfield(p.trial.eyelink, 'calSettings')
+            % Allow user to manually set any eyelink values they want
+            % Send all calibration settings present to eyetracker
+            fn = fieldnames(p.trial.eyelink.calSettings);
+            for i = 1:length(fn)
+                Eyelink('command', sprintf('%s = %s', fn{i}, p.trial.eyelink.calSettings.(fn{i})));
+            end
+        else
+            
+            width  = p.trial.display.winRect(3);
+            height = p.trial.display.winRect(4);
+            disp('setting up custom calibration')
+            disp('this is not properly implemented yet on 64-bit Eyelink. Works for 32-bit')
+            Eyelink('command', 'generate_default_targets = NO');
+            Eyelink('command','calibration_samples = 5');
+            Eyelink('command','calibration_sequence = 1,2,3,4,5');
+            scale = p.trial.eyelink.custom_calibrationScale;
+            
+            cx = (width/2);
+            cy = (height/2);
+            Eyelink('command','calibration_targets = %d,%d %d,%d %d,%d %d,%d %d,%d',...
+                cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
+            
+            fprintf('calibration_targets = %d,%d %d,%d %d,%d %d,%d %d,%d\r',...
+                cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
+            Eyelink('command','validation_samples = 5');
+            Eyelink('command','validation_sequence = 0,1,2,3,4,5');
+            Eyelink('command','validation_targets = %d,%d %d,%d %d,%d %d,%d %d,%d',...
+                cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
+            
+            %TODO: what? that's not how it should be done, why not send the
+            %calibration scale??
+        end
     else
         disp('using default calibration points')
         Eyelink('command', 'calibration_type = HV9');

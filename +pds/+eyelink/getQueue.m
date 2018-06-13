@@ -25,7 +25,8 @@ if p.trial.eyelink.use
         end
         % Get Eyelink samples
         if ~isempty(samplesIn)
-            p.trial.eyelink.samples(:,(p.trial.eyelink.sampleNum+1):p.trial.eyelink.sampleNum+size(samplesIn,2)) = samplesIn;
+            % Eyelink only sends data as floats, so no sense in carrying around all these doubles!
+            p.trial.eyelink.samples(:,(p.trial.eyelink.sampleNum+1):p.trial.eyelink.sampleNum+size(samplesIn,2)) = single(samplesIn);
             p.trial.eyelink.sampleNum = p.trial.eyelink.sampleNum+size(samplesIn,2);
         end
 
@@ -59,11 +60,19 @@ if p.trial.eyelink.use
            p.trial.eyeX = p.trial.eyelink.samples(eyeIdx+13,p.trial.eyelink.sampleNum); % raw=14: left x; raw=15: right x
            p.trial.eyeY = p.trial.eyelink.samples(eyeIdx+15,p.trial.eyelink.sampleNum); % raw=16: left y; raw=17: right x
         end
-
+        % Also report delta eye position
+        nback = p.trial.eyelink.sampleNum + [-1,0]; nback(nback<1) = 1;
+        p.trial.eyeDelta = [diff(p.trial.eyelink.samples(eyeIdx+13, nback), [], 2);...
+                            diff(p.trial.eyelink.samples(eyeIdx+15, nback), [], 2)];
+        
         if p.trial.eyelink.useRawData
            eXY= p.trial.eyelink.calibration_matrix(:,:,eyeIdx+10)*[p.trial.eyeX;p.trial.eyeY;1];
            p.trial.eyeX=eXY(1);
            p.trial.eyeY=eXY(2);
         end
+        
+        % ...we do need doubles for most Screen applications of xy position though
+        p.trial.eyeX = double(p.trial.eyeX);
+        p.trial.eyeY = double(p.trial.eyeY);
 	end
 end

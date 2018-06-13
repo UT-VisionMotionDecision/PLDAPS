@@ -101,7 +101,7 @@ classdef pldaps < handle
         % current pass through all conditions
         p.condMatrix.pass.i = 0;
         % random number generator for this pass
-        p.condMatrix.pass.rng = randstream.create(i+100*clock);
+        p.condMatrix.pass.rng = RandStream.create('mt19937ar', 'seed',sum(100*clock));
         % End experiment after n-passes
         p.condMatrix.pass.end = inf;   
         p.condMatrix.order = [];    % [randomized] set of condition indexes for current pass

@@ -10,10 +10,13 @@ function p = pmTrialMovie(p, state, sn)
 %  p.trial.(sn).   frameRate = p.trial.display.frate;
 %  p.trial.(sn).   rect = []; % full-screen
 %  p.trial.(sn).   options = ':CodecType=x264enc :EncodingQuality=1.0';
+%       (see: help VideoRecording  for .options formatting. For raw stimulus image
+%        quality, use ':CodecType=huffyuv :EncodingQuality=1.0";)
 % 
 % NOTE: During movie capture, Screen only uses the top left corner of the .rect
 % parameter is used for image capture; the width & height of each frame is computed
 % from p.trial.(sn).rect during initial movie file creation (experimentPostOpenScreen).
+%
 % 
 % 2017-11-21  TBC  Extracted from principle elements of PLDAPS, and modularized.
 % 2018-06-07  TBC  stereoMode friendly, specify 'frontBuffer'
