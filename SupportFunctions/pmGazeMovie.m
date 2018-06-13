@@ -1,4 +1,4 @@
-function p = pmMakeMovie(p, state, sn)
+function p = pmGazeMovie(p, state, sn)
 % function p = pmMakeMovie(p, state, sn)
 % 
 % PLDAPS module ("pm") for capturing & saving a stimulus movie via Screen calls
@@ -14,9 +14,6 @@ function p = pmMakeMovie(p, state, sn)
 % NOTE: During movie capture, Screen only uses the top left corner of the .rect
 % parameter is used for image capture; the width & height of each frame is computed
 % from p.trial.(sn).rect during initial movie file creation (experimentPostOpenScreen).
-% e.g. for gaze-fixed recording add:
-%   case p.trial.pldaps.trialStates.framePrepareDrawing
-%       p.trial.(sn).rect = CenterRectOnPoint(p.trial.(sn).rect, p.trial.eyeX(1), p.trial.eyeY(1));
 % 
 % 2017-11-21  TBC  Extracted from principle elements of PLDAPS, and modularized.
 % 2018-06-07  TBC  stereoMode friendly, specify 'frontBuffer'
@@ -27,11 +24,21 @@ switch state
     case p.trial.pldaps.trialStates.framePrepareDrawing
         % center rect on eye position
         p.trial.(sn).rect = CenterRectOnPoint([0, 0, p.trial.(sn).width, p.trial.(sn).height], p.trial.eyeX(1), p.trial.eyeY(1));
-        % constrain to be w/in screen (else will crash)
-        p.trial.(sn).rect(p.trial.(sn).rect<0) = 0;
+
+        % Constrain to stay w/in screen (else crash)
+        % Left
+        if p.trial.(sn).rect(1)<0
+            p.trial.(sn).rect([1,3]) = [0, p.trial.(sn).width];
+        end
+        % Top
+        if p.trial.(sn).rect(2)<0
+            p.trial.(sn).rect([2,4]) = [0, p.trial.(sn).height];
+        end
+        % Right
         if p.trial.(sn).rect(3)>p.trial.display.winRect(3)
             p.trial.(sn).rect([1,3]) = [-p.trial.(sn).width, 0] + p.trial.display.winRect(3);
         end
+        % Bottom
         if p.trial.(sn).rect(4)>p.trial.display.winRect(4)
             p.trial.(sn).rect([2,4]) = [-p.trial.(sn).height, 0] + p.trial.display.winRect(4);
         end

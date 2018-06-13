@@ -5,15 +5,21 @@ function p = run(p)
 %       run is a wrapper for calling PLDAPS package files
 %           It opens the PsychImaging pipeline and initializes datapixx for
 %           dual color lookup tables. 
+% 
 % 10/2011 jly wrote it (modified from letsgorun.m)
 % 12/2013 jly reboot. updated to version 3 format.
 % 04/2014 jk  moved into a pldaps class; adapated to new class structure
-
+% 2018-06-06 tbc  Updating usage & application of p.conditions to function
+%                 as a proper conditions matrix
+% 
 %TODO: 
-% one unified system for modules, e.g. moduleSetup, moduleUpdate, moduleClose
+% Sub-System for module creation & interaction
+% - currently just pldapsModule.m for module creation
+% 
+% 
+% 
 % make HideCursor optional
-% TODO:reset class at end of experiment or mark as recorded, so I don't
-% run the same again by mistake
+
 
 % try
     %% Setup and File management
@@ -150,7 +156,15 @@ function p = run(p)
             [moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
             runStateforModules(p,'experimentPostOpenScreen',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
         end
-
+        
+        %% Finish initialization of condMatrix
+        %  according to contents of p.conditions
+        %  (done here to allow all modules with experimentPostOpenScreen components to fully initialize)
+        condDims = max([1, sum(size(p.conditions)>1)]);
+        if isempty(p.condMatrix.randMode)
+            p.condMatrix.randMode = zeros(1, condDims);
+        end
+        
         
     %% Last chance to check variables
     if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
