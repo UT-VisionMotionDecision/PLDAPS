@@ -1,26 +1,49 @@
-function [moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p, onlyActive)
-% function [modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p)
+function [moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p, moduleType)
+% function [moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p, [moduleType])
 % 
-% Parse currently active modules, execution order, and trialStates during which they should be active.
+% Parse current module activity state, execution order, and trialStates during which they should be active.
+% Return a list of module names, handles, states, and 
 % This is called at the beginning of each trial.
 %
 % Module order will be determined by .stateFunction.order, running from -Inf : 0 : Inf.
-% NOTE: This is distinct from the ordering of trial states (.stateFunction.requestedStates)
+%       Recommend using "order 0" for the pldapsDefaultTrialFunction module, then ordering other
+%       modules before or after it in time.
+%       *** NOTE: This is distinct from the ordering of trial states (.stateFunction.requestedStates)
 %       becasue negative module order values are not ignored during the trial like state values are.
 %       ...this is unfortunate, and potentially confusing.
-%       Recommend only using positive values to order your modules to be more 'future proof' [hint].
-%       --TBC 2017-10
+% 
+% [moduleType] is optional parameter for constraining the list of modules returned.
+%       def:  moduleType = bitset(0,1); % only active modules
+%       Operates as binary flags on each bit in moduleType, where bit:
+%       1 == active state of module:        p.trial.(sn).use;           bitget(moduleType,1)
+%       2 == marked for use by condMatrix:  p.trial.(sn).matrixModule;  bitget(moduleType,2)
+%       ....
+% 
+%       EXAMPLE) Retrieve only active matrixModules with:
+%       getModules(p, bitset( bitset(0,1), 2));     % equivalent to:  getModules(p,3);
+%
+% 2016-xx-xx  jk  Written for pldaps 4.2 by Jonas
+% 2017-10-xx  tbc Added flag for module active state
+% 2018-06-26  tbc Expanded with binary flag moduleType, for more control over module sub-selection & .condMatrix
+% 
 
-if nargin<2 || isempty(onlyActive)
-    onlyActive = 1;
+if nargin<2 || isempty(moduleType)
+    moduleType = bitset(0,1); % return only 'active' modules:  p.trial.(sn).use == true;
 end
+
 %% Find all modules in p.trial struct
 moduleNames=fieldnames(p.trial);
 moduleNames(cellfun(@(x) ~isstruct(p.trial.(x)),moduleNames))=[]; %remove non struct candidates
 moduleNames(cellfun(@(x) ~isfield(p.trial.(x),'stateFunction'),moduleNames))=[]; %remove candidates without a stateFucntion specified
-% Remove modules not activated
-if onlyActive
-    moduleNames(cellfun(@(x) (~isfield(p.trial.(x),'use') || ~p.trial.(x).use ),moduleNames))=[];
+
+% Subselect modules based on moduleType
+% --- return only 'matrixModules'
+if bitget(moduleType, 2)
+    moduleNames(cellfun(@(x) (~isfield(p.trial.(x).stateFunction,'matrixModule') || ~p.trial.(x).stateFunction.matrixModule ),moduleNames)) = [];
+end
+% --- return only 'active' modules:  p.trial.(sn).use == true;
+if bitget(moduleType, 1)
+    moduleNames(cellfun(@(x) (~isfield(p.trial.(x),'use') || ~p.trial.(x).use ),moduleNames)) = [];
 end
 
 

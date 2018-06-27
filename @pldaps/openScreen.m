@@ -139,13 +139,14 @@ end
 disp('****************************************************************')
 fprintf('Opening screen %d with background %s in stereo mode %d\r', p.trial.display.scrnNum, mat2str(p.trial.display.bgColor), p.trial.display.stereoMode)
 disp('****************************************************************')
-[ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, p.trial.display.multisample);
-p.trial.display.ptr=ptr;
-p.trial.display.winRect=winRect;
+[ptr, winRect] = PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, p.trial.display.multisample);
+p.trial.display.ptr = ptr;
+p.trial.display.winRect = winRect;
 
-% Software overlay is half-width; adjust winRect accordingly
+% Software overlay takes over right half of screen (...ideally a single PTB window spanning two displays with equal spatiotemporal res)
+% Adjust winRect accordingly
 if p.trial.display.useOverlay==2
-    p.trial.display.winRect(3)=p.trial.display.winRect(3)/2;
+    p.trial.display.winRect(3) = p.trial.display.winRect(3)/2;
 end
 
 %% Set some basic variables about the display
@@ -158,7 +159,8 @@ end
 p.trial.display.ppd = p.trial.display.winRect(3)/p.trial.display.width; % calculate pixels per degree
 p.trial.display.frate = round(1/Screen('GetFlipInterval',p.trial.display.ptr));   % frame rate (in Hz)
 p.trial.display.ifi=Screen('GetFlipInterval', p.trial.display.ptr);               % Inter-frame interval (frame rate in seconds)
-p.trial.display.ctr = [p.trial.display.winRect(3:4),p.trial.display.winRect(3:4)]./2 - 0.5;          % Rect defining screen center
+
+p.trial.display.ctr = [p.trial.display.winRect(3:4), p.trial.display.winRect(3:4)]./2 - 0.5;          % Rect defining screen center
 p.trial.display.info = Screen('GetWindowInfo', p.trial.display.ptr);              % Record a bunch of general display settings
 [~, ~, p.trial.display.info.realBitDepth] = Screen('ReadNormalizedGammaTable', p.trial.display.ptr); % Actual bitdepth of display hardware (not merely frame buffer bpc)
 
@@ -177,6 +179,7 @@ p.trial.display.wHeight=p.trial.display.heightcm;
 % visual [d]egrees          % updated to ensure this param reflects ppd (i.e. not an independent/redundant calculation)
 p.trial.display.dWidth =  p.trial.display.pWidth/p.trial.display.ppd;   
 p.trial.display.dHeight = p.trial.display.pHeight/p.trial.display.ppd;
+
 % space conversions
 p.trial.display.w2px=[p.trial.display.pWidth/p.trial.display.wWidth; p.trial.display.pHeight/p.trial.display.wHeight];
 p.trial.display.px2w=[p.trial.display.wWidth/p.trial.display.pWidth; p.trial.display.wHeight/p.trial.display.pHeight];

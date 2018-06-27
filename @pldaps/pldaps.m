@@ -97,45 +97,56 @@ classdef pldaps < handle
         % Also allows the same code that works inside a running session (or inside a module) to be run
         % in the command window [...for the most part].
         
-        %% setup condMatrix
-        % current pass through all conditions
-        p.condMatrix.pass.i = 0;
-        % random number generator for this pass
-        p.condMatrix.pass.rng = RandStream.create('mt19937ar', 'seed',sum(100*clock));
-        % End experiment after n-passes
-        p.condMatrix.pass.end = inf;   
-        p.condMatrix.order = [];    % [randomized] set of condition indexes for current pass
-        p.condMatrix.randMode = [];  % random ordering of conditions selectable by matrix dimension
-        % This is the beta version of randMode. It only acts as a flag for a select
-        %  -1 = across all dims  == reshape(Shuffle(p.conditions{:}), size(p.conditions))
-        %   0 = no randomization;
-        %   1 = across columns   == Shuffle(p.conditions))
-        %   2 = across rows      == Shuffle(p.conditions')'
-        %
-        % sized 1-by-nDimensions present in p.conditions cell.
-        % 0 == no randomization
-        % 1:n == order of randomization groupings.
-        % GIVEN:
-        % 	% get number of condition dimensions (excluding singletons that ndims.m counts)
-        % 	condDims = max([1, sum(size(p.conditions)>1)]);
-        % EXAMPLES:	 (if size(p.conditions)==[2,3,6]; condDims = 3;)
-        %
-        % randMode = [0 0 0];	% DEFAULT % zeros(1,condDims);
-        % 	-->>  cycles through condition matrix without randomizing
-        %
-        % randMode = [1 1 1];	% ones(1,condDims);
-        % 	-->>  randomizes across all dimensions
-        %
-        % randMode = [0 1 1];
-        % 	-->>  randomize last two dims together, maintain order of first dim
-        %
-        % randMode = [1 2 3];
-        % 	-->>  randomize each dimension separately.
-        %         Thus each (1,i,:) contains all values of last dim paired with ith value of 2nd dim; order of second dim is randomized.
-        %         Each (1,:,:) contains all combinations of one value of first parameter with all other parameters.
+        % Take module inventory
+        if p.trial.pldaps.useModularStateFunctions
+            % Establish list of all module names
+            p.trial.pldaps.modNames.all = getModules(p, 0);
+            p.trial.pldaps.modNames.matrixModule = getModules(p, bitset(0,2));
+        end
 
-        
-        
+        %% setup condMatrix
+        % Moved to condMatrix class definition
+        % To use condMatrix, assign typical p.conditions values to p.condMatrix.conditions,
+        % then run:
+        %       p.condMatrix = condMatrix(p, [...]);
+        % where [...] is optional set of name-value pairs. PLDAPS will do the rest.
+        % See help condMatrix
+        % 
+        %
+        % % %         % initialize
+        % % %         p.condMatrix.i = 0;
+        % % %         p.condMatrix.pass.i = 0;
+        % % %         p.condMatrix.pass.seed = sum(100*clock); % base rng seed
+        % % %         p.condMatrix.pass.end = inf;    % Stop experiment after n-passes
+        % % %         p.condMatrix.order = [];    % [randomized] set of condition indexes for current pass
+        % % %         p.condMatrix.randMode = [];  % random ordering of conditions selectable by matrix dimension
+        % % %         % This is the beta version of randMode. It only acts as a flag for a select
+        % % %         %   0 = no randomization;
+        % % %         %   1 = across all dims  == reshape(Shuffle(p.conditions{:}), size(p.conditions))
+        % % %         %   2 = across columns   == Shuffle(p.conditions))
+        % % %         %   3 = across rows      == Shuffle(p.conditions')'
+        % % %         %
+        % % %         % sized 1-by-nDimensions present in p.conditions cell.
+        % % %         % 0 == no randomization
+        % % %         % 1:n == order of randomization groupings.
+        % % %         % GIVEN:
+        % % %         % 	% get number of condition dimensions (excluding singletons that ndims.m counts)
+        % % %         % 	condDims = max([1, sum(size(p.conditions)>1)]);
+        % % %         % EXAMPLES:	 (if size(p.conditions)==[2,3,6]; condDims = 3;)
+        % % %         %
+        % % %         % randMode = [0 0 0];	% DEFAULT % zeros(1,condDims);
+        % % %         % 	-->>  cycles through condition matrix without randomizing
+        % % %         %
+        % % %         % randMode = [1 1 1];	% ones(1,condDims);
+        % % %         % 	-->>  randomizes across all dimensions
+        % % %         %
+        % % %         % randMode = [0 1 1];
+        % % %         % 	-->>  randomize last two dims together, maintain order of first dim
+        % % %         %
+        % % %         % randMode = [1 2 3];
+        % % %         % 	-->>  randomize each dimension separately.
+        % % %         %         Thus each (1,i,:) contains all values of last dim paired with ith value of 2nd dim; order of second dim is randomized.
+        % % %         %         Each (1,:,:) contains all combinations of one value of first parameter with all other parameters.   
 
      end   
  end

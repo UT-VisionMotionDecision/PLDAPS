@@ -41,7 +41,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	display.	displayName = 'defaultScreenParameters';
  s.	display.	scrnNum = max(Screen('Screens'));
  s.	display.	useOverlay = 1;
- s.	display.	screenSize = [ ];
+ s.	display.	screenSize = screenSizeSelector(s.display.scrnNum);
  s.	display.	heightcm = 45;
  s.	display.	widthcm = 63;
  s.	display.	viewdist = 57;
@@ -183,4 +183,20 @@ function s=pldapsClassDefaultParameters(s)
  s.	sound.	deviceid = [ ];
  s.	sound.	use = true;
  s.	sound.	useForReward = true;
+end
+
+
+
+% % % % % % % % % 
+% Sub-functions
+% % % % % % % % % 
+
+%% screenSizeSelector
+%  set default screenRect to 'picture-in-picture' if maxScreens == 0
+function screenRect = screenSizeSelector(scrnNum)
+if ~scrnNum && scrnNum==max(Screen('Screens'))
+    screenRect = floor(Screen('Rect',scrnNum).*0.4)+30;
+else
+    screenRect = [ ];
+end
 end
