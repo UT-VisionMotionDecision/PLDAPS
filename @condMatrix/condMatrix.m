@@ -111,11 +111,11 @@ methods
         
         % Apply to targetModule(s) serially, updateOrder if necessary
         for i = 1:numel(targetModule)
-            cm.i = cm.i+1;
             % refresh order if run out of available indexes
-            if cm.i > numel(cm.order)
+            if cm.i+1 > numel(cm.order)
                 updateOrder(cm);
             end
+            cm.i = cm.i+1;
             ii = cm.order(cm.i);
             fn = fieldnames(cm.conditions{ii}); %cm.condFields;
             % cycle through each condition field

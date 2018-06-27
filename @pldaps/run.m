@@ -223,11 +223,11 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
                 break
             end
             % apply levels from the condMatrix to currently active params
-            if p.condMatrix.i+1 > numel(p.condMatrix.order)
-                p.condMatrix.updateOrder;
-            else
-                p.condMatrix.i = p.condMatrix.i+1;
-            end
+% % %             if p.condMatrix.i+1 > numel(p.condMatrix.order)
+% % %                 p.condMatrix.updateOrder;
+% % %             else
+% % %                 p.condMatrix.i = p.condMatrix.i+1;
+% % %             end
             % create new params level for this trial
             % (...strange looking, but necessary to create new level w/o changes)
             p.defaultParameters.addLevels( {struct}, {sprintf('Trial%dParameters', nextTrial)});
@@ -285,16 +285,16 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             disp(result.message)
         end
         
-        %% Partition trial data
-        % p.data{i}:  everything collected or changed during this trial
+        %% p.data{i}: Partition trial data
+        % Compile all data and parameters collected/changed during this trial
         if p.defaultParameters.pldaps.save.mergedData
             %store the complete trial struct to .data
             dTrialStruct = p.trial;
         else
             %store the difference of the trial struct to .data
-            %   dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial);
+              dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial);
             % NEW:  include condition parameters in p.data, instead of relying on p.conditions being 1:1 with trial number
-            dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial, baseParamsLevels);
+%             dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial, baseParamsLevels);
         end
         p.data{p.defaultParameters.pldaps.iTrial} = dTrialStruct;
         
