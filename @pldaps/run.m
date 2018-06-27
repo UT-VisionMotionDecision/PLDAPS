@@ -257,11 +257,10 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         % There has to be a way to revise params class (particularly removing "find"
         % calls, which are known to be very slow), but have had little success at
         % deciphering the params.m code so far. --TBC 2017-10
-        tmpts=mergeToSingleStruct(p.defaultParameters); %#ok<NASGU>
+        tmpts = mergeToSingleStruct(p.defaultParameters);
         save( fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'), '-struct', 'tmpts');
         clear tmpts
         p.trial = load(fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'));
-        %             p.trial=mergeToSingleStruct(p.defaultParameters);
         
         % Document currently active levels for this trial
         p.trial.pldaps.activeLevels = p.defaultParameters.getActiveLevels;
@@ -280,22 +279,26 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         %unlock the defaultParameters
         p.defaultParameters.setLock(false);
         
-        %save tmp data
+        %save TEMP data file
         result = saveTempFile(p);
         if ~isempty(result)
             disp(result.message)
         end
         
+        %% Partition trial data
+        % p.data{i}:  everything collected or changed during this trial
         if p.defaultParameters.pldaps.save.mergedData
             %store the complete trial struct to .data
             dTrialStruct = p.trial;
         else
             %store the difference of the trial struct to .data
-            dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial);
+            %   dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial);
+            % NEW:  include condition parameters in p.data, instead of relying on p.conditions being 1:1 with trial number
+            dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial, baseParamsLevels);
         end
         p.data{p.defaultParameters.pldaps.iTrial} = dTrialStruct;
         
-        % experimentAfterTrials  (Modular PLDAPS)
+        %% experimentAfterTrials  (Modular PLDAPS)
         if p.trial.pldaps.useModularStateFunctions && ~isempty(p.trial.pldaps.experimentAfterTrialsFunction)
             % Not clear what purpose this serves that could not be accomplished in trial cleanupandsave
             % and/or at start of next trial? ...open to suggestions. --TBC 2017-10
@@ -318,13 +321,15 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         
     else
         
-        % Pause experiment. should we halt eyelink, datapixx, etc?
-        ptype=p.trial.pldaps.pause.type;
+        %% Pause experiment
+        % ...should we halt eyelink, datapixx, etc?
+        ptype = p.trial.pldaps.pause.type;
+        % [ptype]: 1=standard pause, 2=pause loop (hacky O.T.F. keyboard polling...prob code detritus)
         
-        % p.trial is once again a pointer after the following call (!)
-        p.trial=p.defaultParameters; % NOTE: This step also resets the .pldaps.quit~=0 that triggered execution of this block
+        % p.trial is once again a pointer (!)
+        p.trial = p.defaultParameters; % This effectively resets the .pldaps.quit~=0 that triggered execution of this block
         
-        % This will ALWAYS create a new 'level' (even if nothing is changed during pause)
+        % NOTE: This will ALWAYS create a new 'level' (even if nothing is changed during pause)
         % ...doesn't seem to be the original intention, but allows changes during pause to be carried
         % over without overwriting prior settings, or getting lost in .conditions parameters. --TBC 2017-10
         p.defaultParameters.addLevels({struct}, {sprintf('PauseAfterTrial%dParameters', p.defaultParameters.pldaps.iTrial)});
@@ -333,7 +338,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         % set baseline levels active (NOTE:  disables all trial-specific levels/params in the process)
         p.defaultParameters.setLevels(baseParamsLevels);
         
-        if ptype==1 %0=don't,1 is debugger, 2=pause loop
+        if ptype==1
             ListenChar(0);
             ShowCursor;
             p.trial
@@ -344,7 +349,6 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         elseif ptype==2
             pauseLoop(p);
         end
-        %             pds.datapixx.refresh(p);
         
         %now I'm assuming that nobody created new levels,
         %but I guess when you know how to do that
@@ -399,25 +403,29 @@ if p.trial.pldaps.useModularStateFunctions
     runStateforModules(p,'experimentCleanUp',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 end
 
+
+%% PDS output:  Compile & save the data
 if ~p.defaultParameters.pldaps.nosave
-    [structs,structNames] = p.defaultParameters.getAllStructs();
-    
+    % create output struct
     PDS = struct;
-    PDS.initialParameters = structs(baseParamsLevels);
-    PDS.initialParameterNames = structNames(baseParamsLevels);
+    % get the raw contents of Params hierarchy (...not for mere mortals)
+    [rawParamsStruct, rawParamsNames] = p.defaultParameters.getAllStructs();
+    % Partition baseline parameters present at the onset of all trials (*)
+    PDS.initialParameters       = rawParamsStruct(baseParamsLevels);
+    PDS.initialParameterNames   = rawParamsNames(baseParamsLevels);
     PDS.initialParameterIndices = baseParamsLevels;
     % Include a less user-hostile output struct
     if p.defaultParameters.pldaps.save.initialParametersMerged
-        % Should be noted that baseParamsLevels may have been changed throughout
-        % course of experiment, so this merged struct could be misleading.
-        % ...activeLevels now documented for every trial though:    data{}.pldaps.activeLevels
         PDS.initialParametersMerged = mergeToSingleStruct(p.defaultParameters);
+        % NOTE: baseParamsLevels can be changed during experiment (i.e. during a pause),
+        % so this merged struct could be misleading.
+        % Truly activeLevels are documented on every trial in:  data{}.pldaps.activeLevels
     end
     
-    levelsCondition = 1:length(structs);
-    levelsCondition(ismember(levelsCondition,baseParamsLevels)) = [];
-    PDS.conditions = structs(levelsCondition);
-    PDS.conditionNames = structNames(levelsCondition);
+    levelsCondition = 1:length(rawParamsStruct);
+    levelsCondition(ismember(levelsCondition, baseParamsLevels)) = [];
+    PDS.conditions = rawParamsStruct(levelsCondition);
+    PDS.conditionNames = rawParamsNames(levelsCondition);
     PDS.data = p.data;
     PDS.functionHandles = p.functionHandles; %#ok<STRNU>
     savedFileName = fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file);
@@ -446,6 +454,7 @@ if ~p.defaultParameters.pldaps.nosave
     
 end
 
+%% Close up shop & free up memory
 if p.defaultParameters.display.useOverlay==2
     glDeleteTextures(2,p.trial.display.lookupstexs(1));
 end
