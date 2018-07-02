@@ -33,7 +33,7 @@ trData = p.data(goodtr);
 minf = min(cellfun(@(x) x.iFrame, trData))
 
 % fliptimes btwn frames (msec)
-ftd = 1000* cell2mat(cellfun(@(x) diff(x.timing.flipTimes(3,1:minf))', trData, 'uni',0));
+ftd = 1000* cell2mat(cellfun(@(x) diff(x.timing.flipTimes(3,1:minf))', trData, 'uni',0))';
 drops = sum(ftd(:) >= dropThresh);
 
 %% Plot fliptimes
@@ -46,7 +46,7 @@ pbaspect = [2,1,1];
 figure;%(1),clf,
 % Plot fliptimes & drops
 subplot(spy, spx, 1);
-imagesc(ftd');
+imagesc(ftd);
 title( {p.trial.session.file, sprintf('FlipTimes;  %d/%d dropped (%2.3f%%)', drops, numel(ftd), drops/numel(ftd)*100)} );
 xlabel('frame #'), ylabel('trial')
 set(gca,'plotboxaspectratio',pbaspect, 'clim',cl, 'tickdir','out');  box off
@@ -54,7 +54,7 @@ colormap(gca, cm); cb = colorbar; ylabel(cb, 'msec')
 
 subplot(spy, spx, spx+1)
 [~,didx] = find(ftd >= dropThresh);
-histogram( didx, floor(minf/10)+1, 'BinLimits',[1,size(ftd,2)], 'Normalization','probability')
+histogram( didx, linspace(0,minf, 31), 'Normalization','probability')
 title('Dropped frames by time');
 xlabel('frame #'), ylabel('prop. total drops')
 set(gca,'plotboxaspectratio',pbaspect); box off; grid on;
