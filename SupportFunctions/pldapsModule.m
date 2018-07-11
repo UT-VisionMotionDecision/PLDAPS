@@ -64,7 +64,7 @@ pp.addParameter('use', true, @islogical);
 pp.addParameter('name', ''); % ...misnomer; this is the function name string for feval() use when the module is used
 pp.addParameter('order', inf, @isnumeric);
 pp.addParameter('modName', []); % alternate to the long .acceptsLocationInput flag
-pp.addParameter('matrixModule', false, @islogical); % allow condition index to be assigned on a per-module basis
+pp.addParameter('matrixModule', false); % allow condition index to be assigned on a per-module basis
 pp.addParameter('requestedStates', 'all');
 pp.addParameter('useAsFilename', false, @islogical); % to be implemented... TBC 2017-11-06
 % % % % legacy fields (no longer needed!)

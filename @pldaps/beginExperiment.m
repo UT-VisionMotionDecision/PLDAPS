@@ -48,7 +48,7 @@ try
     
     if ~err && ~isempty(status)
         status = [sprintf('Locally modified:\n-------------------------------\n'), status];
-        [err, gdiff] = system('git --no-pager diff --minimal');
+        [err, gdiff] = system('git --no-pager diff --minimal -U2');
     end
 catch
     fprintf(2, '!Notice:\tFailed to retrieve the git branch/tag information from this PLDAPS installation.\n')
