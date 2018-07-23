@@ -11,6 +11,18 @@ properties (Access = public)
     order   % [randomized]sequence of condition indices for the current pass
     passSeed    % base for random seed:  rng(.passSeed + .iPass, 'twister')
     randMode    % flag for randomization through condition matrix [.condMatrix.conds]
+    % Randomize order of upcoming pass through condition matrix based on:
+    %         switch cm.randMode
+    %             case 1 % randomize across all dimensions
+    %                 newOrder = reshape(Shuffle(newOrder(:)), sz);
+    %             case 2  % randomize within columns
+    %                 newOrder = Shuffle(newOrder);
+    %             case 3  % randomize within rows (not good...this will fail with >2 condDims!)
+    %                 newOrder = Shuffle(newOrder');
+    %             otherwise
+    %                 % do nothing
+    %         end
+    baseIndex   % base index value used to distinguish condition index strobed words, and as matrixModule onset strobe
 
     modNames    % module names struct
     maxFrames   % max number of frames per trial
@@ -37,13 +49,16 @@ methods
         % If .condMatrix already exists as a struct (i.e. .condMatrix.conditions created during experiment setup),
         % extract the values from it before overwriting it with this condMatrix object.
         if ~isempty(fieldnames(p.condMatrix))
-            % ???? How does this need to be structured?
-            % -- A cell of fields, like p.conditions
-            % -- ...specific enough that a creation method would be best?
-            cm.conditions = p.condMatrix.conditions;
-%             % list fieldnames set by conditions matrix
-%             cm.condFields = fieldnames(cm.conditions);
-            fprintf(2, '\n\t!!!\tp.condMatrix manually initialized...this is might not be good.\n')
+            if isfield(p.condMatrix, 'conditions')
+                % ???? How does this need to be structured?
+                % -- A cell of fields, like p.conditions
+                % -- ...specific enough that a creation method would be best?
+                cm.conditions = p.condMatrix.conditions;
+                %             % list fieldnames set by conditions matrix
+                %             cm.condFields = fieldnames(cm.conditions);
+                fprintf(2, '\n\t!!!\tp.condMatrix manually initialized...this is might not be good.\n')
+            end
+
         end
         
         % Parse inputs & setup default parameters
@@ -56,6 +71,7 @@ methods
         pp.addParameter('passSeed', sum(100*clock));    
         % Control interaciton/execution of condMatrix
         pp.addParameter('randMode', 0);
+        pp.addParameter('baseIndex', 1000);
         
         % Do the parsing
         try
