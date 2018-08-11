@@ -62,7 +62,7 @@ if p.trial.eyelink.use
         end
         % Also report delta eye position
         nback = p.trial.eyelink.sampleNum + [-1,0]; nback(nback<1) = 1;
-        p.trial.eyeDelta = [diff(p.trial.eyelink.samples(eyeIdx+13, nback), [], 2);...
+        p.trial.eyeDelta = [diff(p.trial.eyelink.samples(eyeIdx+13, nback), [], 2),...
                             diff(p.trial.eyelink.samples(eyeIdx+15, nback), [], 2)];
         
         if p.trial.eyelink.useRawData

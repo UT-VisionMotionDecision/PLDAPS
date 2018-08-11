@@ -12,7 +12,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	datapixx.	enablePropixxCeilingMount = false;
  s.	datapixx.	enablePropixxRearProjection = false;
  s. datapixx.   rb3d = 0;
- s.	datapixx.	LogOnsetTimestampLevel = 2;
+ s.	datapixx.	LogOnsetTimestampLevel = 0;
  s.	datapixx.	use = true;
  s.	datapixx.	useAsEyepos = false;
  s.	datapixx.	useForReward = false;
@@ -32,9 +32,9 @@ function s=pldapsClassDefaultParameters(s)
  s.	datapixx.	adc.	YEyeposChannel = [ ];
 
 %s.	datapixx.	GetPreciseTime.
- s.	datapixx.	GetPreciseTime.	maxDuration = [ ];
- s.	datapixx.	GetPreciseTime.	optMinwinThreshold = [ ];
- s.	datapixx.	GetPreciseTime.	syncmode = [ ];
+ s.	datapixx.	GetPreciseTime.	maxDuration = 0.1; % sec
+ s.	datapixx.	GetPreciseTime.	optMinwinThreshold = 0.0003; % sec
+ % s.datapixx.	GetPreciseTime.	syncmode = [ ]; % no longer used
 
 %s.	display.
  s.	display.	bgColor = [ 0.5000    0.5000    0.5000 ];
@@ -105,7 +105,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	pldaps.	nosave = false;
  s.	pldaps.	pass = false;
  s.	pldaps.	quit = 0;
- s.	pldaps.	trialMasterFunction = 'runTrial';
+ s.	pldaps.	trialMasterFunction = 'runModularTrial';
  s.	pldaps.	useFileGUI = false;
  s.	pldaps.	useModularStateFunctions = false;
 

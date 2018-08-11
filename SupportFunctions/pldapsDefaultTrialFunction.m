@@ -316,7 +316,7 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 %%  frameFlip
     function frameFlip(p)
         ft=cell(5,1);
-        [ft{:}] = Screen('Flip', p.trial.display.ptr, p.trial.nextFrameTime + p.trial.trstart);
+        [ft{:}] = Screen('Flip', p.trial.display.ptr, 0);%p.trial.nextFrameTime + p.trial.trstart);
         
         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
          
@@ -344,15 +344,13 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         %these are things that are specific to subunits as eyelink,
         %datapixx, mouse and should probabbly be in separarte functions,
         %but I have no logic/structure for that atm.
-        
-        %setup analogData collection from Datapixx
-        pds.datapixx.adc.trialSetup(p);
-        
-        %call PsychDataPixx('GetPreciseTime') to make sure the clocks stay
-        %synced
+                
         if p.trial.datapixx.use
-            [getsecs, boxsecs, confidence] = PsychDataPixx('GetPreciseTime');
-            p.trial.timing.datapixxPreciseTime(1:3) = [getsecs, boxsecs, confidence];
+            %setup analogData collection from Datapixx
+            pds.datapixx.adc.trialSetup(p);
+            % Sync Datapixx & PTB clocks (...now via streamlined version of PsychDataPixx('GetPreciseTime'))
+            p.trial.timing.datapixxPreciseTime = pds.datapixx.syncClocks(p.trial.datapixx.GetPreciseTime); %[getsecs, boxsecs, confidence];
+            %             [getsecs, boxsecs, confidence] = PsychDataPixx('GetPreciseTime');
         end
         
         %setup a fields for the keyboard data
@@ -484,6 +482,10 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         %      has had time to complete & won't interfere with future draws/flips
         p.trial.timing.itiFrameCount = Screen('WaitBlanking', p.trial.display.ptr);
         p.trial.trstart = GetSecs;
+        
+        % Tell datapixx to save a timestamp marker at the next frame flip. These will be
+        % transferred from datapixx box to PTB machine during completion of experiment (by run.m)
+        PsychDataPixx('LogOnsetTimestamps',1);%2
         
     end %trialPrepare
 

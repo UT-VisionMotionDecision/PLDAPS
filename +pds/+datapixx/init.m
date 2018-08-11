@@ -53,7 +53,7 @@ if p.trial.datapixx.use
     
     %set getPreciseTime options, see testsuite/pldapsTimingTests for
     %details
-    if ~isempty(p.trial.datapixx.GetPreciseTime.syncmode)
+    if isfield(p.trial.datapixx.GetPreciseTime, 'syncmode') && ~isempty(p.trial.datapixx.GetPreciseTime.syncmode)
         dpx.syncmode=p.trial.datapixx.GetPreciseTime.syncmode; %1,2,3
     end
     if ~isempty(p.trial.datapixx.GetPreciseTime.maxDuration)
@@ -69,18 +69,21 @@ if p.trial.datapixx.use
             Datapixx('SetPropixxAwake');
         end
         Datapixx('EnablePropixxLampLed');
+        % Datapixx('RegWrRd');
         
         if p.trial.datapixx.enablePropixxRearProjection
             Datapixx('EnablePropixxRearProjection');
         else
             Datapixx('DisablePropixxRearProjection');
         end
+        % Datapixx('RegWrRd');
         
         if p.trial.datapixx.enablePropixxCeilingMount
             Datapixx('EnablePropixxCeilingMount');
         else
             Datapixx('DisablePropixxCeilingMount');
         end
+        % Datapixx('RegWrRd');
         
         if isfield(p.trial.datapixx,'rb3d') && p.trial.datapixx.rb3d
             if p.trial.display.useOverlay==1
@@ -89,6 +92,7 @@ if p.trial.datapixx.use
             Datapixx('SetPropixxDlpSequenceProgram', 1); %, 1);
             Datapixx('RegWrRd');
         end
+        % Datapixx('RegWrRd');
 
     end
     
