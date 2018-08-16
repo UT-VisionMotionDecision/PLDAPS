@@ -95,48 +95,40 @@ if p.trial.eyelink.use
     Eyelink('command',  'screen_distance = %d, %d\n', 10*round(screenTopDist), 10*round(screenBtmDist) ); % cm to mm
     
     
-    % Read & report eyelink values
+    %% Read & report eyelink values
+    reportStr = cell(3,1); % reportStr{:,i) == {description, value, units}
+    padlen = -40;    padchar = '.';
+
     [~, vs] = Eyelink('GetTrackerVersion');
     p.trial.eyelink.trackerversion = vs;
-    disp('***************************************************************')
-    fprintf('\tReading Values from %sEyetracker\r', vs)
-    disp('***************************************************************')
+    fprintLineBreak;
+    fprintf('\tReading Values from %sEyetracker\n', vs)
+    fprintLineBreak;
 
-    reportStr = cell(3,1); % reportStr{:,i) == {description, value, units}
     [~, reply]=Eyelink('ReadFromTracker','elcl_select_configuration');
-    i = 1;    reportStr{1,i} = 'Eyelink mode:'; reportStr{2,i} = reply;
+    i = 1;    reportStr{1,i} = StrPad('Eyelink mode',padlen,padchar); reportStr{2,i} = reply;
     p.trial.eyelink.trackermode = reply;
     
     [~, reply] = Eyelink('ReadFromTracker', 'screen_pixel_coords');
-    i = i+1;  reportStr{1,i} = 'Screen pixel coords:'; reportStr{2,i} = reply; reportStr{3,i} = 'px';
+    i = i+1;  reportStr{1,i} = StrPad('Screen pixel coords',padlen,padchar); reportStr{2,i} = reply; reportStr{3,i} = 'px';
     
     [~, reply] = Eyelink('ReadFromTracker', 'screen_phys_coords');
-    i = i+1;  reportStr{1,i} = 'Screen physical coords:'; reportStr{2,i} = reply; reportStr{3,i} = 'mm';
+    i = i+1;  reportStr{1,i} = StrPad('Screen physical coords',padlen,padchar); reportStr{2,i} = reply; reportStr{3,i} = 'mm';
     
     reply = sprintf('%2.2f, %2.2f', screenTopDist, screenBtmDist); % no eyelink readout of screen_distance
-    i = i+1;  reportStr{1,i} = 'Subject viewing distance:'; reportStr{2,i} = reply; reportStr{3,i} = '[cm_to_top, cm_to_btm]';
+    i = i+1;  reportStr{1,i} = StrPad('Subject viewing distance',padlen,padchar); reportStr{2,i} = reply; reportStr{3,i} = '[cm_to_top, cm_to_btm]';
     p.trial.eyelink.screenTopBtmDist = [screenTopDist, screenBtmDist];
     
     [~, reply] = Eyelink('ReadFromTracker', 'analog_dac_range');
-    i = i+1;  reportStr{1,i} = 'Analog output range:'; reportStr{2,i} = reply; reportStr{3,i} = 'V';
+    i = i+1;  reportStr{1,i} = StrPad('Analog output range',padlen,padchar); reportStr{2,i} = reply; reportStr{3,i} = 'V';
     
     [~, reply] = Eyelink('ReadFromTracker', 'sample_rate');
-    i = i+1;  reportStr{1,i} = 'Sampling rate:'; reportStr{2,i} = reply; reportStr{3,i} = 'Hz';
+    i = i+1;  reportStr{1,i} = StrPad('Sampling rate',padlen,padchar); reportStr{2,i} = reply; reportStr{3,i} = 'Hz';
     p.trial.eyelink.srate = str2double(reply);
     
-    % show output in command window
-    fprintf('%s\n\t\t\t\t\t\t%s  %s\n', reportStr{:});
-    
-%     fprintf(['Screen pixel coordinates:\t\t' elVal.px_coords '\r'])
-%     fprintf('Screen physical coordinates:\t%2.2f, %2.2f, %2.2f, %2.2f  cm\r', str2num(reply)/10)
-%     % [~, reply] = Eyelink('ReadFromTracker', 'screen_distance');  % % ..."Variable read not supported"
-%     fprintf('Screen distance:\t%2.2f\t%2.2f  [cm_to_top, cm_to_btm]\r', screenTopDist, screenBtmDist)
-%     [~, reply] = Eyelink('ReadFromTracker', 'analog_dac_range');
-%     fprintf(['Analog output range:\t' reply '  V\r'])
-%     [~, srate] = Eyelink('ReadFromTracker', 'sample_rate');
-%     fprintf(['Sampling rate:\t\t\t' srate 'Hz\r'])
-%     p.trial.eyelink.srate = str2double(srate);
-%     pause(.05)
+    % display output in command window
+    fprintf('%s%s  %s\n', reportStr{:});
+    fprintLineBreak;
     
     %% Mode-specific setup
     switch p.trial.eyelink.trackermode
@@ -246,5 +238,62 @@ if p.trial.eyelink.use
     Eyelink('StartRecording');
 end
 
+end %pds.eyelink.setup
 
+
+% % % % % % % % % 
+%% Sub-Functions
+% % % % % % % % %
+
+function str = StrPad(in,len,char)
+% str = StrPad(in,length,padchar)
+% modified version of PTB StrPad to allow pre or post padding with sign of [len].
+% (pre)pads IN with CHAR to sepcified length LEN. If inputs IN or PADCHAR
+% are numerical, they will be converted to to string. If input is too long,
+% it is truncated from the start to specified length.
+%
+% DN 2007
+% 2018-08-15  TBC  Use sign of [len] for padding direction
+
+if isnumeric(in) && length(in)==1 && in==round(in)
+    % convert to string
+    in = num2str(in);
+end
+if ~ischar(in)
+    error('input must be char or scalar integer');
+end
+
+if isnumeric(char) && length(char)==1
+    % convert to string
+    char = num2str(char);
+end
+
+% padding before or after input string?
+if len>0
+    prepad = 1;
+else
+    prepad = 0;
+end
+len = abs(len);
+
+if ischar(in)
+    % check that we have a string
+    inlen = length(in);
+    if inlen >= len
+        % truncate string if needed
+        b = [];
+        in = in(1:len);
+    else
+        % create pad string
+        b = repmat(char, 1, len-inlen);
+    end
+end
+% Create output
+if prepad
+    str = [b, in];
+else
+    str = [in, b];
+end
+    
+end %StrPad
 
