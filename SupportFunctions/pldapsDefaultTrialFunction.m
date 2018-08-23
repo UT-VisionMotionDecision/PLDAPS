@@ -78,7 +78,8 @@ function pldapsDefaultTrialFunction(p,state, sn)
             end
                 
     end
-end           % % % ****!!!!**** Moved overall function end below all subfunctions (makng them nested functions
+end 
+
 
 % % % % % % % % % % % % % % % 
 % % % Sub-functions
@@ -316,16 +317,16 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 %%  frameFlip
     function frameFlip(p)
         ft=cell(5,1);
-        [ft{:}] = Screen('Flip', p.trial.display.ptr, 0);%p.trial.nextFrameTime + p.trial.trstart);
-        
+        [ft{:}] = Screen('Flip', p.trial.display.ptr, 0);   %p.trial.nextFrameTime + p.trial.trstart);
         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
-         
-         % The overlay screen always needs to be initialized with a FillRect call
-         if p.trial.display.overlayptr ~= p.trial.display.ptr
+%         p.trial.timing.flipTimes(1,p.trial.iFrame) = Screen('Flip', p.trial.display.ptr, 0);   %p.trial.nextFrameTime + p.trial.trstart);
+        
+        % The overlay screen always needs to be initialized with a FillRect call
+        if p.trial.display.overlayptr ~= p.trial.display.ptr
             Screen('FillRect', p.trial.display.overlayptr,0);
-         end
-
-         p.trial.stimulus.timeLastFrame = p.trial.timing.flipTimes(1,p.trial.iFrame)-p.trial.trstart;
+        end
+        
+        p.trial.stimulus.timeLastFrame = p.trial.timing.flipTimes(1,p.trial.iFrame)-p.trial.trstart;
 
     end %frameFlip
 
@@ -334,6 +335,7 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 %%  trialSetup
     function trialSetup(p)
         p.trial.timing.flipTimes       = zeros(5,p.trial.pldaps.maxFrames);
+%         p.trial.timing.flipTimes       = zeros(1,p.trial.pldaps.maxFrames);
         p.trial.timing.frameStateChangeTimes=nan(9,p.trial.pldaps.maxFrames);
         
         if(p.trial.pldaps.draw.photodiode.use)
@@ -517,12 +519,8 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 %%  cleanUpandSave
     function p = cleanUpandSave(p)
 
-        % % %         ft=cell(5,1);
-        % % %         [ft{:}] =Screen('Flip', p.trial.display.ptr,0);
-        % % %         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
-        
         % Schedule a flip to occur at the next possible time, but don't bother waiting around for it.
-%         Screen('AsyncFlipBegin', p.trial.display.ptr);
+        %         Screen('AsyncFlipBegin', p.trial.display.ptr);
         Screen('Flip', p.trial.display.ptr, 0, [], 1);
         % Whatever was drawn to this screen will be visible throughout the inter-trial interval.
         % This was previously always/only a blank screen, but if you want anything present on
@@ -659,19 +657,19 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
             glDisable(GL.LIGHTING);
             % glDisable(GL.BLEND);
             
-            if ds.goNuts
-                % ...or DO ALL THE THINGS!!!!
-                % Enable lighting
-                glEnable(GL.LIGHTING);
-                glEnable(GL.LIGHT0);
-                % Set light position:
-                glLightfv(GL.LIGHT0,GL.POSITION, [1 2 3 0]);
-                % Enable material colors based on glColorfv()
-                glEnable(GL.COLOR_MATERIAL);
-                glColorMaterial(GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
-                glMaterialf(GL.FRONT_AND_BACK, GL.SHININESS, 48);
-                glMaterialfv(GL.FRONT_AND_BACK, GL.SPECULAR, [.8 .8 .8 1]);
-            end
+            % % %             if ds.goNuts
+            % % %                 % ...or DO ALL THE THINGS!!!!
+            % % %                 % Enable lighting
+            % % %                 glEnable(GL.LIGHTING);
+            % % %                 glEnable(GL.LIGHT0);
+            % % %                 % Set light position:
+            % % %                 glLightfv(GL.LIGHT0,GL.POSITION, [1 2 3 0]);
+            % % %                 % Enable material colors based on glColorfv()
+            % % %                 glEnable(GL.COLOR_MATERIAL);
+            % % %                 glColorMaterial(GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
+            % % %                 glMaterialf(GL.FRONT_AND_BACK, GL.SHININESS, 48);
+            % % %                 glMaterialfv(GL.FRONT_AND_BACK, GL.SPECULAR, [.8 .8 .8 1]);
+            % % %             end
         end
         Screen('EndOpenGL', ds.ptr)
     end %setupGLPerspective

@@ -15,8 +15,8 @@ function p = give(p, amount)
         if  p.trial.datapixx.useForReward
             pds.datapixx.analogOut(amount);
         end
-        %%flag
-        pds.datapixx.flipBit(p.trial.event.REWARD,p.trial.pldaps.iTrial);
+        % Record sync for reward event
+        pds.datapixx.strobe(p.trial.event.REWARD);
 	end
     
     %%sound

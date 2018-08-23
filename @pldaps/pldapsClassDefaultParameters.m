@@ -144,7 +144,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	pldaps.	save.	initialParametersMerged = 1;
  s.	pldaps.	save.	mergedData = 0;
  s.	pldaps.	save.	trialTempfiles = 1;
- s.	pldaps.	save.	v73 = 0;
+%s.	pldaps.	save.	v73 = 0;
 
 %s.	pldaps.	trialStates.
 	tsNeg = -1; tsPos = 1;

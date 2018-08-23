@@ -150,6 +150,7 @@
 #include "mex.h"
 #include "tmwtypes.h"
 #include <math.h>
+#include "string.h"
 
 // Fast or exact random integers:
 #if defined(FASTRAND)

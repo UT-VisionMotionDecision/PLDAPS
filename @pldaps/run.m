@@ -47,7 +47,7 @@ p.defaultParameters.pldaps.iTrial = 0;
 
 if ~p.defaultParameters.pldaps.nosave
     p.defaultParameters.session.dir = p.defaultParameters.pldaps.dirs.data;
-    p.defaultParameters.session.file = sprintf('%s%s%s%s.PDS',...
+    p.defaultParameters.session.file = sprintf('%s%s%s-%s.PDS',...
         p.defaultParameters.session.subject,...
         datestr(p.defaultParameters.session.initTime, 'yyyymmdd'),...
         p.defaultParameters.session.experimentSetupFile, ...
@@ -55,8 +55,9 @@ if ~p.defaultParameters.pldaps.nosave
     
     if p.defaultParameters.pldaps.useFileGUI
         [cfile, cdir] = uiputfile('.PDS', 'specify data storage file', fullfile( p.defaultParameters.session.dir,  p.defaultParameters.session.file));
-        if(isnumeric(cfile)) %got canceled
-            error('pldaps:run','file selection canceled. Not sure what the correct default bevaior would be, so stopping the experiment.')
+        if isnumeric(cfile) % canceled
+            error('pldaps:run',['!!!\tFile selection canceled. When .pldaps.useFileGUI is enabled,\n',...
+                 '!!!\tuser MUST supply save filename & location in gui. I cannot go on.\n\tAborting.\n']);
         end
         p.defaultParameters.session.dir = cdir;
         p.defaultParameters.session.file = cfile;
@@ -205,7 +206,6 @@ end
 %       that this var must be updated for everytime a non-trial parameters level
 %       is added (e.g. during every pause) --TBC 2017-10
 baseParamsLevels = p.defaultParameters.getAllLevels();  %#ok<*AGROW>
-
 
 %% Main trial loop
 while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
@@ -377,22 +377,17 @@ Priority(0);
 
 pds.eyelink.finish(p);  % p =  ; These should be operating on pldaps class handles, thus no need for outputs. --tbc.
 pds.plexon.finish(p);
-if(p.defaultParameters.datapixx.use)
+if p.trial.datapixx.use
     % stop adc data collection
     pds.datapixx.adc.stop(p);
     
     status = PsychDataPixx('GetStatus');
     if status.timestampLogCount
-        p.defaultParameters.datapixx.timestamplog = PsychDataPixx('GetTimestampLog', 1);
-    end
-    
-    % If in ProPixx RB3D mode, return DLP sequence to normal
-    if p.trial.datapixx.rb3d
-        Datapixx('SetPropixxDlpSequenceProgram',0);
+        p.trial.datapixx.timestamplog = PsychDataPixx('GetTimestampLog', 1);
     end
 end
 
-if p.defaultParameters.sound.use
+if p.trial.sound.use
     pds.audio.clearBuffer(p);
     % Close the audio device:
     PsychPortAudio('Close', p.defaultParameters.sound.master);
@@ -405,7 +400,7 @@ end
 
 
 %% PDS output:  Compile & save the data
-if ~p.defaultParameters.pldaps.nosave
+if ~p.trial.pldaps.nosave
     % create output struct
     PDS = struct;
     % get the raw contents of Params hierarchy (...not for mere mortals)
@@ -424,24 +419,23 @@ if ~p.defaultParameters.pldaps.nosave
     
     levelsCondition = 1:length(rawParamsStruct);
     levelsCondition(ismember(levelsCondition, baseParamsLevels)) = [];
+    if ~isempty(p.condMatrix)
+        PDS.condMatrix = p.condMatrix;
+    end
     PDS.conditions = rawParamsStruct(levelsCondition);
     PDS.conditionNames = rawParamsNames(levelsCondition);
     PDS.data = p.data;
     PDS.functionHandles = p.functionHandles; %#ok<STRNU>
-    savedFileName = fullfile(p.defaultParameters.session.dir, p.defaultParameters.session.file);
-    if p.defaultParameters.pldaps.save.v73
-        save(savedFileName,'PDS','-mat','-v7.3')
-    else
-        save(savedFileName,'PDS','-mat')
-    end
+    savedFileName = fullfile(p.trial.session.dir, p.trial.session.file);
+    save(savedFileName,'PDS','-mat')
     disp('****************************************************************')
     fprintf('\tPLDAPS data file saved as:\n\t\t%s\n', savedFileName)
     disp('****************************************************************')
     
     % Detect & report dropped frames
     frameDropCutoff = 1.1;
-    frameDrops = cell2mat(cellfun(@(x) [sum(diff(x.timing.flipTimes(3,:))>(frameDropCutoff*p.trial.display.ifi)), x.iFrame], p.data, 'uni',0)');
-    ifiMu = mean(cell2mat(cellfun(@(x) diff(x.timing.flipTimes(3,:)), p.data, 'uni',0)));
+    frameDrops = cell2mat(cellfun(@(x) [sum(diff(x.timing.flipTimes(1,:))>(frameDropCutoff*p.trial.display.ifi)), x.iFrame], p.data, 'uni',0)');
+    ifiMu = mean(cell2mat(cellfun(@(x) diff(x.timing.flipTimes(1,:)), p.data, 'uni',0)));
     if 1%sum(frameDrops(:,1))>0
         fprintf(2, '\t**********\n');
         fprintf(2,'\t%d (of %d) ', sum(frameDrops,1)); fprintf('trial frames exceeded %3.0f%% of expected ifi\n', frameDropCutoff*100);
@@ -455,7 +449,7 @@ if ~p.defaultParameters.pldaps.nosave
 end
 
 %% Close up shop & free up memory
-if p.defaultParameters.display.useOverlay==2
+if p.trial.display.useOverlay==2
     glDeleteTextures(2,p.trial.display.lookupstexs(1));
 end
 
@@ -483,6 +477,12 @@ end
 % Make sure enough time passes for any pending async flips to occur
 Screen('WaitBlanking', p.trial.display.ptr);
 
+if p.trial.datapixx.use
+    % If in ProPixx RB3D mode, return DLP sequence to normal
+    if p.trial.datapixx.rb3d
+        Datapixx('SetPropixxDlpSequenceProgram',0);
+    end
+end    
 % close up shop
 Screen('CloseAll');
 IOPort('CloseAll');

@@ -26,7 +26,7 @@ if p.trial.newEraSyringePump.use
     cmdTerminator = p.trial.newEraSyringePump.commandSeparator; % make code readable
     
     % Ensure pump is in "Rate Function" mode
-    IOPort('Write', h, 'RAT FUN', blocking) 
+    IOPort('Write', h, 'RAT FUN', blocking);
     % flush serial command pipeline (no command)
     IOPort('Write', h, cmdTerminator, blocking);
     % Pumping direction to INFuse   (INF==infuse, WDR==withdraw, REV==reverse current dir)

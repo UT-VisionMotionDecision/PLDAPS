@@ -202,7 +202,7 @@ if useDiskMode==1
     % Initialize buffers (only once!)
     if ~isfield(glB,'glsl')
         % Load the speedy shader
-        shaderpath = {fullfile(glslshader, 'geosphere.vert'), fullfile(glslshader, 'geosphere.frag')};
+        shaderpath = {which('geosphere.vert'), which('geosphere.frag')};%{fullfile(glslshader, 'geosphere.vert'), fullfile(glslshader, 'geosphere.frag')};
         glB.glsl = LoadGLSLProgramFromFiles(shaderpath, 0);
 
         [vv,ff] = glDraw.icosphere(dotType-3);

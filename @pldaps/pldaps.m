@@ -164,6 +164,8 @@ methods(Static)
     % % %
     % % %     [xy,z] = world2deg(p,xy,z)
     
+    held = checkFixation(varargin)
+    
     s = pldapsClassDefaultParameters(s)
     
     [stateValue, stateName] = getReorderedFrameStates(trialStates,moduleRequestedStates)

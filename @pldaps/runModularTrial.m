@@ -1,4 +1,4 @@
-function p = runModularTrial(p, replay)
+function p = runModularTrial(p)
 %runModularTrial    runs a single Trial by calling the functions defined in 
 %            their substruct (found by pldaps.getModules) and the function
 %            defined in p.trial.pldaps.trialFunction through different states
@@ -7,13 +7,6 @@ function p = runModularTrial(p, replay)
 % 03/2014 jk    Used jly's code to get the PLDAPS structure and frame it into a class
 %               might change to ASYNC buffer flipping. but won't for now.
 % 03/2016 jk    modular version
-
-    %replay from this side is fairly easy, just need to set the ttime
-    %(current time in trial). User must still replace frameUpdate functions 
-    %to copy the correct data for the other states to use.
-    if nargin<2
-        replay=false;
-    end
 
     %get all functionHandles that we want to use
     [modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p);
@@ -55,7 +48,7 @@ function p = runModularTrial(p, replay)
 
         %time of the next flip request
         %   --see pldapsDefaultTrialFunction.m>>frameFlip to determine if imposed
-        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + 0.9 * p.trial.display.ifi;
+        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + p.trial.display.ifi;
 
         % Start timer for GPU rendering operations
         Screen('GetWindowInfo', p.trial.display.ptr, 5);
@@ -64,11 +57,8 @@ function p = runModularTrial(p, replay)
         for iState=1:nStates
             runStateforModules(p, stateName{iState}, modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
-            if replay
-                p.trial.ttime = p.data{p.trial.pldaps.iTrial}.timing.frameStateChangeTimes(iState, p.trial.iFrame) + p.trial.nextFrameTime - p.trial.display.ifi;
-            else
-                p.trial.ttime = GetSecs - p.trial.trstart;
-            end
+            p.trial.ttime = GetSecs - p.trial.trstart;
+
             p.trial.remainingFrameTime = p.trial.nextFrameTime - p.trial.ttime;
             p.trial.timing.frameStateChangeTimes(iState, p.trial.iFrame) = p.trial.ttime - p.trial.nextFrameTime + p.trial.display.ifi;
         end
