@@ -406,16 +406,15 @@ if ~p.trial.pldaps.nosave
     % get the raw contents of Params hierarchy (...not for mere mortals)
     [rawParamsStruct, rawParamsNames] = p.defaultParameters.getAllStructs();
     % Partition baseline parameters present at the onset of all trials (*)
-    PDS.initialParameters       = rawParamsStruct(baseParamsLevels);
-    PDS.initialParameterNames   = rawParamsNames(baseParamsLevels);
-    PDS.initialParameterIndices = baseParamsLevels;
+    PDS.pdsCore.initialParameters       = rawParamsStruct(baseParamsLevels);
+    PDS.pdsCore.initialParameterNames   = rawParamsNames(baseParamsLevels);
+    PDS.pdsCore.initialParameterIndices = baseParamsLevels;
     % Include a less user-hostile output struct
-    if p.defaultParameters.pldaps.save.initialParametersMerged
-        PDS.initialParametersMerged = mergeToSingleStruct(p.defaultParameters);
-        % NOTE: baseParamsLevels can be changed during experiment (i.e. during a pause),
-        % so this merged struct could be misleading.
-        % Truly activeLevels are documented on every trial in:  data{}.pldaps.activeLevels
-    end
+    PDS.baseParams = mergeToSingleStruct(p.defaultParameters);
+    % ! ! ! NOTE: baseParamsLevels can be changed during experiment (i.e. during a pause),
+    % ! ! ! so this merged struct could be misleading.
+    % ! ! ! Truly activeLevels are documented on every trial in:  data{}.pldaps.activeLevels
+    % ! ! ! Reconstruct them by p
     
     levelsCondition = 1:length(rawParamsStruct);
     levelsCondition(ismember(levelsCondition, baseParamsLevels)) = [];
