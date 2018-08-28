@@ -164,15 +164,35 @@ methods
         newOrder = reshape(1:numel(cm.conditions), sz);
         
         % Randomize order as requested
-        switch cm.randMode
-            case 1 % randomize across all dimensions
-                newOrder = reshape(Shuffle(newOrder(:)), sz);
-            case 2  % randomize within columns
-                newOrder = Shuffle(newOrder);
-            case 3  % randomize within rows (not good...this will fail with >2 condDims!)
-                newOrder = Shuffle(newOrder');
-            otherwise
-                % do nothing
+        if numel(cm.randMode)>1
+            % Randomize as specified PER DIMENSION
+            for i = 1:length(cm.randMode) % Should this always also equal condDims?
+                if cm.randMode(i)>0
+                    % Positive dimension modes use ShuffleMex
+                    newOrder = ShuffleMex(newOrder, cm.randMode(i));
+                elseif cm.randMode(i)<0
+                    % Negative dimension modes maintain shuffle order of that dim, while maintaining
+                    % order of all others. For example "-3" will shuffle the 'pages' of a matrix without
+                    % mixing up the rows & columns (e.g. random block orders)
+                    %   cm.randMode = [1,0,-3] will shuffle columns but not rows, and randomize 3rd dim 'pages'
+                    ii = abs(cm.randMode(i));
+                    eval(['newOrder = newOrder(',repmat(':,',1, ii-1), mat2str(randperm(sz(ii))), repmat(':,',1, condDims-ii),');'])
+                    % ...this is outlandish(!), but it works, and cannot find similar functionality elsewhere --TBC 2018-08
+                else
+                    % 0 does nothing to that dimension
+                end
+            end
+        else
+            switch cm.randMode
+                case 1 % randomize across all dimensions
+                    newOrder = reshape(Shuffle(newOrder(:)), sz);
+                case 2  % randomize within columns
+                    newOrder = Shuffle(newOrder);
+                case 3  % randomize within rows (not good...this will fail with >2 condDims!)
+                    newOrder = Shuffle(newOrder');
+                otherwise
+                    % do nothing
+            end
         end
         cm.order = newOrder(:);
         

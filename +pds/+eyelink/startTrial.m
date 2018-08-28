@@ -9,14 +9,15 @@ if p.trial.eyelink.use
     p.trial.eyelink.sampleNum     = 0;
     p.trial.eyelink.eventNum      = 0;
     p.trial.eyelink.drained       =   false; % drained is a flag for pulling from the buffer
-    if ischar(p.trial.eyelink.srate), 
+    if ischar(p.trial.eyelink.srate)
         p.trial.eyelink.srate = str2double(p.trial.eyelink.srate); 
     end
     bufferSize = p.trial.eyelink.srate*p.trial.pldaps.maxTrialLength;
     p.trial.eyelink.samples  = nan(p.trial.eyelink.buffersamplelength,bufferSize);
     p.trial.eyelink.events   = nan(p.trial.eyelink.buffereventlength,bufferSize);
     p.trial.eyelink.hasSamples    = true;
-    p.trial.eyelink.hasEvents     = true;
+    % Eyelink event retrieval only possible from Queued recording
+    p.trial.eyelink.hasEvents     = logical(p.trial.eyelink.collectQueue);
     
     % Pre clear buffer
     if Eyelink('CheckRecording')~=0

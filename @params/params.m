@@ -119,9 +119,11 @@ classdef params < handle
         %% addStructs(p, struct, newName, makeActive)
         function addStructs(p,s,sN,active)
             if nargin<3
+                % generate default level name
                 sN=cellfun(@(x) sprintf('level%i',x),num2cell(1:length(s)),'UniformOutput',false);
             end
             if nargin<4
+                % make new level(s) active by default
                 active=true(1,length(s));
             elseif length(active)==1
                 if(active)

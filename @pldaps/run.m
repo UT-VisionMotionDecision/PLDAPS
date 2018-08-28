@@ -229,9 +229,10 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
 % % %                 p.condMatrix.i = p.condMatrix.i+1;
 % % %             end
             % create new params level for this trial
-            % (...strange looking, but necessary to create new level w/o changes)
+            % (...strange looking, but necessary to create a fresh 'level' for the new trial)
             p.defaultParameters.addLevels( {struct}, {sprintf('Trial%dParameters', nextTrial)});
-            p.defaultParameters.setLevels([baseParamsLevels length(baseParamsLevels)+nextTrial]);
+            % Make only the baseParamsLevels and this new trial level active
+            p.defaultParameters.setLevels( [baseParamsLevels, length(p.trial.getAllLevels)] );
             % Good to go, apply upcoming condition parameters for the nextTrial
             p = p.condMatrix.nextCond(p);
             
@@ -292,9 +293,9 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             dTrialStruct = p.trial;
         else
             %store the difference of the trial struct to .data
-              dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial);
+%               dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial);
             % NEW:  include condition parameters in p.data, instead of relying on p.conditions being 1:1 with trial number
-%             dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial, baseParamsLevels);
+            dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial, baseParamsLevels);
         end
         p.data{p.defaultParameters.pldaps.iTrial} = dTrialStruct;
         
@@ -313,7 +314,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             betweenTrialsStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
             if(~isequal(struct,betweenTrialsStruct))
                 p.defaultParameters.addLevels({betweenTrialsStruct}, {sprintf('experimentAfterTrials%dParameters', p.defaultParameters.pldaps.iTrial)});
-                baseParamsLevels=[baseParamsLevels length(p.defaultParameters.getAllLevels())];
+                baseParamsLevels=[baseParamsLevels length(p.defaultParameters.getAllLevels())]
             end
             
             p.trial=oldptrial;
@@ -333,10 +334,6 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         % ...doesn't seem to be the original intention, but allows changes during pause to be carried
         % over without overwriting prior settings, or getting lost in .conditions parameters. --TBC 2017-10
         p.defaultParameters.addLevels({struct}, {sprintf('PauseAfterTrial%dParameters', p.defaultParameters.pldaps.iTrial)});
-        % include this new level in the list of baseline hierarchy levels.
-        baseParamsLevels = [baseParamsLevels length(p.defaultParameters.getAllLevels())];
-        % set baseline levels active (NOTE:  disables all trial-specific levels/params in the process)
-        p.defaultParameters.setLevels(baseParamsLevels);
         
         if ptype==1
             ListenChar(0);
@@ -350,12 +347,14 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             pauseLoop(p);
         end
         
-        %now I'm assuming that nobody created new levels,
-        %but I guess when you know how to do that
-        %you should also now how to not skrew things up
-        allStructs=p.defaultParameters.getAllStructs();
-        if(~isequal(struct,allStructs{end}))
+        % Check for anything that was changed/added during pause
+        allStructs = p.defaultParameters.getAllStructs();
+        if ~isequal(struct, allStructs{end})
+            % If so, add this new level to the "baseParamsLevels" & continue,
             baseParamsLevels=[baseParamsLevels length(allStructs)];
+        else
+            % Else, set active levels back to the baseParamsLevels and carry on...
+            p.defaultParameters.setLevels( baseParamsLevels );
         end
     end
     
