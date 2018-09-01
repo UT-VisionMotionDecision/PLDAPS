@@ -58,14 +58,20 @@ wordMask = 2^strobeBit-1;
 
 %% Do the strobing
 if nargout==0
-    % Do it fast!!    
-    % Set word bit values first
-    Datapixx('SetDoutValues', word, wordMask);
-    Datapixx('RegWr');
-    
-    % Send strobe signal to trigger recording by Plexon
-    Datapixx('SetDoutValues', 2^strobeBit, strobeMask);
-    Datapixx('RegWr');
+    % Do it fast!!
+% % %     for i = 1:numel(word)
+        t0 = GetSecs;
+        % Set word bit values first
+        Datapixx('SetDoutValues', word, wordMask);
+        Datapixx('RegWr');
+        
+        % Send strobe signal to trigger recording by Plexon
+        Datapixx('SetDoutValues', 2^strobeBit, strobeMask);
+        Datapixx('RegWr');
+        
+        % Wait a fraction of a ms for signal to register downstream
+        WaitSecs('UntilTime', t0+2e-5);
+% % %     end
     
     % Best practice to zero out all bits after transmission
     Datapixx('SetDoutValues', 0, wordMask+strobeMask)
@@ -86,40 +92,49 @@ else
     end
     
     % pre-allocate
-    t=nan(2,1);
+    t = nan(2, 1);
+% % %     dpTime = t(1,:);
     
-    % Set word bit values first, to ensure they are all settled
-    % (plexon need all bits to be set/settle for 100ns before the strobe)
-    Datapixx('SetDoutValues', word, wordMask);
-    Datapixx('RegWr');
+    
+% % %     for i = 1:numel(word)
+% % %         t0 = GetSecs;
+        
+        % Set word bit values first, to ensure they are all settled
+        % (plexon need all bits to be set/settle for 100ns before the strobe)
+        Datapixx('SetDoutValues', word, wordMask);
+        Datapixx('RegWr');
 
-    % Then, send strobe signal on the highest receiving bit (16th) of the
-    % omniplex system. 2nd input masks out other values of Datapixx's 24bit
-    % outputs so that all lower 'word bits' remain untouched.
-    Datapixx('SetDoutValues', 2^strobeBit, strobeMask);
+        % Then, send strobe signal on the highest receiving bit (16th) of the
+        % omniplex system. 2nd input masks out other values of Datapixx's 24bit
+        % outputs so that all lower 'word bits' remain untouched.
+        Datapixx('SetDoutValues', 2^strobeBit, strobeMask);
 
-    % Tell Datapixx this is a time to remember
-    Datapixx('SetMarker');
-    
-    % Flank strobe transmission with PTB clock samples
-    t(1)=GetSecs;
-    Datapixx('RegWr');
-    t(2)=GetSecs;
-    
-    % Best practice to zero out all bits after transmission
-    Datapixx('SetDoutValues', 0, wordMask+strobeMask)
-    Datapixx('RegWrRd'); % also read from datapixx box
-    
-    % Readout the marker timestamp
-    dpTime = Datapixx('GetMarker');
+        % Tell Datapixx this is a time to remember
+        Datapixx('SetMarker');
 
+        % Flank strobe transmission with PTB clock samples
+        t(1)=GetSecs;
+        Datapixx('RegWr');
+        t(2)=GetSecs;
+
+        % Best practice to zero out all bits after transmission
+        Datapixx('SetDoutValues', 0, wordMask+strobeMask)
+        Datapixx('RegWrRd'); % also read from datapixx box
+
+        % Readout the marker timestamp
+        dpTime = Datapixx('GetMarker');
+        
+% % %         % Wait a fraction of a ms for signal to register downstream
+% % %         WaitSecs('UntilTime', t0+2e-5);
+% % %     end
+    
     % Return priority to previous setting
     if Priority ~= oldPriority
         Priority(oldPriority);
     end
     
     % Package timestamps for output
-    ts = [mean(t), dpTime];
-    tsDiff = [diff(ts), diff(t)];
+    ts = [mean(t)', dpTime'];
+    tsDiff = [diff(ts'); diff(t)]';
     
 end

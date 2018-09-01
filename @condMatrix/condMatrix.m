@@ -1,28 +1,36 @@
 classdef condMatrix < dynamicprops
 %     handle class (w/dynamic properties) for controlling PLDAPS condition matrix
+%
+% randMode:
+%   Randomize order of upcoming pass through condition matrix
+%   -- if numel(.randMode) does not equal to number of dimensions in .conditions matrix,
+%      then will be treated as a simple switch
+%           case 1 % randomize across all dimensions
+%           case 2 % randomize within columns w/ Shuffle.m
+%           case 3 % randomize within rows (...this will fail with >2 condDims!)
+%           otherwise % do nothing
+%   -- else each dimension will be randomized separately using ShuffleMex.m
+%        -- positive randMode values will randomize across that dimension
+%        -- zero randMode values will do nothing to that dimension
+%        -- negative randMode values will shuffle order of that dimension,
+%           while maintaining all other dimensions
+%    EXAMPLE:  .randMode = [1,0,-3] will shuffle columns but not rows, then randomize the 3rd dim 'pages'
+
+
+
 
 properties (Access = public)
     conditions % TODO: make this a pointer to p.conditions, or vice-versa?
 %     condFields % static list of condition field names
     
-    i       % index # of current position in .condMatrix.order
-    iPass	% index # of current pass
-    nPasses     % end experiment after nPasses through condition matrix
-    order   % [randomized]sequence of condition indices for the current pass
-    passSeed    % base for random seed:  rng(.passSeed + .iPass, 'twister')
-    randMode    % flag for randomization through condition matrix [.condMatrix.conds]
-    % Randomize order of upcoming pass through condition matrix based on:
-    %         switch cm.randMode
-    %             case 1 % randomize across all dimensions
-    %                 newOrder = reshape(Shuffle(newOrder(:)), sz);
-    %             case 2  % randomize within columns
-    %                 newOrder = Shuffle(newOrder);
-    %             case 3  % randomize within rows (not good...this will fail with >2 condDims!)
-    %                 newOrder = Shuffle(newOrder');
-    %             otherwise
-    %                 % do nothing
-    %         end
-    baseIndex   % base index value used to distinguish condition index strobed words, and as matrixModule onset strobe
+    i           % index # of current position in .condMatrix.order
+    iPass       % index # of current pass
+    nPasses     % [inf] end experiment after nPasses through condition matrix
+    order       % set of condition indices for the current pass
+    passSeed    %[sum(100*clock)] base for random seed:  rng(.passSeed + .iPass, 'twister')
+    randMode    % [0] flag for randomization through condition matrix [.condMatrix.conds] (see: condMatrix.updateOrder method)
+    
+    baseIndex   % [1000] base index value used to distinguish condition index strobed words, and as matrixModule onset strobe(?)
 
     modNames    % module names struct
     maxFrames   % max number of frames per trial
@@ -93,7 +101,7 @@ methods
         end
         
 
-% % %         % --- Store copies of core/static pldaps variables w/in this class
+% % %         % --- Do we need copies of core/static pldaps variables w/in this class?
 % % %         cm.ptr       = p.trial.display.ptr;
         cm.modNames  = p.trial.pldaps.modNames;
 % % %         
@@ -115,12 +123,9 @@ methods
     
     
     %% nextCond: apply next conditions
-    % Get next condition index & apply [to specified module, if provided]
     function p = nextCond(cm, p, targetModule)
-        % Parse inputs
-        %         if nargin>3
-        %             putBack(cm, unusedConds);
-        %         end
+        % Get next condition index & apply [to specified module, if provided]
+        
         if nargin<3 || isempty(targetModule)
             targetModule = cm.modNames.matrixModule;
         end
@@ -152,6 +157,10 @@ methods
     
     %% updateOrder: Generate new order set
     function updateOrder(cm)
+        % Generate new order set with appropriate randomization, increment pass number, and zero out counter index
+        % TODO:  smart way to get a few more cond indices when not enough remaining to populate a trial with multiple
+        %        matrixModules without fully advancing into another 'pass'
+        
         % increment condMatrix pass number
         cm.iPass = cm.iPass + 1;
         % Manage rng state
@@ -165,19 +174,16 @@ methods
         
         % Randomize order as requested
         if numel(cm.randMode)>1
-            % Randomize as specified PER DIMENSION
+            % Randomize BY DIMENSION
             for i = 1:length(cm.randMode) % Should this always also equal condDims?
                 if cm.randMode(i)>0
-                    % Positive dimension modes use ShuffleMex
+                    % Positive dimension modes use ShuffleMex (see:  PLDAPS/SupportFunctions/ShuffleMex)
                     newOrder = ShuffleMex(newOrder, cm.randMode(i));
                 elseif cm.randMode(i)<0
-                    % Negative dimension modes maintain shuffle order of that dim, while maintaining
-                    % order of all others. For example "-3" will shuffle the 'pages' of a matrix without
-                    % mixing up the rows & columns (e.g. random block orders)
-                    %   cm.randMode = [1,0,-3] will shuffle columns but not rows, and randomize 3rd dim 'pages'
+                    % Negative dimension modes shuffle order of that dim, while maintaining order of all others.
+                    % This eval solution is scrappy, but it works, and haven't found similar functionality elsewhere --TBC 2018-08
                     ii = abs(cm.randMode(i));
                     eval(['newOrder = newOrder(',repmat(':,',1, ii-1), mat2str(randperm(sz(ii))), repmat(':,',1, condDims-ii),');'])
-                    % ...this is outlandish(!), but it works, and cannot find similar functionality elsewhere --TBC 2018-08
                 else
                     % 0 does nothing to that dimension
                 end
@@ -194,6 +200,7 @@ methods
                     % do nothing
             end
         end
+        % Expand order matrix so unused conditions can be 'put back' if necessary
         cm.order = newOrder(:);
         
         % zero out counter index

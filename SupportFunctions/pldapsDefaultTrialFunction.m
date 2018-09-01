@@ -310,6 +310,12 @@ end
         end
 
         Screen('DrawingFinished', p.trial.display.ptr);
+        
+        % % %         if p.trial.datapixx.use && ~isempty(p.trial.datapixx.strobeQ)
+        % % %             % send all the pending strobes and clear the queue
+        % % %             pds.datapixx.strobeQueue(p.trial.datapixx.strobeQ);
+        % % %             p.trial.datapixx.strobeQ = [];
+        % % %         end
     end %frameDrawingFinished
     
     
@@ -439,10 +445,10 @@ end
 
         %%% START OF TRIAL TIMING %%
         %-------------------------------------------------------------------------%
-        % record start of trial in Datapixx, Mac & Plexon
+        % record start of trial in Datapixx, PLDAPS & Plexon
         % each device has a separate clock
 
-        % At the beginning of each trial, strobe a unique number to the plexon
+        % At the beginning of each trial, strobe a unique number to plexon
         % through the Datapixx to identify each trial. Often the Stimulus display
         % will be running for many trials before the recording begins so this lets
         % the plexon rig sync up its first trial with whatever trial number is on

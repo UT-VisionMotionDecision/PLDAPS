@@ -110,6 +110,10 @@ if p.trial.datapixx.use
     
     %start adc data collection if requested
     pds.datapixx.adc.start(p);
+    
+    % Create field for pending strobed word values
+    p.trial.datapixx.strobeQ = [];
+    
 end
 
 if p.trial.display.useOverlay==1 % Datapixx overlay
