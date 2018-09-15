@@ -2,22 +2,28 @@ function result = saveTempFile(p)
 %saveTempFile    save the data from a single Trial to a file in a TEMP
 %                folder
 % result = saveTempFile(p)
+
 result= [];
+tmpdir = fullfile(p.trial.pldaps.dirs.data, '.TEMP');
+tmpfile = sprintf('trial%05d', p.trial.pldaps.iTrial);
+
 if ~p.trial.pldaps.nosave && p.trial.pldaps.save.trialTempfiles
-	evalc(['trial' num2str(p.trial.pldaps.iTrial) '= p.trial']);
-    if ~exist([p.trial.session.dir filesep 'TEMP'],'dir')
+    % make separate copy of p.trial (...why??)
+	evalc( sprintf('%s = p.trial', tmpfile) );
+    
+    if ~exist(tmpdir,'dir')
         warning('pldaps:saveTempFile','TEMP directory in data directory does not exist, trying to create it')
         try
-            mkdir(fullfile(p.trial.session.dir,'TEMP'));
+            mkdir(tmpdir);
         catch result
-            warning('pldaps:saveTempFile','Failed creating TEMP directory in %s',p.trial.session.dir)
+            warning('pldaps:saveTempFile','Failed creating TEMP directory:\t%s', tmpdir)
             p.trial.pldaps.quit = 2;
             return;
         end
     end
     try  
-        save(fullfile(p.trial.session.dir,'TEMP',[p.trial.session.file(1:end-4) num2str(p.trial.pldaps.iTrial) p.trial.session.file(end-3:end)]),['trial' num2str(p.trial.pldaps.iTrial)]);
+        save( fullfile(tmpdir, [p.trial.session.file(1:end-4), tmpfile, p.trial.session.file(end-3:end)]), tmpfile);
     catch result
-         warning('pldaps:saveTempFile','Failed to save temp file in %s',[p.trial.session.dir filesep 'TEMP'])
+         warning('pldaps:saveTempFile','Failed to save temp file in %s', tmpdir)
     end
 end

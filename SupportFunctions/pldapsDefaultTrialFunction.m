@@ -91,7 +91,7 @@ end
         %%TODO: add buffer for Keyboard presses, mouse position and clicks.
         
         % Check keyboard    
-        [p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ, firstRelease, lastPress, lastRelease]=KbQueueCheck(); % fast
+        [p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ, firstRelease, lastPress, lastRelease]=KbQueueCheck(p.trial.keyboard.devIdx); % fast
         
         if p.trial.keyboard.pressedQ || any(firstRelease)
             p.trial.keyboard.samples = p.trial.keyboard.samples+1;
@@ -146,6 +146,11 @@ end
                     p.trial.eyeX = mean(p.trial.mouse.cursorSamples(1,mInds));
                     p.trial.eyeY = mean(p.trial.mouse.cursorSamples(2,mInds));
                 end
+                % Also report delta "eye" position
+                nback = p.trial.mouse.samples + [-1,0]; nback(nback<1) = 1;
+                p.trial.eyeDelta = [diff(p.trial.mouse.cursorSamples(1,nback), [], 2),...
+                    diff(p.trial.mouse.cursorSamples(2,nback), [], 2)];
+
             end
         end
         
@@ -311,11 +316,12 @@ end
 
         Screen('DrawingFinished', p.trial.display.ptr);
         
-        % % %         if p.trial.datapixx.use && ~isempty(p.trial.datapixx.strobeQ)
-        % % %             % send all the pending strobes and clear the queue
-        % % %             pds.datapixx.strobeQueue(p.trial.datapixx.strobeQ);
-        % % %             p.trial.datapixx.strobeQ = [];
-        % % %         end
+        if p.trial.datapixx.use && ~isempty(p.trial.datapixx.strobeQ)
+            % send all the pending strobes and clear the queue
+            pds.datapixx.strobeQueue(p.trial.datapixx.strobeQ);
+            p.trial.datapixx.strobeQ = [];
+        end
+        
     end %frameDrawingFinished
     
     

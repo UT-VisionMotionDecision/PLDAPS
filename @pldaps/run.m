@@ -24,7 +24,8 @@ function p = run(p)
 % try
 %% Setup and File management
 % clean IOPort handles (no PTB method to retrieve previously opened IOPort handles, so might as well clean slate)
-IOPort('CloseAll');
+% % % IOPort('CloseAll');
+
 if ~isfield(p.trial.pldaps,'verbosity')
     p.trial.pldaps.verbosity = 3;
 end
@@ -45,39 +46,8 @@ p.defaultParameters.session.rng = rng;
 % place iTrial counter in SessionParameters level of params hierarchy
 p.defaultParameters.pldaps.iTrial = 0;
 
-if ~p.defaultParameters.pldaps.nosave
-    p.defaultParameters.session.dir = p.defaultParameters.pldaps.dirs.data;
-    p.defaultParameters.session.file = sprintf('%s%s%s-%s.PDS',...
-        p.defaultParameters.session.subject,...
-        datestr(p.defaultParameters.session.initTime, 'yyyymmdd'),...
-        p.defaultParameters.session.experimentSetupFile, ...
-        datestr(p.defaultParameters.session.initTime, 'HHMM'));
-    
-    if p.defaultParameters.pldaps.useFileGUI
-        [cfile, cdir] = uiputfile('.PDS', 'specify data storage file', fullfile( p.defaultParameters.session.dir,  p.defaultParameters.session.file));
-        if isnumeric(cfile) % canceled
-            error('pldaps:run',['!!!\tFile selection canceled. When .pldaps.useFileGUI is enabled,\n',...
-                 '!!!\tuser MUST supply save filename & location in gui. I cannot go on.\n\tAborting.\n']);
-        end
-        p.defaultParameters.session.dir = cdir;
-        p.defaultParameters.session.file = cfile;
-    end
-    
-    if ~exist(p.trial.session.dir, 'dir')
-        warning('pldaps:run','Data directory specified in .pldaps.dirs.data does not exist.\n');
-        ans = input(sprintf('\tShould I create Data & TEMP dirs in: %s? (...if not, will quit PLDAPS)\n\t\t(y/n): ',p.trial.pldaps.dirs.data), 's');
-        if ~isempty(ans) && lower(ans(1))=='y'
-            mkdir(fullfile(p.trial.pldaps.dirs.data));
-            mkdir(fullfile(p.trial.pldaps.dirs.data, 'TEMP'));
-        else
-            fprintf(2, '\n\tQuitting PLDAPS. Please run createRigPrefs to update your data dirs,\n\tor create directory %s, containing a subdirectory called ''TEMP''\n\n', p.trial.pldaps.dirs.data)
-            return;
-        end
-    end
-else
-    p.defaultParameters.session.file='';
-    p.defaultParameters.session.dir='';
-end
+%% Initialize filename & all data directories for this PLDAPS session
+p = setupSessionFiles(p);
 
 
 %% experimentPreOpenScreen (...& modularPldaps setup)
@@ -129,6 +99,7 @@ pds.git.setup(p);
 % Eye tracking
 %-------------------------------------------------------------------------%
 pds.eyelink.setup(p);
+[p.trial.eyeX, p.trial.eyeY, p.trial.eyeDelta] = deal(nan);
 
 % Audio
 %-------------------------------------------------------------------------%
@@ -163,15 +134,16 @@ if p.trial.pldaps.useModularStateFunctions
     runStateforModules(p,'experimentPostOpenScreen',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 end
 
-% % % %% Finish initialization of condition matrix [.condMatrix]
-% % % %  using contents of p.conditions
-% % % %  (done here to allow all modules with experimentPostOpenScreen components to fully initialize)
-% % % refreshCondMatrixOrder(p);
+
+%% Display output filename in command window
+fprintLineBreak; fprintLineBreak('_-',32);
+fprintf('PLDAPS filename\t\t\t(time %s)\n', datestr(p.defaultParameters.session.initTime, 'HH:MM'));
+fprintf(2, '\t\t%s\n', p.defaultParameters.session.file);
+fprintLineBreak('_-',32);
 
 
 %% Last chance to check variables
 if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
-    p  %#ok<NOPRT>
     disp('Ready to begin trials. Type "dbcont" to start first trial...')
     keyboard
 end
@@ -185,6 +157,7 @@ p = beginExperiment(p);
 % disable keyboard
 ListenChar(2);
 HideCursor;
+KbQueueFlush(p.trial.keyboard.devIdx);
 
 p.trial.flagNextTrial  = 0; % flag for ending the trial
 p.trial.iFrame     = 0;  % frame index
@@ -201,11 +174,8 @@ if ~isempty(result)
     disp(result.message)
 end
 
-% Record of baseline params class levels before start of experiment.
-% NOTE: "levelsPreTrials" --> "baseParamsLevels", since former was misnomer now
-%       that this var must be updated for everytime a non-trial parameters level
-%       is added (e.g. during every pause) --TBC 2017-10
-baseParamsLevels = p.defaultParameters.getAllLevels();  %#ok<*AGROW>
+% Record of baseline params class levels
+baseParamsLevels = p.defaultParameters.getAllLevels();
 
 %% Main trial loop
 while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
@@ -222,18 +192,13 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             if p.condMatrix.iPass > p.condMatrix.nPasses
                 break
             end
-            % apply levels from the condMatrix to currently active params
-% % %             if p.condMatrix.i+1 > numel(p.condMatrix.order)
-% % %                 p.condMatrix.updateOrder;
-% % %             else
-% % %                 p.condMatrix.i = p.condMatrix.i+1;
-% % %             end
             % create new params level for this trial
             % (...strange looking, but necessary to create a fresh 'level' for the new trial)
             p.defaultParameters.addLevels( {struct}, {sprintf('Trial%dParameters', nextTrial)});
             % Make only the baseParamsLevels and this new trial level active
             p.defaultParameters.setLevels( [baseParamsLevels, length(p.trial.getAllLevels)] );
-            % Good to go, apply upcoming condition parameters for the nextTrial
+            % Good to go!
+            % Apply upcoming condition parameters for the nextTrial
             p = p.condMatrix.nextCond(p);
             
         elseif ~isempty(p.conditions)
@@ -259,9 +224,9 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         % calls, which are known to be very slow), but have had little success at
         % deciphering the params.m code so far. --TBC 2017-10
         tmpts = mergeToSingleStruct(p.defaultParameters);
-        save( fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'), '-struct', 'tmpts');
+        save( fullfile(p.trial.pldaps.dirs.data, '.TEMP', 'deepTrialStruct'), '-struct', 'tmpts');
         clear tmpts
-        p.trial = load(fullfile(p.trial.pldaps.dirs.data, 'TEMP', 'deepTrialStruct'));
+        p.trial = load(fullfile(p.trial.pldaps.dirs.data, '.TEMP', 'deepTrialStruct'));
         
         % Document currently active levels for this trial
         p.trial.pldaps.activeLevels = p.defaultParameters.getActiveLevels;
@@ -347,6 +312,9 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             pauseLoop(p);
         end
         
+        % Clear out keyboard queue
+        KbQueueFlush(p.trial.keyboard.devIdx);
+        
         % Check for anything that was changed/added during pause
         allStructs = p.defaultParameters.getAllStructs();
         if ~isequal(struct, allStructs{end})
@@ -376,6 +344,7 @@ Priority(0);
 
 pds.eyelink.finish(p);  % p =  ; These should be operating on pldaps class handles, thus no need for outputs. --tbc.
 pds.plexon.finish(p);
+pds.behavior.reward.finish(p);
 if p.trial.datapixx.use
     % stop adc data collection
     pds.datapixx.adc.stop(p);
@@ -424,7 +393,7 @@ if ~p.trial.pldaps.nosave
     PDS.conditionNames = rawParamsNames(levelsCondition);
     PDS.data = p.data;
     PDS.functionHandles = p.functionHandles; %#ok<STRNU>
-    savedFileName = fullfile(p.trial.session.dir, p.trial.session.file);
+    savedFileName = fullfile(p.trial.session.dir, 'pds', p.trial.session.file);
     save(savedFileName,'PDS','-mat')
     disp('****************************************************************')
     fprintf('\tPLDAPS data file saved as:\n\t\t%s\n', savedFileName)
@@ -483,9 +452,8 @@ if p.trial.datapixx.use
 end    
 % close up shop
 Screen('CloseAll');
-IOPort('CloseAll');
 
-sca;
+% sca;
 
 % catch me
 %     if p.trial.eyelink.use
@@ -583,42 +551,3 @@ while p.trial.pldaps.quit==1
 end
 
 end
-
-% Moved to condMatrix class definition
-% % % %% condMatrix: Generate new order set
-% % % function refreshCondMatrixOrder(p)
-% % % 
-% % % % increment condMatrix pass number
-% % % p.condMatrix.pass.i = p.condMatrix.pass.i + 1;
-% % % % Manage rng state
-% % % rng0 = rng(p.condMatrix.pass.seed+p.condMatrix.pass.i, 'twister');
-% % % 
-% % % % Generate new .order set for condition matrix
-% % % sz = size(p.conditions);
-% % % condDims = max([1, sum(sz>1)]);
-% % % % Initialize list if condition indexes
-% % % p.condMatrix.order = reshape(1:numel(p.conditions), sz);
-% % % 
-% % % % Randomize order as requested
-% % % if isempty(p.condMatrix.randMode)
-% % %     p.condMatrix.randMode = 0; %zeros(1, condDims);
-% % % end
-% % % 
-% % % switch p.condMatrix.randMode
-% % %     case 1 % randomize across all dimensions
-% % %         p.condMatrix.order = reshape(Shuffle(p.condMatrix.order(:)), sz);
-% % %     case 2  % randomize within columns
-% % %         p.condMatrix.order = Shuffle(p.condMatrix.order);
-% % %     case 3  % ...this will fail with >2 condDims
-% % %         p.condMatrix.order = Shuffle(p.condMatrix.order');
-% % %     otherwise
-% % %         % do nothing
-% % % end
-% % % 
-% % % % place counter index at beginning
-% % % p.condMatrix.i = 1;
-% % % 
-% % % % Return rng state
-% % % rng(rng0);
-% % % 
-% % % end

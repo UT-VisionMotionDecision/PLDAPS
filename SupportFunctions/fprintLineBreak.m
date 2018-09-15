@@ -20,7 +20,7 @@ if nargin<1 || isempty(txt)
 end
 % how many repeats
 if nargin<2 || isempty(n)
-    n = 65;
+    n = 64;
 end
 
 if nargout<1

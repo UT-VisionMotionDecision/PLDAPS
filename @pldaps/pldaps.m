@@ -75,15 +75,18 @@ classdef pldaps < handle
             error('pldaps:pldaps', 'Only four inputs allowed for now: subject, experimentSetupFile (String or function handle), a struct of parameters and a cell with a struct of parameters for each trial.');
         end
         subjectSet=false;
-        for iArgin=1:nargin
-            if isa(varargin{iArgin}, 'function_handle') %fucntion handle will be the experimentSetupFunction
-                 constructorStruct.session.experimentSetupFile=func2str(varargin{iArgin});
-            elseif isa(varargin{iArgin}, 'char')
+        for i=1:nargin
+            if isa(varargin{i}, 'function_handle') %fucntion handle will be the experimentSetupFunction
+                 constructorStruct.session.experimentSetupFile=func2str(varargin{i});
+            elseif isa(varargin{i}, 'string')
+                    constructorStruct.session.subject=varargin{i};
+                    subjectSet=true;                
+            elseif isa(varargin{i}, 'char')
                 if ~subjectSet  %set experiment file
-                    constructorStruct.session.subject=varargin{iArgin};
+                    constructorStruct.session.subject=varargin{i};
                     subjectSet=true;
                 else
-                    constructorStruct.session.experimentSetupFile=varargin{iArgin};
+                    constructorStruct.session.experimentSetupFile=varargin{i};
                 end
             end
         end

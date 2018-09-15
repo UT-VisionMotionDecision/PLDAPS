@@ -8,11 +8,13 @@ function p = setup(p)
 % 2018-04-26  TBC  Tuned up. Use blocking for more reliable initialization
 
 if p.trial.newEraSyringePump.use
+    
     config='BaudRate=19200 DTR=1 RTS=1 ReceiveTimeout=1'; % orig
     %config= [config, ' Terminator=13 ProcessingMode=Cooked']; % nope...not compatible with pump comm
     
     %% Open port
     [h, errmsg]=IOPort('OpenSerialPort', p.trial.newEraSyringePump.port, config);   % Mac:'/dev/cu.usbserial' Linux:'/dev/ttyUSB0'
+
     WaitSecs(0.1);
     if ~isempty(errmsg)
         error('pds:newEraSyringePump:setup', 'Failed to open serial Port with message:\n\t%s\n', errmsg);

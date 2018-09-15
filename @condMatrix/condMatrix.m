@@ -64,7 +64,7 @@ methods
                 cm.conditions = p.condMatrix.conditions;
                 %             % list fieldnames set by conditions matrix
                 %             cm.condFields = fieldnames(cm.conditions);
-                fprintf(2, '\n\t!!!\tp.condMatrix manually initialized...this is might not be good.\n')
+%                 fprintf(2, '\n\t!!!\tp.condMatrix manually initialized...this is might not be good.\n')
             end
 
         end
