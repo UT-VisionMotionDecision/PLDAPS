@@ -34,6 +34,8 @@ properties (Access = public)
 
     modNames    % module names struct
     maxFrames   % max number of frames per trial
+    
+    H           = struct('infoFig',[]); % Handles to relevant objects (e.g. Info Figure)
 end
 
 properties (Access = private, Transient = true)
@@ -118,7 +120,7 @@ methods
 % % %         
 % % %         % individual trial parameters
 % % %         cm.maxFrames = p.trial.pldaps.maxTrialLength;
-
+    
     end
     
     
@@ -145,6 +147,35 @@ methods
             end
             p.trial.(targetModule{i}).condIndex = ii;
         end
+        
+        % Update Info Fig
+        if ishandle(cm.H.infoFig)
+            cm.H.infoFig.Children(1).Children(end).String = sprintf('Trial:  %5d\nPass:  %5d', p.trial.pldaps.iTrial, cm.iPass);
+        else
+            % Info figure
+            Hf = figure(p.condMatrix.baseIndex); clf;
+            set(Hf, 'windowstyle','normal', 'toolbar','none', 'menubar','none', 'selectionHighlight','off', 'color',.5*[1 1 1], 'position',[1500,100,400,300])
+            set(Hf, 'Name', p.trial.session.file, 'NumberTitle','off')
+            
+            % Axes for text
+            ha = axes;
+            box off;
+            set(ha, 'color',.5*[1 1 1], 'fontsize',10);
+            axis(ha, [0 1 0 1]); axis off
+            fsz = 12;
+            % Basic trial info text
+            ht(1) = text(ha, 0, 0.8, sprintf('Trial:  %5d\nPass:  %5d', p.trial.pldaps.iTrial, cm.iPass));
+            try
+                ht(2) = text(ha, 0, 0.5, sprintf('Fix Pos:    %s\nFix Lim:    %s',...
+                    mat2str(p.trial.(p.trial.pldaps.modNames.currentFix{1}).fixPos),...
+                    mat2str(p.trial.(p.trial.pldaps.modNames.currentFix{1}).fixLim)));
+            end
+            set(ht, 'fontsize',fsz);
+            
+            % only need handle to parent figure to access all contents
+            cm.H.infoFig = Hf;
+        end
+
     end
     
     

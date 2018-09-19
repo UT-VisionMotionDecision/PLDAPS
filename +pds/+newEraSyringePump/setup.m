@@ -9,6 +9,11 @@ function p = setup(p)
 
 if p.trial.newEraSyringePump.use
     
+    % NO!! ...damn IOPort crashes & closes Screen if try to close a port thats not open! So damn hostile!!
+    % %     % Prevent crash (...but effectively hardcodes pump handle, and will crash if grbl disabled)
+    % %     IOPort('Close',1);
+    % %     pause(.01)
+
     config='BaudRate=19200 DTR=1 RTS=1 ReceiveTimeout=1'; % orig
     %config= [config, ' Terminator=13 ProcessingMode=Cooked']; % nope...not compatible with pump comm
     

@@ -146,6 +146,7 @@ fprintLineBreak('_-',32);
 if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
     disp('Ready to begin trials. Type "dbcont" to start first trial...')
     keyboard
+    fprintf(2,'\b ~~~Start of experiment~~~\n')
 end
 
 
@@ -303,9 +304,10 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         if ptype==1
             ListenChar(0);
             ShowCursor;
-            p.trial
-            disp('Experiment paused. Type "dbcont" to continue...')
+            % p.trial
+            fprintf('Experiment paused. Type "dbcont" to continue...\n')
             keyboard %#ok<MCKBD>
+            fprintf(2,'\b...experiment resumed.\n')
             ListenChar(2);
             HideCursor;
         elseif ptype==2
@@ -388,6 +390,7 @@ if ~p.trial.pldaps.nosave
     levelsCondition(ismember(levelsCondition, baseParamsLevels)) = [];
     if ~isempty(p.condMatrix)
         PDS.condMatrix = p.condMatrix;
+        PDS.condMatrix.H = [];
     end
     PDS.conditions = rawParamsStruct(levelsCondition);
     PDS.conditionNames = rawParamsNames(levelsCondition);
