@@ -397,7 +397,7 @@ if ~p.trial.pldaps.nosave
     PDS.data = p.data;
     PDS.functionHandles = p.functionHandles; %#ok<STRNU>
     savedFileName = fullfile(p.trial.session.dir, 'pds', p.trial.session.file);
-    save(savedFileName,'PDS','-mat')
+    save(savedFileName, '-mat', '-struct', 'PDS')
     disp('****************************************************************')
     fprintf('\tPLDAPS data file saved as:\n\t\t%s\n', savedFileName)
     disp('****************************************************************')
@@ -450,7 +450,10 @@ Screen('WaitBlanking', p.trial.display.ptr);
 if p.trial.datapixx.use
     % If in ProPixx RB3D mode, return DLP sequence to normal
     if p.trial.datapixx.rb3d
-        Datapixx('SetPropixxDlpSequenceProgram',0);
+        % NOTE:  Returning DLP sequence program to zero
+        % fails properly disable the stereo polarizer device.
+        % Just leave it in dirty state for now... TBC 2018-10
+        %         Datapixx('SetPropixxDlpSequenceProgram',0);
     end
 end    
 % close up shop

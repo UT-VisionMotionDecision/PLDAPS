@@ -511,7 +511,7 @@ end
         %   ...e.g. maybe not eye pos, since it cannot be updated during this phase
 
         % Be smart(ish) about binocular rendering
-        Screen('SelectStereoDrawBuffer', p.trial.display.ptr, 0);
+        Screen('SelectStereoDrawBuffer', p.trial.display.ptr, 1);
         
         % Grid overlay
         if p.trial.pldaps.draw.grid.use

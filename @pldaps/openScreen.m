@@ -32,7 +32,7 @@ function p = openScreen(p)
 
 
 % prevent splash screen
-Screen('Preference','VisualDebugLevel',3);
+Screen('Preference','VisualDebugLevel',1);
 InitializeMatlabOpenGL(0, 0); %second 0: debug level =0 for speed, debug level=3 == "very verbose" (slow, but incl. error msgs from w/in OpenGL/mogl functions)
 
 % Initiate Psych Imaging screen configs
