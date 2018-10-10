@@ -22,12 +22,13 @@ if p.trial.eyelink.use && Eyelink('IsConnected')
         filename = fullfile( dirs, 'eye', [file(1:end-3) 'edf']);
         % Get data from Eyelink
         try
-           err = Eyelink('Receivefile',edfFile, filename);
-           if err<=0
-              warning('pds:EyelinkGetFiles', ['Receiving ' edfFile '.edf for pds file ' file ' unsuccessful or canceled!']);
-           else
-               fprintf('EDF file received:\t%s\n\tfor pds file: %s.', filename, file);
-           end
+            fprintf('Receiving %s.edf for pds file %s...', edfFile, file)
+            err = Eyelink('Receivefile',edfFile, filename);
+            if err<=0
+                warning('pds:EyelinkGetFiles', 'Eyelink file transfer unsuccessful or canceled!');
+            else
+                fprintf('\n\tEDF file received:\t%s\n\tfor pds file: %s.\n', filename, file);
+            end
         catch
             fprintf('Problem receiving EDF data file ''%s''\n', edfFile );
         end
