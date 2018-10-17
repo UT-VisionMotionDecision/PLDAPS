@@ -150,7 +150,7 @@ methods
         
         % Update Info Fig
         if ishandle(cm.H.infoFig)
-            cm.H.infoFig.Children(1).Children(end).String = sprintf('Trial:  %5d\nPass:  %5d', p.trial.pldaps.iTrial, cm.iPass);
+            cm.H.infoFig.Children(1).Children(end).String = sprintf('Trial:  %5d\nPass:  %5d  (%02.1f%%)', p.trial.pldaps.iTrial, cm.iPass, cm.i/numel(cm.order)*100);
         else
             % Info figure
             Hf = figure(p.condMatrix.baseIndex); clf;
