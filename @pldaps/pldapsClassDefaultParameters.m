@@ -195,7 +195,7 @@ end
 %  set default screenRect to 'picture-in-picture' if maxScreens == 0
 function screenRect = screenSizeSelector(scrnNum)
 if ~scrnNum && scrnNum==max(Screen('Screens'))
-    screenRect = floor(Screen('Rect',scrnNum).*0.4)+30;
+    screenRect = floor(Screen('Rect',scrnNum).*0.6)+30;
 else
     screenRect = [ ];
 end
