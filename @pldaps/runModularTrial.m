@@ -48,7 +48,7 @@ function p = runModularTrial(p)
 
         %time of the next flip request
         %   --see pldapsDefaultTrialFunction.m>>frameFlip to determine if imposed
-        p.trial.nextFrameTime = p.trial.stimulus.timeLastFrame + p.trial.display.ifi;
+        p.trial.nextFrameTime = p.trial.timing.timeLastFrame + p.trial.display.ifi;
 
         % Start timer for GPU rendering operations
         Screen('GetWindowInfo', p.trial.display.ptr, 5);

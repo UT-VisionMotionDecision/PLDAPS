@@ -151,6 +151,7 @@ methods
         % Update Info Fig
         if ishandle(cm.H.infoFig)
             cm.H.infoFig.Children(1).Children(end).String = sprintf('Trial:  %5d\nPass:  %5d  (%02.1f%%)', p.trial.pldaps.iTrial, cm.iPass, cm.i/numel(cm.order)*100);
+            drawnow; % required for figure update on ML>=2018a
         else
             % Info figure
             Hf = figure(p.condMatrix.baseIndex); clf;
@@ -174,6 +175,7 @@ methods
             
             % only need handle to parent figure to access all contents
             cm.H.infoFig = Hf;
+            drawnow; % required for figure update on ML>=2018a            
         end
 
     end

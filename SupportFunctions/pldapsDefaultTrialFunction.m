@@ -338,7 +338,7 @@ end
             Screen('FillRect', p.trial.display.overlayptr,0);
         end
         
-        p.trial.stimulus.timeLastFrame = p.trial.timing.flipTimes(1,p.trial.iFrame)-p.trial.trstart;
+        p.trial.timing.timeLastFrame = p.trial.timing.flipTimes(1,p.trial.iFrame)-p.trial.trstart;
 
     end %frameFlip
 
@@ -487,9 +487,9 @@ end
 
         % These params are all predetermined, so just set them equal to 0,
         % and keep any code post-vblsync to an absolute minimum!  (...yes, even just touching p.trial)
-        p.trial.stimulus.timeLastFrame = 0;     % formerly:  vblTime-p.trial.trstart;
         p.trial.ttime  = 0;                     % formerly:  GetSecs - p.trial.trstart;
         p.trial.timing.syncTimeDuration = 0;    % formerly:  p.trial.ttime;
+        p.trial.timing.timeLastFrame = 0;       % formerly:  vblTime-p.trial.trstart;
         
         % Sync up with screen refresh before jumping into actual trial
         %   ** this also ensures that the async flip scheduled at the end of the last trial
