@@ -168,6 +168,8 @@ methods(Static)
     % % %
     % % %     [xy,z] = world2deg(p,xy,z)
     
+    [xy,z] = deg2world(p, varargin);%(p,xy,z)
+    
     held = checkFixation(varargin)
     
     s = pldapsClassDefaultParameters(s)
