@@ -83,11 +83,12 @@ else
     % Additional timestamp requests & checks must be interleaved
     % into the typical strobed word transmission process
 
-    % Ensure real-time priority (...may itself be a time sink)
-    oldPriority=Priority;
-    if oldPriority < MaxPriority('GetSecs')
-        Priority(MaxPriority('GetSecs'));
-    end
+    % No. ...its well intentioned, but excessive and overpriced
+    %     % Ensure real-time priority (...may itself be a time sink)
+    %     oldPriority=Priority;
+    %     if oldPriority < MaxPriority('GetSecs')
+    %         Priority(MaxPriority('GetSecs'));
+    %     end
     
     % pre-allocate
     t = nan(2, 1);
@@ -117,10 +118,10 @@ else
     % Readout the marker timestamp
     dpTime = Datapixx('GetMarker');
     
-    % Return priority to previous setting
-    if Priority ~= oldPriority
-        Priority(oldPriority);
-    end
+    %     % Return priority to previous setting
+    %     if Priority ~= oldPriority
+    %         Priority(oldPriority);
+    %     end
     
     % Package timestamps for output
     ts = [mean(t)', dpTime'];

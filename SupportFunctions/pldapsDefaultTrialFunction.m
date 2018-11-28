@@ -306,12 +306,12 @@ end
     function frameDrawingFinished(p)
         % Check for & disable OpenGL mode before any Screen() calls (else will crash)
         if p.trial.display.useGL
-            [~, IsOpenGLRendering] = Screen('GetOpenGLDrawMode');
-            % NOTE: polling opengl for info is slow; might make sense to go-for-broke here
-            % and assume an 'EndOpenGL' call is necessary given .useGL==true. Play it safe for now. --TBC Dec 2017
-            if IsOpenGLRendering
+% % %             [~, IsOpenGLRendering] = Screen('GetOpenGLDrawMode');
+% % %             % NOTE: polling opengl for info is slow; might make sense to go-for-broke here
+% % %             % and assume an 'EndOpenGL' call is necessary given .useGL==true. Play it safe for now. --TBC Dec 2017
+% % %             if IsOpenGLRendering
                 Screen('EndOpenGL', p.trial.display.ptr);
-            end
+% % %             end
         end
 
         Screen('DrawingFinished', p.trial.display.ptr);

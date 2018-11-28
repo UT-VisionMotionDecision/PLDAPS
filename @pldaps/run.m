@@ -178,6 +178,15 @@ end
 % Record of baseline params class levels
 baseParamsLevels = p.defaultParameters.getAllLevels();
 
+% Switch to high priority mode
+if p.trial.pldaps.maxPriority
+    oldPriority=Priority;
+    maxPriority=MaxPriority('GetSecs');
+    if oldPriority < maxPriority
+        Priority(maxPriority);
+    end
+end
+
 %% Main trial loop
 while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
     
@@ -423,7 +432,7 @@ if p.trial.display.useOverlay==2
     glDeleteTextures(2,p.trial.display.lookupstexs(1));
 end
 
-% Clean up stray glBuffers (...else crash likely on subsequent runs)
+%% Clean up stray glBuffers (...else crash likely on subsequent runs)
 if isfield(p.trial.display, 'useGL') && p.trial.display.useGL
     global glB GL %#ok<TLEV>
     if isstruct(glB)
@@ -444,7 +453,7 @@ if isfield(p.trial.display, 'useGL') && p.trial.display.useGL
     end
 end
 
-% Make sure enough time passes for any pending async flips to occur
+%% Make sure enough time passes for any pending async flips to occur
 Screen('WaitBlanking', p.trial.display.ptr);
 
 if p.trial.datapixx.use

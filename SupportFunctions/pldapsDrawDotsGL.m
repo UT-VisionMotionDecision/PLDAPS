@@ -211,9 +211,11 @@ if useDiskMode==1
         vv = 0.5*vv(ff(:),:)'; % expand indexing & convert to unit diameter (size == [3, ntriangles]);
         glB.ntris = size(vv,2);
         
+        bytesPerEl = 8; % 4 should be sufficient for single(), but make sure we don't underrun (????)
+        
         % vertex buffer
         % jnk = whos('vv'); glB.vert.mem=jnk.bytes; % gets memory size of var
-        glB.vert.mem = numel(vv)*4; % will become GL.FLOAT, 4 bytes/el.  
+        glB.vert.mem = numel(vv)*bytesPerEl; % will become GL.FLOAT, 4 bytes/el.  
         glB.vert.h = glGenBuffers(1);
         glB.vert.i = 0; % attribute index   (must correspond to init order inside shader)
         glBindBuffer(GL.ARRAY_BUFFER, glB.vert.h);
@@ -222,7 +224,7 @@ if useDiskMode==1
         % position buffer: [x, y, z, size]
         % Data will stream to this buffer for each frame
         %jnk = whos('xyz'); glB.pos.mem = jnk.bytes;  % gets memory size of var
-        glB.pos.mem = numel(xyz)*4;  % 4 bytes/el.  
+        glB.pos.mem = numel(xyz)*bytesPerEl;  % 4 bytes/el.  
         glB.pos.h = glGenBuffers(1);
         glB.pos.i = 1; % attribute index
         glBindBuffer(GL.ARRAY_BUFFER, glB.pos.h);
@@ -231,7 +233,7 @@ if useDiskMode==1
         % color buffer: [r, g, b, a]
         % Data will stream to this buffer for each frame
         % jnk = whos('col'); glB.col.mem = jnk.bytes;   % gets memory size of var
-        glB.col.mem = numel(dotcolor)*4;  % 4 bytes/el.  
+        glB.col.mem = numel(dotcolor)*bytesPerEl;  % 4 bytes/el.  
         glB.col.h = glGenBuffers(1);
         glB.col.i = 2; % attribute index
         glBindBuffer(GL.ARRAY_BUFFER, glB.col.h);

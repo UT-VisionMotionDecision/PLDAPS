@@ -131,7 +131,7 @@ methods
         if nargin<3 || isempty(targetModule)
             targetModule = cm.modNames.matrixModule;
         end
-        
+                
         % Apply to targetModule(s) serially, updateOrder if necessary
         for i = 1:numel(targetModule)
             % refresh order if run out of available indexes
@@ -150,8 +150,10 @@ methods
         
         % Update Info Fig
         if ishandle(cm.H.infoFig)
-            cm.H.infoFig.Children(1).Children(end).String = sprintf('Trial:  %5d\nPass:  %5d  (%02.1f%%)', p.trial.pldaps.iTrial, cm.iPass, cm.i/numel(cm.order)*100);
-            drawnow; % required for figure update on ML>=2018a
+            pctRemain = rem(cm.i, numel(cm.order)) / numel(cm.conditions) *100;
+            cm.H.infoFig.Children(1).Children(end).String = sprintf('Trial:  %5d\nPass:  %5d  (%02.1f%%)', p.trial.pldaps.iTrial, cm.iPass, pctRemain);  % cm.i/numel(cm.order)*100);
+            %             drawnow; % required for figure update on ML>=2018a
+                        refreshdata(cm.H.infoFig);%.Children(1));
         else
             % Info figure
             Hf = figure(p.condMatrix.baseIndex); clf;
@@ -175,16 +177,34 @@ methods
             
             % only need handle to parent figure to access all contents
             cm.H.infoFig = Hf;
-            drawnow; % required for figure update on ML>=2018a            
+            %             drawnow; % required for figure update on ML>=2018a
+            %             refreshdata(cm.H.infoFig);%.Children(1));
         end
+        drawnow limitrate;
 
     end
     
     
     %% putBack: unused conds
-    function putBack(cm, unusedConds)
+    function notShown = putBack(cm, p, unusedConds)
+        if nargin<3
+            unusedConds = [];
+            for i = 1:length(p.trial.pldaps.modNames.matrixModule)
+                mN = p.trial.pldaps.modNames.matrixModule{i};
+                if ~p.trial.(mN).shown
+                    unusedConds(end+1) = p.trial.(mN).condIndex;
+                end
+            end
+        end
         % Append incomplete condition indexes to the end of order list
-        cm.order(end+1:numel(unusedConds)-1) = unusedConds;
+        cm.order(end+(1:numel(unusedConds))) = unusedConds;
+        
+        % Return set of unusedConds to caller [if requested]
+        if ~nargout
+            return
+        else
+            notShown = unusedConds;
+        end
     end
     
     

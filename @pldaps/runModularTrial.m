@@ -23,14 +23,14 @@ function p = runModularTrial(p)
     % trialSetup
     runStateforModules(p, 'trialSetup', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
-    %switch to high priority mode
-    if p.trial.pldaps.maxPriority
-        oldPriority=Priority;
-        maxPriority=MaxPriority('GetSecs');
-        if oldPriority < maxPriority
-                Priority(maxPriority);
-        end
-    end
+    %     %switch to high priority mode
+    %     if p.trial.pldaps.maxPriority
+    %         oldPriority=Priority;
+    %         maxPriority=MaxPriority('GetSecs');
+    %         if oldPriority < maxPriority
+    %                 Priority(maxPriority);
+    %         end
+    %     end
 
     % trialPrepare
     %   called just before the trial starts for time critical calls
@@ -73,16 +73,18 @@ function p = runModularTrial(p)
     %  ** Inherently not a time-critical operation, so no call to setTimeAndFrameState necessary
     %   ...also, setTimeAndFrameState uses current state as an index, so using with this would break
     runStateforModules(p, 'trialItiDraw', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
-
-    if p.trial.pldaps.maxPriority
-        newPriority=Priority;
-        if round(oldPriority) ~= round(newPriority)
-            Priority(oldPriority);
-        end
-        if round(newPriority)<maxPriority
+% 
+%     if p.trial.pldaps.maxPriority
+%         newPriority=Priority;
+%         if round(oldPriority) ~= round(newPriority)
+%             Priority(oldPriority);
+%         end
+%         if round(newPriority)<maxPriority
+            if Priority<MaxPriority('GetSecs')
             warning('pldaps:runTrial', 'Thread priority was degraded by operating system during the trial.')
-        end
-    end
+            end
+%         end
+%     end
 
     % trialCleanUpandSave
     runStateforModules(p, 'trialCleanUpandSave', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);

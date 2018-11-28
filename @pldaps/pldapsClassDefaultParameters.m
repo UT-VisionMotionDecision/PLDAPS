@@ -107,7 +107,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	pldaps.	quit = 0;
  s.	pldaps.	trialMasterFunction = 'runModularTrial';
  s.	pldaps.	useFileGUI = false;
- s.	pldaps.	useModularStateFunctions = false;
+ s.	pldaps.	useModularStateFunctions = true;
 
 %s.	pldaps.	dirs.
  s.	pldaps.	dirs.	data = '/Data';

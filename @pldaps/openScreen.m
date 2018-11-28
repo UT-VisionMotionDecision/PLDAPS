@@ -278,7 +278,7 @@ elseif p.trial.display.useOverlay==2
     glBindTexture(GL.TEXTURE_RECTANGLE_EXT, 0);
 
     %% get information of current processing chain
-    debuglevel = 1;
+    debuglevel = 0;
     [icmShaders, icmIdString, icmConfig] = PsychColorCorrection('GetCompiledShaders', p.trial.display.ptr, debuglevel);
 
             % Build panel-filter compatible shader from source:
