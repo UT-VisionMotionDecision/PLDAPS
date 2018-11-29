@@ -11,7 +11,9 @@
 // 2017-11-29  TBC
 // Input vertex data, different for all executions of this shader.
 in vec4 color2frag;
+out vec4 outColor
+
 void main(void)
 {
-    gl_FragColor = color2frag;
+    outColor = color2frag;
 }

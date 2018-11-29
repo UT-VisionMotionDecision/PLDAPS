@@ -211,7 +211,7 @@ if useDiskMode==1
         vv = 0.5*vv(ff(:),:)'; % expand indexing & convert to unit diameter (size == [3, ntriangles]);
         glB.ntris = size(vv,2);
         
-        bytesPerEl = 8; % 4 should be sufficient for single(), but make sure we don't underrun (????)
+        bytesPerEl = 4; % 4 should be sufficient for single()
         
         % vertex buffer
         % jnk = whos('vv'); glB.vert.mem=jnk.bytes; % gets memory size of var
