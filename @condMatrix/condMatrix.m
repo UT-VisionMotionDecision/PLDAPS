@@ -150,7 +150,7 @@ methods
         
         % Update Info Fig
         if ishandle(cm.H.infoFig)
-            pctRemain = rem(cm.i, numel(cm.order)) / numel(cm.conditions) *100;
+            pctRemain = (1-(numel(cm.order)-cm.i) / numel(cm.conditions)) *100;
             cm.H.infoFig.Children(1).Children(end).String = sprintf('Trial:  %5d\nPass:  %5d  (%02.1f%%)', p.trial.pldaps.iTrial, cm.iPass, pctRemain);  % cm.i/numel(cm.order)*100);
             %             drawnow; % required for figure update on ML>=2018a
                         refreshdata(cm.H.infoFig);%.Children(1));
@@ -186,15 +186,18 @@ methods
     
     
     %% putBack: unused conds
-    function notShown = putBack(cm, p, unusedConds)
+    function output = putBack(cm, p, unusedConds)
         if nargin<3
             unusedConds = [];
             for i = 1:length(p.trial.pldaps.modNames.matrixModule)
                 mN = p.trial.pldaps.modNames.matrixModule{i};
-                if ~p.trial.(mN).shown
-                    unusedConds(end+1) = p.trial.(mN).condIndex;
-                end
+                theseConds(i) = p.trial.(mN).condIndex;
+                wasShown(i) = p.trial.(mN).shown;
+                %                 if ~p.trial.(mN).shown
+                %                     unusedConds(end+1) = p.trial.(mN).condIndex;
+                %                 end
             end
+            unusedConds = theseConds(~wasShown);
         end
         % Append incomplete condition indexes to the end of order list
         cm.order(end+(1:numel(unusedConds))) = unusedConds;
@@ -203,7 +206,7 @@ methods
         if ~nargout
             return
         else
-            notShown = unusedConds;
+            output = theseConds(wasShown); %unusedConds;
         end
     end
     

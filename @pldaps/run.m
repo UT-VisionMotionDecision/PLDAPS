@@ -432,26 +432,27 @@ if p.trial.display.useOverlay==2
     glDeleteTextures(2,p.trial.display.lookupstexs(1));
 end
 
-%% Clean up stray glBuffers (...else crash likely on subsequent runs)
-if isfield(p.trial.display, 'useGL') && p.trial.display.useGL
-    global glB GL %#ok<TLEV>
-    if isstruct(glB)
-        fn1 = fieldnames(glB);
-        for i = 1:length(fn1)
-            if isstruct(glB.(fn1{i})) && isfield(glB.(fn1{i}),'h')
-                % contains buffer handle
-                glDeleteBuffers(1, glB.(fn1{i}).h);
-                % fprintf('\tDeleted glBuffer glB.%s\n', fn1{i});
-                glB = rmfield(glB, fn1{i});
-                
-            elseif glIsProgram(glB.(fn1{i}))
-                % is a GLSL program
-                glDeleteProgram(glB.(fn1{i}))
-            end
-        end
-        clearvars -global glB
-    end
-end
+% % % %% Clean up stray glBuffers (...else crash likely on subsequent runs)
+% % % if isfield(p.trial.display, 'useGL') && p.trial.display.useGL
+% % %     global glB GL %#ok<TLEV>
+% % %     if isstruct(glB)
+% % %         fn1 = fieldnames(glB);
+% % %         for i = 1:length(fn1)
+% % %             if isstruct(glB.(fn1{i})) && isfield(glB.(fn1{i}),'h')
+% % %                 % contains buffer handle
+% % %                 glDeleteBuffers(1, glB.(fn1{i}).h);
+% % %                 % fprintf('\tDeleted glBuffer glB.%s\n', fn1{i});
+% % %                 glB = rmfield(glB, fn1{i});
+% % %                 
+% % %             elseif glIsProgram(glB.(fn1{i}))
+% % %                 % is a GLSL program
+% % %                 glDeleteProgram(glB.(fn1{i}))
+% % %             end
+% % %         end
+% % %         clearvars -global glB
+% % %     end
+% % % end
+
 
 %% Make sure enough time passes for any pending async flips to occur
 Screen('WaitBlanking', p.trial.display.ptr);

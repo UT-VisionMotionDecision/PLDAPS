@@ -1,6 +1,7 @@
 #version 330 compatibility
 #extension GL_ARB_explicit_attrib_location : require
 #extension GL_ARB_explicit_uniform_location : require
+
 // Corresponding fragment shader to geosphere.vert
 // Hacked attempt at vertex shader for drawing geodesic spheres
 // as dots in PLDAPS (Matlab>PTB>openGL)
@@ -9,11 +10,11 @@
 //  and Particle.vert
 //
 // 2017-11-29  TBC
-// Input vertex data, different for all executions of this shader.
-in vec4 color2frag;
-out vec4 outColor
+// Input vertex data, different for all executions of this shader
 
-void main(void)
-{
+in vec4 color2frag;
+out vec4 outColor;
+
+void main() {
     outColor = color2frag;
 }

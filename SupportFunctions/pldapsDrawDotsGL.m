@@ -1,4 +1,4 @@
-function pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader)
+function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader, dotBuffers)
 % function pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader)
 % 
 % Streamlined version of PTB moglDrawDots3d.m (circa ver. 3.0.14)
@@ -70,10 +70,21 @@ function pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader)
 
 % Need global GL definitions:
 global GL;
+    
+% % Global struct for buffer objects
+% global glB
 
-% Global struct for buffer objects
-global glB
+if nargin <7 || isempty(dotBuffers)
+    % initialize empty structure for OpenGL buffer objects
+    dotBuffers = struct;
+end
 
+% if isfield(pmodule,'glB')
+%     glB = pmodule.glB;
+% else
+%     dotBuffers = glB;
+% end
+    
 if nargin <2
     error('Not enough inputs to %s.',mfilename);
 end
@@ -199,76 +210,80 @@ if useDiskMode==1
     % Dot size gets tacked onto xyz buffer data
     xyz(4,:) = dotsz(:);
 
+    % Backup old shader binding:
+    oldShader = glGetIntegerv(GL.CURRENT_PROGRAM);
+    
     % Initialize buffers (only once!)
-    if ~isfield(glB,'glsl')
+    if ~isfield(dotBuffers, 'glsl')
         % Load the speedy shader
         shaderpath = {which('geosphere.vert'), which('geosphere.frag')};%{fullfile(glslshader, 'geosphere.vert'), fullfile(glslshader, 'geosphere.frag')};
-        glB.glsl = LoadGLSLProgramFromFiles(shaderpath, 0);
-
+        dotBuffers.glsl = LoadGLSLProgramFromFiles(shaderpath, 0);
+        % Set new one:
+        glUseProgram(dotBuffers.glsl);
+        
         [vv,ff] = glDraw.icosphere(dotType-3);
         % convert vv into direct triangles (...would be better if indexed vectors, but whatever)
         ff = ff';
         vv = 0.5*vv(ff(:),:)'; % expand indexing & convert to unit diameter (size == [3, ntriangles]);
-        glB.ntris = size(vv,2);
+        dotBuffers.ntris = size(vv,2);
         
         bytesPerEl = 4; % 4 should be sufficient for single()
         
         % vertex buffer
-        % jnk = whos('vv'); glB.vert.mem=jnk.bytes; % gets memory size of var
-        glB.vert.mem = numel(vv)*bytesPerEl; % will become GL.FLOAT, 4 bytes/el.  
-        glB.vert.h = glGenBuffers(1);
-        glB.vert.i = 0; % attribute index   (must correspond to init order inside shader)
-        glBindBuffer(GL.ARRAY_BUFFER, glB.vert.h);
-        glBufferData(GL.ARRAY_BUFFER, glB.vert.mem, single(vv(:)), GL.STATIC_DRAW);
+        % jnk = whos('vv'); dotBuffers.vert.mem=jnk.bytes; % gets memory size of var
+        dotBuffers.vert.mem = numel(vv)*bytesPerEl; % will become GL.FLOAT, 4 bytes/el.  
+        dotBuffers.vert.h = glGenBuffers(1);
+        dotBuffers.vert.i = 0; % attribute index   (must correspond to init order inside shader)
+        glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.vert.h);
+        glBufferData(GL.ARRAY_BUFFER, dotBuffers.vert.mem, single(vv(:)), GL.STATIC_DRAW);
         
         % position buffer: [x, y, z, size]
         % Data will stream to this buffer for each frame
-        %jnk = whos('xyz'); glB.pos.mem = jnk.bytes;  % gets memory size of var
-        glB.pos.mem = numel(xyz)*bytesPerEl;  % 4 bytes/el.  
-        glB.pos.h = glGenBuffers(1);
-        glB.pos.i = 1; % attribute index
-        glBindBuffer(GL.ARRAY_BUFFER, glB.pos.h);
-        glBufferData(GL.ARRAY_BUFFER, glB.pos.mem, single(xyz(:)), GL.STREAM_DRAW);
+        %jnk = whos('xyz'); dotBuffers.pos.mem = jnk.bytes;  % gets memory size of var
+        dotBuffers.pos.mem = numel(xyz)*bytesPerEl;  % 4 bytes/el.  
+        dotBuffers.pos.h = glGenBuffers(1);
+        dotBuffers.pos.i = 1; % attribute index
+        glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.pos.h);
+        glBufferData(GL.ARRAY_BUFFER, dotBuffers.pos.mem, single(xyz(:)), GL.STREAM_DRAW);
         
         % color buffer: [r, g, b, a]
         % Data will stream to this buffer for each frame
-        % jnk = whos('col'); glB.col.mem = jnk.bytes;   % gets memory size of var
-        glB.col.mem = numel(dotcolor)*bytesPerEl;  % 4 bytes/el.  
-        glB.col.h = glGenBuffers(1);
-        glB.col.i = 2; % attribute index
-        glBindBuffer(GL.ARRAY_BUFFER, glB.col.h);
-        glBufferData(GL.ARRAY_BUFFER, glB.col.mem, single(dotcolor(:)), GL.STREAM_DRAW);
+        % jnk = whos('col'); dotBuffers.col.mem = jnk.bytes;   % gets memory size of var
+        dotBuffers.col.mem = numel(dotcolor)*bytesPerEl;  % 4 bytes/el.  
+        dotBuffers.col.h = glGenBuffers(1);
+        dotBuffers.col.i = 2; % attribute index
+        glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.col.h);
+        glBufferData(GL.ARRAY_BUFFER, dotBuffers.col.mem, single(dotcolor(:)), GL.STREAM_DRAW);
         
     else
+        % Set new one:
+        glUseProgram(dotBuffers.glsl);
+
         % Update position buffer (via "orphaning")
-        glBindBuffer(GL.ARRAY_BUFFER, glB.pos.h);
-        glBufferData(GL.ARRAY_BUFFER, glB.pos.mem, 0, GL.STREAM_DRAW);
-        glBufferSubData(GL.ARRAY_BUFFER, 0, glB.pos.mem, single(xyz(:)));
+        glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.pos.h);
+        glBufferData(GL.ARRAY_BUFFER, dotBuffers.pos.mem, 0, GL.STREAM_DRAW);
+        glBufferSubData(GL.ARRAY_BUFFER, 0, dotBuffers.pos.mem, single(xyz(:)));
         
         % Update color buffer
-        glBindBuffer(GL.ARRAY_BUFFER, glB.col.h);
-        glBufferData(GL.ARRAY_BUFFER, glB.col.mem, 0, GL.STREAM_DRAW);
-        glBufferSubData(GL.ARRAY_BUFFER, 0, glB.col.mem, single(dotcolor(:)));
+        glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.col.h);
+        glBufferData(GL.ARRAY_BUFFER, dotBuffers.col.mem, 0, GL.STREAM_DRAW);
+        glBufferSubData(GL.ARRAY_BUFFER, 0, dotBuffers.col.mem, single(dotcolor(:)));
         
     end
 
-    % Backup old shader binding:
-    oldShader = glGetIntegerv(GL.CURRENT_PROGRAM);
-    % Set new one:
-    glUseProgram(glB.glsl);
 
     % vertex buffer
-    glEnableVertexAttribArray(glB.vert.i);  %(GL attribute index starts at zero)
-    glBindBuffer(GL.ARRAY_BUFFER, glB.vert.h);
-    glVertexAttribPointer(glB.vert.i, 3, GL.FLOAT, GL.FALSE, 0, 0);
+    glEnableVertexAttribArray(dotBuffers.vert.i);  %(GL attribute index starts at zero)
+    glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.vert.h);
+    glVertexAttribPointer(dotBuffers.vert.i, 3, GL.FLOAT, GL.FALSE, 0, 0);
     % pos & size buffer
-    glEnableVertexAttribArray(glB.pos.i);
-    glBindBuffer(GL.ARRAY_BUFFER, glB.pos.h);
-    glVertexAttribPointer(glB.pos.i, 4, GL.FLOAT, GL.FALSE, 0, 0);
+    glEnableVertexAttribArray(dotBuffers.pos.i);
+    glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.pos.h);
+    glVertexAttribPointer(dotBuffers.pos.i, 4, GL.FLOAT, GL.FALSE, 0, 0);
     % color buffer
-    glEnableVertexAttribArray(glB.col.i);
-    glBindBuffer(GL.ARRAY_BUFFER, glB.col.h);
-    glVertexAttribPointer(glB.col.i, 4, GL.FLOAT, GL.TRUE, 0, 0);
+    glEnableVertexAttribArray(dotBuffers.col.i);
+    glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.col.h);
+    glVertexAttribPointer(dotBuffers.col.i, 4, GL.FLOAT, GL.TRUE, 0, 0);
 
     % Assign buffer usage   (!!specific to glDrawArrays*Instanced*!!)
     % // The first parameter is the attribute buffer #
@@ -280,7 +295,7 @@ if useDiskMode==1
     % % % % % %
     % DRAW IT!!
     % % % % % %
-    glDrawArraysInstancedARB(GL.TRIANGLES, 0, glB.ntris, ndots);
+    glDrawArraysInstancedARB(GL.TRIANGLES, 0, dotBuffers.ntris, ndots);
     
     % disable dot attribute buffers & clean up
     glDisableVertexAttribArrayARB(0);
@@ -352,14 +367,14 @@ else
     % Multiple colors, one per dot, provided?
     if ncolors > 1
         % Yes. Setup a color array for fast drawing:
-        glColorPointer(ncolcomps, GL.DOUBLE, 0, dotcolor);
+        glColorPointer(ncolcomps, GL.DOUBLE, 0, double(dotcolor));
         glEnableClientState(GL.COLOR_ARRAY);
     else
         % No. Just set one single common color:
         if ncolcomps == 4
-            glColor4dv(dotcolor);
+            glColor4dv(double(dotcolor));
         else
-            glColor3dv(dotcolor);
+            glColor3dv(double(dotcolor));
         end
     end
     
