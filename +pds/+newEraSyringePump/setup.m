@@ -9,7 +9,7 @@ function p = setup(p)
 
 if p.trial.newEraSyringePump.use
     
-    % NO!! ...damn IOPort crashes & closes Screen if try to close a port thats not open! So damn hostile!!
+    % NO!!  ...dumb IOPort crashes & closes Screen if you try to close a port thats not open!
     % %     % Prevent crash (...but effectively hardcodes pump handle, and will crash if grbl disabled)
     % %     IOPort('Close',1);
     % %     pause(.01)
@@ -53,18 +53,20 @@ if p.trial.newEraSyringePump.use
     currentDiameter = getPumpDiameter(p);   % subfunction
     
     % Warn if different
-    while currentDiameter~=p.trial.newEraSyringePump.diameter
-        if p.trial.newEraSyringePump.allowNewDiameter
+    if p.trial.newEraSyringePump.allowNewDiameter
+        fprintf('Updating syringe pump diameter (NOTE: this will zero out record of volume dispensed prior to start of this file)\n')
+        currentDiameter = -1;
+        while currentDiameter~=p.trial.newEraSyringePump.diameter
             IOPort('Write', h, ['DIA ' num2str(p.trial.newEraSyringePump.diameter) cmdTerminator], blocking);
-        else
-            fprintf(2, ['!!!\t Change in Diametersize requested.\n!!!\tDoing so would zero out the current volume '...
-                        'settings & information [for this session]\n\nTo confirm that you want to do this, set \n'...
-                        '\tp.trial.newEraSyringePump.allowNewDiameter = true;\n\n']);
-            keyboard
+            % Refresh currentDiameter reported by pump
+            currentDiameter = getPumpDiameter(p);   % subfunction
         end
-        % Refresh currentDiameter reported by pump
-        currentDiameter = getPumpDiameter(p);   % subfunction
-        fprintf('\n\tNew diameter %3.1f\n', currentDiameter);
+        fprintf('\n\tSyringe diameter = %3.1f\n', currentDiameter);
+    elseif currentDiameter~=p.trial.newEraSyringePump.diameter
+        fprintf(2, '!!!\tSyringe pump diameter mismatch, but setting new diameter is not currently allowed!\n');
+        fprintf(2, '\tReported: %2.2f\t\tRequested: %2.2f\n', currentDiameter, p.trial.newEraSyringePump.diameter);
+        fprintf('\tTo allow changes, set:\n\t\tp.trial.newEraSyringePump.allowNewDiameter = true;\n');
+        return;
     end
     
     %% Finish remaining setup

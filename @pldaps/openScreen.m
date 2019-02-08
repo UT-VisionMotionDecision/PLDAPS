@@ -208,6 +208,10 @@ Screen('TextStyle',p.trial.display.ptr,1);
 
 %% Assign overlay pointer
 if p.trial.display.useOverlay==1
+    % Prevent text antialiasing from causing overlay to bleed over into subject display
+    Screen('Preference', 'TextAntiAliasing', 0);
+
+    
     if p.trial.datapixx.use
         if ~isfield(p.trial.datapixx, 'rb3d') || ~p.trial.datapixx.rb3d
             % Standard PLDAPS overlay mode.
@@ -215,8 +219,6 @@ if p.trial.display.useOverlay==1
             p.trial.display.overlayptr = PsychImaging('GetOverlayWindow', p.trial.display.ptr); % , dv.params.bgColor);
             
         elseif p.trial.datapixx.rb3d
-            Screen('Preference', 'TextAntiAliasing', 0);
-            
             % RB3d mode needs special shaders to encode overlay in the green channel
             oldColRange = Screen('ColorRange', p.trial.display.ptr, 255);
             %             p.trial.display.overlayptr = SetAnaglyphStereoParameters('CreateGreenOverlay', p.trial.display.ptr);

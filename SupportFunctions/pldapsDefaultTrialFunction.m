@@ -539,6 +539,9 @@ end
         % this screen, it can now be drawn during the  .trialItiDraw  state.
         % NOTE: This is not a time-critical draw, and async flips do not return a valid timestamp
         %       at time of schedule.
+
+        % Wait a fraction of a sec for any pending strobes to register downstream
+        WaitSecs(1e-4);     % 'UntilTime', t0+3e-5);
         
         % Execute all time-sesitive tasks first
         if p.trial.datapixx.use
@@ -549,7 +552,7 @@ end
         %clean up analogData collection from Datapixx
         pds.datapixx.adc.cleanUpandSave(p);
         if p.trial.datapixx.use
-            % end of trial sync signal (Plexon)
+            % end of trial sync signal (Plexon)            
             p.trial.timing.datapixxTRIALEND = pds.datapixx.strobe(p.trial.event.TRIALEND);
         end
         

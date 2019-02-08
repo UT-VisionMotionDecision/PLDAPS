@@ -184,6 +184,25 @@ methods
 
     end
     
+    %% getNextCond
+    function nextCondI = getNextCond(cm)
+        try
+            nextCondI = cm.order(cm.i+1);
+        catch
+            nextCondI = nan;
+        end
+    end
+    
+    
+    %% setNextCond
+    function setNextCond(cm, nextCondI)
+        if length(cm.order)>=cm.i+1
+            cm.order = [cm.order(1:cm.i); nextCondI(:); cm.order(cm.i+1:end)];
+        else
+            cm.order = [cm.order; nextCondI(:)];
+        end
+    end
+    
     
     %% putBack: unused conds
     function output = putBack(cm, p, unusedConds)
@@ -225,7 +244,7 @@ methods
         % Generate new .order set for condition matrix
         sz = size(cm.conditions);
         condDims = max([1, sum(sz>1)]);
-        % Initialize list if condition indexes
+        % Initialize list of condition indexes
         newOrder = reshape(1:numel(cm.conditions), sz);
         
         % Randomize order as requested

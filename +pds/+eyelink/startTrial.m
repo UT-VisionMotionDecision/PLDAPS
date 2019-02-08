@@ -12,9 +12,17 @@ if p.trial.eyelink.use
     if ischar(p.trial.eyelink.srate)
         p.trial.eyelink.srate = str2double(p.trial.eyelink.srate); 
     end
-    bufferSize = p.trial.eyelink.srate*p.trial.pldaps.maxTrialLength;
-    p.trial.eyelink.samples  = nan(p.trial.eyelink.buffersamplelength,bufferSize);
-    p.trial.eyelink.events   = nan(p.trial.eyelink.buffereventlength,bufferSize);
+    
+    if p.trial.eyelink.collectQueue
+        % returns ALL eyelink samples since last call (...~500-2k Hz)
+        bufferSize = p.trial.eyelink.srate * p.trial.pldaps.maxTrialLength;
+    else
+        % returns ONE eyelink sample per update
+        bufferSize = p.trial.display.frate * p.trial.pldaps.maxTrialLength;
+    end
+    % Eyelink only sends these as floats, so no sense in carrying them around as doubles!
+    p.trial.eyelink.samples  = nan(p.trial.eyelink.buffersamplelength, bufferSize, 'single');
+    p.trial.eyelink.events   = nan(p.trial.eyelink.buffereventlength,  bufferSize, 'single');
     p.trial.eyelink.hasSamples    = true;
     % Eyelink event retrieval only possible from Queued recording
     p.trial.eyelink.hasEvents     = logical(p.trial.eyelink.collectQueue);

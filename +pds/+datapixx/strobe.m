@@ -13,6 +13,11 @@ function [ts, tsDiff] = strobe(word, varargin)
 %           (...these diffs are pretty nitpicky, and really just here for debugging)
 % 
 % NOTE:
+%   Check hardware constraints of recording system to ensure sufficient magnitude,
+%   duration, and interval for strobed words will be reliably detected downstream.
+%       -- Plexon Omniplex-User-Guide.pdf, sec9.1 p252
+%       -- Plexon MAP_Digital_Input_guide.pdf, p10
+% 
 %   Requesting timestamp outputs requires additional io & computation that
 %   may lengthen execution time. Consider your needs. If only being used for
 %   signaling events (not syncing clocks), returning timestamps may not be

@@ -15,17 +15,11 @@ if p.trial.eyelink.use
 
         
     Eyelink('Initialize');
-    
-% %     if p.trial.eyelink.custom_calibration
-% %         error('pldaps:eyelinkSetup','custom_calibration doesn''t work yet');
-% % %         dv.defaultParameters.eyelink.custom_calibration = false; % this doesnt work yet
-% %     end
-    
+        
     p.trial.eyelink.setup=EyelinkInitDefaults(); % don't pass in the window pointer or you can mess up the color range
     
     p.trial.eyelink.edfFile=datestr(p.trial.session.initTime, 'mmddHHMM');
     
-          
     p.trial.eyelink.edfFileLocation = pwd; %dv.pref.datadir;
     fprintf('EDFFile: %s\n', p.trial.eyelink.edfFile );
     
@@ -65,9 +59,8 @@ if p.trial.eyelink.use
     end
     
     % open file to record data to
-    % res = Eyelink('Openfile', fullfile(dv.defaultParameters.eyelink.edfFileLocation,dv.defaultParameters.eyelink.edfFile));
-    res = Eyelink('Openfile', p.trial.eyelink.edfFile);
-    if res~=0
+    err = Eyelink('Openfile', p.trial.eyelink.edfFile);
+    if err
         fprintf('Cannot create EDF file ''%s'' ', p.trial.eyelink.edfFile);
         Eyelink('Shutdown')
         return;
@@ -154,15 +147,32 @@ if p.trial.eyelink.use
     %% Eyelink calibration setup
     if p.trial.eyelink.custom_calibration
         
+        % Example custom calibration parameter setup:
+        %   .eyelink.custom_calibrationScale = 0.4;  % number
+        %   .eyelink.calSettings.calibration_corner_scaling  = '0.85';    % string!
+        %   .eyelink.calSettings.validation_corner_scaling   = '0.85';    % string!
+
+        % %utomatically format/expand calibration scale param to the string input Eyelink expects
+        if isfield(p.trial.eyelink, 'custom_calibrationScale')
+            if isscalar(p.trial.eyelink.custom_calibrationScale)
+                eyeCalScale = p.trial.eyelink.custom_calibrationScale*[1 1];
+            else
+                eyeCalScale = p.trial.eyelink.custom_calibrationScale(1:2);
+            end
+            p.trial.eyelink.calSettings.calibration_area_proportion = sprintf('%2.2f %2.2f', eyeCalScale);
+        end
+        
+        % Allow user to manually set any eyelink values they want
+        % Send all calibration settings present to eyetracker
         if isfield(p.trial.eyelink, 'calSettings')
-            % Allow user to manually set any eyelink values they want
-            % Send all calibration settings present to eyetracker
             fn = fieldnames(p.trial.eyelink.calSettings);
             for i = 1:length(fn)
                 Eyelink('command', sprintf('%s = %s', fn{i}, p.trial.eyelink.calSettings.(fn{i})));
             end
+            
         else
             
+            % Old crufty manual way. Not recommended.            
             width  = p.trial.display.winRect(3);
             height = p.trial.display.winRect(4);
             disp('setting up custom calibration')
@@ -183,10 +193,8 @@ if p.trial.eyelink.use
             Eyelink('command','validation_sequence = 0,1,2,3,4,5');
             Eyelink('command','validation_targets = %d,%d %d,%d %d,%d %d,%d %d,%d',...
                 cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
-            
-            %TODO: what? that's not how it should be done, why not send the
-            %calibration scale??
         end
+        
     else
         disp('using default calibration points')
         Eyelink('command', 'calibration_type = HV9');

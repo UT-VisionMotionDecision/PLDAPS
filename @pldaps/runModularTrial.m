@@ -73,6 +73,7 @@ function p = runModularTrial(p)
     %  ** Inherently not a time-critical operation, so no call to setTimeAndFrameState necessary
     %   ...also, setTimeAndFrameState uses current state as an index, so using with this would break
     runStateforModules(p, 'trialItiDraw', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
+
 % 
 %     if p.trial.pldaps.maxPriority
 %         newPriority=Priority;
@@ -80,8 +81,8 @@ function p = runModularTrial(p)
 %             Priority(oldPriority);
 %         end
 %         if round(newPriority)<maxPriority
-            if Priority<MaxPriority('GetSecs')
-            warning('pldaps:runTrial', 'Thread priority was degraded by operating system during the trial.')
+            if round(Priority)<MaxPriority('GetSecs')
+                warning('pldaps:runTrial', 'Thread priority was degraded by operating system during the trial.')
             end
 %         end
 %     end
