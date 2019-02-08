@@ -61,7 +61,7 @@ while bitand(Eyelink('CurrentMode'), p.trial.eyelink.setup.IN_TARGET_MODE)
             if p.trial.eyelink.setup.allowlocaltrigger==1
 				Eyelink( 'AcceptTrigger');
             end
-            pds.behavior.reward.give(p);
+            pds.behavior.reward.give(p, .1);
 			break;
             
 		case { 0,  p.trial.eyelink.setup.JUNK_KEY	}	% No key

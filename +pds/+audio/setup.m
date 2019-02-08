@@ -9,7 +9,7 @@ function p = setup(p)
 %     jly 2016 changed to handle audio slaves - deals with bug on linux
 if p.trial.sound.use && isField(p.trial, 'pldaps.dirs.wavfiles')
 
-    % Blind attempt at preventing infinite hang that somtimes occurs during pldaps startup --TBC Oct. 2017
+    % Prevent [infinite] hang that somtimes occurs during pldaps startup --TBC Oct. 2017
     PsychPortAudio('Close');
     
     % initalize
@@ -27,31 +27,35 @@ if p.trial.sound.use && isField(p.trial, 'pldaps.dirs.wavfiles')
     % Each slave can be controlled independently to playback or record
     % sound through a subset of the channels of the master device. This
     % basically allows to virtualixe a soundcard.
-    if ~isempty(p.trial.sound.deviceid)
-        devices=PsychPortAudio('GetDevices');
-        deviceId=[devices.DeviceIndex]==p.trial.sound.deviceid;
-        p.trial.sound.master=PsychPortAudio('Open', p.trial.sound.deviceid, 1+8, 1, devices(deviceId).DefaultSampleRate, 2);
-        PsychPortAudio('Start', p.trial.sound.master, 0, 0, 1);
-    else % load with default settings
-        p.trial.sound.master=PsychPortAudio('Open', p.trial.sound.deviceid, 1+8, 1, [], []);
-        PsychPortAudio('Start', p.trial.sound.master, 0, 0, 1);
+    nchan = 2;
+    
+    if isempty(p.trial.sound.deviceid)
+        p.trial.sound.deviceid = 0;
     end
+    dev = PsychPortAudio('GetDevices', [], p.trial.sound.deviceid);
+    p.trial.sound.master = PsychPortAudio('Open', p.trial.sound.deviceid, 1+8, 1, dev.DefaultSampleRate, nchan);
         
     % set the volume of the master to half the system volume
-    PsychPortAudio('Volume', p.trial.sound.master, 0.5);
-    
-    % open slave devices for eash audio file
+    PsychPortAudio('Volume', p.trial.sound.master, 0.85);
+
+    % start master device
+    PsychPortAudio('Start', p.trial.sound.master, 0, 0, 1);
+
+    % open slave devices for each audio file
     for iFile=soundFiles
         name= soundDirFiles{iFile};
         p.trial.sound.wavfiles.(name(1:end-4))=fullfile(soundsDir,name);
         
         [y, ~] = audioread(p.trial.sound.wavfiles.(name(1:end-4)));
-        wav1 = y';
-        nChannels1 = size(wav1, 1);
-        p.trial.sound.(name(1:end-4)) = PsychPortAudio('OpenSlave', p.trial.sound.master, 1, nChannels1);
+        if size(y,2)<nchan
+            % mono to stereo
+            y = repmat(y',nchan,1);
+        else
+            y = y(:,1:nchan)';
+        end
+        p.trial.sound.(name(1:end-4)) = PsychPortAudio('OpenSlave', p.trial.sound.master, 1, nchan);
         
-        
-        PsychPortAudio('FillBuffer',p.trial.sound.(name(1:end-4)), wav1);
+        PsychPortAudio('FillBuffer',p.trial.sound.(name(1:end-4)), y);
     end
 else
     p.trial.sound.use=false;

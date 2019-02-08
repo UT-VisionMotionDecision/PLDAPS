@@ -15,6 +15,7 @@ if p.trial.eyelink.use && Eyelink('IsConnected')
 
     % Save EDF file locally
     if p.trial.eyelink.saveEDF
+        tic;
         % Construct file name
         edfFile = p.trial.eyelink.edfFile;
         file=p.trial.session.file;
@@ -32,6 +33,7 @@ if p.trial.eyelink.use && Eyelink('IsConnected')
         catch
             fprintf('Problem receiving EDF data file ''%s''\n', edfFile );
         end
+        fprintf('\t(%3.1f sec to transfer %2.2fMB data from eyelink)\n', toc, err/1e6);
     end
     Eyelink('Shutdown')
 end
