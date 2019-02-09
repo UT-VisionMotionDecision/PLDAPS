@@ -27,3 +27,5 @@ function p = give(p, amount)
     %% store data
 	p.trial.behavior.reward.timeReward(:,p.trial.behavior.reward.iReward) = [GetSecs amount];
 	p.trial.behavior.reward.iReward = p.trial.behavior.reward.iReward + 1;
+    
+end % main function

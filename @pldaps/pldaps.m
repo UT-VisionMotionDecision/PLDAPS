@@ -21,7 +21,10 @@ classdef pldaps < handle
           %actual eyeposition used for caculating the frame, etc.
     data@cell
     
-    functionHandles %mostly unused (...created, but never developed before jk handoff; circa Pldaps 4.2)
+    static  % Storeage for handles and other data that needs to remain static across trials.
+            % WARNING: contents of .static are outside of the params class (p.trial), therefore
+            % changes may not be fully stored/tracked across trials. 
+            % Replaces disused .functionHandles from PLDAPS 4.1
  end
 
  
@@ -108,49 +111,6 @@ classdef pldaps < handle
             p.trial.pldaps.modNames.matrixModule = getModules(p, bitset(0,2));
         end
 
-        %% setup condMatrix
-        % Moved to condMatrix class definition
-        % To use condMatrix, assign typical p.conditions values to p.condMatrix.conditions,
-        % then run:
-        %       p.condMatrix = condMatrix(p, [...]);
-        % where [...] is optional set of name-value pairs. PLDAPS will do the rest.
-        % See help condMatrix
-        % 
-        %
-        % % %         % initialize
-        % % %         p.condMatrix.i = 0;
-        % % %         p.condMatrix.pass.i = 0;
-        % % %         p.condMatrix.pass.seed = sum(100*clock); % base rng seed
-        % % %         p.condMatrix.pass.end = inf;    % Stop experiment after n-passes
-        % % %         p.condMatrix.order = [];    % [randomized] set of condition indexes for current pass
-        % % %         p.condMatrix.randMode = [];  % random ordering of conditions selectable by matrix dimension
-        % % %         % This is the beta version of randMode. It only acts as a flag for a select
-        % % %         %   0 = no randomization;
-        % % %         %   1 = across all dims  == reshape(Shuffle(p.conditions{:}), size(p.conditions))
-        % % %         %   2 = across columns   == Shuffle(p.conditions))
-        % % %         %   3 = across rows      == Shuffle(p.conditions')'
-        % % %         %
-        % % %         % sized 1-by-nDimensions present in p.conditions cell.
-        % % %         % 0 == no randomization
-        % % %         % 1:n == order of randomization groupings.
-        % % %         % GIVEN:
-        % % %         % 	% get number of condition dimensions (excluding singletons that ndims.m counts)
-        % % %         % 	condDims = max([1, sum(size(p.conditions)>1)]);
-        % % %         % EXAMPLES:	 (if size(p.conditions)==[2,3,6]; condDims = 3;)
-        % % %         %
-        % % %         % randMode = [0 0 0];	% DEFAULT % zeros(1,condDims);
-        % % %         % 	-->>  cycles through condition matrix without randomizing
-        % % %         %
-        % % %         % randMode = [1 1 1];	% ones(1,condDims);
-        % % %         % 	-->>  randomizes across all dimensions
-        % % %         %
-        % % %         % randMode = [0 1 1];
-        % % %         % 	-->>  randomize last two dims together, maintain order of first dim
-        % % %         %
-        % % %         % randMode = [1 2 3];
-        % % %         % 	-->>  randomize each dimension separately.
-        % % %         %         Thus each (1,i,:) contains all values of last dim paired with ith value of 2nd dim; order of second dim is randomized.
-        % % %         %         Each (1,:,:) contains all combinations of one value of first parameter with all other parameters.   
 
      end   
  end
@@ -171,6 +131,13 @@ methods(Static)
     [xy,z] = deg2world(p, varargin);%(p,xy,z)
     
     held = checkFixation(varargin)
+    
+    % Shorthand reward adjustments
+    moreReward(varargin) % default up by 10%
+    lessReward(varargin) % default down by 10%
+    setReward(varargin) % default set to 0.15
+    % Call from command window with:
+    % >> p.moreReward
     
     s = pldapsClassDefaultParameters(s)
     

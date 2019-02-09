@@ -404,7 +404,7 @@ if ~p.trial.pldaps.nosave
     PDS.conditions = rawParamsStruct(levelsCondition);
     PDS.conditionNames = rawParamsNames(levelsCondition);
     PDS.data = p.data;
-    PDS.functionHandles = p.functionHandles; %#ok<STRNU>
+    PDS.static = p.static;  %#ok<STRNU>  PDS.functionHandles = p.functionHandles;
     savedFileName = fullfile(p.trial.session.dir, 'pds', p.trial.session.file);
     save(savedFileName, '-mat', '-struct', 'PDS')
     disp('****************************************************************')
@@ -467,30 +467,7 @@ if p.trial.datapixx.use
     end
 end    
 % close up shop
-Screen('CloseAll');
-
-% sca;
-
-% catch me
-%     if p.trial.eyelink.use
-%        pds.eyelink.finish(p);
-%     end
-%     sca
-%     if p.trial.sound.use
-%         PsychPortAudio('Close')
-%     end
-%     % return cursor and command-line control
-%     ShowCursor
-%     ListenChar(0)
-%     disp(me.message)
-%
-%     nErr = size(me.stack);
-%     for iErr = 1:nErr
-%         fprintf('errors in %s line %d\r', me.stack(iErr).name, me.stack(iErr).line)
-%     end
-%     fprintf('\r\r')
-%     keyboard
-% end
+sca;    Screen('CloseAll');
 
 end
 

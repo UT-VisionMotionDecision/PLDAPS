@@ -416,6 +416,11 @@ end
         end
 
         if p.trial.display.useGL
+            % tedious task for every trial, but better to get it right
+            p.trial.display.glPerspective = [atand(p.trial.display.wHeight/2/p.trial.display.viewdist)*2,...
+                p.trial.display.wWidth/p.trial.display.wHeight,...
+                p.trial.display.zNear,... % near clipping plane (cm)
+                p.trial.display.zFar];  % far clipping plane (cm)
             setupGLPerspective(p.trial.display); % subfunction
         end
         
