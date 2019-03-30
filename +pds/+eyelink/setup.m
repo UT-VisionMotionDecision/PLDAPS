@@ -121,7 +121,6 @@ if p.trial.eyelink.use
     
     % display output in command window
     fprintf('%s%s  %s\n', reportStr{:});
-    fprintLineBreak;
     
     %% Mode-specific setup
     switch p.trial.eyelink.trackermode
@@ -241,6 +240,8 @@ if p.trial.eyelink.use
         %   p.defaultParameters.display.clut.eyepos = [p.defaultParameters.display.clut.eye1, p.defaultParameters.display.clut.eye2];
     end
     
+    % Done setting up. Get started!
+    fprintLineBreak;
     Eyelink('message', 'SETUP');
     
     Eyelink('StartRecording');

@@ -139,7 +139,14 @@ end
 fprintLineBreak; fprintLineBreak('_-',32);
 fprintf('PLDAPS filename\t\t\t(time %s)\n', datestr(p.defaultParameters.session.initTime, 'HH:MM'));
 fprintf(2, '\t\t%s\n', p.defaultParameters.session.file);
-fprintLineBreak('_-',32);
+if isfield(p.trial.pldaps.modNames,'currentStim')
+    try
+        fprintLineBreak('-');
+        fprintf('p.trial.%s:\n',p.trial.pldaps.modNames.currentStim{1})
+        disp(p.trial.(p.trial.pldaps.modNames.currentStim{1}));
+    end
+end
+fprintLineBreak('_-',32); fprintLineBreak;
 
 
 %% Last chance to check variables
@@ -353,7 +360,7 @@ ShowCursor;
 ListenChar(0);
 Priority(0);
 
-pds.eyelink.finish(p);  % p =  ; These should be operating on pldaps class handles, thus no need for outputs. --tbc.
+% p =  ; The following should be operating on pldaps class handles, thus no need for outputs. --tbc.
 pds.plexon.finish(p);
 pds.behavior.reward.finish(p);
 if p.trial.datapixx.use
@@ -376,6 +383,10 @@ if p.trial.pldaps.useModularStateFunctions
     [moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
     runStateforModules(p,'experimentCleanUp',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
 end
+
+% Time consuming transfer that is self contained, yet hogs all of matlab attention while transferring
+% ...figure out how to parallelize so we can continue other shutdown steps
+ pds.eyelink.finish(p);  %parfeval(@pds.eyelink.finish, 0, p);    % Fails to run in parallel execution in background...batch() doesn't work either...?
 
 
 %% PDS output:  Compile & save the data
@@ -466,6 +477,8 @@ if p.trial.datapixx.use
         %         Datapixx('SetPropixxDlpSequenceProgram',0);
     end
 end    
+
+
 % close up shop
 sca;    Screen('CloseAll');
 

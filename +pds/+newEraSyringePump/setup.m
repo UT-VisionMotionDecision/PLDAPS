@@ -61,7 +61,7 @@ if p.trial.newEraSyringePump.use
             % Refresh currentDiameter reported by pump
             currentDiameter = getPumpDiameter(p);   % subfunction
         end
-        fprintf('\n\tSyringe diameter = %3.1f\n', currentDiameter);
+        fprintf('\tSyringe diameter = %3.1f\n', currentDiameter);
     elseif currentDiameter~=p.trial.newEraSyringePump.diameter
         fprintf(2, '!!!\tSyringe pump diameter mismatch, but setting new diameter is not currently allowed!\n');
         fprintf(2, '\tReported: %2.2f\t\tRequested: %2.2f\n', currentDiameter, p.trial.newEraSyringePump.diameter);
@@ -69,9 +69,13 @@ if p.trial.newEraSyringePump.use
         return;
     end
     
-    %% Finish remaining setup
-    % Pumping rate & units (def: 2900, 'MH')        ['MH'==mL/hour]
-    IOPort('Write', h, ['RAT ' num2str(p.trial.newEraSyringePump.rate) ' MH ' cmdTerminator], blocking);%2900
+    %% Set Rate & default Volume, update starting volumes dispensed
+    % Pumping rate & units (def: 2900, 'MM')    ['MM'==mL/min]     ...formerly ['MH'==mL/hour]
+    if p.trial.newEraSyringePump.rate>1000,
+        warning('PLDAPS:pds:newEraSyringePump:updateRateUnits', 'Looks like your pump rate (%2.2f) is defined in mL per hour.\nDividing by 60 for you now, but not forever. Please update to mL per minute.', p.trial.newEraSyringePump.rate)
+        p.trial.newEraSyringePump.rate = p.trial.newEraSyringePump.rate/60;
+    end
+    IOPort('Write', h, ['RAT ' num2str(p.trial.newEraSyringePump.rate) ' MM ' cmdTerminator], blocking);%2900
     % Reward volume & units (def: 0.05, 'ML')
     IOPort('Write', h, ['VOL ' num2str(p.trial.behavior.reward.defaultAmount) ' ' p.trial.newEraSyringePump.volumeUnits cmdTerminator], blocking);%0.05
     
@@ -99,7 +103,7 @@ function currentDiameter = getPumpDiameter(p)
 
     % Request current diameter
     IOPort('Write', p.trial.newEraSyringePump.h, ['DIA' p.trial.newEraSyringePump.commandSeparator], 1);%0.05
-    WaitSecs(0.1);
+    WaitSecs(0.03);
     % Read out current syringe diameter before applying any changes
     %       why?...dia. changes will zero out pump's "volume dispensed", preventing tracking across Pldaps files in a session
     thismany = IOPort('BytesAvailable', p.trial.newEraSyringePump.h);
