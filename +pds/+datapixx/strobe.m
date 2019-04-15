@@ -34,7 +34,7 @@ function [ts, tsDiff] = strobe(word, varargin)
 %   timings            - precise timing estimates of the time of the strobe
 % ==================
 % 
-% (c) kme 2011
+% kme 2011
 % jly 2013
 % jk 2015 changed to work with the plexon omiplex system
 % 2018-05-29 TBC    Updated to transmit native 15-bit words for event and

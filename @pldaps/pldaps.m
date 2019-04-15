@@ -94,6 +94,10 @@ classdef pldaps < handle
             end
         end
         constructorStruct.session.caller = dbstack(1, '-completenames');
+        if size(constructorStruct.session.caller, 1)==0
+            % outputs of dbstack get weird if empty (and uninterpretable 'params class' error occurs...srsly not going there again)
+            constructorStruct.session.caller = '';
+        end
         p.defaultParameters.addLevels({constructorStruct, struct},{'ConstructorInputDefaults', 'SessionParameters'});
         
         

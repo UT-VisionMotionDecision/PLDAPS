@@ -52,16 +52,20 @@ function pldapsDefaultTrialFunction(p,state, sn)
             
         case p.trial.pldaps.trialStates.trialSetup
             trialSetup(p);
+            
         case p.trial.pldaps.trialStates.trialPrepare
             trialPrepare(p);
+            
         case p.trial.pldaps.trialStates.trialCleanUpandSave
             cleanUpandSave(p);
-        %only availiable if p.trial.pldaps.trialMasterFunction = 'runModularTrial'
+            
+
         case p.trial.pldaps.trialStates.experimentAfterTrials
             if ~isempty(p.trial.pldaps.experimentAfterTrialsFunction)
                h=str2func(p.trial.pldaps.experimentAfterTrialsFunction);
                h(p, state)
             end
+            
         case p.trial.pldaps.trialStates.experimentPostOpenScreen
             if ~isfield(p.trial.(sn), 'eyeW')
                 p.trial.(sn).eyeW = 8;

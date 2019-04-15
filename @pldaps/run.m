@@ -156,6 +156,12 @@ if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=
     fprintf(2,'\b ~~~Start of experiment~~~\n')
 end
 
+%% Send expt start sync RSTART
+if p.trial.datapixx.use
+    % start of experiment sync signal (Plexon: set RSTART pin high, return PTB & Datapixx clock times)
+    p.trial.timing.exptStartTime = pds.plexon.rstart(1);
+end
+
 
 %% Final preparations before trial loop begins
 %%%%start recoding on all controlled components this in not currently done here
@@ -363,6 +369,7 @@ Priority(0);
 % p =  ; The following should be operating on pldaps class handles, thus no need for outputs. --tbc.
 pds.plexon.finish(p);
 pds.behavior.reward.finish(p);
+
 if p.trial.datapixx.use
     % stop adc data collection
     pds.datapixx.adc.stop(p);
@@ -382,6 +389,12 @@ end
 if p.trial.pldaps.useModularStateFunctions
     [moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
     runStateforModules(p,'experimentCleanUp',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+end
+
+%% Send expt end sync RSTOP
+if p.trial.datapixx.use
+    % start of experiment sync signal (Plexon: set RSTART pin high, return PTB & Datapixx clock times)
+    p.trial.timing.exptEndTime = pds.plexon.rstart(0);
 end
 
 % Time consuming transfer that is self contained, yet hogs all of matlab attention while transferring

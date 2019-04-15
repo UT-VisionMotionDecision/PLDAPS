@@ -6,7 +6,7 @@ function s=pldapsClassDefaultParameters(s)
 %s.	.
 %s.	behavior.
 %s.	behavior.	reward.
- s.	behavior.	reward.	defaultAmount = 0.0500;
+ s.	behavior.	reward.	defaultAmount = 0.15;
 
 %s.	datapixx.
  s.	datapixx.	enablePropixxCeilingMount = false;
@@ -66,7 +66,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	eyelink.	calibration_matrix = [ ];
  s.	eyelink.	collectQueue = false;  % No Eyelink queue! This is a timesink, no longer recommended (TBC 2018)
  s.	eyelink.	custom_calibration = false;
- s.	eyelink.	custom_calibrationScale = 0.2500;
+ s.	eyelink.	custom_calibrationScale = 0.4; % 0.4 ok for >= 55 cm viewing distance on most (propixx) projection setups
  s.	eyelink.	saveEDF = false;
  s.	eyelink.	use = true;
  s.	eyelink.	useAsEyepos = true;

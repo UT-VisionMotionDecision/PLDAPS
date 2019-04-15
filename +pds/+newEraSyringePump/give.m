@@ -12,6 +12,11 @@ function p = give(p, amount)
 % 2019-02-08  TBC  cleaned
 % 2019-02-14  TBC  commented
 
+if nargin<1
+    warning('%s needs valid PLDAPS object as first input.\n', mfilename)
+    return
+end
+
 % Make shorthand  (repeated calls to params class is a real drag)
 NES = p.trial.newEraSyringePump;
 
