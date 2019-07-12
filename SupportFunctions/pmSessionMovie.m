@@ -15,33 +15,51 @@ function p = pmSessionMovie(p, state, sn)
 % parameter is used for image capture; the width & height of each frame is computed
 % from p.trial.(sn).rect during initial movie file creation (experimentPostOpenScreen).
 % 
+% Demo video recommendations:
+% --  Higher res movies --
+%     To capture hiDPI ('retina display') resolution movies,
+%     add this line to you openScreen.m BEFORE the PTB screen is opened:
+% PsychImaging('AddTask', 'General', 'UseRetinaResolution')
+%         
+% --  Anaglyph stereo demos --
+%     For less wonky colors and grey backgrounds
+%     add these lines to you openScreen.m just AFTER the PTB screen is opened:
+% if ismember(p.trial.display.stereoMode, [6 7 8 9])
+%     % SetAnaglyphStereoParameters('OptimizedColorAnaglyphMode', ptr);
+%     SetAnaglyphStereoParameters('FullColorAnaglyphMode', ptr);
+% end
+% 
+% 
+% 
 % 2017-11-21  TBC  Extracted from principle elements of PLDAPS, and modularized.
 % 2018-06-07  TBC  stereoMode friendly, specify 'frontBuffer'
+% 2019-07-12  TBC  Updates & recommendations for creating demo movies
 % 
 
 switch state
         
     case p.trial.pldaps.trialStates.frameFlip
-        if p.trial.display.frate > p.trial.(sn).frameRate
-            % downsample frames
-            thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.(sn).frameRate)>0;
-        else
-            thisframe = true;
-        end
-        if thisframe
-            frameDuration = 1;
-            for i = p.trial.display.bufferIdx+1
-                if p.trial.display.stereoMode>0
-                    Screen('SelectStereoDrawBuffer', p.trial.display.ptr, i-1);
-                    % Silly to hardcode this on each frame, but frame drops are inevitable while saving movies anyway...
-                    bufferName = {'frontBuffer', 'frontBuffer'};
-                else
-                    bufferName = {'frontBuffer'};
+        if p.trial.(sn).create
+            if p.trial.display.frate > p.trial.(sn).frameRate
+                % downsample frames
+                thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.(sn).frameRate)>0;
+            else
+                thisframe = true;
+            end
+            if thisframe
+                frameDuration = 1;
+                for i = p.trial.display.bufferIdx+1
+                    if p.trial.display.stereoMode>0
+                        Screen('SelectStereoDrawBuffer', p.trial.display.ptr, i-1);
+                        % Silly to hardcode this on each frame, but frame drops are inevitable while saving movies anyway...
+                        bufferName = {'frontBuffer', 'frontBuffer'};
+                    else
+                        bufferName = {'frontBuffer'};
+                    end
+                    Screen('AddFrameToMovie', p.trial.display.ptr, p.trial.(sn).rect, bufferName{i}, p.trial.(sn).ptr(i), frameDuration);
                 end
-                Screen('AddFrameToMovie', p.trial.display.ptr, p.trial.(sn).rect, bufferName{i}, p.trial.(sn).ptr(i), frameDuration);
             end
         end
-        
     case p.trial.pldaps.trialStates.experimentPostOpenScreen
         % Setup movie creation if desired
         setupMovie(p, sn);

@@ -1,15 +1,20 @@
-function tt = scanSesh(baseName, basePath)
+function tt = scanSesh(baseName, basePath, dontAsk)
 
 % Base Path (usually the recording day directory)
 if nargin<2 || isempty(basePath)
     basePath = pwd;
 end
 
+if nargin<3 || isempty(dontAsk)
+    dontAsk = 0;
+end
 
 if nargin<1 || isempty(baseName)
     fd = dir(fullfile(basePath, 'pds', '*.PDS'));
-    [fd, ok] = chooseFile(fd, 'Select PLDAPS data file(s):');
-    if ~ok, tt = []; return, end
+    if ~dontAsk
+        [fd, ok] = chooseFile(fd, 'Select PLDAPS data file(s):', [],'all');
+        if ~ok, tt = []; return, end
+    end
 else
     fd = dir(fullfile(basePath,'pds',['*',baseName,'*.PDS']));
 end
@@ -34,6 +39,17 @@ end
 %%
 % split file name into parts by '_' & '.'
 sesh        = arrayfun(@(x) strsplit(x.baseParams.session.file,{'_','.'}), pb, 'uni',0);
+nn  = cellfun(@numel, sesh);
+if numel(unique(nn))>1
+    warning('Skipping incompatible entries from scanSesh:\n')%
+    for jj = find(nn~=5)
+        fprintf(2, '\t%s\n', sprintf('%s\t',sesh{jj}{:}))
+    end
+
+%     sesh    %#ok<NOPRT>
+    sesh = sesh(nn==5);
+    % extra descriptors get messy...try workaround or just deselect problem file 
+end
 sesh        = reshape(decellify(sesh), [length(sesh{1}), length(sesh)])';
 
 % Viewing distance

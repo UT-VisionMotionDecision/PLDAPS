@@ -25,26 +25,28 @@ function p = pmTrialMovie(p, state, sn)
 switch state
         
     case p.trial.pldaps.trialStates.frameFlip
-        if p.trial.display.frate > p.trial.(sn).frameRate
-            % downsample frames
-            thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.(sn).frameRate)>0;
-        else
-            thisframe = true;
-        end
-        if thisframe
-            frameDuration = 1;
-            for i = p.trial.display.bufferIdx+1
-                if p.trial.display.stereoMode>0
-                    Screen('SelectStereoDrawBuffer', p.trial.display.ptr, i-1);
-                    % Silly to hardcode this on each frame, but frame drops are inevitable while saving movies anyway...
-                    bufferName = {'frontBuffer', 'frontBuffer'};
-                else
-                    bufferName = {'frontBuffer'};
+        if p.trial.(sn).create
+            
+            if p.trial.display.frate > p.trial.(sn).frameRate
+                % downsample frames
+                thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.(sn).frameRate)>0;
+            else
+                thisframe = true;
+            end
+            if thisframe
+                frameDuration = 1;
+                for i = p.trial.display.bufferIdx+1
+                    if p.trial.display.stereoMode>0
+                        Screen('SelectStereoDrawBuffer', p.trial.display.ptr, i-1);
+                        % Silly to hardcode this on each frame, but frame drops are inevitable while saving movies anyway...
+                        bufferName = {'frontBuffer', 'frontBuffer'};
+                    else
+                        bufferName = {'frontBuffer'};
+                    end
+                    Screen('AddFrameToMovie', p.trial.display.ptr, p.trial.(sn).rect, bufferName{i}, p.trial.(sn).ptr(i), frameDuration);
                 end
-                Screen('AddFrameToMovie', p.trial.display.ptr, p.trial.(sn).rect, bufferName{i}, p.trial.(sn).ptr(i), frameDuration);
             end
         end
-        
     case p.trial.pldaps.trialStates.trialSetup
         % Setup movie creation if desired
         setupMovie(p, sn);
