@@ -1,12 +1,24 @@
-function syncSettings = pldapsDatapixxSync2(p)
-%pldapsSyncTests   a script with commands to test the best datapixx timing options
-%                  for your system
+function syncSettings = pldapsDatapixxSync(p)
+% function syncSettings = pldapsDatapixxSync(p)
 % 
-% Optimal parameters for datapixx clock sync estimates
-% might vary across systems/OSes/rigs, thus remain an emprical question.
-% This script is meant to help test & apply reasonable parameters.
-% Relevant parameters are: syncmode, optMinwinThreshold, and maxDuration.
+% This script is meant to help test & apply reasonable parameters controlling built-in
+% Datapixx-to-PTB timing & sync operations.
 % 
+% [p]   Optional input of a running PLDAPS session object. If empty, will open a fresh
+%       session using your rig defaults.
+% 
+% [syncSettings] Output structure of relevant datapixx settings. To apply
+%       the test outputs to your rigPrefs, pass this output struct with:
+%       createRigPrefs(syncSettings);
+%   
+% ---
+% Relevant p.trial.datapixx parameters tested by this function are:
+%     syncmode, optMinwinThreshold, and maxDuration.
+% 
+%     ---
+%     Recommendations as of 2018:
+%     syncmode=1; optMinwinThreshold=0; maxDuration=0.03; % (sec)
+%     ---
 % 
 % [syncmode]
 % Old Jonas code recommmended syncmode 2, default is 1...precise meaning of those magic
@@ -29,9 +41,14 @@ function syncSettings = pldapsDatapixxSync2(p)
 % Note: maxDuration does impose a hard limit...don't expect to match a
 % multiple of display ifi.
 % 
-% Recommendations as of 2018:
-% syncmode=1; optMinwinThreshold=0; maxDuration=0.03; (sec)
+% ---
 % 
+% xxxx-xx-xx  Unknown history. Dawn of time, yadda, yadda, this.
+% 2018-08-13  TBC Some cleanup and converted to function that optionally accepts a
+%                 running pldaps object as input (i.e. startup with your normal experiment
+%                 parameters, pause session, and run this test function), or will open one on it's own.
+% 2019-07-12  TBC Comment cleanup
+
 
 %% From PsychDatapixx help:
 % [getsecs, boxsecs, confidence] = PsychDataPixx('GetPreciseTime');
@@ -253,30 +270,9 @@ title(sprintf('maxDuration = %2.1f ms;  optMinwinThreshold = %2.2f ms;',...
 
 keyboard
 end
-% %         %% save to your rigPrefs
-% %         %this is what I would choose on one setup
-% %         ss.datapixx.GetPreciseTime.maxDuration = syncSettings.maxDuration; % time from figure 1 after precision stabilizes
-% %         ss.datapixx.GetPreciseTime.optMinwinThreshold = syncSettings.optMinwinThreshold;% choose a threshold sufficient for your needs & duration, i.e. look at figure 2
-% % 
-% %         %now call createRigPrefs and set your prefrerred values as defaults (or
-% %         %don't)
-% %         createRigPrefs(ss)
-% % 
-% %         % end
-% %         %% choose a threshold. I'd got for a precision threshold not a time one
-% %         % ss.datapixx.GetPreciseTime.syncmode=[]; %1,2,3
-% %         % ss.datapixx.GetPreciseTime.maxDuration=[];
-% %         % ss.datapixx.GetPreciseTime.optMinwinThreshold=[];
-% % 
-% %         %this is what Jonas would choose on one setup
-% %         ss.datapixx.GetPreciseTime.maxDuration=0.02;%0.01;%or take a time form figure 1 where the result seems very stable, e.g. 0.1s in my case
-% %         ss.datapixx.GetPreciseTime.optMinwinThreshold=1.6e-4;%6.5e-5;%choose a threshold that seems relatively sufficient, i.e. look at figure 2
-% % 
-% %         %now call createRigPrefs and set your prefrerred values as defaults (or
-% %         %don't)
-% %         createRigPrefs(ss)
-% % 
-% %         % end
+
+
+
 
 
 %% Sub-functions
