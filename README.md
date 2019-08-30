@@ -1,5 +1,20 @@
-PLDAPS 4.3.0
+# PLDAPS 4.3.0
 ==========
+
+---
+#### [eyeCalMatrixDev] Branch
+
+Development branch for binocular eye tracking using raw L & R eye position signals from Eyelink and Matlab-side calibration matrix (as opposed to letting Eyelink calibrate eye pos in pixels).
+This will provide more flexible control over eye calibration matrix for tracking at different viewing distances (and hopefully/eventually develop into a singular 3D space calibration matrix).
+
+Why?:  No clear way to extract a complete eye calibration state from Eyelink. Doing so would at least allow poor-man's version of tracking across 3D space by saving & recalling separate calibrations at a handful of discrete viewing distances.
+Managing the calibration & computations in Matlab on the PLDAPS computer is sub-optimal (...the eyelink software is _supposed to be optimized for exactly this purpose!_), but there seems to be no way around it for the flexibility & dimensionality we need.
+
+Some of these updates may be inherited from Jake Yates' PLDAPS "streamline" branch; as he's already done some nice work to solve/integrate the eye calibration matrix. ...however, two eyes tends to be _way more than one_ when it comes to getting code to play nice with more eyes/dimensions.
+  -- TBC, July 2019
+
+---
+---
 
 **PL**exon **DA**tapixx **PS**ychtoolbox - Neurophysiology experiment toolbox for MATLAB
 

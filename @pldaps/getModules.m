@@ -17,23 +17,62 @@ function [moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocat
 %       Operates as binary flags on each bit in moduleType, where bit:
 %       1 == active state of module:        p.trial.(sn).use;           bitget(moduleType,1)
 %       2 == marked for use by condMatrix:  p.trial.(sn).matrixModule;  bitget(moduleType,2)
-%       ....
+%       3 == tracking module                p.trial.(sn).useAsEyepos;   bitget(moduleType,3)
+%            (e.g. .eyelink, or .mouse, ...)
 % 
-%       EXAMPLE) Retrieve only active matrixModules with:
-%       getModules(p, bitset( bitset(0,1), 2));     % equivalent to:  getModules(p,3);
+%       EXAMPLES)
+%       % Retrieve all active modules (classic/default mode)
+%       getModules(p);
+% 
+%       % Retrieve [tracking module]:
+%       getModules(p, bitset(0,3));     % also equivalent to:  getModules(p,3);
+% 
+%       % Retrieve only [active] [matrixModules]:
+%       getModules(p, bitset(bitset(0,1), 2));
+% 
+%       ....
+%       Pro-EXAMPLE) Retrieve modules containing a specific field & value:
+%       getModules(p, {'thisField',thisValue; 'thatField',thatValue});
 %
+% See also:  pldaps.run
+% 
 % 2016-xx-xx  jk  Written for pldaps 4.2 by Jonas
 % 2017-10-xx  tbc Added flag for module active state
 % 2018-06-26  tbc Expanded with binary flag moduleType, for more control over module sub-selection & .condMatrix
+% 2019-07-23  tbc Updated subselection options
 % 
+
+% Parse inputs & Initialize
+[moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = deal([]);
+doFieldCheck = 0;
 
 if nargin<2 || isempty(moduleType)
     moduleType = bitset(0,1); % return only 'active' modules:  p.trial.(sn).use == true;
 end
 
+
 %% Find all modules in p.trial struct
 moduleNames=fieldnames(p.trial);
 moduleNames(cellfun(@(x) ~isstruct(p.trial.(x)),moduleNames))=[]; %remove non struct candidates
+
+% Shortcircuit special cases (allow detection of core PLDAPS fields, like .mouse or .eyelink)
+% --- return only 'active' module marked for use as eye position:  p.trial.(sn).use == true & p.trial.(sn).useAsEyepos == true;
+if iscell(moduleType)
+    % check for presence & value of a specified subfield
+    for i = 1:size(moduleType,1)
+        thisField = moduleType{i,1};
+        thisVal = moduleType{i,2};
+        moduleNames(cellfun(@(x) ~isfield(p.trial.(x), thisField), moduleNames)) = []; % check for presence
+        moduleNames = moduleNames(cellfun(@(x) p.trial.(x).(thisField) == thisVal, moduleNames)); % matching value
+    end
+    return
+
+elseif bitget(moduleType, 3)
+    moduleNames = moduleNames(cellfun(@(x) ((isfield(p.trial.(x),'useAsEyepos') && p.trial.(x).useAsEyepos) && (isfield(p.trial.(x),'use') && p.trial.(x).use)), moduleNames));
+    return
+end
+
+% Restrict to genuine modules (with executable .stateFunctions)
 moduleNames(cellfun(@(x) ~isfield(p.trial.(x),'stateFunction'),moduleNames))=[]; %remove candidates without a stateFucntion specified
 
 % Subselect modules based on moduleType
@@ -41,6 +80,7 @@ moduleNames(cellfun(@(x) ~isfield(p.trial.(x),'stateFunction'),moduleNames))=[];
 if bitget(moduleType, 2)
     moduleNames(cellfun(@(x) (~isfield(p.trial.(x).stateFunction,'matrixModule') || ~p.trial.(x).stateFunction.matrixModule ),moduleNames)) = [];
 end
+
 % --- return only 'active' modules:  p.trial.(sn).use == true;
 if bitget(moduleType, 1)
     moduleNames(cellfun(@(x) (~isfield(p.trial.(x),'use') || ~p.trial.(x).use ),moduleNames)) = [];

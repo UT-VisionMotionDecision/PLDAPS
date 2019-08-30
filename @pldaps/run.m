@@ -49,12 +49,16 @@ p.defaultParameters.pldaps.iTrial = 0;
 %% Initialize filename & all data directories for this PLDAPS session
 p = setupSessionFiles(p);
 
+% initialize baseParamsLevels record
+p.static.pldaps.baseParamsLevels = p.trial.getAllLevels();
 
 %% experimentPreOpenScreen (...& modularPldaps setup)
 if p.trial.pldaps.useModularStateFunctions
-    % Establish list of all module names
-    p.trial.pldaps.modNames.all = getModules(p, 0);
-    p.trial.pldaps.modNames.matrixModule = getModules(p, bitset(0,2));
+    % Establish list of all module names    (see help pldaps.getModules)
+    p.updateModNames;
+    %     p.trial.pldaps.modNames.all             = getModules(p, 0);
+    %     p.trial.pldaps.modNames.matrixModule    = getModules(p, bitset(0,2));
+    %     p.trial.pldaps.modNames.tracker         = getModules(p, bitset(bitset(0,1),3));
     
     %experimentSetup before openScreen to allow modifyiers
     [moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p);
@@ -67,7 +71,7 @@ end
 p = openScreen(p);
 
 % Setup PLDAPS experiment condition
-p.defaultParameters.pldaps.maxFrames = p.defaultParameters.pldaps.maxTrialLength * p.defaultParameters.display.frate;
+p.defaultParameters.pldaps.maxFrames = ceil(p.defaultParameters.pldaps.maxTrialLength * p.defaultParameters.display.frate);
 
 
 %% experimentSetupFunction
@@ -130,8 +134,13 @@ end
 
 %% experimentPostOpenScreen
 if p.trial.pldaps.useModularStateFunctions
+    % Update list of module names now that everything is initialized    (see help pldaps.getModules)
+    p.updateModNames;    % TODO: Should this be done BEFORE or AFTER experimentPostOpenScreen state execution? ...both is ugly, but somewhat logical.
+
     [moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
     runStateforModules(p,'experimentPostOpenScreen',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
+    
+    p.updateModNames;
 end
 
 
@@ -189,7 +198,7 @@ if ~isempty(result)
 end
 
 % Record of baseline params class levels
-baseParamsLevels = p.defaultParameters.getAllLevels();
+p.static.pldaps.baseParamsLevels = p.defaultParameters.getAllLevels();
 
 % Switch to high priority mode
 if p.trial.pldaps.maxPriority
@@ -219,7 +228,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             % (...strange looking, but necessary to create a fresh 'level' for the new trial)
             p.defaultParameters.addLevels( {struct}, {sprintf('Trial%dParameters', nextTrial)});
             % Make only the baseParamsLevels and this new trial level active
-            p.defaultParameters.setLevels( [baseParamsLevels, length(p.trial.getAllLevels)] );
+            p.defaultParameters.setLevels( [p.static.pldaps.baseParamsLevels, length(p.trial.getAllLevels)] );
             % Good to go!
             % Apply upcoming condition parameters for the nextTrial
             p = p.condMatrix.nextCond(p);
@@ -227,10 +236,10 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         elseif ~isempty(p.conditions)
             % PLDAPS 4.2 legacy mode: p.conditions must be full set of trial conds (inculding all repeats)
             p.defaultParameters.addLevels(p.conditions(nextTrial), {sprintf('Trial%dParameters', nextTrial)});
-            p.defaultParameters.setLevels([baseParamsLevels length(baseParamsLevels)+nextTrial]);
+            p.defaultParameters.setLevels([p.static.pldaps.baseParamsLevels length(p.static.pldaps.baseParamsLevels)+nextTrial]);
             
         else
-            p.defaultParameters.setLevels([baseParamsLevels]);
+            p.defaultParameters.setLevels([p.static.pldaps.baseParamsLevels]);
         end
         
         % ---------- p.defaultParameters >>to>> p.trial [struct!] ----------
@@ -283,7 +292,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             %store the difference of the trial struct to .data
 %               dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial);
             % NEW:  include condition parameters in p.data, instead of relying on p.conditions being 1:1 with trial number
-            dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial, baseParamsLevels);
+            dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial, p.static.pldaps.baseParamsLevels);
         end
         p.data{p.defaultParameters.pldaps.iTrial} = dTrialStruct;
         
@@ -293,7 +302,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             % and/or at start of next trial? ...open to suggestions. --TBC 2017-10
             oldptrial=p.trial;
             [moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
-            p.defaultParameters.setLevels(baseParamsLevels);
+            p.defaultParameters.setLevels(p.static.pldaps.baseParamsLevels);
             p.trial=mergeToSingleStruct(p.defaultParameters);
             p.defaultParameters.setLock(true);
             runStateforModules(p,'experimentAfterTrials',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
@@ -302,7 +311,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             betweenTrialsStruct=getDifferenceFromStruct(p.defaultParameters,p.trial);
             if(~isequal(struct,betweenTrialsStruct))
                 p.defaultParameters.addLevels({betweenTrialsStruct}, {sprintf('experimentAfterTrials%dParameters', p.defaultParameters.pldaps.iTrial)});
-                baseParamsLevels=[baseParamsLevels length(p.defaultParameters.getAllLevels())]
+                p.static.pldaps.baseParamsLevels = [p.static.pldaps.baseParamsLevels length(p.defaultParameters.getAllLevels())];
             end
             
             p.trial=oldptrial;
@@ -342,11 +351,11 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         % Check for anything that was changed/added during pause
         allStructs = p.defaultParameters.getAllStructs();
         if ~isequal(struct, allStructs{end})
-            % If so, add this new level to the "baseParamsLevels" & continue,
-            baseParamsLevels=[baseParamsLevels length(allStructs)];
+            % If so, add this new level to the "p.static.pldaps.baseParamsLevels" & continue,
+            p.static.pldaps.baseParamsLevels = [p.static.pldaps.baseParamsLevels length(allStructs)];
         else
             % Else, set active levels back to the baseParamsLevels and carry on...
-            p.defaultParameters.setLevels( baseParamsLevels );
+            p.defaultParameters.setLevels( p.static.pldaps.baseParamsLevels );
         end
     end
     
@@ -358,7 +367,7 @@ end
 % NOTE: This potentially obscures hierarchy levels (i.e. "PauseAfterTrial##Parameters") that
 %       are likely inconsistent throughout session. ...each trial data now includes a list
 %       of active hierarchy levels in .pldaps.activeLevels. --TBC 2017-10
-p.defaultParameters.setLevels(baseParamsLevels);
+p.defaultParameters.setLevels(p.static.pldaps.baseParamsLevels);
 p.trial = p.defaultParameters;
 
 % return cursor and command-line control
@@ -409,9 +418,9 @@ if ~p.trial.pldaps.nosave
     % get the raw contents of Params hierarchy (...not for mere mortals)
     [rawParamsStruct, rawParamsNames] = p.defaultParameters.getAllStructs();
     % Partition baseline parameters present at the onset of all trials (*)
-    PDS.pdsCore.initialParameters       = rawParamsStruct(baseParamsLevels);
-    PDS.pdsCore.initialParameterNames   = rawParamsNames(baseParamsLevels);
-    PDS.pdsCore.initialParameterIndices = baseParamsLevels;
+    PDS.pdsCore.initialParameters       = rawParamsStruct(p.static.pldaps.baseParamsLevels);
+    PDS.pdsCore.initialParameterNames   = rawParamsNames(p.static.pldaps.baseParamsLevels);
+    PDS.pdsCore.initialParameterIndices = p.static.pldaps.baseParamsLevels;
     % Include a less user-hostile output struct
     PDS.baseParams = mergeToSingleStruct(p.defaultParameters);
     % ! ! ! NOTE: baseParamsLevels can be changed during experiment (i.e. during a pause),
@@ -420,7 +429,7 @@ if ~p.trial.pldaps.nosave
     % ! ! ! Reconstruct them by p
     
     levelsCondition = 1:length(rawParamsStruct);
-    levelsCondition(ismember(levelsCondition, baseParamsLevels)) = [];
+    levelsCondition(ismember(levelsCondition, p.static.pldaps.baseParamsLevels)) = [];
     if ~isempty(p.condMatrix)
         PDS.condMatrix = p.condMatrix;
         PDS.condMatrix.H = [];
@@ -527,7 +536,7 @@ while p.trial.pldaps.quit==1
                     pds.eyelink.calibrate(p);
                 end
             catch ME
-                display(ME);
+                disp(ME);
             end
             
             %M: Manual reward
@@ -558,7 +567,7 @@ while p.trial.pldaps.quit==1
                     try
                         eval(activeEditor.SelectedText)
                     catch ME
-                        display(ME);
+                        disp(ME);
                     end
                 end
             end

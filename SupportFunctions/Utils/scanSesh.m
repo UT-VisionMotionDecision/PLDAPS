@@ -1,4 +1,4 @@
-function tt = scanSesh(baseName, basePath, dontAsk)
+function [tt, seshDat] = scanSesh(baseName, basePath, dontAsk)
 
 % Base Path (usually the recording day directory)
 if nargin<2 || isempty(basePath)
@@ -75,5 +75,15 @@ tt = sortrows(tt,'pdsTime');
 % linear index var (for ease of use)
 idx = (1:size(tt,1))';
 tt = [table(idx), tt];
+
+% detailed outputs
+if nargout>1
+    seshDat = struct;
+    for i = 1:length(fd)
+        seshDat(i).pdsSrc = fd(i);
+        seshDat(i).condMatrix = cm(i).condMatrix;
+        seshDat(i).baseParams = pb(i).baseParams;
+    end
+end
 
 end

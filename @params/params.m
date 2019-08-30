@@ -301,14 +301,11 @@ classdef params < handle
                             [varargout{1:nargout}] = builtin('subsref',p,S);%p.(S.subs);  
                         end
                    else
-                        dotNr=find(diff(strcmp({S.type}, '.'))==-1);
-                        if isempty(dotNr) % no -1, means only '.' in there
-                            dotNr=length(S);
-                            allDots=true;
-                        else
-                            allDots=false;
-                        end
-                        k={S(1:dotNr).type; S(1:dotNr).subs};
+                        isDot = strcmp({S.type}, '.');
+                        allDots = all(isDot);
+                        isDot = find(isDot);
+
+                        k={S(isDot).type; S(isDot).subs};
                         id=[k{:}];
                         
                         parts_inds=find(strncmp({p.flatStruct.identifier},id,length(id)));

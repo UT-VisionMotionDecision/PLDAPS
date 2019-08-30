@@ -28,6 +28,12 @@ function base = applyDefaults(base, def)
 % 2017-11-08  TBC  Wrote it. <czuba@utexas.edu>
 % 
 
+% Parse inputs
+if nargin <2 || isempty(def)
+    def = struct(); 
+end
+
+
 % funky subfunction to deal with case of recursion inside a package
 fxn = getFxnHandle(mfilename('fullpath'));
 
@@ -36,11 +42,14 @@ baseFields = fieldnames(base);
 % ignore core module fields (.use & .stateFunction)
 baseFields(strcmp(baseFields, 'stateFunction')) = [];
 baseFields(strcmp(baseFields, 'use')) = [];
+
 % check for substructs in def
 defFields = fieldnames(def);
 defsubstruct = structfun(@isstruct, def);
+
 % find any missing fields
 [~, ismissing]= setdiff(defFields, baseFields);
+
 % trim defFields list
 defFields = defFields( union(ismissing, find(defsubstruct)) );
 

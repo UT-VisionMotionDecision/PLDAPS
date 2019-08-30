@@ -1,5 +1,5 @@
 function p = setup(p, devIdx)
-%pds.git.setup   setup the keyboard queue
+%pds.keyboard.setup   setup the keyboard queue
 %
 % Setup universal Mac/PC keyboard and keynames
 % set scan to 1 if using button box in scanner, otherwise, leave empty.
@@ -66,7 +66,11 @@ kb.Uarrow = KbName('UpArrow');
 kb.Darrow = KbName('DownArrow');
 kb.Lctrl = KbName('LeftControl');
 kb.Lalt = KbName('LeftAlt');
-kb.return = KbName('return');
+kb.Lshift = KbName('LeftShift');
+kb.Rctrl = KbName('RightControl');
+kb.Ralt = KbName('RightAlt');
+kb.Rshift = KbName('RightShift');
+
 %Numeric keypad
 kb.KPoneKey = KbName('1');
 kb.KPtwoKey = KbName('2');
@@ -84,6 +88,8 @@ kb.minusKey = KbName('-_');
 
 p.trial.keyboard.codes=kb;
 
+% modifier keys [ctrl, alt, shift]
+p.trial.keyboard.modKeys = struct('ctrl',0,'alt',0,'shift',0);
 
 % Establish the queue
 KbQueueCreate(devIdx);

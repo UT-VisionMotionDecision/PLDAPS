@@ -1,7 +1,50 @@
 classdef condMatrix < dynamicprops
-%     handle class (w/dynamic properties) for controlling PLDAPS condition matrix
+% p.condMatrix:  a handle class (w/dynamic properties) for controlling PLDAPS condition matrix
 %
-% randMode:
+% Setup p.condMatrix conditions during experiment setup file/'pldaps wrapper function'
+% ...a more functional replacement to old style p.conditions{}
+% 
+% For an example of behavioral control & interaction with condMatrix see:
+%     glDraw.pmBase
+% 
+% ****************************************************************
+% SETUP EXAMPLE:
+% % RF mapping stimulus with matrix of xy positions & drift directions
+% % ...after creating the Pldaps opject (e.g.  p = pldaps(subj, settingsStruct); )
+% 
+%     %% Setup condition params
+%     gridRes = 5;
+%     xs = linspace(-10,10, gridRes);
+%     ys = linspace(-10,10, gridRes);
+%     dirInc = 90;
+%     dirs = dirInc:dirInc:360;
+%     % Make a fully crossed matrix
+%     [xx, yy, dd] = ndgrid(xs, ys, dirs);
+% 
+%     %% Make a condition matrix cell 
+%     c = cell(size(xx)); % *** maintain same shape as condition matrix source values
+% 
+%     % Fill with relevant fields of your matrixModule
+%     for i = 1:numel(c)
+%         % stim position
+%         c{i}.stimPos    = [xx(i), yy(i)];
+%         % motion direction
+%         c{i}.dir        = dd(i);
+%     end
+% 
+%     %% Add condition matrix to the pldaps structure
+%     p.condMatrix.conditions = c;
+%     % *** NOT p.conditions = c; % !! leave this empty, everything is in .condMatrix now
+%     % Initialize the condMatrix object, passing control parameters as string-value pairs
+%     p.condMatrix = condMatrix(p, 'randMode', [1,2,3,4], 'nPasses',inf);
+% 
+%     %% Run it!!
+%     p.run;
+% 
+% ****************************************************************
+% condMatrix control parameters:
+% 
+% randMode:     (def: 0)
 %   Randomize order of upcoming pass through condition matrix
 %   -- if numel(.randMode) does not equal to number of dimensions in .conditions matrix,
 %      then will be treated as a simple switch
@@ -15,8 +58,20 @@ classdef condMatrix < dynamicprops
 %        -- negative randMode values will shuffle order of that dimension,
 %           while maintaining all other dimensions
 %    EXAMPLE:  .randMode = [1,0,-3] will shuffle columns but not rows, then randomize the 3rd dim 'pages'
-
-
+% 
+% nPasses:      (def: inf)
+%   Number of full passes through condition matrix
+%   
+% useFrameDurations:    (def: false)
+%   Flag for signaling the conversion of matrix module onset durations [.modOnDur]
+%   from frame count to seconds.  ...this is hacky, but here for now
+% 
+% ****************************************************************
+% 
+% see also:  glDraw.pmBase
+% 
+% 2018-xx-xx  TBC  Wrote it.
+% 2019-08-30  TBC  Commenting and [some] cleanup
 
 
 properties (Access = public)
@@ -82,6 +137,7 @@ methods
         % Control interaciton/execution of condMatrix
         pp.addParameter('randMode', 0);
         pp.addParameter('baseIndex', 1000);
+        pp.addParameter('useFrameDurations',false);
         
         % Do the parsing
         try
@@ -107,6 +163,11 @@ methods
 % % %         cm.ptr       = p.trial.display.ptr;
         cm.modNames  = p.trial.pldaps.modNames;
 % % %         
+% % %   These don't exist at time of condMatrix initialization.
+% % %   ...consider adding a postOpenScreen routine to p.run to update condMatrix,
+% % %   but seems like a crufty solution.
+% % %   Better off letting condMatrix do one thing well, than all-the-things cryptically
+% % % 
 % % %         % size of the display (physical measurement & pixel count...not visual degrees)
 % % %         cm.wWidth    = p.trial.display.wWidth;
 % % %         cm.wHeight   = p.trial.display.wHeight;
@@ -118,8 +179,6 @@ methods
 % % %         cm.frate     = p.trial.display.frate;
 % % %         cm.ifi       = p.trial.display.ifi;
 % % %         
-% % %         % individual trial parameters
-% % %         cm.maxFrames = p.trial.pldaps.maxTrialLength;
     
     end
     
@@ -148,7 +207,7 @@ methods
             p.trial.(targetModule{i}).condIndex = ii;
         end
         
-        % Update Info Fig
+        % Update Info Fig    (This is still SUPER rudimentary, but better than nothing. --TBC)
         if ishandle(cm.H.infoFig)
             pctRemain = (1-(numel(cm.order)-cm.i) / numel(cm.conditions)) *100;
             cm.H.infoFig.Children(1).Children(end).String = sprintf('Trial:  %5d\nPass:  %5d  (%02.1f%%)', p.trial.pldaps.iTrial, cm.iPass, pctRemain);  % cm.i/numel(cm.order)*100);
@@ -220,12 +279,15 @@ methods
         end
         % Append incomplete condition indexes to the end of order list
         cm.order(end+(1:numel(unusedConds))) = unusedConds;
-        
+        if any(wasShown<0)
+            fprintf(2, '~!~\tWARNING: Incomplete stimulus presentation detected on trial %d.\n', p.trial.trialnumber)
+        end
+
         % Return set of unusedConds to caller [if requested]
         if ~nargout
             return
         else
-            output = theseConds(wasShown); %unusedConds;
+            output = theseConds(logical(wasShown)); %unusedConds;
         end
     end
     
