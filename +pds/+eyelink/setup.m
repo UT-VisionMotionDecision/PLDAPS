@@ -15,17 +15,11 @@ if p.trial.eyelink.use
 
         
     Eyelink('Initialize');
-    
-    if p.trial.eyelink.custom_calibration
-        error('pldaps:eyelinkSetup','custom_calibration doesn''t work yet');
-%         dv.defaultParameters.eyelink.custom_calibration = false; % this doesnt work yet
-    end
-    
+        
     p.trial.eyelink.setup=EyelinkInitDefaults(); % don't pass in the window pointer or you can mess up the color range
     
     p.trial.eyelink.edfFile=datestr(p.trial.session.initTime, 'mmddHHMM');
     
-          
     p.trial.eyelink.edfFileLocation = pwd; %dv.pref.datadir;
     fprintf('EDFFile: %s\n', p.trial.eyelink.edfFile );
     
@@ -65,14 +59,14 @@ if p.trial.eyelink.use
     end
     
     % open file to record data to
-    % res = Eyelink('Openfile', fullfile(dv.defaultParameters.eyelink.edfFileLocation,dv.defaultParameters.eyelink.edfFile));
-    res = Eyelink('Openfile', p.trial.eyelink.edfFile);
-    if res~=0
+    err = Eyelink('Openfile', p.trial.eyelink.edfFile);
+    if err
         fprintf('Cannot create EDF file ''%s'' ', p.trial.eyelink.edfFile);
         Eyelink('Shutdown')
         return;
     end
     
+    %% Setup Eyelink enviro & report values in cmd window
     % Eyelink commands to setup the eyelink environment
     datestr(now);
     Eyelink('command',  ['add_file_preamble_text ''Recorded by PLDAPS'  '''']);
@@ -82,37 +76,53 @@ if p.trial.eyelink.use
     w = round(10*p.trial.display.widthcm/2);
     h = round(10*p.trial.display.heightcm/2);
     Eyelink('command',  'screen_phys_coords = %1d, %1d, %1d, %1d', -w, h, w, -h);
-    Eyelink('command',  'screen_distance = %1d', round(p.trial.display.viewdist*10)); % must be integer mm
-    
-    
-    [~, vs] = Eyelink('GetTrackerVersion');
-    disp('***************************************************************')
-    fprintf('\tReading Values from %sEyetracker\r', vs)
-    disp('***************************************************************')
-    [~, reply] = Eyelink('ReadFromTracker', 'screen_pixel_coords');
-    fprintf(['Screen pixel coordinates are:\t\t' reply '\r'])
-    [~, reply] = Eyelink('ReadFromTracker', 'screen_phys_coords');
-    fprintf(['Screen physical coordinates are:\t' reply ' (in mm)\r'])
-    [~, reply] = Eyelink('ReadFromTracker', 'screen_distance');
-    fprintf(['Screen distance is:\t\t\t' reply '\r'])
-    [~, reply] = Eyelink('ReadFromTracker', 'analog_dac_range');
-    fprintf(['Analog output range is constraiend to:\t' reply ' (volts)\r'])
-    [~, srate] = Eyelink('ReadFromTracker', 'sample_rate');
-    fprintf(['Sampling rate is:\t\t\t' srate 'Hz\r'])
-    p.trial.eyelink.srate = str2double(srate);
-    pause(.05)
-    
-    vsn = regexp(vs,'\d','match'); % wont work on EL I
-    if isempty(vsn)
-        eyelinkI = 1;
+    % Better estimates if screen_distance is provided in [<mm to top>, <mm to bottom>] than only [<mm to center>]  (per eyelink PHYSICAL.INI)
+    %       Previously:   Eyelink('command',  'screen_distance = %1d', round(p.trial.display.viewdist*10)); % must be integer mm
+    if ~isfield(p.trial.display, 'obsPos') % explicit observer position in cm xyz
+        screenTopDist = hypot( p.trial.display.heightcm/2, p.trial.display.viewdist);
+        screenBtmDist = screenTopDist;
     else
-        eyelinkI = 0;
+        screenTopDist = hypot( p.trial.display.heightcm/2 + p.trial.display.obsPos(2), p.trial.display.viewdist);
+        screenBtmDist = hypot( p.trial.display.heightcm/2 - p.trial.display.obsPos(2), p.trial.display.viewdist);
     end
+    Eyelink('command',  'screen_distance = %d, %d\n', 10*round(screenTopDist), 10*round(screenBtmDist) ); % cm to mm
     
-    [~, reply]=Eyelink('ReadFromTracker','elcl_select_configuration');
+    
+    %% Read & report eyelink values
+    reportStr = cell(3,1); % reportStr{:,i) == {description, value, units}
+    padlen = -40;    padchar = '.';
+
+    [~, vs] = Eyelink('GetTrackerVersion');
     p.trial.eyelink.trackerversion = vs;
-    p.trial.eyelink.trackermode    = reply;
+    fprintLineBreak;
+    fprintf('\tReading Values from %sEyetracker\n', vs)
+    fprintLineBreak;
+
+    [~, reply]=Eyelink('ReadFromTracker','elcl_select_configuration');
+    i = 1;    reportStr{1,i} = StrPad('Eyelink mode',padlen,padchar); reportStr{2,i} = reply;
+    p.trial.eyelink.trackermode = reply;
     
+    [~, reply] = Eyelink('ReadFromTracker', 'screen_pixel_coords');
+    i = i+1;  reportStr{1,i} = StrPad('Screen pixel coords',padlen,padchar); reportStr{2,i} = reply; reportStr{3,i} = 'px';
+    
+    [~, reply] = Eyelink('ReadFromTracker', 'screen_phys_coords');
+    i = i+1;  reportStr{1,i} = StrPad('Screen physical coords',padlen,padchar); reportStr{2,i} = reply; reportStr{3,i} = 'mm';
+    
+    reply = sprintf('%2.2f, %2.2f', screenTopDist, screenBtmDist); % no eyelink readout of screen_distance
+    i = i+1;  reportStr{1,i} = StrPad('Subject viewing distance',padlen,padchar); reportStr{2,i} = reply; reportStr{3,i} = '[cm_to_top, cm_to_btm]';
+    p.trial.eyelink.screenTopBtmDist = [screenTopDist, screenBtmDist];
+    
+    [~, reply] = Eyelink('ReadFromTracker', 'analog_dac_range');
+    i = i+1;  reportStr{1,i} = StrPad('Analog output range',padlen,padchar); reportStr{2,i} = reply; reportStr{3,i} = 'V';
+    
+    [~, reply] = Eyelink('ReadFromTracker', 'sample_rate');
+    i = i+1;  reportStr{1,i} = StrPad('Sampling rate',padlen,padchar); reportStr{2,i} = reply; reportStr{3,i} = 'Hz';
+    p.trial.eyelink.srate = str2double(reply);
+    
+    % display output in command window
+    fprintf('%s%s  %s\n', reportStr{:});
+    
+    %% Mode-specific setup
     switch p.trial.eyelink.trackermode
         case {'RTABLER'}
             fprintf('\rSetting up tracker for remote mode\r')
@@ -133,31 +143,57 @@ if p.trial.eyelink.use
     end
     
     
-    % custom calibration points
+    %% Eyelink calibration setup
     if p.trial.eyelink.custom_calibration
-        width  = p.trial.display.winRect(3);
-        height = p.trial.display.winRect(4);
-        disp('setting up custom calibration')
-        disp('this is not properly implemented yet on 64-bit Eyelink. Works for 32-bit')
-        Eyelink('command', 'generate_default_targets = NO');
-        %     Eyelink('command','calibration_samples = 5');
-        %     Eyelink('command','calibration_sequence = 1,2,3,4,5');
-        scale = p.trial.eyelink.custom_calibrationScale;
+        
+        % Example custom calibration parameter setup:
+        %   .eyelink.custom_calibrationScale = 0.4;  % number
+        %   .eyelink.calSettings.calibration_corner_scaling  = '0.85';    % string!
+        %   .eyelink.calSettings.validation_corner_scaling   = '0.85';    % string!
 
-        cx = (width/2);
-        cy = (height/2);
-        Eyelink('command','calibration_targets = %d,%d %d,%d %d,%d %d,%d %d,%d',...
-            cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
+        % %utomatically format/expand calibration scale param to the string input Eyelink expects
+        if isfield(p.trial.eyelink, 'custom_calibrationScale')
+            if isscalar(p.trial.eyelink.custom_calibrationScale)
+                eyeCalScale = p.trial.eyelink.custom_calibrationScale*[1 1];
+            else
+                eyeCalScale = p.trial.eyelink.custom_calibrationScale(1:2);
+            end
+            p.trial.eyelink.calSettings.calibration_area_proportion = sprintf('%2.2f %2.2f', eyeCalScale);
+        end
         
-        fprintf('calibration_targets = %d,%d %d,%d %d,%d %d,%d %d,%d\r',...
-            cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
-        %     Eyelink('command','validation_samples = 5');
-        %     Eyelink('command','validation_sequence = 0,1,2,3,4,5');
-        Eyelink('command','validation_targets = %d,%d %d,%d %d,%d %d,%d %d,%d',...
-            cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
+        % Allow user to manually set any eyelink values they want
+        % Send all calibration settings present to eyetracker
+        if isfield(p.trial.eyelink, 'calSettings')
+            fn = fieldnames(p.trial.eyelink.calSettings);
+            for i = 1:length(fn)
+                Eyelink('command', sprintf('%s = %s', fn{i}, p.trial.eyelink.calSettings.(fn{i})));
+            end
+            
+        else
+            
+            % Old crufty manual way. Not recommended.            
+            width  = p.trial.display.winRect(3);
+            height = p.trial.display.winRect(4);
+            disp('setting up custom calibration')
+            disp('this is not properly implemented yet on 64-bit Eyelink. Works for 32-bit')
+            Eyelink('command', 'generate_default_targets = NO');
+            Eyelink('command','calibration_samples = 5');
+            Eyelink('command','calibration_sequence = 1,2,3,4,5');
+            scale = p.trial.eyelink.custom_calibrationScale;
+            
+            cx = (width/2);
+            cy = (height/2);
+            Eyelink('command','calibration_targets = %d,%d %d,%d %d,%d %d,%d %d,%d',...
+                cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
+            
+            fprintf('calibration_targets = %d,%d %d,%d %d,%d %d,%d %d,%d\r',...
+                cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
+            Eyelink('command','validation_samples = 5');
+            Eyelink('command','validation_sequence = 0,1,2,3,4,5');
+            Eyelink('command','validation_targets = %d,%d %d,%d %d,%d %d,%d %d,%d',...
+                cx,cy,  cx,cy-cy*scale,  cx,cy+cy*scale,  cx-cx*scale,cy,  cx + cx*scale,cy);
+        end
         
-        %TODO: what? that's not how it should be done, why not send the
-        %calibration scale??
     else
         disp('using default calibration points')
         Eyelink('command', 'calibration_type = HV9');
@@ -204,10 +240,69 @@ if p.trial.eyelink.use
         %   p.defaultParameters.display.clut.eyepos = [p.defaultParameters.display.clut.eye1, p.defaultParameters.display.clut.eye2];
     end
     
+    % Done setting up. Get started!
+    fprintLineBreak;
     Eyelink('message', 'SETUP');
     
     Eyelink('StartRecording');
 end
 
+end %pds.eyelink.setup
 
+
+% % % % % % % % % 
+%% Sub-Functions
+% % % % % % % % %
+
+function str = StrPad(in,len,char)
+% str = StrPad(in,length,padchar)
+% modified version of PTB StrPad to allow pre or post padding with sign of [len].
+% (pre)pads IN with CHAR to sepcified length LEN. If inputs IN or PADCHAR
+% are numerical, they will be converted to to string. If input is too long,
+% it is truncated from the start to specified length.
+%
+% DN 2007
+% 2018-08-15  TBC  Use sign of [len] for padding direction
+
+if isnumeric(in) && length(in)==1 && in==round(in)
+    % convert to string
+    in = num2str(in);
+end
+if ~ischar(in)
+    error('input must be char or scalar integer');
+end
+
+if isnumeric(char) && length(char)==1
+    % convert to string
+    char = num2str(char);
+end
+
+% padding before or after input string?
+if len>0
+    prepad = 1;
+else
+    prepad = 0;
+end
+len = abs(len);
+
+if ischar(in)
+    % check that we have a string
+    inlen = length(in);
+    if inlen >= len
+        % truncate string if needed
+        b = [];
+        in = in(1:len);
+    else
+        % create pad string
+        b = repmat(char, 1, len-inlen);
+    end
+end
+% Create output
+if prepad
+    str = [b, in];
+else
+    str = [in, b];
+end
+    
+end %StrPad
 

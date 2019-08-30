@@ -6,13 +6,13 @@ function s=pldapsClassDefaultParameters(s)
 %s.	.
 %s.	behavior.
 %s.	behavior.	reward.
- s.	behavior.	reward.	defaultAmount = 0.0500;
+ s.	behavior.	reward.	defaultAmount = 0.15;
 
 %s.	datapixx.
  s.	datapixx.	enablePropixxCeilingMount = false;
  s.	datapixx.	enablePropixxRearProjection = false;
  s. datapixx.   rb3d = 0;
- s.	datapixx.	LogOnsetTimestampLevel = 2;
+ s.	datapixx.	LogOnsetTimestampLevel = 0;
  s.	datapixx.	use = true;
  s.	datapixx.	useAsEyepos = false;
  s.	datapixx.	useForReward = false;
@@ -32,16 +32,16 @@ function s=pldapsClassDefaultParameters(s)
  s.	datapixx.	adc.	YEyeposChannel = [ ];
 
 %s.	datapixx.	GetPreciseTime.
- s.	datapixx.	GetPreciseTime.	maxDuration = [ ];
- s.	datapixx.	GetPreciseTime.	optMinwinThreshold = [ ];
- s.	datapixx.	GetPreciseTime.	syncmode = [ ];
+ s.	datapixx.	GetPreciseTime.	maxDuration = 0.1; % sec
+ s.	datapixx.	GetPreciseTime.	optMinwinThreshold = 0.0003; % sec
+ % s.datapixx.	GetPreciseTime.	syncmode = [ ]; % no longer used
 
 %s.	display.
  s.	display.	bgColor = [ 0.5000    0.5000    0.5000 ];
  s.	display.	displayName = 'defaultScreenParameters';
  s.	display.	scrnNum = max(Screen('Screens'));
  s.	display.	useOverlay = 1;
- s.	display.	screenSize = [ ];
+ s.	display.	screenSize = screenSizeSelector(s.display.scrnNum);
  s.	display.	heightcm = 45;
  s.	display.	widthcm = 63;
  s.	display.	viewdist = 57;
@@ -64,9 +64,9 @@ function s=pldapsClassDefaultParameters(s)
  s.	eyelink.	buffereventlength = 30;
  s.	eyelink.	buffersamplelength = 31;
  s.	eyelink.	calibration_matrix = [ ];
- s.	eyelink.	collectQueue = true;
+ s.	eyelink.	collectQueue = false;  % No Eyelink queue! This is a timesink, no longer recommended (TBC 2018)
  s.	eyelink.	custom_calibration = false;
- s.	eyelink.	custom_calibrationScale = 0.2500;
+ s.	eyelink.	custom_calibrationScale = 0.4; % 0.4 ok for >= 55 cm viewing distance on most (propixx) projection setups
  s.	eyelink.	saveEDF = false;
  s.	eyelink.	use = true;
  s.	eyelink.	useAsEyepos = true;
@@ -88,7 +88,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	newEraSyringePump.	diameter = 38;
  s.	newEraSyringePump.	lowNoiseMode = 0;
  s.	newEraSyringePump.	port = '/dev/cu.usbserial';
- s.	newEraSyringePump.	rate = 2900;
+ s.	newEraSyringePump.	rate = 60; % ml per minute (...formerly 2900 mL/hr);
  s.	newEraSyringePump.	triggerMode = 'T2';
  s.	newEraSyringePump.	use = false;
  s.	newEraSyringePump.	volumeUnits = 'ML';
@@ -98,16 +98,16 @@ function s=pldapsClassDefaultParameters(s)
  s.	pldaps.	eyeposMovAv = 1;
  s. pldaps. lastBgColor = s.display.bgColor;
  s.	pldaps.	finish = Inf;
- s.	pldaps.	goodtrial = 0; % This is old; now in p.trial.good. Marking for future deletion. --TBC 2017
+ % s.	pldaps.	goodtrial = 0; % This is old; now in p.trial.good. Marking for future deletion. --TBC 2017
  s.	pldaps.	iTrial = 0;
  s.	pldaps.	maxPriority = true;
- s.	pldaps.	maxTrialLength = 300;
+ s.	pldaps.	maxTrialLength = 30;
  s.	pldaps.	nosave = false;
  s.	pldaps.	pass = false;
  s.	pldaps.	quit = 0;
- s.	pldaps.	trialMasterFunction = 'runTrial';
+ s.	pldaps.	trialMasterFunction = 'runModularTrial';
  s.	pldaps.	useFileGUI = false;
- s.	pldaps.	useModularStateFunctions = false;
+ s.	pldaps.	useModularStateFunctions = true;
 
 %s.	pldaps.	dirs.
  s.	pldaps.	dirs.	data = '/Data';
@@ -144,7 +144,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	pldaps.	save.	initialParametersMerged = 1;
  s.	pldaps.	save.	mergedData = 0;
  s.	pldaps.	save.	trialTempfiles = 1;
- s.	pldaps.	save.	v73 = 0;
+%s.	pldaps.	save.	v73 = 0;
 
 %s.	pldaps.	trialStates.
 	tsNeg = -1; tsPos = 1;
@@ -183,4 +183,20 @@ function s=pldapsClassDefaultParameters(s)
  s.	sound.	deviceid = [ ];
  s.	sound.	use = true;
  s.	sound.	useForReward = true;
+end
+
+
+
+% % % % % % % % % 
+% Sub-functions
+% % % % % % % % % 
+
+%% screenSizeSelector
+%  set default screenRect to 'picture-in-picture' if maxScreens == 0
+function screenRect = screenSizeSelector(scrnNum)
+if ~scrnNum && scrnNum==max(Screen('Screens'))
+    screenRect = floor(Screen('Rect',scrnNum).*0.6)+30;
+else
+    screenRect = [ ];
+end
 end

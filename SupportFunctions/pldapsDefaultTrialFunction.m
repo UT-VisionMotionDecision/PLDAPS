@@ -52,16 +52,20 @@ function pldapsDefaultTrialFunction(p,state, sn)
             
         case p.trial.pldaps.trialStates.trialSetup
             trialSetup(p);
+            
         case p.trial.pldaps.trialStates.trialPrepare
             trialPrepare(p);
+            
         case p.trial.pldaps.trialStates.trialCleanUpandSave
             cleanUpandSave(p);
-        %only availiable if p.trial.pldaps.trialMasterFunction = 'runModularTrial'
+            
+
         case p.trial.pldaps.trialStates.experimentAfterTrials
             if ~isempty(p.trial.pldaps.experimentAfterTrialsFunction)
                h=str2func(p.trial.pldaps.experimentAfterTrialsFunction);
                h(p, state)
             end
+            
         case p.trial.pldaps.trialStates.experimentPostOpenScreen
             if ~isfield(p.trial.(sn), 'eyeW')
                 p.trial.(sn).eyeW = 8;
@@ -78,7 +82,8 @@ function pldapsDefaultTrialFunction(p,state, sn)
             end
                 
     end
-end           % % % ****!!!!**** Moved overall function end below all subfunctions (makng them nested functions
+end 
+
 
 % % % % % % % % % % % % % % % 
 % % % Sub-functions
@@ -90,7 +95,7 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         %%TODO: add buffer for Keyboard presses, mouse position and clicks.
         
         % Check keyboard    
-        [p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ, firstRelease, lastPress, lastRelease]=KbQueueCheck(); % fast
+        [p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ, firstRelease, lastPress, lastRelease]=KbQueueCheck(p.trial.keyboard.devIdx); % fast
         
         if p.trial.keyboard.pressedQ || any(firstRelease)
             p.trial.keyboard.samples = p.trial.keyboard.samples+1;
@@ -145,6 +150,11 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
                     p.trial.eyeX = mean(p.trial.mouse.cursorSamples(1,mInds));
                     p.trial.eyeY = mean(p.trial.mouse.cursorSamples(2,mInds));
                 end
+                % Also report delta "eye" position
+                nback = p.trial.mouse.samples + [-1,0]; nback(nback<1) = 1;
+                p.trial.eyeDelta = [diff(p.trial.mouse.cursorSamples(1,nback), [], 2),...
+                    diff(p.trial.mouse.cursorSamples(2,nback), [], 2)];
+
             end
         end
         
@@ -300,15 +310,22 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
     function frameDrawingFinished(p)
         % Check for & disable OpenGL mode before any Screen() calls (else will crash)
         if p.trial.display.useGL
-            [~, IsOpenGLRendering] = Screen('GetOpenGLDrawMode');
-            % NOTE: polling opengl for info is slow; might make sense to go-for-broke here
-            % and assume an 'EndOpenGL' call is necessary given .useGL==true. Play it safe for now. --TBC Dec 2017
-            if IsOpenGLRendering
+% % %             [~, IsOpenGLRendering] = Screen('GetOpenGLDrawMode');
+% % %             % NOTE: polling opengl for info is slow; might make sense to go-for-broke here
+% % %             % and assume an 'EndOpenGL' call is necessary given .useGL==true. Play it safe for now. --TBC Dec 2017
+% % %             if IsOpenGLRendering
                 Screen('EndOpenGL', p.trial.display.ptr);
-            end
+% % %             end
         end
 
         Screen('DrawingFinished', p.trial.display.ptr);
+        
+        if p.trial.datapixx.use && ~isempty(p.trial.datapixx.strobeQ)
+            % send all the pending strobes and clear the queue
+            pds.datapixx.strobeQueue(p.trial.datapixx.strobeQ);
+            p.trial.datapixx.strobeQ = [];
+        end
+        
     end %frameDrawingFinished
     
     
@@ -316,16 +333,16 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 %%  frameFlip
     function frameFlip(p)
         ft=cell(5,1);
-        [ft{:}] = Screen('Flip', p.trial.display.ptr, p.trial.nextFrameTime + p.trial.trstart);
-        
+        [ft{:}] = Screen('Flip', p.trial.display.ptr, 0);   %p.trial.nextFrameTime + p.trial.trstart);
         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
-         
-         % The overlay screen always needs to be initialized with a FillRect call
-         if p.trial.display.overlayptr ~= p.trial.display.ptr
+%         p.trial.timing.flipTimes(1,p.trial.iFrame) = Screen('Flip', p.trial.display.ptr, 0);   %p.trial.nextFrameTime + p.trial.trstart);
+        
+        % The overlay screen always needs to be initialized with a FillRect call
+        if p.trial.display.overlayptr ~= p.trial.display.ptr
             Screen('FillRect', p.trial.display.overlayptr,0);
-         end
-
-         p.trial.stimulus.timeLastFrame = p.trial.timing.flipTimes(1,p.trial.iFrame)-p.trial.trstart;
+        end
+        
+        p.trial.timing.timeLastFrame = p.trial.timing.flipTimes(1,p.trial.iFrame)-p.trial.trstart;
 
     end %frameFlip
 
@@ -334,6 +351,7 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 %%  trialSetup
     function trialSetup(p)
         p.trial.timing.flipTimes       = zeros(5,p.trial.pldaps.maxFrames);
+%         p.trial.timing.flipTimes       = zeros(1,p.trial.pldaps.maxFrames);
         p.trial.timing.frameStateChangeTimes=nan(9,p.trial.pldaps.maxFrames);
         
         if(p.trial.pldaps.draw.photodiode.use)
@@ -344,15 +362,13 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         %these are things that are specific to subunits as eyelink,
         %datapixx, mouse and should probabbly be in separarte functions,
         %but I have no logic/structure for that atm.
-        
-        %setup analogData collection from Datapixx
-        pds.datapixx.adc.trialSetup(p);
-        
-        %call PsychDataPixx('GetPreciseTime') to make sure the clocks stay
-        %synced
+                
         if p.trial.datapixx.use
-            [getsecs, boxsecs, confidence] = PsychDataPixx('GetPreciseTime');
-            p.trial.timing.datapixxPreciseTime(1:3) = [getsecs, boxsecs, confidence];
+            %setup analogData collection from Datapixx
+            pds.datapixx.adc.trialSetup(p);
+            % Sync Datapixx & PTB clocks (...now via streamlined version of PsychDataPixx('GetPreciseTime'))
+            p.trial.timing.datapixxPreciseTime = pds.datapixx.syncClocks(p.trial.datapixx.GetPreciseTime); %[getsecs, boxsecs, confidence];
+            %             [getsecs, boxsecs, confidence] = PsychDataPixx('GetPreciseTime');
         end
         
         %setup a fields for the keyboard data
@@ -404,6 +420,11 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         end
 
         if p.trial.display.useGL
+            % tedious task for every trial, but better to get it right
+            p.trial.display.glPerspective = [atand(p.trial.display.wHeight/2/p.trial.display.viewdist)*2,...
+                p.trial.display.wWidth/p.trial.display.wHeight,...
+                p.trial.display.zNear,... % near clipping plane (cm)
+                p.trial.display.zFar];  % far clipping plane (cm)
             setupGLPerspective(p.trial.display); % subfunction
         end
         
@@ -439,10 +460,10 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 
         %%% START OF TRIAL TIMING %%
         %-------------------------------------------------------------------------%
-        % record start of trial in Datapixx, Mac & Plexon
+        % record start of trial in Datapixx, PLDAPS & Plexon
         % each device has a separate clock
 
-        % At the beginning of each trial, strobe a unique number to the plexon
+        % At the beginning of each trial, strobe a unique number to plexon
         % through the Datapixx to identify each trial. Often the Stimulus display
         % will be running for many trials before the recording begins so this lets
         % the plexon rig sync up its first trial with whatever trial number is on
@@ -475,15 +496,19 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 
         % These params are all predetermined, so just set them equal to 0,
         % and keep any code post-vblsync to an absolute minimum!  (...yes, even just touching p.trial)
-        p.trial.stimulus.timeLastFrame = 0;     % formerly:  vblTime-p.trial.trstart;
         p.trial.ttime  = 0;                     % formerly:  GetSecs - p.trial.trstart;
         p.trial.timing.syncTimeDuration = 0;    % formerly:  p.trial.ttime;
+        p.trial.timing.timeLastFrame = 0;       % formerly:  vblTime-p.trial.trstart;
         
         % Sync up with screen refresh before jumping into actual trial
         %   ** this also ensures that the async flip scheduled at the end of the last trial
         %      has had time to complete & won't interfere with future draws/flips
         p.trial.timing.itiFrameCount = Screen('WaitBlanking', p.trial.display.ptr);
         p.trial.trstart = GetSecs;
+        
+        % Tell datapixx to save a timestamp marker at the next frame flip. These will be
+        % transferred from datapixx box to PTB machine during completion of experiment (by run.m)
+        PsychDataPixx('LogOnsetTimestamps',1);%2
         
     end %trialPrepare
 
@@ -495,7 +520,7 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         %   ...e.g. maybe not eye pos, since it cannot be updated during this phase
 
         % Be smart(ish) about binocular rendering
-        Screen('SelectStereoDrawBuffer', p.trial.display.ptr, 0);
+        Screen('SelectStereoDrawBuffer', p.trial.display.ptr, 1);
         
         % Grid overlay
         if p.trial.pldaps.draw.grid.use
@@ -515,18 +540,17 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
 %%  cleanUpandSave
     function p = cleanUpandSave(p)
 
-        % % %         ft=cell(5,1);
-        % % %         [ft{:}] =Screen('Flip', p.trial.display.ptr,0);
-        % % %         p.trial.timing.flipTimes(:,p.trial.iFrame)=[ft{:}];
-        
         % Schedule a flip to occur at the next possible time, but don't bother waiting around for it.
-%         Screen('AsyncFlipBegin', p.trial.display.ptr);
+        %         Screen('AsyncFlipBegin', p.trial.display.ptr);
         Screen('Flip', p.trial.display.ptr, 0, [], 1);
         % Whatever was drawn to this screen will be visible throughout the inter-trial interval.
         % This was previously always/only a blank screen, but if you want anything present on
         % this screen, it can now be drawn during the  .trialItiDraw  state.
         % NOTE: This is not a time-critical draw, and async flips do not return a valid timestamp
         %       at time of schedule.
+
+        % Wait a fraction of a sec for any pending strobes to register downstream
+        WaitSecs(1e-4);     % 'UntilTime', t0+3e-5);
         
         % Execute all time-sesitive tasks first
         if p.trial.datapixx.use
@@ -537,7 +561,7 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
         %clean up analogData collection from Datapixx
         pds.datapixx.adc.cleanUpandSave(p);
         if p.trial.datapixx.use
-            % end of trial sync signal (Plexon)
+            % end of trial sync signal (Plexon)            
             p.trial.timing.datapixxTRIALEND = pds.datapixx.strobe(p.trial.event.TRIALEND);
         end
         
@@ -657,19 +681,19 @@ end           % % % ****!!!!**** Moved overall function end below all subfunctio
             glDisable(GL.LIGHTING);
             % glDisable(GL.BLEND);
             
-            if ds.goNuts
-                % ...or DO ALL THE THINGS!!!!
-                % Enable lighting
-                glEnable(GL.LIGHTING);
-                glEnable(GL.LIGHT0);
-                % Set light position:
-                glLightfv(GL.LIGHT0,GL.POSITION, [1 2 3 0]);
-                % Enable material colors based on glColorfv()
-                glEnable(GL.COLOR_MATERIAL);
-                glColorMaterial(GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
-                glMaterialf(GL.FRONT_AND_BACK, GL.SHININESS, 48);
-                glMaterialfv(GL.FRONT_AND_BACK, GL.SPECULAR, [.8 .8 .8 1]);
-            end
+            % % %             if ds.goNuts
+            % % %                 % ...or DO ALL THE THINGS!!!!
+            % % %                 % Enable lighting
+            % % %                 glEnable(GL.LIGHTING);
+            % % %                 glEnable(GL.LIGHT0);
+            % % %                 % Set light position:
+            % % %                 glLightfv(GL.LIGHT0,GL.POSITION, [1 2 3 0]);
+            % % %                 % Enable material colors based on glColorfv()
+            % % %                 glEnable(GL.COLOR_MATERIAL);
+            % % %                 glColorMaterial(GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
+            % % %                 glMaterialf(GL.FRONT_AND_BACK, GL.SHININESS, 48);
+            % % %                 glMaterialfv(GL.FRONT_AND_BACK, GL.SPECULAR, [.8 .8 .8 1]);
+            % % %             end
         end
         Screen('EndOpenGL', ds.ptr)
     end %setupGLPerspective

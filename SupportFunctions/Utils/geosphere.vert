@@ -1,4 +1,4 @@
-//#version 330 compatibility
+#version 330 compatibility
 #extension GL_ARB_explicit_attrib_location : require
 #extension GL_ARB_explicit_uniform_location : require
 
@@ -21,15 +21,12 @@
 layout(location = 0) in vec3 dotVertices;
 layout(location = 1) in vec4 xyzs;
 layout(location = 2) in vec4 color;
-
 out vec4 color2frag;
 
-void main(void)
-{
-    vec3 vertPos = xyzs.xyz + (dotVertices.xyz * xyzs.w);
-
-    gl_Position = gl_ModelViewProjectionMatrix * vec4(vertPos, 1.0f);
+void main() {
+    vec4 vertPos = vec4(xyzs.xyz + (dotVertices.xyz * xyzs.w), 1.0);
+    
+    gl_Position = gl_ModelViewProjectionMatrix * vertPos;
     
     color2frag = color;
 }
-

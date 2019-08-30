@@ -1,4 +1,4 @@
-function [xy,z] = deg2world(xy,z,zIsR)
+function [xy, z] = deg2world(xyIn, z, zIsR)
 %deg2world    convert from degrees of visual angle to world coordinates
 % calculates the world coordinates for an array of degress of visul angle
 % taking the depence of x and y degrees into account (i.e. that the
@@ -20,17 +20,29 @@ function [xy,z] = deg2world(xy,z,zIsR)
 % is indepent of y. This is not correct, but may be ok, for small screens
 % or mainly cardinal coordinates.
 
-    xy=sind(xy);
-    
-    if(nargin>2 && zIsR) %z argument is the radius/total distance
-        sr=sqrt(z);
-    else
-        sr=z./sqrt(1-sum(xy.^2));
+    if nargin<3 || isempty(zIsR)
+        zIsR = false;
+    end
+    % check proper xy input orientation
+    if numel(xyIn)==2
+        xyIn = xyIn(:);
+    elseif size(xyIn,2)==2 && size(xyIn,1)~=2
+        xyIn = xyIn';
     end
     
-    xy=[sr; sr].*xy;
+    xy = sind(xyIn);
+    
+    if zIsR %z argument is the radius/total distance
+        sr = sqrt(z);
+    else
+        sr = z./sqrt(1-sum(xy.^2));
+    end
+    
+    xy = [sr; sr].*xy;
 
-    if(nargout>1 && nargin<3 && zIsR) 
-        z=sr.*sqrt(1-sum(xy.^2));
+    if nargout>1 && ~zIsR 
+        z =  z./sqrt(1-sum(sind(xyIn).^2)); %sr.*sqrt(1-sum(xyIn.^2));
+    else
+        z = repmat(z,size(xy(1,:)));
     end
 end

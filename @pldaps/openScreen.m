@@ -32,7 +32,8 @@ function p = openScreen(p)
 
 
 % prevent splash screen
-Screen('Preference','VisualDebugLevel',3);
+Screen('Preference', 'VisualDebugLevel',3);
+Screen('Preference', 'Verbosity',3);
 InitializeMatlabOpenGL(0, 0); %second 0: debug level =0 for speed, debug level=3 == "very verbose" (slow, but incl. error msgs from w/in OpenGL/mogl functions)
 
 % Initiate Psych Imaging screen configs
@@ -139,26 +140,38 @@ end
 disp('****************************************************************')
 fprintf('Opening screen %d with background %s in stereo mode %d\r', p.trial.display.scrnNum, mat2str(p.trial.display.bgColor), p.trial.display.stereoMode)
 disp('****************************************************************')
-[ptr, winRect]=PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, p.trial.display.multisample);
-p.trial.display.ptr=ptr;
-p.trial.display.winRect=winRect;
+[ptr, winRect] = PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, p.trial.display.multisample);
+p.trial.display.ptr = ptr;
+p.trial.display.winRect = winRect;
 
-% Software overlay is half-width; adjust winRect accordingly
+% Software overlay takes over right half of screen (...ideally a single PTB window spanning two displays with equal spatiotemporal res)
+% Adjust winRect accordingly
 if p.trial.display.useOverlay==2
-    p.trial.display.winRect(3)=p.trial.display.winRect(3)/2;
+    p.trial.display.winRect(3) = p.trial.display.winRect(3)/2;
 end
 
 %% Set some basic variables about the display
 % Compute visual angle of the display (while accounting for any stereomode splits)
-if p.trial.display.stereoMode >= 6 || p.trial.display.stereoMode <=1
-    p.trial.display.width = 2*atand(p.trial.display.widthcm/2/p.trial.display.viewdist);
-else
-    p.trial.display.width = 2*atand((p.trial.display.widthcm/4)/p.trial.display.viewdist);
+switch p.trial.display.stereoMode
+    case {2,3}
+        % top-bottom split stereo
+        p.trial.display.width   = 2*atand( p.trial.display.widthcm/2    /p.trial.display.viewdist);
+        p.trial.display.height  = 2*atand( p.trial.display.heightcm/4   /p.trial.display.viewdist);
+    case {4,5}
+        % left-right split stereo
+        p.trial.display.width   = 2*atand( p.trial.display.widthcm/4    /p.trial.display.viewdist);
+        p.trial.display.height  = 2*atand( p.trial.display.heightcm/2   /p.trial.display.viewdist);
+    otherwise
+        p.trial.display.width   = 2*atand( p.trial.display.widthcm/2    /p.trial.display.viewdist);
+        p.trial.display.height  = 2*atand( p.trial.display.heightcm/2   /p.trial.display.viewdist);
 end
-p.trial.display.ppd = p.trial.display.winRect(3)/p.trial.display.width; % calculate pixels per degree
+
+p.trial.display.ppd = p.trial.display.winRect(4)/p.trial.display.height; % calculate pixels per degree
+p.trial.display.cmpd = 2*atand(0.5/p.trial.display.viewdist); % cm per degree at viewing distance line of sight
 p.trial.display.frate = round(1/Screen('GetFlipInterval',p.trial.display.ptr));   % frame rate (in Hz)
 p.trial.display.ifi=Screen('GetFlipInterval', p.trial.display.ptr);               % Inter-frame interval (frame rate in seconds)
-p.trial.display.ctr = [p.trial.display.winRect(3:4),p.trial.display.winRect(3:4)]./2 - 0.5;          % Rect defining screen center
+
+p.trial.display.ctr = [p.trial.display.winRect(3:4), p.trial.display.winRect(3:4)]./2 - 0.5;          % Rect defining screen center
 p.trial.display.info = Screen('GetWindowInfo', p.trial.display.ptr);              % Record a bunch of general display settings
 [~, ~, p.trial.display.info.realBitDepth] = Screen('ReadNormalizedGammaTable', p.trial.display.ptr); % Actual bitdepth of display hardware (not merely frame buffer bpc)
 
@@ -177,6 +190,7 @@ p.trial.display.wHeight=p.trial.display.heightcm;
 % visual [d]egrees          % updated to ensure this param reflects ppd (i.e. not an independent/redundant calculation)
 p.trial.display.dWidth =  p.trial.display.pWidth/p.trial.display.ppd;   
 p.trial.display.dHeight = p.trial.display.pHeight/p.trial.display.ppd;
+
 % space conversions
 p.trial.display.w2px=[p.trial.display.pWidth/p.trial.display.wWidth; p.trial.display.pHeight/p.trial.display.wHeight];
 p.trial.display.px2w=[p.trial.display.wWidth/p.trial.display.pWidth; p.trial.display.wHeight/p.trial.display.pHeight];
@@ -194,6 +208,10 @@ Screen('TextStyle',p.trial.display.ptr,1);
 
 %% Assign overlay pointer
 if p.trial.display.useOverlay==1
+    % Prevent text antialiasing from causing overlay to bleed over into subject display
+    Screen('Preference', 'TextAntiAliasing', 0);
+
+    
     if p.trial.datapixx.use
         if ~isfield(p.trial.datapixx, 'rb3d') || ~p.trial.datapixx.rb3d
             % Standard PLDAPS overlay mode.
@@ -201,8 +219,6 @@ if p.trial.display.useOverlay==1
             p.trial.display.overlayptr = PsychImaging('GetOverlayWindow', p.trial.display.ptr); % , dv.params.bgColor);
             
         elseif p.trial.datapixx.rb3d
-            Screen('Preference', 'TextAntiAliasing', 0);
-            
             % RB3d mode needs special shaders to encode overlay in the green channel
             oldColRange = Screen('ColorRange', p.trial.display.ptr, 255);
             %             p.trial.display.overlayptr = SetAnaglyphStereoParameters('CreateGreenOverlay', p.trial.display.ptr);
@@ -273,7 +289,7 @@ elseif p.trial.display.useOverlay==2
     glBindTexture(GL.TEXTURE_RECTANGLE_EXT, 0);
 
     %% get information of current processing chain
-    debuglevel = 1;
+    debuglevel = 0;
     [icmShaders, icmIdString, icmConfig] = PsychColorCorrection('GetCompiledShaders', p.trial.display.ptr, debuglevel);
 
             % Build panel-filter compatible shader from source:

@@ -1,4 +1,4 @@
-function [xy,z] = deg2px(xy,z,w2px,zIsR)
+function [xy,z] = deg2px(xy, z, w2px, zIsR)
 %deg2px    convert from degrees of visual angle to pixel coordinates
 % calculates the pixel coordinates for an array of degress of visul angle
 % taking the depence of x and y degrees into account (i.e. that the
@@ -21,17 +21,22 @@ function [xy,z] = deg2px(xy,z,w2px,zIsR)
 % the pixel coordinates for independent angles, i.e. where the results of x
 % is indepent of y. This is not correct, but may be ok, for small screens
 % or mainly cardinal coordinates.
+
+    if nargin<4 || isempty(zIsR)
+        zIsR = false;
+    end
+    
     xy=sind(xy);
     
-    if(nargin>3 && zIsR) %z argument is the radius/total distance
+    if zIsR %z argument is the radius/total distance
         sr=sqrt(z);
     else
         sr=z./sqrt(1-sum(xy.^2));
     end
     
-    xy=[w2px(1)*sr; w2px(2)*sr].*xy;
+    xy = [w2px(1)*sr; w2px(2)*sr].*xy;
     
-    if(nargout>1 && nargin<4 && zIsR)
+    if nargout>1 && zIsR
         z=mean(w2px)*sr.*sqrt(1-sum(xy.^2));
     end
     

@@ -1,4 +1,4 @@
-function outStruct=createRigPrefs(additionalSettings)
+function outStruct = createRigPrefs(additionalSettings)
 %CreateRigPrefspdsBeginExperimentcreate preferences stored as matlab preferences
 % outStruct=createRigPrefs(additionalSettings) allows to create and change
 % existing rig parameters stored iin the matlab preference 'pldaps'.
@@ -11,74 +11,13 @@ function outStruct=createRigPrefs(additionalSettings)
     fprintf('\n****************************************************************\n')
 
     %to we already have current settings?
-    a=getpref('pldaps');
+    a = getpref('pldaps');
     if ~isempty(a)
-        fprintf('Existing pldaps rigPrefs loaded.\n\tIf changes are made, a backup of previous settings will be saved.\n');
+        fprintf('Existing pldaps rigPrefs detected.\n\tIf changes are made, a backup of previous settings will be saved.\n');
     end
     
-    %do we have and old PLDAPS Version setting?
-    b=getpref('PLDAPS');
-    %yes? ok, let's try to copy some info over
-    if ~isempty(b)
-        fromOldPrefs=struct;
-        if isfield(b,'datadir')
-            fromOldPrefs.pldaps.dirs.data=b.datadir;
-        end
-        if isfield(b,'wavfiles')
-            fromOldPrefs.pldaps.wavfiles.data=b.wavfiles;
-        end
-        if isfield(b,'spikeserver')
-            fromOldPrefs.plexon.spikeserver=b.spikeserver;
-            fromOldPrefs.plexon.spikeserver.use=true;
-        end
-        if isfield(b,'rig') %this has the old dv struct
-            odv=load(b.rig);
-            odv=odv.dv;
-            if isfield(odv,'pass')
-                fromOldPrefs.pldaps.pass=odv.pass;
-            end
-            
-            %datapixx
-            if isfield(odv,'dp')
-                fromOldPrefs.datapixx=odv.dp;
-            end
-            if isfield(odv,'useDatapixxbool')
-                fromOldPrefs.datapixx.use=odv.useDatapixxbool;
-            end
-            
-            if isfield(odv,'useMouse')
-                fromOldPrefs.mouse.use=odv.useMouse;
-            end
-            
-            if isfield(odv,'useEyelink')
-                fromOldPrefs.eyelink.use=odv.useEyelink;
-            end
-            
-            %display
-            if isfield(odv,'disp')
-                fromOldPrefs.display=odv.disp;
-                
-                if isfield(odv.disp,'display')
-                    fromOldPrefs.display=rmfield(fromOldPrefs.display,'display');
-                    fromOldPrefs.display.displayName=odv.disp.display;
-                end
-            end
-            
-%             %keyboard codes
-%             if isfield(odv,'kb')
-%                 fromOldPrefs.keyboard.codes=odv.kb;
-%             end
-            
-        end
-    else
-        fromOldPrefs=[];
-    end
-    
-    p=pldaps('test','nothing');
-    if isstruct(fromOldPrefs)
-        p.defaultParameters.addLevels({fromOldPrefs}, {'PLDAPS 3 Prefs'});
-        fprintf('Legacy (ver. 3) PLDAPS prefs appended.\n');
-    end
+    % Initialize a PLDAPS object containing class & rig defaults
+    p = pldaps('test','nothing');
     
     if nargin>0
         p.defaultParameters.addLevels({additionalSettings}, {'additional Settings'});

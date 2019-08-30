@@ -1,5 +1,12 @@
-function addToPathWithoutGit(dir, excludes)
-    a=genpath(dir);
+function addToPathWithoutGit(dir, excludes, withSubdirs)
+    if nargin<3 || withSubdirs
+        a = genpath(dir);
+        withSubdirs = ' and subdirectories';
+    else
+        a = dir;
+        withSubdirs = [];
+    end
+    
     if isempty(a)
         fprintf('%s not found...attempting to continue\n', dir);
     else
@@ -16,6 +23,6 @@ function addToPathWithoutGit(dir, excludes)
             end
         end
         addpath(b{:})
-        disp([dir ' and subdirectories added to the path']);
+        disp([dir, withSubdirs, ' added to the path']);
     end
 end

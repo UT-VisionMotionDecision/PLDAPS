@@ -48,7 +48,7 @@ try
     
     if ~err && ~isempty(status)
         status = [sprintf('Locally modified:\n-------------------------------\n'), status];
-        [err, gdiff] = system('git --no-pager diff --minimal');
+        [err, gdiff] = system('git --no-pager diff --minimal -U2');
     end
 catch
     fprintf(2, '!Notice:\tFailed to retrieve the git branch/tag information from this PLDAPS installation.\n')
@@ -98,6 +98,18 @@ p.trial.session.experimentStart = GetSecs;
 
 if p.trial.datapixx.use && Datapixx('IsReady')
     p.trial.datapixx.experimentStartDatapixx = Datapixx('GetTime');
+
+    % ~~~ No. Repurposing strobes as text communication is not good ~~~ --TBC 2018
+    % OK idea, but muddles what unique strobed values "mean" within the PLX file, and 
+    % still doesn't solve problem in the other direction; knowing what the PLX/spike
+    % filename is from the PDS file.
+    % %     % Send PDS filename as strobed word
+    % %     if ~isempty(p.trial.session.file)
+    % %         for i = 1:numel(p.trial.session.file)
+    % %             pds.datapixx.strobe( double(p.trial.session.file(i)) );
+    % %         end
+    % %     end
+    
 end
 
 if p.trial.eyelink.use && Eyelink('IsConnected')
