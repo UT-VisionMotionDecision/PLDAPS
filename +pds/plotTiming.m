@@ -40,6 +40,7 @@ minf = min(cellfun(@(x) x.iFrame, trData));
 % fliptimes btwn frames (msec)
 % ftd = 1000* cell2mat(cellfun(@(x) diff(x.timing.frameStateChangeTimes(1,1:minf))', trData, 'uni',0));
 ftd = 1000* cell2mat(cellfun(@(x) diff(x.timing.flipTimes(1,1:minf))', trData, 'uni',0));
+
 drops = sum(ftd(:) >= dropThresh);
 
 %% Try additional state info
@@ -58,6 +59,7 @@ pbaspect = [2,1,1];
 
 figure;%(1),clf,
 % Plot fliptimes & drops
+
 subplot(spy, spx, 1);           %*** subplot 1 ***
 imagesc(ftd');
 title( {p.trial.session.file, sprintf('FlipTimes;  %d/%d dropped (%2.3f%%)', drops, numel(ftd), drops/numel(ftd)*100)} );
@@ -65,6 +67,7 @@ xlabel('frame #'), ylabel('trial')
 set(gca,'plotboxaspectratio',pbaspect, 'tickdir','out');  box off
 colormap(gca, cm); set(gca, 'clim',cl);
 cb = colorbar; ylabel(cb, 'msec')
+
 
 subplot(spy, spx, spx+1)        %*** subplot 3 ***
 [~,didx] = find(ftd' >= dropThresh);
