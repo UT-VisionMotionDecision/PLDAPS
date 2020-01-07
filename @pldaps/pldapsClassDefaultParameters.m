@@ -57,8 +57,7 @@ function s=pldapsClassDefaultParameters(s)
  s. display.    crosstalk = 0;
  s.	display.	switchOverlayCLUTs = false;
  s. display.    useGL = false; % flag for custom 3D rendering features
-
-% Movie making moved to pds.pldapsMovie module
+ s. display.    preOpenScreenFxn = [];
 
 %s.	eyelink.
  s.	eyelink.	buffereventlength = 30;
@@ -74,6 +73,9 @@ function s=pldapsClassDefaultParameters(s)
 
 %s.	git.
  s.	git.	use = false;
+ 
+%s. keyboard.
+ s. keyboard.   devIdx = -1; % PTB default to first keyboard detected
 
 %s.	mouse.
  s.	mouse.	initialCoordinates = [];
@@ -183,6 +185,25 @@ function s=pldapsClassDefaultParameters(s)
  s.	sound.	deviceid = [ ];
  s.	sound.	use = true;
  s.	sound.	useForReward = true;
+ 
+% Matlab-side [eye]tracker calibration
+ s. tracking. use                = true;
+ s. tracking. calib. matrix      = [];
+ s. tracking. calib. targetScale = 1; % scale of calbiration targets relative to display dimensions
+ 
+ % online calibration adjustments
+ s. tracking. adjust. on         = false;
+%  s. tracking. adjust. val. gainX      = 0;%1;
+%  s. tracking. adjust. val. gainY      = 0;%1;
+%  s. tracking. adjust. val. offsetX    = 0;
+%  s. tracking. adjust. val. offsetY    = 0;
+%  s. tracking. adjust. val. theta      = 0;
+%     % %     cosTh = cosd(s.tracking.adjust.theta);
+%     % %     sinTh = sind(s.tracking.adjust.theta);
+%     % %  s. tracking. adjust. R          = [cosTh -sinTh; sinTh cosTh; 0 0] .* [s.tracking.adjust.gainX s.tracking.adjust.gainX; s.tracking.adjust.gainY s.tracking.adjust.gainY; 0 0];
+%     % %  s. tracking. adjust. S          = [0 0; 0 0; s.tracking.adjust.offsetX s.tracking.adjust.offsetY];
+%     % %  s. tracking. adjust. C          = s.tracking.adjust.R + s.tracking.adjust.S;
+
 end
 
 

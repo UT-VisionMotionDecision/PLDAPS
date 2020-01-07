@@ -9,6 +9,10 @@ function p = setup(p)
     
 if p.trial.eyelink.use 
     
+    if p.trial.eyelink.useAsEyepos
+        p.trial.pldaps.modNames.tracker = 'eyelink';
+    end
+        
     fprintLineBreak;
     fprintf('\tSetting up EYELINK Toolbox for eyetrace. \n');
     fprintLineBreak;
@@ -24,13 +28,6 @@ if p.trial.eyelink.use
     fprintf('EDFFile: %s\n', p.trial.eyelink.edfFile );
     
     p.trial.eyelink.setup.window = p.trial.display.ptr;
-    % dv.defaultParameters.eyelink.backgroundcolour = BlackIndex(dv.defaultParameters.display.ptr);
-    % dv.defaultParameters.eyelink.msgfontcolour    = WhiteIndex(dv.defaultParameters.display.ptr);
-    % dv.defaultParameters.eyelink.imgtitlecolour   = WhiteIndex(dv.defaultParameters.display.ptr);
-    % dv.defaultParameters.eyelink.targetbeep = 0;
-    % dv.defaultParameters.eyelink.calibrationtargetcolour= WhiteIndex(dv.defaultParameters.eyelink.window);
-    % dv.defaultParameters.eyelink.calibrationtargetsize= .5;
-    % dv.defaultParameters.eyelink.calibrationtargetwidth=0.5;
     p.trial.eyelink.setup.displayCalResults = 1;
     p.trial.eyelink.setup.eyeimgsize=50;
     EyelinkUpdateDefaults(p.trial.eyelink.setup);

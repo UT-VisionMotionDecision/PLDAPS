@@ -1,7 +1,13 @@
 function p = setup(p, devIdx)
-%pds.keyboard.setup   setup the keyboard queue
-%
+%p = pds.keyboard.setup(p, devIdx)
+% 
 % Setup universal Mac/PC keyboard and keynames
+% 
+% INPUTS:
+% [p]       Pldaps object/structure
+% [devIdx]  Keyboard device index. (def==-1, first detected keyboard device)
+%           - Can use getDevices.m to determine your devIdx, then
+%           store in
 % set scan to 1 if using button box in scanner, otherwise, leave empty.
 % output: kb. a struct with all keys (e.g. kb.pKey = 'p')
 %
@@ -17,7 +23,7 @@ function p = setup(p, devIdx)
 % Be explicit about what device we're polling
 %       (...subsequent KbQueueXxxx calls need to do this too, but we gotta start somewhere)
 if nargin < 2 || isempty(devIdx)
-    devIdx = -1; % PTB default
+    devIdx = p.trial.keyboard.devIdx; % PTB default
 end
 
 KbName('UnifyKeyNames');
@@ -88,17 +94,40 @@ kb.minusKey = KbName('-_');
 
 p.trial.keyboard.codes=kb;
 
-% modifier keys [ctrl, alt, shift]
-p.trial.keyboard.modKeys = struct('ctrl',0,'alt',0,'shift',0);
 
+%% Modifier keys [ctrl, alt, shift]
+modKeys = [KbName('LeftControl'),KbName('RightControl'); KbName('LeftAlt'),KbName('RightAlt'); KbName('LeftShift'),KbName('RightShift')]';
+p.trial.keyboard.modKeys = struct('codes',modKeys,'ctrl',0,'alt',0,'shift',0);
+
+
+%% Num keys
+% specifically poll number key presses (top row & keypad)
+numKeys = [ KbName('1!'), KbName('1');...
+            KbName('2@'), KbName('2');...
+            KbName('3#'), KbName('3');...
+            KbName('4$'), KbName('4');...
+            KbName('5%'), KbName('5');...
+            KbName('6^'), KbName('6');...
+            KbName('7&'), KbName('7');...
+            KbName('8*'), KbName('8');...
+            KbName('9('), KbName('9');...
+            KbName('0)'), KbName('0')];
+numVals = [1:9,0;1:9,0]';
+p.trial.keyboard.numKeys = struct('codes',numKeys, 'numVals',numVals, 'pressed',[], 'logical',false(size(numKeys)));    %  , 'first',[], 'last',[]);
+
+
+%% Start Queue
 % Establish the queue
 KbQueueCreate(devIdx);
 % Start collecting keystrokes
 KbQueueStart(devIdx);
 
+
+%% initialize outputs
 % Populate output fields & info
 [p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ] = KbQueueCheck(devIdx);
 p.trial.keyboard.nCodes = length(p.trial.keyboard.firstPressQ);
+% If devIdx input, ensure pldaps struct is consistent
 p.trial.keyboard.devIdx = devIdx;
 
 % match functionality of standard trial setup & cleanup to prevent extraneous empty fields in saved data struct (see pldapsDefaultTrialFunction.m)

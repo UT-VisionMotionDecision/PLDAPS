@@ -1,11 +1,11 @@
 function pldapsDefaultTrialFunction(p,state, sn)
-%stimulus name is only used for one variable: eyeW
+
+% stimulus name is only used for one variable: eyeW
     if nargin<3
-        sn='stimulus';
+        error('Use of PLDAPS modules without 3rd input string for module name is no longer allowed. See also  pldapsModule.m')
+        % default p.trial.stimulus field was killed off a while back --TBC 12/2019
+        %         sn='stimulus';
     end
-%     if p.trial.display.useGL
-%         global GL
-%     end
     
     switch state
         % FRAME STATES  (always place these at the top of your switch statement b/c they happen most frequently)
@@ -59,27 +59,18 @@ function pldapsDefaultTrialFunction(p,state, sn)
         case p.trial.pldaps.trialStates.trialCleanUpandSave
             cleanUpandSave(p);
             
-
+        case p.trial.pldaps.trialStates.experimentPreOpenScreen
+            experimentPreOpenScreen(p, sn)
+            
         case p.trial.pldaps.trialStates.experimentAfterTrials
             if ~isempty(p.trial.pldaps.experimentAfterTrialsFunction)
                h=str2func(p.trial.pldaps.experimentAfterTrialsFunction);
-               h(p, state)
+               h(p, state);
             end
             
         case p.trial.pldaps.trialStates.experimentPostOpenScreen
-            if ~isfield(p.trial.(sn), 'eyeW')
-                p.trial.(sn).eyeW = 8;
-            end
-            if ~isField(p.trial,'event')
-                defaultBitNames(p);
-            end
-            if isfield(p.trial.display, 'useGL') && p.trial.display.useGL
-                %   .display.glPerspective == [fovy, aspect, zNear, zFar]
-                p.trial.display.glPerspective = [atand(p.trial.display.wHeight/2/p.trial.display.viewdist)*2,...
-                    p.trial.display.wWidth/p.trial.display.wHeight,...
-                    p.trial.display.zNear,... % near clipping plane (cm)
-                    p.trial.display.zFar];  % far clipping plane (cm)
-            end
+            experimentPostOpenScreen(p, sn);
+            
                 
     end
 end 
@@ -95,18 +86,21 @@ end
         %%TODO: add buffer for Keyboard presses, mouse position and clicks.
         
         % Check keyboard    
-        [p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ, firstRelease, lastPress, lastRelease]=KbQueueCheck(p.trial.keyboard.devIdx); % fast
-        
-        if p.trial.keyboard.pressedQ || any(firstRelease)
-            p.trial.keyboard.samples = p.trial.keyboard.samples+1;
-            p.trial.keyboard.samplesTimes(p.trial.keyboard.samples) = GetSecs;
-            p.trial.keyboard.samplesFrames(p.trial.keyboard.samples) = p.trial.iFrame;
-            p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples) = p.trial.keyboard.pressedQ;
-            p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples) = p.trial.keyboard.firstPressQ;
-            p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples) = firstRelease;
-            p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples) = lastPress;
-            p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples) = lastRelease;
-        end
+        p = pds.keyboard.getQueue(p);
+        % % %         [p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ, firstRelease, lastPress, lastRelease]=KbQueueCheck(p.trial.keyboard.devIdx); % fast
+        % % %
+        % % %         if p.trial.keyboard.pressedQ || any(firstRelease)
+        % % %             p.trial.keyboard.samples = p.trial.keyboard.samples+1;
+        % % %             p.trial.keyboard.samplesTimes(p.trial.keyboard.samples) = GetSecs;
+        % % %             p.trial.keyboard.samplesFrames(p.trial.keyboard.samples) = p.trial.iFrame;
+        % % %             p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples) = p.trial.keyboard.pressedQ;
+        % % %             p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples) = p.trial.keyboard.firstPressQ;
+        % % %             p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples) = firstRelease;
+        % % %             p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples) = lastPress;
+        % % %             p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples) = lastRelease;
+        % % %             p = pds.keyboard.checkModKeys(p);
+        % % %         end
+        % % %         p = pds.keyboard.checkNumKeys(p);
         
         % Some standard PLDAPS key functions
         if any(p.trial.keyboard.firstPressQ)
@@ -129,6 +123,18 @@ end
             elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey)
                     disp('stepped into debugger. Type return to start first trial...')
                     keyboard %#ok<MCKBD>
+             
+            % [C]alibration
+            % NOTE:  This OTF calibration trigger did not work in practice
+            % -- Necessary to start a new trial for calibration & changes to parameters here
+            % don't readily carry over to subsequent trials(by PLDAPS design)
+            % -- Should also require a modifier key to reduce chance of inadvertently causing
+            %
+            % % %             elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.cKey)
+            % % %                 % data interruption/corruption
+            % % %                 p.trial.flagNextTrial = true;
+            % % %                 p.trial.tracking.on = true;
+
             end
         end
         
@@ -138,10 +144,15 @@ end
             % Return data in trial struct
             p.trial.mouse.samples = p.trial.mouse.samples+1;
             p.trial.mouse.samplesTimes(p.trial.mouse.samples)=GetSecs;
-            p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples) = [cursorX;cursorY];
+%             if p.trial.tracking.use
+%                 mousexyz = [cursorX, cursorY, 1] * p.trial.mouse.calibration_matrix;
+%                 p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples) = mousexyz(1:2);
+%             else
+                p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples) = [cursorX;cursorY];
+%             end
             p.trial.mouse.buttonPressSamples(:,p.trial.mouse.samples) = isMouseButtonDown';
             % Use as eyepos if requested
-            if(p.trial.mouse.useAsEyepos) 
+            if p.trial.mouse.useAsEyepos
                 if p.trial.pldaps.eyeposMovAv==1
                     p.trial.eyeX = p.trial.mouse.cursorSamples(1,p.trial.mouse.samples);
                     p.trial.eyeY = p.trial.mouse.cursorSamples(2,p.trial.mouse.samples);
@@ -164,6 +175,10 @@ end
         %get eyelink data
         pds.eyelink.getQueue(p); 
 
+        if p.trial.tracking.use
+            % update from source & apply calibration
+            pds.tracking.frameUpdate(p);
+        end
         %get plexon spikes
         % pds.plexon.spikeserver.getSpikes(p);
 
@@ -381,6 +396,13 @@ end
         p.trial.keyboard.lastPressSamples = zeros(p.trial.keyboard.nCodes,round(p.trial.pldaps.maxFrames*1.1));
         p.trial.keyboard.lastReleaseSamples = zeros(p.trial.keyboard.nCodes,round(p.trial.pldaps.maxFrames*1.1));
         
+        % setup tracking calibration
+        if p.trial.tracking.use
+            pds.tracking.trialSetup(p);
+        end
+        
+
+        
         %setup a fields for the mouse data
         if p.trial.mouse.use
             [~,~,isMouseButtonDown] = GetMouse(); 
@@ -577,9 +599,9 @@ end
         %do a last frameUpdate   (checks & refreshes keyboard/mouse/analog/eye data)
         frameUpdate(p)
         
-        % Flush KbQueue
-        KbQueueStop();
-        KbQueueFlush();
+%         % Flush KbQueue
+%         KbQueueStop();
+%         KbQueueFlush();
 
         %will this crash when more samples where created than preallocated?
         % mouse input
@@ -628,7 +650,53 @@ end
     end %cleanUpandSave
 
     
+    %% experimentPreOpenScreen(p)
+    function experimentPreOpenScreen(p, sn)
+    % setup some default modules
     
+    % Tracking module
+    % Set module order to run immediately after this module (pldapsDefaultTrialFunction.m)
+    snMod = 'tracking';
+    tmp =  pldapsModule('modName',snMod, 'name','pds.tracking.runCalibrationTrial', 'order',p.trial.(sn).stateFunction.order+0.5,...
+        'requestedStates', {'frameUpdate','framePrepareDrawing','frameDraw','frameGLDrawLeft','frameGLDrawRight','trialItiDraw','trialSetup','trialPrepare','trialCleanUpandSave','experimentPreOpenScreen','experimentPostOpenScreen','experimentCleanUp'}); % ...does setting up in 'experimentPreOpenScreen' preclude this module running in that state??
+    
+    tmp.use = true;
+    tmp.on = false;
+    fn = fieldnames(tmp);
+    for i = 1:length(fn)
+        p.trial.(snMod).(fn{i}) = tmp.(fn{i});
+    end
+
+    
+    end %experimentPreOpenScreen
+    
+    
+    %% experimentPostOpenScreen(p)
+    function experimentPostOpenScreen(p, sn)
+        % Update screen-dependent params
+        if ~isfield(p.trial.(sn), 'eyeW')
+            p.trial.(sn).eyeW = 8;
+        end
+        if ~isField(p.trial, 'event')
+            defaultBitNames(p);
+        end
+        
+        if isfield(p.trial.display, 'useGL') && p.trial.display.useGL
+            %   .display.glPerspective == [fovy, aspect, zNear, zFar]
+            p.trial.display.glPerspective = [atand(p.trial.display.wHeight/2/p.trial.display.viewdist)*2,...
+                p.trial.display.wWidth/p.trial.display.wHeight,...
+                p.trial.display.zNear,... % near clipping plane (cm)
+                p.trial.display.zFar];  % far clipping plane (cm)
+        end
+        
+        %---------------------------------------------------------------------%
+        % Identify tracking source & setup calibration fields
+        if p.trial.tracking.use
+            pds.tracking.postOpenScreen(p);
+        end
+
+
+    end %experimentPostOpenScreen
     
 
     %% setupGLPerspective

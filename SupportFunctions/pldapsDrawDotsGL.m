@@ -1,5 +1,5 @@
 function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader, dotBuffers)
-% function pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader)
+% function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader, dotBuffers)
 % 
 % Streamlined version of PTB moglDrawDots3d.m (circa ver. 3.0.14)
 %   -- Removes preliminary safety checks
@@ -11,7 +11,11 @@ function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, 
 %                   recommended: 5-6  (i.e. 320-1280 sides)
 %         >=10  n-segments of a mercator sphere (...simple, but over-samples poles)
 %                   recommended: 12-22;
-%       
+%
+% TODO: update help with new info on new params/shapes/defaults & usage examples.
+%       ...[center3D] has a particularly tricky/flexible implementation .  --TBC 2019-12)
+% 
+% ~~~Orig help text below~~~ 
 % Draw a large number of dots in 3D very efficiently.
 %
 %
@@ -63,10 +67,12 @@ function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, 
 % shader program will be used. You can use this, e.g., to bind a custom vertex
 % shader to perform complex per-dot calculations very fast on the GPU.
 %
-% See 
+% See also:  PTB moglDrawDots3d.m
 
 % History:
 % 03/01/2009  mk  Written.
+% 2017-xx-xx  TBC  Adapted from PTB moglDrawDots3d.m (circa ver. 3.0.14)
+% 
 
 % Need global GL definitions:
 global GL;

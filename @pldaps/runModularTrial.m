@@ -33,8 +33,7 @@ function p = runModularTrial(p)
     %     end
 
     % trialPrepare
-    %   called just before the trial starts for time critical calls
-    %   (e.g. to start data aquisition)
+    %   called just before the trial starts for time critical calls  (e.g. to start data aquisition)
     runStateforModules(p, 'trialPrepare', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
     %%% MAIN WHILE LOOP %%%

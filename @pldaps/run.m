@@ -18,13 +18,10 @@ function p = run(p)
 %
 %
 %
-% make HideCursor optional
+% no longer HideCursor.
 
 
-% try
 %% Setup and File management
-% clean IOPort handles (no PTB method to retrieve previously opened IOPort handles, so might as well clean slate)
-% % % IOPort('CloseAll');
 
 if ~isfield(p.trial.pldaps,'verbosity')
     p.trial.pldaps.verbosity = 3;
@@ -121,7 +118,7 @@ pds.behavior.reward.setup(p);
 % logging
 pds.datapixx.init(p);
 
-% HID
+% HID: Initialize Keyboard, Mouse, ...etc
 pds.keyboard.setup(p);
 
 if p.trial.mouse.useLocalCoordinates
@@ -179,7 +176,7 @@ p = beginExperiment(p);
 
 % disable keyboard
 ListenChar(2);
-HideCursor;
+% HideCursor;
 KbQueueFlush(p.trial.keyboard.devIdx);
 
 p.trial.flagNextTrial  = 0; % flag for ending the trial
@@ -219,7 +216,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
 
         % increment trial counter
         nextTrial = p.defaultParameters.incrementTrial(+1);
-        %load parameters for next trial and lock defaultsParameters
+        %load parameters for next trial and lock defaultParameters
         if ~isempty(p.condMatrix)
             if p.condMatrix.iPass > p.condMatrix.nPasses
                 break
@@ -261,6 +258,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         p.trial = load(fullfile(p.trial.pldaps.dirs.data, '.TEMP', 'deepTrialStruct'));
         
         % Document currently active levels for this trial
+        p.trial.pldaps.allLevels = p.defaultParameters.getAllLevels;
         p.trial.pldaps.activeLevels = p.defaultParameters.getActiveLevels;
         
         % lock the defaultParameters structure
@@ -340,7 +338,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             keyboard %#ok<MCKBD>
             fprintf(2,'\b...experiment resumed.\n')
             ListenChar(2);
-            HideCursor;
+%             HideCursor;
         elseif ptype==2
             pauseLoop(p);
         end
@@ -547,7 +545,7 @@ while p.trial.pldaps.quit==1
         elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.pKey)
             p.trial.pldaps.quit = 0;
             ListenChar(2);
-            HideCursor;
+%             HideCursor;
             break;
             
             %Q: QUIT
