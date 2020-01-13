@@ -655,18 +655,19 @@ end
     % setup some default modules
     
     % Tracking module
-    % Set module order to run immediately after this module (pldapsDefaultTrialFunction.m)
-    snMod = 'tracking';
-    tmp =  pldapsModule('modName',snMod, 'name','pds.tracking.runCalibrationTrial', 'order',p.trial.(sn).stateFunction.order+0.5,...
-        'requestedStates', {'frameUpdate','framePrepareDrawing','frameDraw','frameGLDrawLeft','frameGLDrawRight','trialItiDraw','trialSetup','trialPrepare','trialCleanUpandSave','experimentPreOpenScreen','experimentPostOpenScreen','experimentCleanUp'}); % ...does setting up in 'experimentPreOpenScreen' preclude this module running in that state??
-    
-    tmp.use = true;
-    tmp.on = false;
-    fn = fieldnames(tmp);
-    for i = 1:length(fn)
-        p.trial.(snMod).(fn{i}) = tmp.(fn{i});
+    if p.trial.tracking.use
+        % Set module order to run immediately after this module (pldapsDefaultTrialFunction.m)
+        snMod = 'tracking';
+        tmp =  pldapsModule('modName',snMod, 'name','pds.tracking.runCalibrationTrial', 'order',p.trial.(sn).stateFunction.order+0.5,...
+            'requestedStates', {'frameUpdate','framePrepareDrawing','frameDraw','frameGLDrawLeft','frameGLDrawRight','trialItiDraw','trialSetup','trialPrepare','trialCleanUpandSave','experimentPreOpenScreen','experimentPostOpenScreen','experimentCleanUp'}); % ...does setting up in 'experimentPreOpenScreen' preclude this module running in that state??
+        
+        tmp.use = true;
+        tmp.on = false;
+        fn = fieldnames(tmp);
+        for i = 1:length(fn)
+            p.trial.(snMod).(fn{i}) = tmp.(fn{i});
+        end
     end
-
     
     end %experimentPreOpenScreen
     
@@ -677,6 +678,7 @@ end
         if ~isfield(p.trial.(sn), 'eyeW')
             p.trial.(sn).eyeW = 8;
         end
+        
         if ~isField(p.trial, 'event')
             defaultBitNames(p);
         end

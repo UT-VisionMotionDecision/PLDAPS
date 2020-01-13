@@ -34,7 +34,7 @@ function p = openScreen(p)
 %% PTB general interface settings
 % prevent splash screen
 Screen('Preference', 'VisualDebugLevel',3);
-Screen('Preference', 'Verbosity',2);
+Screen('Preference', 'Verbosity',3);
 InitializeMatlabOpenGL(0, 0); %second 0: debug level =0 for speed, debug level=3 == "very verbose" (slow, but incl. error msgs from w/in OpenGL/mogl functions)
 
 

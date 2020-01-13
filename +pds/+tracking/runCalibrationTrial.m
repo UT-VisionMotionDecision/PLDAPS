@@ -47,21 +47,7 @@ switch state
         % drawTheFixation(p, sn);  % maintain fixation during iti
         
     case p.trial.pldaps.trialStates.trialPrepare
-        
-        % NOPE: This change fails to carry over to next trial. Must be set within a new params class active state (ugh..)
-        %       HAK: equiv functionality triggered when runCalibrationTrial is called with nargin<2 or empty 'state' input
-        %
-        % %         if p.trial.(sn).on
-        % %
-        % %             % disable any other active modules
-        % %             [moduleNames] = getModules(p, 1);
-        % %             thisModuleIndex = find(strcmp(moduleNames,'tracking'));
-        % %             % turn off all subsequent modules
-        % %             for i = thisModuleIndex+1:length(moduleNames)
-        % %                 p.trial.(moduleNames{i}).use = false;
-        % %             end
-        % %         end
-        
+                
         % clean up this code when working
         % % %         % fixation window rect overlay
         % % %         %(must be done here to allow O.T.F. changes in fixLim)
@@ -121,7 +107,7 @@ switch state
     case p.trial.pldaps.trialStates.framePrepareDrawing %frameUpdate
         if p.trial.(sn).on
                         
-            % Some standard PLDAPS key functions
+            %% Keyboard functions
             if any(p.trial.keyboard.firstPressQ)
                 
                 if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.escKey) || p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.xKey)
@@ -138,6 +124,9 @@ switch state
                         p.trial.tracking.nextTarg = p.trial.tracking.targets.randOrd(mod(p.static.tracking.thisFix,p.trial.tracking.targets.nTargets)+1);
                         updateTarget(p);
                         updateCalibPlot(p);
+                        % give reward
+                        pds.behavior.reward.give(p);
+
                     end
                     
                     
@@ -147,6 +136,8 @@ switch state
                     updateTarget(p);
                     updateCalibPlot(p);
                     
+                    % give reward
+                    pds.behavior.reward.give(p);
                     
                 elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.uKey)
                     % [u, U] key - update calibration matrix
@@ -175,15 +166,11 @@ switch state
                 elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.eKey)
                     % [SHIFT-E] to reset calibration altogether!
                     if p.trial.keyboard.modKeys.shift
-                        p.static.tracking.fixations = nan(3, p.trial.tracking.maxSamples);   %nan(4, p.trial.(sn).maxSamples);
-                        p.static.tracking.thisFix = 0;
-                        p.trial.tracking.targets = setupTargets(p);
-                        updateTarget(p);
-                        updateCalibPlot(p);
+                        resetCalibration(p);
                         % TODO:  ideally use modKey to only erase calibration points for current viewdist
                     else
                         p.static.tracking.thisFix = p.static.tracking.thisFix - 1;
-                        p.trial.tracking.cm = p.trial.tracking.cm0;
+                        % p.trial.tracking.cm = p.trial.tracking.cm0;
                     end
                     
                     % [1-9] Jump to specified target location
@@ -205,7 +192,7 @@ switch state
         if p.trial.(sn).on
             
             % Pulsating target dot
-            sz = p.trial.tracking.dotSz + abs(p.trial.tracking.dotSz*sin(p.trial.ttime*6));
+            sz = p.trial.tracking.dotSz + abs(p.trial.tracking.dotSz/2*sin(p.trial.ttime*6));
                         
             % Screen('DrawDots', p.trial.display.ptr, targPx, sz, p.trial.tracking.col, [], 2);
 %             if ~p.trial.display.useGL
@@ -218,11 +205,11 @@ switch state
             if p.trial.pldaps.draw.eyepos.use && p.trial.display.useOverlay
                 % show past & current eye position on screen
                 if p.static.tracking.thisFix > 0
-                    pastFixPx = transformPointsForward(p.trial.tracking.tform, imag(p.static.tracking.fixations(1:2, 1:p.static.tracking.thisFix))')';
+                    pastFixPx = transformPointsInverse(p.trial.tracking.tform, imag(p.static.tracking.fixations(1:2, 1:p.static.tracking.thisFix))')';
                     Screen('DrawDots', p.trial.display.overlayptr, pastFixPx(1:2,:), 9, [0 1 0 .7], [], 0);
                 end
                 
-                newEye = transformPointsForward(p.trial.tracking.tform, p.trial.tracking.posRaw')';%p.trial.tracking.cm * p.trial.tracking.eyeRaw;
+                newEye = transformPointsInverse(p.trial.tracking.tform, p.trial.tracking.posRaw')';%p.trial.tracking.cm * p.trial.tracking.eyeRaw;
                 for i = 1:size(newEye,2)
                     % Screen('DrawDots', p.trial.display.overlayptr, newEye(1:2), 5, [0 1 0 1]', [], 0);
                     Screen('DrawDots', p.trial.display.overlayptr, newEye(1:2, i), 5, p.trial.display.clut.(['eye',num2str(i)]), [], 0);
@@ -358,8 +345,8 @@ end %state switch block
             'mode', 2,...   % limit type (0==pass/none, 1==square, 2==euclidean/circle)
             'isheld',0,...  % current state of fixation
             'targPos',[0 0 p.trial.display.viewdist]',... % xyz position
-            'dotSz', 7,...   % fix dot size (pixels)
-            'col',[0 0 0 1]',...    % fix dot color [R G B A]
+            'dotSz', 5,...   % fix dot size (pixels)
+            'col',[0 0 0 0]',...    % fix dot color [R G B A]
             'dotType',2,...    % use basic PTB anti-aliased dots by default
             'fixLim', [2 2],...  % fixation window (deg)
             'cm0', [],...
@@ -457,10 +444,20 @@ end %state switch block
             xyRaw = imag(p.static.tracking.fixations(:, 1:n));  % only raw vals should be stored in fixations.
             targXY = real(p.static.tracking.fixations(:, 1:n));
             % Fit geometric transform
-            p.trial.tracking.tform = fitgeotrans(xyRaw(1:2,:)', targXY(1:2,:)', 'projective'); % tform types: ['nonreflective', 'affine', 'projective', ...]
-            p.trial.tracking.cm = p.trial.tracking.tform.T;
+            % - tform types: ['nonreflective', 'affine', 'projective', 'polynomial'...]
+            % working if using matrix-based transformation affine or projective, and "transformPointsForward" method
+            %            p.trial.tracking.tform = fitgeotrans(xyRaw(1:2,:)', targXY(1:2,:)', 'projective'); 
+            p.trial.tracking.tform = fitgeotrans(targXY(1:2,:)', xyRaw(1:2,:)', 'polynomial',3); 
+            
             fprintf('Tracking calibration updated:\n');
-            fprintf('\t%#7.3f\t%#7.3f\t%#7.3f\n', p.trial.tracking.tform.T');    %p.static.tracking.calib.matrix.T);
+            if isfield(p.trial.tracking.tform, 'T')
+                % extract calibration matrix if present, else will have to keep as tform object and trust/code downstream to handle it
+                p.trial.tracking.cm = p.trial.tracking.tform.T;
+                fprintf('\t%#7.3f\t%#7.3f\t%#7.3f\n', p.trial.tracking.tform.T');    %p.static.tracking.calib.matrix.T);
+            else
+                p.trial.tracking.cm = p.trial.tracking.tform;
+                disp(p.trial.tracking.cm)
+            end
             fprintf('\n');
             
         end
@@ -500,21 +497,38 @@ end %state switch block
             
             [uTargs, ~, fix2targ] = unique(fixTargs, 'rows');
             [~, fixCols] = ismember(uTargs, allTargs','rows');
-            fixCols = fixCols(fix2targ); % expand for each target repeat
-            
-            plot( uTargs(:,1), -uTargs(:,2), 'kd')
-            % plot raw data
-            scatter(fixVals(:,1)- p.trial.display.ctr(1), -(fixVals(:,2)- p.trial.display.ctr(2)), [], cols(fixCols,:), 'markerfacecolor','none','markeredgealpha',.3);    %cols(fix2targ,:)
-            
-            if isfield(p.trial.tracking, 'tform')
-                % plot calibrated data
-                fixCaled = transformPointsForward(p.trial.tracking.tform, fixVals)- p.trial.display.ctr(1:2);
-                scatter(fixCaled(:,1), -fixCaled(:,2), [], cols(fixCols,:), 'filled', 'markeredgecolor','none','markerfacealpha',.3);    %cols(fix2targ,:)
+            if any(fixCols==0)
+                % mismatch between target positions and recorded fixations
+                % Resetting calibration to prevent crash
+                resetCalibration(p)
+            else
+                fixCols = fixCols(fix2targ); % expand for each target repeat
+                
+                plot( uTargs(:,1), -uTargs(:,2), 'kd')
+                % plot raw data
+                scatter(fixVals(:,1)- p.trial.display.ctr(1), -(fixVals(:,2)- p.trial.display.ctr(2)), [], cols(fixCols,:), 'markerfacecolor','none','markeredgealpha',.3);    %cols(fix2targ,:)
+                
+                if isfield(p.trial.tracking, 'tform')
+                    % plot calibrated data
+                    fixCaled = transformPointsInverse(p.trial.tracking.tform, fixVals)- p.trial.display.ctr(1:2);
+                    scatter(fixCaled(:,1), -fixCaled(:,2), [], cols(fixCols,:), 'filled', 'markeredgecolor','none','markerfacealpha',.3);    %cols(fix2targ,:)
+                end
             end
         end
         
         drawnow
     end
+
+
+%% resetCalibration(p)
+    function resetCalibration(p)
+        % packaged for easy call/editing
+        p.static.tracking.fixations = nan(3, p.trial.tracking.maxSamples);   %nan(4, p.trial.(sn).maxSamples);
+        p.static.tracking.thisFix = 0;
+        p.trial.tracking.targets = setupTargets(p);
+        updateTarget(p);
+        updateCalibPlot(p);
+    end %resetCalibration
 
 
 %% updateTarget(p)
@@ -550,8 +564,8 @@ end %state switch block
                 ...[p.trial.eyeX; p.trial.eyeY; p.trial.display.viewdist].*1i; %,  [p.trial.(sn).targets(p.trial.(sn).iTarget).xPx(fixatedTarget); p.trial.(sn).targets(p.trial.(sn).iTarget).yPx(fixatedTarget); p.trial.eyeX; p.trial.eyeY];
                 [p.trial.tracking.posRaw; p.trial.display.viewdist].*1i;
             
-            % give reward
-            pds.behavior.reward.give(p);
+            % %             % give reward
+            % %             pds.behavior.reward.give(p);
             fprintf('.')
         end
     end

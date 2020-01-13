@@ -6,7 +6,10 @@ function p = setup(p)
 %
 % 20xx-xx-xx  AAA   Wrote it.
 % 2018-03-28  TBC   Binocular compatibility
-    
+
+% NOTE: cannot 'useRawData' with matlab-side calibration (pds.tracking...) if mouse simulation mode enabled.
+%       Ideally poll Eyelink for mouse simulation mode enabled and set .useRawData == false
+
 if p.trial.eyelink.use 
     
     if p.trial.eyelink.useAsEyepos
@@ -223,7 +226,7 @@ if p.trial.eyelink.use
     [~, p.trial.eyelink.EYE_USED] = Eyelink('ReadFromTracker', 'active_eye');
     
     [~, isBino] = Eyelink('ReadFromTracker', 'binocular_enabled');
-    if isBino
+    if str2num(isBino)
         p.trial.eyelink.EYE_USED = 'BINO';
     end
     
