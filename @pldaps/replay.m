@@ -5,6 +5,11 @@ function p = replay(p,input)
 % p is a pldaps class, with display settings defined as they should be for
 %       the new screen
 % input is the filename of a recorded experiment
+
+fprintf(2, [fprintLineBreak,'\t\tNo longer functional & unlikely to be revived\n',fprintLineBreak])
+error(['!~!\tUse of pldaps.replay  (%s)\n\tis very old/dead functionality of Jonas-era PLDAPS.\n\t--TBC 2020\n',fprintLineBreak], mfilename('fullpath'))
+
+%% Old code
 if ischar(input)
     load(input,'-mat');
 else

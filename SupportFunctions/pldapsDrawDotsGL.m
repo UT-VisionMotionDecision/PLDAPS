@@ -46,7 +46,7 @@ function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, 
 % 'dotdiameter' optional: Either a single scalar spec of dot diameter, or a
 % vector of as many dotdiameters as dots 'n', or left out. If left out, a
 % dot diameter of 1.0 pixels will be used. Drawing of dots of different
-% sizes is much less efficient than drawing of dots of identical sizes! Try
+% sizes is much less efficient than drawing of dots of identical sizes! Attempt
 % to group many dots of identical size into separate calls to this function
 % for best performance!
 %
