@@ -23,11 +23,11 @@ if p.trial.eyelink.use
         
     Eyelink('Initialize');
         
-    p.trial.eyelink.setup=EyelinkInitDefaults(); % don't pass in the window pointer or you can mess up the color range
+    p.trial.eyelink.setup = EyelinkInitDefaults(); % don't pass in the window pointer or you can mess up the color range
+    % Set EDF file to PLDAPS session start time
+    p.trial.eyelink.edfFile = datestr(p.trial.session.initTime, 'mmddHHMM');
     
-    p.trial.eyelink.edfFile=datestr(p.trial.session.initTime, 'mmddHHMM');
-    
-    p.trial.eyelink.edfFileLocation = pwd; %dv.pref.datadir;
+    p.trial.eyelink.edfFileLocation = fullfile(p.trial.session.dir, 'eye');
     fprintf('EDFFile: %s\n', p.trial.eyelink.edfFile );
     
     p.trial.eyelink.setup.window = p.trial.display.ptr;
@@ -40,6 +40,12 @@ if p.trial.eyelink.use
         p.trial.eyelink.fixdotW = ceil(0.2 * p.trial.display.ppd);
     end
 
+    % open EDF data file
+    err = Eyelink('Openfile', p.trial.eyelink.edfFile);
+    if err
+        fprintf('Cannot create EDF file ''%s'' ', p.trial.eyelink.edfFile);
+        Eyelink('Shutdown');
+    end
     
     % check if eyelink initializes
     if ~Eyelink('IsConnected')
@@ -49,22 +55,17 @@ if p.trial.eyelink.use
         fprintf('PLDAPS is NOT using EYELINK Toolbox for eyetrace. \r')
         fprintf('if you want to use EYELINK Toolbox for your eyetracking needs, \rtry Eyelink(''Shutdown'') and then retry p = pds.eyelink.setup(p)\r')
         
-        if p.trial.sound.use
-            Beeper(500); Beeper(400)
-        end
-        disp('PRESS ENTER TO CONFIRM YOU READ THIS MESSAGE'); pause
+        fprintf(2, '~!~\tPRESS ENTER TO CONFIRM YOU READ THIS MESSAGE ~!~\m'); pause
         Eyelink('Shutdown')
+        % adjust parameters to disable eyelink usage
         p.trial.eyelink.use = 0;
+        p.trial.eyelink.useAsEyepos = 0;
+        if p.trial.mouse.use
+            p.trial.mouse.useAsEyepos = 1;
+        end
         return
     end
     
-    % open file to record data to
-    err = Eyelink('Openfile', p.trial.eyelink.edfFile);
-    if err
-        fprintf('Cannot create EDF file ''%s'' ', p.trial.eyelink.edfFile);
-        Eyelink('Shutdown')
-        return;
-    end
     
     %% Setup Eyelink enviro & report values in cmd window
     % Eyelink commands to setup the eyelink environment

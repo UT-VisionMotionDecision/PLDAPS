@@ -16,16 +16,13 @@ function matrixOutput = updateMatrix(p)
 
 
 % Update active calibration matrix in  p.trial
-p.trial.tracking.calib.matrix = p.static.tracking.calib.matrix;
+p.trial.tracking.tform = p.static.tracking.tform;
 
 % %  Should we be checking that nSources in p.static matches expectation of this trial??  ...how?
 % nSrc = numel(p.trial.tracking.srcIdx);
 
-% % clear adjustment params
-% p.static.tracking.adjust.val(1:nSrc) = struct('gainX',0, 'gainY',0, 'offsetX',0, 'offsetY',0, 'theta',0);
-
 if nargout==0
     return
 else
-    matrixOutput = p.static.tracking.calib.matrix;%p.trial.tracking.calib.matrix;
+    matrixOutput = p.static.tracking.tform;%p.trial.tracking.calib.matrix;
 end

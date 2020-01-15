@@ -66,7 +66,7 @@ function s=pldapsClassDefaultParameters(s)
  s.	eyelink.	collectQueue = false;  % No Eyelink queue! This is a timesink, no longer recommended (TBC 2018)
  s.	eyelink.	custom_calibration = false;
  s.	eyelink.	custom_calibrationScale = 0.4; % 0.4 ok for >= 55 cm viewing distance on most (propixx) projection setups
- s.	eyelink.	saveEDF = false;
+ s.	eyelink.	saveEDF = false;     % better off manually transferring by running this at end of session:      pds.eyelink.fetchEdf(p.trial.session.dir)
  s.	eyelink.	use = true;
  s.	eyelink.	useAsEyepos = true;
  s.	eyelink.	useRawData = false;
@@ -187,22 +187,12 @@ function s=pldapsClassDefaultParameters(s)
  s.	sound.	useForReward = true;
  
 % Matlab-side [eye]tracker calibration
- s. tracking. use                = true;
- s. tracking. calib. matrix      = [];
- s. tracking. calib. targetScale = 1; % scale of calbiration targets relative to display dimensions
+ s. tracking. use               = true;
+ s. tracking. on                = true;
+ s. tracking. gridSz            = [30, 20];  % [x,y] size of target grid, in deg
+ s. tracking. gridScale         = 1; % scale of calbiration targets relative to display dimensions
+ s. tracking. tform             = []; % geometric transform object (index if binocular) See:  pds.tracking.runCalibrationTrial>>updateCalibTransform
  
- % online calibration adjustments
- s. tracking. adjust. on         = false;
-%  s. tracking. adjust. val. gainX      = 0;%1;
-%  s. tracking. adjust. val. gainY      = 0;%1;
-%  s. tracking. adjust. val. offsetX    = 0;
-%  s. tracking. adjust. val. offsetY    = 0;
-%  s. tracking. adjust. val. theta      = 0;
-%     % %     cosTh = cosd(s.tracking.adjust.theta);
-%     % %     sinTh = sind(s.tracking.adjust.theta);
-%     % %  s. tracking. adjust. R          = [cosTh -sinTh; sinTh cosTh; 0 0] .* [s.tracking.adjust.gainX s.tracking.adjust.gainX; s.tracking.adjust.gainY s.tracking.adjust.gainY; 0 0];
-%     % %  s. tracking. adjust. S          = [0 0; 0 0; s.tracking.adjust.offsetX s.tracking.adjust.offsetY];
-%     % %  s. tracking. adjust. C          = s.tracking.adjust.R + s.tracking.adjust.S;
 
 end
 

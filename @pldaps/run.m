@@ -155,12 +155,12 @@ end
 fprintLineBreak('_-',32); fprintLineBreak;
 
 
-%% Last chance to check variables
-if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
-    disp('Ready to begin trials. Type "dbcont" to start first trial...')
-    keyboard
-    fprintf(2,'\b ~~~Start of experiment~~~\n')
-end
+% % % %% Last chance to check variables
+% % % if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
+% % %     disp('Ready to begin trials. Type "dbcont" to start first trial...')
+% % %     keyboard
+% % %     fprintf(2,'\b ~~~Start of experiment~~~\n')
+% % % end
 
 %% Send expt start sync RSTART
 if p.trial.datapixx.use
@@ -204,6 +204,14 @@ if p.trial.pldaps.maxPriority
     if oldPriority < maxPriority
         Priority(maxPriority);
     end
+end
+
+
+%% Last chance to check variables
+if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
+    disp('Ready to begin trials. Type "dbcont" to start first trial...')
+    keyboard
+    fprintf(2,'\b ~~~Start of experiment~~~\n')
 end
 
 %% Main trial loop

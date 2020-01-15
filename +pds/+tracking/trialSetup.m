@@ -17,6 +17,6 @@ function p = trialSetup(p)
     
 
 % update active calibration matrix from static storage
-p.trial.tracking.calib.matrix = p.static.tracking.calib.matrix;
+p.trial.tracking.tform = p.static.tracking.tform;
 % place copy in tracking source struct/module too
-p.trial.(p.trial.tracking.source).calibration_matrix = p.static.tracking.calib.matrix;
+p.trial.(p.trial.tracking.source).cal_tform = p.static.tracking.tform;

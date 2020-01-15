@@ -24,9 +24,8 @@ function p = frameUpdate(p)
 
 if p.trial.tracking.use                     % this is wasteful convention; if you don't use, don't call outside fxn in first place.
     src = p.trial.tracking.source;
-    cm = p.trial.(src).calibration_matrix;
+    cm = p.trial.(src).cal_tform;
     % contents of this should be a geometric transform object,
-    % but can also be a simple 3-by-3 transformation matrix (..for now)
     
     % Get current position data
     %     posRaw = pds.mouse.updateFxn(p);
@@ -37,23 +36,17 @@ if p.trial.tracking.use                     % this is wasteful convention; if yo
     
     % Apply separate calibration matrix to each eye (bino compatible)
     for i = 1:size(posRaw,2)
-        if ndims(cm)<3 % isTform
-            pos(:,i) = transformPointsInverse(cm(i), posRaw(:,i)')';
-            % TODO:  Had to switch to Inverse from transformPointsForward method
-            % because forward method doesn't exist for polynomial class tforms
-            % ...should check that manual matrix transform is still consistent
-            % (or just remove it entirely)
+        ii = p.trial.tracking.srcIdx(i);
+        
+        pos(:,i) = transformPointsInverse(cm(min([ii,end])), posRaw(:,i)')';
+        % TODO:  Had to switch to Inverse from transformPointsForward method
+        % because forward method doesn't exist for polynomial class tforms
             
-        else
-            eXY = cm(:,:,i) * [posRaw(1,i), posRaw(2,i), 1]';
-            pos(1,i) = eXY(1);
-            pos(2,i) = eXY(2);
-        end
     end
     
-    % % % %Print raw pos to command window while sanity checking
-    % % %         fprintf(repmat('\b',1,44));
-    % % %         fprintf('%20.18g,  %20.18g\n', posRaw(1:2));
+% % %     %Print raw pos to command window while sanity checking
+% % %             fprintf(repmat('\b',1,44));
+% % %             fprintf('%20.18g,  %20.18g\n', posRaw(1:2));
     
     % assign positions to source outputs
     p.trial.tracking.pos = pos;

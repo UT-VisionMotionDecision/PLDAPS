@@ -21,12 +21,18 @@ end
 
 
 % Determine number of source elements (e.g. monocular[1] or binocular[2])
+% -!! Must be one-based !!
 if isfield(p.trial.(src), 'eyeIdx')
     p.trial.tracking.srcIdx = p.trial.(src).eyeIdx;
+    
+elseif isfield(p.trial.(src), 'srcIdx')
+    p.trial.tracking.srcIdx = p.trial.(src).srcIdx;
+    
 else
     p.trial.tracking.srcIdx = 1;
 end
-nSrc = numel(p.trial.tracking.srcIdx);
+
+% nSrc = numel(p.trial.tracking.srcIdx);
 
 
 % function handle for updating tracked position on each display refresh
@@ -48,40 +54,30 @@ end
 
 
 %% Initialize calibration matrix with default
-if isfield(p.trial.(src), 'calibration_matrix') && ~isempty(p.trial.(src).calibration_matrix)
+if  isfield(p.trial.(src), 'cal_tform') && ~isempty(p.trial.(src).cal_tform)
     % pull calib matrix from (src) if pre-defined
-    initCalibMatrix = p.trial.(src).calibration_matrix;
-
-elseif isField(p.trial, 'tracking.calib.matrix') && ~isempty(p.trial.tracking.calib.matrix)
-    % else from .tracking if pre-defined
-    initCalibMatrix = p.trial.tracking.calib.matrix;
-else
-    % failsafe
-    initCalibMatrix = eye(3);
-
-end
-
-for i = 1:nSrc
-    % avoid dimensionality crash (e.g. if tracking bino, but default only defined for mono)
-    if isa(initCalibMatrix, 'images.geotrans.internal.GeometricTransformation')
-        ii = min([i, length(initCalibMatrix)]);
-        thisCalib = initCalibMatrix(ii);
-        
-    elseif ~isempty(initCalibMatrix)
-        ii = min([i, size(initCalibMatrix, 3)]);
-        thisCalib = projective2d(initCalibMatrix(:,:,ii));    % affine2d;
-        
-    else
-        thisCalib = projective2d;
-    end
-    % TODO:  Should fix this to tform NOW, instead of coding for the [non-existent] past
-    p.static.tracking.calib.matrix(i) = thisCalib;
+    initCalibMatrix = p.trial.(src).cal_tform;
     
+elseif isfield(p.trial.(src), 'calibration_matrix') && ~isempty(p.trial.(src).calibration_matrix)
+    % create tform from calibration matrix
+    initCalibMatrix = projective2d(p.trial.(src).calibration_matrix);
+
+else
+    % failsafe blank 2nd deg polynomial (best guess if eyetracking)
+    initCalibMatrix = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0], [0 0 1 0 0 0]);
+
 end
 
-p.trial.tracking.cm0 = cat(3, p.static.tracking.calib.matrix.T);
-% initialize zeroed-out adjustment params
-p.static.tracking.adjust.val(1:nSrc) = struct('gainX',0, 'gainY',0, 'offsetX',0, 'offsetY',0, 'theta',0);
+% Avoid dimensionality crash (e.g. if tracking bino, but default only defined for mono)
+for i = 1:max(p.trial.tracking.srcIdx)
+    thisCalib = initCalibMatrix( min([i,end]));
+
+    % p.static.tracking.calib.matrix(i) = thisCalib;
+    p.static.tracking.tform(i) = thisCalib;
+end
+
+% record starting point (incase things get screwy)
+p.trial.tracking.t0 = p.static.tracking.tform;
 
 
 end %main function
