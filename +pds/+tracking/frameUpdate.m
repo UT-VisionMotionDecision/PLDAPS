@@ -1,7 +1,6 @@
 function p = frameUpdate(p)
 % p = pds.tracking.frameUpdate(p)
 % get current sample from tracked source & apply calibration
-%
 % 
 % TODO:  Add explainer for how updateFxn should be constructed for different
 % tracker sources.
@@ -14,7 +13,8 @@ function p = frameUpdate(p)
 %
 % %!%!%!% WARNING %!%!%!%
 % 
-% See also:  pds.tracking.runCalibrationTrial
+% 
+% See also:  pds.tracking.runCalibrationTrial, pds.eyelink.updateFxn, pds.mouse.updateFxn
 % 
 % 
 % 2020-01-xx  TBC  Wrote it.
@@ -51,9 +51,6 @@ if p.trial.tracking.use                     % this is wasteful convention; if yo
     % assign positions to source outputs
     p.trial.tracking.pos = pos;
     p.trial.tracking.posRaw = posRaw;
-    %     % Store tracking timecourse w/in source module ??
-    %     p.trial.(src).pos(:,p.trial.iFrame) = pos(:);
-    %     p.trial.(src).posRaw(:,p.trial.iFrame) = posRaw(:);
     
     % Apply calibrated data as current eye position
     if p.trial.(src).useAsEyepos

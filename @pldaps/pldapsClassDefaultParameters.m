@@ -188,7 +188,7 @@ function s=pldapsClassDefaultParameters(s)
  
 % Matlab-side [eye]tracker calibration
  s. tracking. use               = true;
- s. tracking. on                = true;
+ s. tracking. on                = false;
  s. tracking. gridSz            = [30, 20];  % [x,y] size of target grid, in deg
  s. tracking. gridScale         = 1; % scale of calbiration targets relative to display dimensions
  s. tracking. tform             = []; % geometric transform object (index if binocular) See:  pds.tracking.runCalibrationTrial>>updateCalibTransform

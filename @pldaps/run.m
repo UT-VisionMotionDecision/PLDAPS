@@ -104,7 +104,7 @@ pds.eyelink.setup(p);
 
 % Audio
 %-------------------------------------------------------------------------%
-pds.audio.setup(p);
+pds.sound.setup(p);
 
 % PLEXON
 %-------------------------------------------------------------------------%
@@ -155,16 +155,23 @@ end
 fprintLineBreak('_-',32); fprintLineBreak;
 
 
-% % % %% Last chance to check variables
-% % % if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
-% % %     disp('Ready to begin trials. Type "dbcont" to start first trial...')
-% % %     keyboard
-% % %     fprintf(2,'\b ~~~Start of experiment~~~\n')
-% % % end
+%% Last chance to check variables
+if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
+    disp('Ready to begin trials. Type "dbcont" to start first trial...')
+    keyboard
+    fprintf(2,'\b ~~~Start of experiment~~~\n')
+end
+
+% disable keyboard
+ListenChar(2);
+% HideCursor;
+KbQueueFlush(p.trial.keyboard.devIdx);
+
 
 %% Send expt start sync RSTART
 if p.trial.datapixx.use
     % start of experiment sync signal (Plexon: set RSTART pin high, return PTB & Datapixx clock times)
+    % Even if not using Plexon recording, this will establish PLDAPS exptStartTime
     p.trial.timing.exptStartTime = pds.plexon.rstart(1);
 end
 
@@ -173,11 +180,6 @@ end
 %%%%start recoding on all controlled components this in not currently done here
 % save timing info from all controlled components (datapixx, eyelink, this pc)
 p = beginExperiment(p);
-
-% disable keyboard
-ListenChar(2);
-% HideCursor;
-KbQueueFlush(p.trial.keyboard.devIdx);
 
 p.trial.flagNextTrial  = 0; % flag for ending the trial
 p.trial.iFrame     = 0;  % frame index
@@ -207,12 +209,6 @@ if p.trial.pldaps.maxPriority
 end
 
 
-%% Last chance to check variables
-if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
-    disp('Ready to begin trials. Type "dbcont" to start first trial...')
-    keyboard
-    fprintf(2,'\b ~~~Start of experiment~~~\n')
-end
 
 %% Main trial loop
 while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
@@ -396,7 +392,7 @@ if p.trial.datapixx.use
 end
 
 if p.trial.sound.use
-    pds.audio.clearBuffer(p);
+    pds.sound.clearBuffer(p);
     % Close the audio device:
     PsychPortAudio('Close', p.defaultParameters.sound.master);
 end

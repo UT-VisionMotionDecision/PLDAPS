@@ -1,5 +1,13 @@
 function p = runCalibrationTrial(p, state, sn)
 % function p = pds.tracking.runCalibrationTrial(p, state, sn)
+% 
+% Activate calibration trial from pause state by calling:
+%       pds.tracking.runCalibrationTrial(p)  % i.e. nargin==1
+% 
+% See also:  pds.tracking
+% 
+% 2020-01-xx  TBC  Wrote it.
+% 
 
 
 if nargin<3 || isempty(sn)
@@ -11,21 +19,32 @@ srcIdx = p.trial.(sn).srcIdx; % NOTE: This should/must be a one-based, not zero-
 
 if nargin<2 || isempty(state)
     % special case to initiate calibration trial(s) from pause state
-    if isfield(p.trial.(sn), 'on') && ~p.trial.(sn).on
+    %if isfield(p.trial.(sn), 'on') && ~p.trial.(sn).on
+    if ~p.trial.(sn).on
         % set tracking calibration module on, & disable all modules with order > tracking module
         startCalibration;%(p, sn);
         return
         
+    else
+        % this should not occur...
+        fprintf(2,'~!~\tStrange start to tracking calibration...I cannot.\n')
+        fprintf('~!~\t.%s.on should only be toggled by self when calling  pds.tracking.runCalibrationTrial(p)  %% i.e. nargin==1\n', sn, mfilename)
+        fprintf('~!~\tToggle .%s.use to enable/disable tracking module (but o.t.f. switching will prob crash)\n', sn)
+        p.trial.(sn).on = false;
+        return
+    end
 % %     elseif isfield(p.trial.(sn), 'on') && p.trial.(sn).on
+% %     NOPE:  This is now run automatically at end of calibration trial
 % %         % turn tracking calibration module off, & reenable module state prior to calibration phase
 % %         finishCalibration;%(p, sn);
 % %         return
-    else
-        % get list of currently active modules
-        [moduleNames] = getModules(p, 1);
-        p.trial.(sn).tmp.initialActiveModules = moduleNames;
-        
-    end
+% % 
+%     else
+%         % get list of currently active modules
+%         [moduleNames] = getModules(p, 1);
+%         p.trial.(sn).tmp.initialActiveModules = moduleNames;
+%         
+%     end
 end
 
 
@@ -115,14 +134,22 @@ switch state
                     logFixation(p);
                     if p.trial.keyboard.modKeys.shift
                         % [F] ...and move to next random target
-                        p.trial.tracking.nextTarg = p.trial.tracking.targets.randOrd(mod(p.trial.tracking.thisFix, p.trial.tracking.targets.nTargets)+1);
+%                         p.trial.tracking.nextTarg = p.trial.tracking.targets.randOrd(mod(p.trial.tracking.thisFix, p.trial.tracking.targets.nTargets)+1);
                         updateTarget(p);
-                        %updateCalibPlot(p);
+
                         % give reward
                         pds.behavior.reward.give(p, p.trial.tracking.fixReward); % default small amount for calibration
-
                     end
                     
+                    
+                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.vKey)
+                    % [v] key - Validate fixation
+                    %           Reward & move to next random point, but don't add point to calibration data
+                    %           TODO: extend this to do real a real validation & report accuracy
+                    updateTarget(p);
+                    % give reward
+                    pds.behavior.reward.give(p, p.trial.tracking.fixReward); % default small amount for calibration
+
                     
                 elseif p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.spaceKey)
                     % [SPACEBAR] - log fixation & move to next random target (...same as shift-f [F])
@@ -279,9 +306,6 @@ end %state switch block
         % re-enable initial module activity state [in the p.run workspace?],
         % then return control to user in the pause state again??
         
-        %tmp = p.trial.(sn).tmp;
-        
-        
         
         %!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!
         % (....wtf!?? So archaic& cryptic!  MUST GET AWAY from this params class business!!
@@ -290,18 +314,13 @@ end %state switch block
         
         
         % Poll current pldaps 'levels' state (...goofy params class stuff)
-        %         lvlAll = p.defaultParameters.getAllLevels;
-        %         lvlActive = p.defaultParameters.getActiveLevels;
-        %         lvlAll = p.trial.pldaps.allLevels;
-        %         lvlActive = p.trial.pldaps.activeLevels;
-        
         % Create new 'level', that re-enables modules that were active when this calibration started
         newLvlStruct = struct;
         fn = p.trial.(sn).tmp.initialActiveModules;
         for i = 1:length(fn)
             newLvlStruct.(fn{i}).use = true;
         end
-        % turn this module off in that new level
+        % turn this module off in the new level
         newLvlStruct.(sn).on = false;
         
         %   **NOTE: .on ~= .use !!
@@ -319,7 +338,7 @@ end %state switch block
         %re-lock the defaultParameters
         p.defaultParameters.setLock(true);
         
-        % Programmatically return to pause state
+        % Flag return to pause state
         p.trial.pldaps.pause.type = 1;
         p.trial.flagNextTrial = 1;
                 
@@ -333,7 +352,7 @@ end %state switch block
         maxSamples = 50;
         
         def = struct(...
-            'on', true,...
+            'on', false,... % should only be switched on/off by calling pds.tracking.runCalibrationTrial(p)  % i.e. nargin==1
             'mode', 2,...   % limit type (0==pass/none, 1==square, 2==euclidean/circle)
             'isheld',0,...  % current state of fixation
             'targPos',[0 0 p.trial.display.viewdist]',... % xyz position
@@ -469,7 +488,7 @@ end %state switch block
         set(Hf, 'windowstyle','normal', 'toolbar','none', 'menubar','none', 'selectionHighlight','off', 'color',.5*[1 1 1], 'position',[1200,100,600,400]-80)
         set(Hf, 'Name', ['Calib:  ',p.trial.session.file], 'NumberTitle','off')
         
-        sp = axes;  cla;% subplot(1,3,1:2);
+        sp = axes;  cla;
         set(sp, 'plotboxaspectratio',[p.trial.display.ctr(1:2),1])
         hold on;   box off
         axis equal; hold on
@@ -481,13 +500,13 @@ end %state switch block
         plot( allTargs(1,:), -allTargs(2,:), 'd','color',.8*[1 1 1])
         
         % mark currently active target
-        plot( allTargs(1,p.trial.tracking.targets.i), -allTargs(2,p.trial.tracking.targets.i), 'ro', 'markersize',10, 'linewidth',1.2);%,'color',.4*[1 1 1]);
+        plot( allTargs(1,p.trial.tracking.targets.i), -allTargs(2,p.trial.tracking.targets.i), 'ro', 'markersize',10, 'linewidth',1.2);
         
         % Report target visibility in gui fig
         if p.trial.tracking.col(4)
-            title('[- Target visible -]', 'fontsize',10, 'fontweight','bold', 'color',[0,0,0]);
+            title('[- Target visible -]', 'fontsize',10, 'fontweight','bold');
         else
-            title('[- Target hidden -]', 'fontsize',10, 'fontweight','normal', 'color',[1,.1,.1]);
+            title('[- Target hidden -]', 'fontsize',10, 'fontweight','normal'); %, 'color',[1,.1,.1]);
         end
         
         axis(1.2*axis);
@@ -512,12 +531,12 @@ end %state switch block
                         
                         plot( uTargs(:,1), -uTargs(:,2), 'kd')
                         % plot raw data
-                        scatter(fixVals(:,1)- p.trial.display.ctr(1), -(fixVals(:,2)- p.trial.display.ctr(2)), [], cols(fixCols,:), 'markerfacecolor','none','markeredgealpha',.3);    %cols(fix2targ,:)
+                        scatter(fixVals(:,1)- p.trial.display.ctr(1), -(fixVals(:,2)- p.trial.display.ctr(2)), [], cols(fixCols,:), 'markerfacecolor','none','markeredgealpha',.3);
                         
                         if isfield(p.trial.tracking, 'tform')
                             % plot calibrated data
                             fixCaled = transformPointsInverse(p.trial.tracking.tform(i), fixVals)- p.trial.display.ctr(1:2);
-                            scatter(fixCaled(:,1), -fixCaled(:,2), [], cols(fixCols,:), 'filled', 'markeredgecolor','none','markerfacealpha',.3);    %cols(fix2targ,:)
+                            scatter(fixCaled(:,1), -fixCaled(:,2), [], cols(fixCols,:), 'filled', 'markeredgecolor','none','markerfacealpha',.3);
                         end
                     end
                 end
@@ -531,7 +550,7 @@ end %state switch block
 %% resetCalibration(p)
     function resetCalibration(p)
         % packaged for easy call/editing
-        p.trial.tracking.fixations = nan(3, p.trial.tracking.maxSamples, max(srcIdx));   %nan(4, p.trial.(sn).maxSamples);
+        p.trial.tracking.fixations = nan(3, p.trial.tracking.maxSamples, max(srcIdx));
         p.trial.tracking.thisFix = 0;
         p.trial.tracking.targets = setupTargets(p);
         updateTarget(p);
@@ -567,10 +586,10 @@ end %state switch block
         else
             p.trial.tracking.thisFix = p.trial.tracking.thisFix + 1;
             for i = srcIdx
-                % complex XZY values with: target positions in the real component, eye positions in the imaginary component
-                p.trial.tracking.fixations(:, p.trial.tracking.thisFix, i) = [p.trial.tracking.targets.xyPx(:,p.trial.tracking.targets.i); p.trial.display.viewdist] + ...
-                    ...[p.trial.eyeX; p.trial.eyeY; p.trial.display.viewdist].*1i; %,  [p.trial.(sn).targets(p.trial.(sn).iTarget).xPx(fixatedTarget); p.trial.(sn).targets(p.trial.(sn).iTarget).yPx(fixatedTarget); p.trial.eyeX; p.trial.eyeY];
-                    [p.trial.tracking.posRaw(:,min([i,end])); p.trial.display.viewdist].*1i;
+                % Keep target & eye values together using complex numbers:  target == real(xyz), eye == imag(xyz)
+                p.trial.tracking.fixations(:, p.trial.tracking.thisFix, i) = ...
+                    [p.trial.tracking.targets.xyPx(:,p.trial.tracking.targets.i); p.trial.display.viewdist] + ... % Target position in real component
+                    1i.*[p.trial.tracking.posRaw(:,min([i,end])); p.trial.display.viewdist]; % Measured eye position in imaginary component
                 
             end
                 fprintf('.')

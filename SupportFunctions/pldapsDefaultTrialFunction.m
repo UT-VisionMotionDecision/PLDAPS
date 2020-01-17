@@ -87,20 +87,6 @@ end
         
         % Check keyboard    
         p = pds.keyboard.getQueue(p);
-        % % %         [p.trial.keyboard.pressedQ, p.trial.keyboard.firstPressQ, firstRelease, lastPress, lastRelease]=KbQueueCheck(p.trial.keyboard.devIdx); % fast
-        % % %
-        % % %         if p.trial.keyboard.pressedQ || any(firstRelease)
-        % % %             p.trial.keyboard.samples = p.trial.keyboard.samples+1;
-        % % %             p.trial.keyboard.samplesTimes(p.trial.keyboard.samples) = GetSecs;
-        % % %             p.trial.keyboard.samplesFrames(p.trial.keyboard.samples) = p.trial.iFrame;
-        % % %             p.trial.keyboard.pressedSamples(:,p.trial.keyboard.samples) = p.trial.keyboard.pressedQ;
-        % % %             p.trial.keyboard.firstPressSamples(:,p.trial.keyboard.samples) = p.trial.keyboard.firstPressQ;
-        % % %             p.trial.keyboard.firstReleaseSamples(:,p.trial.keyboard.samples) = firstRelease;
-        % % %             p.trial.keyboard.lastPressSamples(:,p.trial.keyboard.samples) = lastPress;
-        % % %             p.trial.keyboard.lastReleaseSamples(:,p.trial.keyboard.samples) = lastRelease;
-        % % %             p = pds.keyboard.checkModKeys(p);
-        % % %         end
-        % % %         p = pds.keyboard.checkNumKeys(p);
         
         % Some standard PLDAPS key functions
         if any(p.trial.keyboard.firstPressQ)
@@ -463,7 +449,7 @@ end
         % has less timing issues than Beeper.m -- Beeper freezes flips as long as
         % it is producing sound whereas PsychPortAudio loads a wav file into the
         % buffer and can call it instantly without wasting much compute time.
-        pds.audio.clearBuffer(p)
+        pds.sound.clearBuffer(p)
 
         % Ensure anything in the datapixx buffer has been pushed/updated
         if p.trial.datapixx.use
@@ -656,17 +642,7 @@ end
     
     % Tracking module
     if p.trial.tracking.use
-        % Set module order to run immediately after this module (pldapsDefaultTrialFunction.m)
-        snMod = 'tracking';
-        tmp =  pldapsModule('modName',snMod, 'name','pds.tracking.runCalibrationTrial', 'order',p.trial.(sn).stateFunction.order+0.5,...
-            'requestedStates', {'frameUpdate','framePrepareDrawing','frameDraw','frameGLDrawLeft','frameGLDrawRight','trialItiDraw','trialSetup','trialPrepare','trialCleanUpandSave','experimentPreOpenScreen','experimentPostOpenScreen','experimentCleanUp'}); % ...does setting up in 'experimentPreOpenScreen' preclude this module running in that state??
-        
-        tmp.use = true;
-        tmp.on = false;
-        fn = fieldnames(tmp);
-        for i = 1:length(fn)
-            p.trial.(snMod).(fn{i}) = tmp.(fn{i});
-        end
+        pds.tracking.setup(p, sn);
     end
     
     end %experimentPreOpenScreen

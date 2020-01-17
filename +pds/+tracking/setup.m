@@ -1,18 +1,35 @@
-function p = setup(p)
+function p = setup(p, sn)
 % function p = pds.tracking.setup(p)
 % 
 % Setup & initialization of tracking module for tracking binocular or monocular eye position,
 % or [potentially] other devices/things.
+% 
+% Activate calibration trial from pause state by calling:
+%       pds.tracking.runCalibrationTrial(p)  % i.e. nargin==1
 % 
 % How is the .tracking module different from direct usage (e.g. p.trial.eyelink)?
 %   (1) it takes care of device calibration, allowing for monocular or [truly] binocular eyetracking,
 %       and gives user more active control to save/recall/manipulate the mapping of tracker-to-world
 %   (2) allows experiment code to be more ambiguous to what is being tracked (e.g. eye, hand, mouse)
 %       and ambiguous to the particular device is being used (e.g. eyelink, LeapMotion, Vpixx, etc)
-%   
+% 
+% See also:  pds.tracking.runCalibrationTrial
+% 
+% 2020-01-xx  TBC  Wrote it.
+% 
 
-fprintf(2, 'All seems to be done in pds.tracking.postOpenScreen now....\n')
-keyboard
+% Set module order to run immediately after this module (pldapsDefaultTrialFunction.m)
+snMod = 'tracking';
+tmp =  pldapsModule('modName',snMod, 'name','pds.tracking.runCalibrationTrial', 'order',p.trial.(sn).stateFunction.order+0.5,...
+    'requestedStates', {'frameUpdate','framePrepareDrawing','frameDraw','frameGLDrawLeft','frameGLDrawRight','trialItiDraw','trialSetup','trialPrepare','trialCleanUpandSave','experimentPreOpenScreen','experimentPostOpenScreen','experimentCleanUp'}); % ...does setting up in 'experimentPreOpenScreen' preclude this module running in that state??
+
+% .on should not be manually activated
+tmp.on = false;
+fn = fieldnames(tmp);
+for i = 1:length(fn)
+    p.trial.(snMod).(fn{i}) = tmp.(fn{i});
+end
+
 
 % % % 
 % % % % identify source (def: 'eyelink')
