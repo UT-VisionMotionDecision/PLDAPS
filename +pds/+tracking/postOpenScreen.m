@@ -54,9 +54,9 @@ end
 
 
 %% Initialize calibration matrix with default
-if  isfield(p.trial.(src), 'cal_tform') && ~isempty(p.trial.(src).cal_tform)
+if  isfield(p.trial.(src), 'tform') && ~isempty(p.trial.(src).tform)
     % pull calib matrix from (src) if pre-defined
-    initCalibMatrix = p.trial.(src).cal_tform;
+    initCalibMatrix = p.trial.(src).tform;
     
 elseif isfield(p.trial.(src), 'calibration_matrix') && ~isempty(p.trial.(src).calibration_matrix)
     % create tform from calibration matrix

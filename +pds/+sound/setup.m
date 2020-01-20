@@ -37,8 +37,12 @@ if p.trial.sound.use && isField(p.trial, 'pldaps.dirs.wavfiles')
     
     if isempty(p.trial.sound.deviceid)
         % find first output device
-        dev = PsychPortAudio('GetDevices');
-        p.trial.sound.deviceid = dev(find(contains( lower({dev.DeviceName}), 'output'), 1)).DeviceIndex;
+        if IsLinux
+            p.trial.sound.deviceid = 0;
+        else
+            dev = PsychPortAudio('GetDevices');
+            p.trial.sound.deviceid = dev(find(contains( lower({dev.DeviceName}), 'output'), 1)).DeviceIndex;
+        end
     end
     dev = PsychPortAudio('GetDevices', [], p.trial.sound.deviceid);
     p.trial.sound.master = PsychPortAudio('Open', p.trial.sound.deviceid, 1+8, 1, dev.DefaultSampleRate, nchan);

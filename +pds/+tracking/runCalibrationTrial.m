@@ -445,10 +445,10 @@ end %state switch block
                 % Fit geometric transform
                 % - tform types: ['nonreflective', 'affine', 'projective', 'polynomial']  ...make this selectable based on source field
                 % - eye/target data are input conceptually backwards, but polynomial tform methods are limited to inverse transform
-                p.trial.tracking.tform(i) = fitgeotrans(targXY(1:2,:)', xyRaw(1:2,:)', 'polynomial',2);
+                p.trial.tracking.tform(i) = fitgeotrans(targXY(1:2,:)', xyRaw(1:2,:)', 'polynomial',3);
                 
-                fprintf('Tracking calibration [%d] updated:\n',i);
-                disp(p.trial.tracking.tform(i));
+                fprintf('Tracking calibration [%d] updated\n',i);
+                %                 disp(p.trial.tracking.tform(i));
             end
             fprintf('\n');
             
@@ -464,10 +464,10 @@ end %state switch block
                     % [POLYNOMIAL] requires manual setup
                     %   - all lesser indices must exist, else poly tform object construction fails
                     %   - ?? is there no clean/agnostic way to initialize a polynomial transform?? (e.g. t = affine2d;)
-                    % 2nd degree
-                    p.trial.tracking.tform(i) = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0], [0 0 1 0 0 0]);
+%                     % 2nd degree
+%                     p.trial.tracking.tform(i) = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0], [0 0 1 0 0 0]);
                     %     % 3rd degree
-                    %     p.trial.tracking.tform(i) = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0 0 0 0 0], [0 0 1 0 0 0 0 0 0 0]);
+                    p.trial.tracking.tform(i) = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0 0 0 0 0], [0 0 1 0 0 0 0 0 0 0]);
                     
                     fprintf('~~~\tCalibration transform [%d] initialized\n', i)
                 end

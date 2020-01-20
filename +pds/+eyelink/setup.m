@@ -39,13 +39,6 @@ if p.trial.eyelink.use
     if ~isfield(p.trial.eyelink, 'fixdotW')
         p.trial.eyelink.fixdotW = ceil(0.2 * p.trial.display.ppd);
     end
-
-    % open EDF data file
-    err = Eyelink('Openfile', p.trial.eyelink.edfFile);
-    if err
-        fprintf('Cannot create EDF file ''%s'' ', p.trial.eyelink.edfFile);
-        Eyelink('Shutdown');
-    end
     
     % check if eyelink initializes
     if ~Eyelink('IsConnected')
@@ -66,6 +59,13 @@ if p.trial.eyelink.use
         return
     end
     
+    % open EDF data file
+    err = Eyelink('Openfile', p.trial.eyelink.edfFile);
+    if err
+        fprintf('Cannot create EDF file ''%s'' ', p.trial.eyelink.edfFile);
+        Eyelink('Shutdown');
+        return
+    end
     
     %% Setup Eyelink enviro & report values in cmd window
     % Eyelink commands to setup the eyelink environment
