@@ -1,47 +1,52 @@
 # PLDAPS 4.3.0
 ==========
 
----
-#### [eyeCalMatrixDev] Branch
-
-Development branch for binocular eye tracking using raw L & R eye position signals from Eyelink and Matlab-side calibration matrix (as opposed to letting Eyelink calibrate eye pos in pixels).
-This will provide more flexible control over eye calibration matrix for tracking at different viewing distances (and hopefully/eventually develop into a singular 3D space calibration matrix).
-
-Why?:  No clear way to extract a complete eye calibration state from Eyelink. Doing so would at least allow poor-man's version of tracking across 3D space by saving & recalling separate calibrations at a handful of discrete viewing distances.
-Managing the calibration & computations in Matlab on the PLDAPS computer is sub-optimal (...the eyelink software is _supposed to be optimized for exactly this purpose!_), but there seems to be no way around it for the flexibility & dimensionality we need.
-
-Some of these updates may be inherited from Jake Yates' PLDAPS "streamline" branch; as he's already done some nice work to solve/integrate the eye calibration matrix. ...however, two eyes tends to be _way more than one_ when it comes to getting code to play nice with more eyes/dimensions.
-  -- TBC, July 2019
+####A Wiki is coming!
+An effort to develop [at least basic] documentation is being made in [the Wiki](https://github.com/HukLab/PLDAPS/wiki)
 
 ---
+#### [glDraw] Branch
+
+The glDraw branch is now the default PLDAPS branch, and also the only branch under active development. *Continued use of the `openreception` branch is discouraged.*
+
+As new features are written & tested on the [czuba's] development fork, they will be transferred to stable release status here on the main HukLab PLDAPS project page.
+
+
 ---
 
 **PL**exon **DA**tapixx **PS**ychtoolbox - Neurophysiology experiment toolbox for MATLAB
 
 Version 4.3.0 (glDraw commit 354b233) brings additional low-level OpenGL drawing functionality, improved compatibility with various stereo drawing modes, and overall refinements.
 
-##### *Changes to Overlay drawing functionality soon...*
-> The ability to draw elements to the overlay pointer *once*, then have them magically show up on both the overlay/experimenter display *&* the subject display is a cute feature, but it's time is coming to an end. **Very soon, things rendered to the Overlay pointer will only appear on the overlay window**. Dealing with the ambiguity of 'which eye should the overlay render to during stereomodes?' is a major reason for this change. I can see of no current solution that doesn't require tedious piles of checks & drawBuffer changes that wouldn't outweigh their utility. In most all cases, the things being rendered this way are not so computationally intensive that there is a large benefit to only rendering them once in code, and the inherent limitations of indexd drawing (no alpha blending or smooth motion) make it unsuitable for many experimental stimulus applications anyway.
+##### *Changes to Overlay drawing functionality...*
+> The ability to draw elements to the overlay pointer *once*, then have them magically show up on both the overlay/experimenter display *&* the subject display is a cute feature, but it's time is coming to an end. Going forward, expect that **things rendered to the Overlay pointer will only appear on the overlay window**. Dealing with the ambiguity of 'which eye should the overlay render to during stereomodes?' is a major reason for this change. I can see of no current solution that doesn't require tedious piles of checks & drawBuffer changes that wouldn't outweigh their utility. In most all cases, the things being rendered this way are not so computationally intensive that there is a large benefit to only rendering them once in code, and the inherent limitations of indexd drawing (no alpha blending or smooth motion) make it unsuitable for many experimental stimulus applications anyway.
 
 > This may break/change functionality of some code (e.g. eyelink calibration targets), but fixes are being implemented as they come up. If you do come across an unfixed instance, feel free to contribute a solution.  --czuba, 2018-05-11
 
+---
+
+**Spring 2020 Note:**
+
+* minimal updates have been made to the text below to ensure the first few steps are at least *'not wrong'*. Improved documentation is being made in the repo Wiki (...also slowly making its way over from the development branch)
+ 
 ...for now, on with the [outdated] readme!
 
+---
+
 ## Before we start
-- PLDAPS is primarily developed/tested/supported on OSX (ver 10.10) and Ubuntu (ver 16.04)
-- Most modern Matlab versions should suffice; >=2016b is recommended
+- PLDAPS is primarily developed/tested/supported on OSX (ver ~~10.10~~ 10.15) and Ubuntu (ver >= 16.04)
+- Most modern Matlab versions should suffice; ~~>=2016b~~ 2019a is recommended
 - Psychtoolbox needs to be installed
-- If you are planning to use Datapixx, you should download a current version of the datapixx toolbox from vpixx.com and place it in the matlab path above PTB. The toolbox provided with PTB tends to be outdated.
+- If you are planning to use Datapixx, you should download a current version of the datapixx toolbox from vpixx.com *and place it in the matlab path above[shadowing] the PTB copy*. The datapixx code provided with PTB should be thought of as only a placeholder and is totally outdated.
 - For a recording rig, all basic testing should be done (e.g. VBLSyncTest with and without datapixx, etc)
 
 ## Getting started / installation
 
-Create a local copy of PLDAPS by cloning the git repository and select the version 4.2 branch (openreception).
+Create a local copy of PLDAPS by cloning the git repository ~~and select the version 4.2 branch (openreception)~~.
 In a terminal window, first go to the directory in which you want the PLDAPS directory to reside in.
 
 ```
-    git clone https://github.com/HukLab/PLDAPS.git
-    git checkout openreception
+    git clone https://github.com/HukLab/PLDAPS.git ~/MLtoolbox/PLDAPS
 ```
 
 Now start Matlab and copy the function `loadPLDAPS_template.m` to a place in your path (e.g. your Matlab start folder), rename it to `loadPLDAPS.m` and edit the 'dirs' to include at least the path you just installed PLDAPS in. 
