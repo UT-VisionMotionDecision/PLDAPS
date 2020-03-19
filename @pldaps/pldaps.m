@@ -33,12 +33,12 @@ classdef pldaps < handle
      function p = pldaps(varargin)
          %% setup default parameters
         %classdefaults: create default structure from function
-        defaults{1}=pldaps.pldapsClassDefaultParameters();
-        defaultsNames{1}='pldapsClassDefaultParameters';
+        defaults{1} = pldaps.pldapsClassDefaults;    % pldaps.pldapsClassDefaultParameters();
+        defaultsNames{1} = 'pldapsClassDefaults';
         
         %rigdefaults: load from prefs?
-        defaults{2}=getpref('pldaps');
-        defaultsNames{2}='pldapsRigPrefs';
+        defaults{2} = getpref('pldaps');
+        defaultsNames{2} = 'pldapsRigPrefs';
         
         p.defaultParameters=params(defaults,defaultsNames);
         
@@ -143,7 +143,7 @@ methods(Static)
     % Call from command window with:
     % >> p.moreReward
     
-    s = pldapsClassDefaultParameters(s)
+    s = pldapsClassDefaults(s); %Parameters(s)
     
     [stateValue, stateName] = getReorderedFrameStates(trialStates,moduleRequestedStates)
 

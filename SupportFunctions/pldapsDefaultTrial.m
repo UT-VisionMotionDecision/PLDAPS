@@ -1,9 +1,5 @@
-function pldapsDefaultTrialFunction(p,state, sn)
+function pldapsDefaultTrial(p, state, sn)
 
-% error('update code to use pldapsDefaultTrial.m')
-% ...eventually. Try to symlink w/ relative path to updated file name first
-
-% stimulus name is only used for one variable: eyeW
     if nargin<3
         error('Use of PLDAPS modules without 3rd input string for module name is no longer allowed. See also  pldapsModule.m')
         % default p.trial.stimulus field was killed off a while back --TBC 12/2019
@@ -162,7 +158,9 @@ end
         pds.datapixx.adc.getData(p);
 
         %get eyelink data
-        pds.eyelink.getQueue(p); 
+        if p.trial.eyelink.use      && ~p.trial.tracking.use
+            pds.eyelink.getQueue(p);
+        end
 
         if p.trial.tracking.use
             % update from source & apply calibration
@@ -404,7 +402,9 @@ end
         %%% Eyelink Toolbox Setup %%%
         %-------------------------------------------------------------------------%
         % preallocate for all eye samples and event data from the eyelink
-        pds.eyelink.startTrial(p);
+        if p.trial.eyelink.use      && ~p.trial.tracking.use
+            pds.eyelink.startTrial(p);
+        end
         
         %%% Spike server
         %-------------------------------------------------------------------------%
@@ -625,7 +625,7 @@ end
         
         %---------------------------------------------------------------------%
         % Eyelink specific:
-        if p.trial.eyelink.use
+        if p.trial.eyelink.use      && ~p.trial.tracking.use
             [Q, rowId] = pds.eyelink.saveQueue(p);
             p.trial.eyelink.samples = Q;
             p.trial.eyelink.sampleIds = rowId; % I overwrite everytime because PDStrialTemps get saved after every trial if we for some unforseen reason ever need this for each trial

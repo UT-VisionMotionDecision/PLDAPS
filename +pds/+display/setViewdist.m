@@ -1,0 +1,175 @@
+function p = setViewdist(p, newdist)
+% function p = setViewdist(p, newdist)
+%
+% Update any display variables that are dependent on viewing distance
+%
+
+
+%% defaults
+
+% check for physical positioning module [grbl]
+if isfield(p.trial,'grbl') && p.trial.grbl.use
+    positionModule = 'grbl';
+    %   Relies on p.trial.display.grblPos for position in machine coordinates (cm);
+    %   -- effective viewing distance = p.trial.display.homeDist - p.trial.display.grblPos
+    
+else
+    positionModule = [];
+end
+
+if nargin>1
+    % assign to active trial parameter
+    p.trial.display.viewdist = newdist;
+end
+
+% check if different from previous, if not [return]
+if p.static.display.viewdist == p.trial.display.viewdist
+    return
+end
+
+%% Update physical positioning
+switch positionModule
+    case 'grbl'
+        % Arduino CNC controller for ViewDist display stepper motors
+        % (see:  www.github.com/czuba/grbl
+        
+        % Compute new grbl position in machine coordinates (cm)
+        % -- p.trial.display.homeDist is the viewing distance when display is in the HOME position
+        % -- ** Should be farthest point away from subject
+        % Determine .grblPos by subtracting off the desired viewing distance from .homeDist:
+        p.trial.display.grblPos = p.trial.display.homeDist - p.trial.display.viewdist;
+        
+        % Move to the new position
+        p.trial.(sn) = grbl.completeMove(p.trial.(sn), sprintf('G1 x%4.2f f%4.2f', p.trial.display.grblPos, 60/2),  0);
+        
+        % Extract current values to p.static for future trial comparison
+        p.static.display.grblPos = p.trial.display.grblPos;
+        
+    otherwise
+        % do nothing, assume position updated externally
+end
+
+
+
+%% Update dependent variables
+
+% p.trial.display
+% recompute any variables that are dependent on viewing distance
+updateDisplayParams(p);
+
+% 3D OpenGL rendering parameters
+if p.trial.display.useGL
+    % nested function
+    updateOpenGlParams(p.trial.display);
+end
+
+
+% extract core/fundamental values to p.static for comparison in future trials
+p.static.display.viewdist = p.trial.display.viewdist;
+
+
+%% updateDisplayParams(p)
+    function updateDisplayParams(p)
+        % Compute visual angle of the display (while accounting for any stereomode splits)
+        switch p.trial.display.stereoMode
+            case {2,3}
+                % top-bottom split stereo
+                p.trial.display.width   = 2*atand( p.trial.display.widthcm/2    /p.trial.display.viewdist);
+                p.trial.display.height  = 2*atand( p.trial.display.heightcm/4   /p.trial.display.viewdist);
+            case {4,5}
+                % left-right split stereo
+                p.trial.display.width   = 2*atand( p.trial.display.widthcm/4    /p.trial.display.viewdist);
+                p.trial.display.height  = 2*atand( p.trial.display.heightcm/2   /p.trial.display.viewdist);
+            otherwise
+                p.trial.display.width   = 2*atand( p.trial.display.widthcm/2    /p.trial.display.viewdist);
+                p.trial.display.height  = 2*atand( p.trial.display.heightcm/2   /p.trial.display.viewdist);
+        end
+        p.trial.display.ppd = p.trial.display.winRect(4)/p.trial.display.height; % calculate pixels per degree
+        p.trial.display.cmpd = 2*atand(0.5/p.trial.display.viewdist); % cm per degree at viewing distance line of sight
+        % visual [d]egrees          % updated to ensure this param reflects ppd (i.e. not an independent/redundant calculation)
+        p.trial.display.dWidth =  p.trial.display.pWidth/p.trial.display.ppd;
+        p.trial.display.dHeight = p.trial.display.pHeight/p.trial.display.ppd;
+        
+        p.trial.display.fixPos(3) = p.trial.display.viewdist;
+        
+        
+        
+        
+        %% some more
+        % visual [d]egrees          % updated to ensure this param reflects ppd (i.e. not an independent/redundant calculation)
+        p.trial.display.dWidth =  p.trial.display.pWidth/p.trial.display.ppd;
+        p.trial.display.dHeight = p.trial.display.pHeight/p.trial.display.ppd;
+        
+    end
+
+
+%% updateOpenGlParams(p.trial.display)
+    function updateOpenGlParams(ds)
+        global GL
+        
+        % readibility & avoid digging into this struct over & over
+        glP = ds.glPerspective;
+        
+        % Setup projection matrix for each eye
+        % (** this does not change per-eye, so just do it once here)
+        % -- these context switches are slow and should NOT be done w/in time-dependent phases(e.g. during experimentPostOpenScreen, trialSetup...)
+        Screen('BeginOpenGL', ds.ptr)
+        
+        for view = 0%:double(ds.stereoMode>0)
+            % All of these settings will apply to BOTH eyes once implimented
+            
+            % Select stereo draw buffer WITHIN a 3D openGL context!
+            % unbind current FBOS first (per PTB source:  "otherwise bad things can happen...")
+            glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, uint32(0))
+            
+            % Bind this view's buffers
+            fbo = uint32(view+1);
+            glBindFramebufferEXT(GL.READ_FRAMEBUFFER_EXT, fbo);
+            glBindFramebufferEXT(GL.DRAW_FRAMEBUFFER_EXT, fbo);
+            glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, fbo);
+            
+            
+            % Setup projection for stereo viewing
+            glMatrixMode(GL.PROJECTION)
+            glLoadIdentity;
+            % glPerspective inputs: ( fovy, aspect, zNear, zFar )
+            gluPerspective(glP(1), glP(2), glP(3), glP(4));
+            
+            % Enable proper occlusion handling via depth tests:
+            glEnable(GL.DEPTH_TEST);
+            
+            % Enable alpha-blending for smooth dot drawing:
+            glEnable(GL.BLEND);
+            glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+            
+            % 3D anti-aliasing?
+            % NOTE: None of the standard smoothing enables improve rendering of gluDisk or sphere.
+            % Only opening PTB window with multisampling (==4) has any effect
+            
+            % basic colors
+            glClearColor(ds.bgColor(1), ds.bgColor(2), ds.bgColor(3), 1);
+            glColor4f(1,1,1,1);
+            
+            % Disable lighting
+            glDisable(GL.LIGHTING);
+            % glDisable(GL.BLEND);
+            
+            % % %             if ds.goNuts
+            % % %                 % ...or DO ALL THE THINGS!!!!
+            % % %                 % Enable lighting
+            % % %                 glEnable(GL.LIGHTING);
+            % % %                 glEnable(GL.LIGHT0);
+            % % %                 % Set light position:
+            % % %                 glLightfv(GL.LIGHT0,GL.POSITION, [1 2 3 0]);
+            % % %                 % Enable material colors based on glColorfv()
+            % % %                 glEnable(GL.COLOR_MATERIAL);
+            % % %                 glColorMaterial(GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
+            % % %                 glMaterialf(GL.FRONT_AND_BACK, GL.SHININESS, 48);
+            % % %                 glMaterialfv(GL.FRONT_AND_BACK, GL.SPECULAR, [.8 .8 .8 1]);
+            % % %             end
+        end
+        Screen('EndOpenGL', ds.ptr)
+    end %setupGLPerspective
+
+end %main function
+

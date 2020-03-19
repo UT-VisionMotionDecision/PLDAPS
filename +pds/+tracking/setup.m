@@ -3,7 +3,11 @@ function p = setup(p, sn)
 % 
 % Setup & initialization of tracking module for tracking binocular or monocular eye position,
 % or [potentially] other devices/things.
+% -- This function gets called by pldapsDefaultTrial.m, prior to opening the PTB screen
+% -- It setsup the tracking module to be executed immediately after the default trial function
+% -- Additional setup (incl. determining tracking source) occurs in pds.tracking.postOpenScreen
 % 
+% =======
 % Activate calibration trial from pause state by calling:
 %       pds.tracking.runCalibrationTrial(p)  % i.e. nargin==1
 % 
@@ -13,15 +17,16 @@ function p = setup(p, sn)
 %   (2) allows experiment code to be more ambiguous to what is being tracked (e.g. eye, hand, mouse)
 %       and ambiguous to the particular device is being used (e.g. eyelink, LeapMotion, Vpixx, etc)
 % 
-% See also:  pds.tracking.runCalibrationTrial
+% See also:  pds.tracking.runCalibrationTrial, pds.tracking.postOpenScreen
 % 
 % 2020-01-xx  TBC  Wrote it.
+% 2020-03-03  TBC  Cleaning.
 % 
 
-% Set module order to run immediately after this module (pldapsDefaultTrialFunction.m)
+% Set module order to run immediately after calling module (pldapsDefaultTrial.m)
 snMod = 'tracking';
-tmp =  pldapsModule('modName',snMod, 'name','pds.tracking.runCalibrationTrial', 'order',p.trial.(sn).stateFunction.order+0.5,...
-    'requestedStates', {'frameUpdate','framePrepareDrawing','frameDraw','frameGLDrawLeft','frameGLDrawRight','trialItiDraw','trialSetup','trialPrepare','trialCleanUpandSave','experimentPreOpenScreen','experimentPostOpenScreen','experimentCleanUp'}); % ...does setting up in 'experimentPreOpenScreen' preclude this module running in that state??
+tmp =  pldapsModule('modName',snMod, 'name','pds.tracking.runCalibrationTrial', 'order', p.trial.(sn).stateFunction.order+1);%,...
+    % 'requestedStates', {'frameUpdate','framePrepareDrawing','frameDraw','frameGLDrawLeft','frameGLDrawRight','trialItiDraw','trialSetup','trialPrepare','trialCleanUpandSave','experimentPreOpenScreen','experimentPostOpenScreen','experimentCleanUp'}); % ...does setting up in 'experimentPreOpenScreen' preclude this module running in that state??
 
 % .on should not be manually activated
 tmp.on = false;

@@ -29,37 +29,42 @@ function p = openScreen(p)
 % 05/2015    jk  update     changed for use with version 4.1
 %                           moved default parameters to the
 %                           pldapsClassDefaultParameters
+% 2020-03-04  TBC  House cleaning
 
 
 %% PTB general interface settings
 % prevent splash screen
 Screen('Preference', 'VisualDebugLevel',3);
-Screen('Preference', 'Verbosity',3);
+Screen('Preference', 'Verbosity',2);
 InitializeMatlabOpenGL(0, 0); %second 0: debug level =0 for speed, debug level=3 == "very verbose" (slow, but incl. error msgs from w/in OpenGL/mogl functions)
+
+fprintLineBreak
+disp('~~~ PTB Screen initialization ~~~')
 
 
 %% Setup Psych Imaging
-
 % Initiate Psych Imaging screen configs
 PsychImaging('PrepareConfiguration');
 
 % Add appropriate tasks to psych imaging pipeline
 if p.trial.display.normalizeColor == 1
-    disp('****************************************************************')
-    disp('Turning on Normalized High res Color Range')
-    disp('Sets all displays & textures to use color range from 0-1 (e.g. NOT 0-255),')
-    disp('while also setting color range to ''unclamped''.')
-    disp('****************************************************************')
+    fprintLineBreak
+    disp('Normalized High res Color Range enabled')
+%     disp('Sets all displays & textures to use color range from 0-1 (e.g. NOT 0-255),')
+%     disp('while also setting color range to ''unclamped''.')
+%     disp('****************************************************************')
     PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange', 1);
 end
 
+%% Datapixx
 if p.trial.datapixx.use
-    disp('****************************************************************')
-    disp('Adds flags for UseDataPixx')
+%     disp('****************************************************************')    
+    fprintLineBreak
+    disp('Initializing display for Datapixx')
     % Tell PTB we are using Datapixx
     PsychImaging('AddTask', 'General', 'UseDataPixx');
     
-    if p.trial.display.useOverlay==1 && (~isfield(p.trial.datapixx, 'rb3d') || p.trial.datapixx.rb3d==0)
+    if p.trial.display.useOverlay==1 && ~p.trial.datapixx.rb3d
         % Turn on the Datapixx "M16" hardware overlay
         disp('Using Datapixx hardware overlay (EnableDataPixxM16OutputWithOverlay)')
         PsychImaging('AddTask', 'General', 'EnableDataPixxM16OutputWithOverlay');
@@ -69,7 +74,7 @@ if p.trial.datapixx.use
         % Use at least 16-bit framebuffers
         framebufferResolution = 'FloatingPoint16Bit';
     end
-    disp('****************************************************************')    
+%     disp('****************************************************************')    
 else
     % 16-bit framebuffers should be more than enough (even for 10-bit displays).
     framebufferResolution = 'FloatingPoint16Bit';
@@ -79,20 +84,26 @@ PsychImaging('AddTask', 'General', framebufferResolution, 'disableDithering',1);
         
 
 %% Stereo specific adjustments
-if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1
-    % Ensure stereomode==8 (Red-Blue anaglyph) for proper assignment of L/R stereobuffers into R & B channels
-   p.trial.display.stereoMode = 8;
-end
 
 p.trial.display.bufferIdx = 0; % basic/monocular Screen buffer index;
 
 if p.trial.display.stereoMode > 0
-    p.trial.display.bufferIdx(end+1) = p.trial.display.bufferIdx(end)+1; % buffer index for right eye
+    fprintLineBreak
+    if p.trial.datapixx.use && p.trial.datapixx.rb3d
+        fprintf('Stereomode enabled using Datapixx RB3D\n');
+        % Ensure stereomode==8 (Red-Blue anaglyph) for proper assignment of L/R stereobuffers into R & B channels
+        p.trial.display.stereoMode = 8;
+    else
+        fprintf('Stereomode %d enabled\n', p.trial.display.stereoMode);
+    end
+
+    % Append buffer index for right eye
+    p.trial.display.bufferIdx(end+1) = p.trial.display.bufferIdx(end)+1; 
 
     % PTB stereo crosstalk correction
     if isfield(p.trial.display, 'crosstalk') && any(p.trial.display.crosstalk(:))
         % Crosstalk gains == [Lr Lg Lb; Rr Rg Rb]'; 
-        disp('****************************************************************')
+        %disp('****************************************************************')
         if numel(p.trial.display.crosstalk)==2
             fprintf('Stereo Crosstalk correction implemented by custom PLDAPS shader:\n');
         else
@@ -101,13 +112,14 @@ if p.trial.display.stereoMode > 0
             PsychImaging('AddTask', 'RightView', 'StereoCrosstalkReduction', 'subtractOther', p.trial.display.crosstalk(:,end));
             fprintf('Stereo Crosstalk correction implemented by PTB:\n');
         end
+        % Crosstalk gain can be scalar or 3-element RGB array of gains for each eye (...thus funky formatting below)
         fprintf('\tL-(gain*R): [')
         fprintf('%05.2f, ', p.trial.display.crosstalk(:,1).*100)
         fprintf('\b\b]%%\n')
         fprintf('\tR-(gain*L): [')
         fprintf('%05.2f, ', p.trial.display.crosstalk(:,end).*100)
         fprintf('\b\b]%%\n')
-        fprintf('****************************************************************\n')
+        %fprintf('****************************************************************\n')
     end
     
     % Planar display setup
@@ -129,9 +141,7 @@ end
 
 
 %% Color correction
-disp('****************************************************************')
-disp('Adding DisplayColorCorrection to FinalFormatting')
-disp('****************************************************************')
+% Must be initialized before PTB screen opened, correction parameters are loaded/applied below
 if isField(p.trial, 'display.gamma.power')
     PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
 else
@@ -142,7 +152,10 @@ end
 %   [p.trial.display.preOpenScreenFxn]
 %   --  e.g. for demo generation or coding on a hiDPI laptop (e.g. macbook pro, etc), set rigpref for:
 %       .display.preOpenScreenFxn = sprintf('PsychImaging(''AddTask'', ''General'', ''UseRetinaResolution'');');
-if isfield(p.trial.display, 'preOpenScreenFxn') && ~isempty(p.trial.display.preOpenScreenFxn)
+% ~!~WARNING~!~
+%   Function handles in p.trial will sow havoc in the 'params class' hierarchy...
+%   Don't use until params class usage has been properly fixed/removed --TBC Mar 2020
+if ~isempty(p.trial.display.preOpenScreenFxn)
     if ishandle(p.trial.display.preOpenScreenFxn)
         % eval as function handle
         feval(p.trial.display.preOpenScreenFxn);
@@ -164,11 +177,14 @@ p.trial.display.ptr = ptr;
 p.trial.display.winRect = winRect;
 
 
-% % % [p.trial.display.preOpenScreenFxn]
+% % % [p.trial.display.postOpenScreenFxn]
 % Functional modifications to PsychImaging prior to PTB screen creation
 %   --  e.g. for demo generation or coding on a hiDPI laptop (e.g. macbook pro, etc), set rigpref for:
 %       .display.preOpenScreenFxn = sprintf('PsychImaging(''AddTask'', ''General'', ''UseRetinaResolution'');');
-if isfield(p.trial.display, 'postOpenScreenFxn') && ~isempty(p.trial.display.postOpenScreenFxn)
+% ~!~WARNING~!~
+%   Function handles in p.trial will sow havoc in the 'params class' hierarchy...
+%   Don't use until params class usage has been properly fixed/removed --TBC Mar 2020
+if ~isempty(p.trial.display.postOpenScreenFxn)
     if ishandle(p.trial.display.postOpenScreenFxn)
         % eval as function handle
         feval(p.trial.display.postOpenScreenFxn);
@@ -180,6 +196,10 @@ if isfield(p.trial.display, 'postOpenScreenFxn') && ~isempty(p.trial.display.pos
     end
 end
 
+if p.trial.display.stereoMode > 0
+    % Ensure initialized to consistent stereo buffer
+    Screen('SelectStereoDrawBuffer', p.trial.display.ptr, p.trial.display.bufferIdx(1));
+end
 
 %% Retrieve/calculate some basic variables about the display
 
@@ -393,12 +413,14 @@ end
 
 %% Apply display calibration (e.g. gamma encoding or lookup table)
 if isField(p.trial, 'display.gamma')
-    disp('****************************************************************')
-    disp('Loading gamma correction')
-    disp('****************************************************************')
+    % disp('****************************************************************')
+    fprintLineBreak
+    fprintf('Applying display color correction ');
     if isfield(p.trial.display.gamma, 'table')
+        fprintf('via lookup table\n');
         PsychColorCorrection('SetLookupTable', p.trial.display.ptr, p.trial.display.gamma.table, 'FinalFormatting');
     elseif isfield(p.trial.display.gamma, 'power')
+        fprintf('via gamma power %3.3f\n', p.trial.display.gamma.power);
         PsychColorCorrection('SetEncodingGamma', p.trial.display.ptr, p.trial.display.gamma.power, 'FinalFormatting');
         % Extended gamma parameters
         if all( isfield(p.trial.display.gamma, {'bias', 'minL', 'maxL', 'gain'}) )
@@ -416,9 +438,9 @@ end
 
 % % This seems redundant. Is it necessary?
 if p.trial.display.colorclamp == 1
-    disp('****************************************************************')
-    disp('clamping color range')
-    disp('****************************************************************')
+    %disp('****************************************************************')
+    disp('clamping color range [0:1]')
+    %disp('****************************************************************')
     Screen('ColorRange', p.trial.display.ptr, 1, 0);
 end
 
@@ -427,7 +449,7 @@ end
 %   -- This custom crosstalk correction shader is fine tuned for ProPixx Rb3d mode, and mmmuch faster than basic version built into PTB
 %   -- [p.trial.display.crosstalk] format must be [1x2];
 %      will be interpreted as (1)==crosstalk gain for L-gain*R, (2)==crosstalk gain for R-gain*L
-if isfield(p.trial.datapixx, 'rb3d') && p.trial.datapixx.rb3d==1 &&  numel(p.trial.display.crosstalk)==2
+if p.trial.datapixx.rb3d &&  numel(p.trial.display.crosstalk)==2
     % setup crosstalk gains, ensuring the G (overlay channel) gain is zero
     crosstalkGain = [p.trial.display.crosstalk(1), 0, p.trial.display.crosstalk(2)];
     if min(p.trial.display.bgColor) <= 0 || max(p.trial.display.bgColor) >= 1

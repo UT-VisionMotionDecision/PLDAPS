@@ -28,23 +28,11 @@ if nargin<2 || isempty(state)
     else
         % this should not occur...
         fprintf(2,'~!~\tStrange start to tracking calibration...I cannot.\n')
-        fprintf('~!~\t.%s.on should only be toggled by self when calling  pds.tracking.runCalibrationTrial(p)  %% i.e. nargin==1\n', sn, mfilename)
-        fprintf('~!~\tToggle .%s.use to enable/disable tracking module (but o.t.f. switching will prob crash)\n', sn)
+        fprintf('~!~\t.%s.on should only be toggled by self when calling\n\t>> pds.tracking.runCalibrationTrial(p); \n%% i.e. nargin==1\n', sn, mfilename)
+        fprintf('~!~\tToggle .%s.use to enable/disable tracking module (but support for o.t.f. switching is unlikely)\n', sn)
         p.trial.(sn).on = false;
         return
     end
-% %     elseif isfield(p.trial.(sn), 'on') && p.trial.(sn).on
-% %     NOPE:  This is now run automatically at end of calibration trial
-% %         % turn tracking calibration module off, & reenable module state prior to calibration phase
-% %         finishCalibration;%(p, sn);
-% %         return
-% % 
-%     else
-%         % get list of currently active modules
-%         [moduleNames] = getModules(p, 1);
-%         p.trial.(sn).tmp.initialActiveModules = moduleNames;
-%         
-%     end
 end
 
 
@@ -65,24 +53,11 @@ switch state
         %--------------------------------------------------------------------------
         % TRIAL STATES
     case p.trial.pldaps.trialStates.trialItiDraw
-        % drawTheFixation(p, sn);  % maintain fixation during iti
+        % drawTheFixation(p, sn);  % maintain stimulus components during iti
         
         
     case p.trial.pldaps.trialStates.trialPrepare
                 
-        % clean up this code when working
-        % % %         % fixation window rect overlay
-        % % %         %(must be done here to allow O.T.F. changes in fixLim)
-        % % %         % pixels
-        % % %         if p.trial.display.useGL
-        % % %             % For XYZ-space, need to convert from cm to pixels
-        % % %             p.trial.(sn).targPosPx = p.trial.(sn).targPos(1:2) * diag(p.trial.display.w2px);
-        % % %         else
-        % % %             p.trial.(sn).targPosPx = p.trial.(sn).targPos(1:2) * p.trial.display.ppd;
-        % % %         end
-        % % %
-        % % %         p.trial.(sn).fixLimPx = p.trial.(sn).fixLim(1:2) * p.trial.display.ppd;
-        % % %         p.trial.(sn).fixRect = CenterRectOnPoint( [-p.trial.(sn).fixLimPx, p.trial.(sn).fixLimPx], p.trial.(sn).targPosPx(1)+p.trial.display.ctr(1), p.trial.(sn).targPosPx(2)+p.trial.display.ctr(2));
         
     case p.trial.pldaps.trialStates.trialSetup
         % --- Trial Setup: pre-allocate important variables for storage and
@@ -100,7 +75,7 @@ switch state
             
             % Initialize fixaitons (or recall from p.static) for this trial
             if ~isfield(p.static.tracking,'fixations') || isempty(p.static.tracking.fixations)
-                p.trial.tracking.fixations = nan( [3, p.trial.tracking.maxSamples, max(srcIdx)]);
+                p.trial.tracking.fixations = nan( [3, p.trial.tracking.minSamples, max(srcIdx)]);
                 p.trial.tracking.thisFix = 0;
             else
                 p.trial.tracking.fixations = p.static.tracking.fixations;
@@ -108,13 +83,9 @@ switch state
             end
             updateCalibTransform(p)
             
-            p.trial.tracking.targets = setupTargets(p);
+            p.static.tracking.targets = setupTargets(p);
             updateTarget(p);
-            
-%             if ~isfield(p.trial.tracking, 'cm')
-%                 p.trial.tracking.cm = p.trial.tracking.cm0;
-%             end
-            
+                        
             updateCalibPlot(p);
             
             printDirections;
@@ -134,7 +105,7 @@ switch state
                     logFixation(p);
                     if p.trial.keyboard.modKeys.shift
                         % [F] ...and move to next random target
-%                         p.trial.tracking.nextTarg = p.trial.tracking.targets.randOrd(mod(p.trial.tracking.thisFix, p.trial.tracking.targets.nTargets)+1);
+%                         p.trial.tracking.nextTarg = p.static.tracking.targets.randOrd(mod(p.trial.tracking.thisFix, p.static.tracking.targets.nTargets)+1);
                         updateTarget(p);
 
                         % give reward
@@ -219,7 +190,7 @@ switch state
             % Screen('DrawDots', p.trial.display.ptr, targPx, sz, p.trial.tracking.col, [], 2);
 %             if ~p.trial.display.useGL
                 % Show target on subject screen
-                targPx = p.trial.tracking.targets.xyPx(:,p.trial.tracking.targets.i);
+                targPx = p.static.tracking.targets.xyPx(:,p.static.tracking.targets.i);
                 % nested fxns have access to this workspace...no inputs needed
                 drawTheFixation; %(p, sn);
 %             end
@@ -267,9 +238,16 @@ switch state
             updateCalibPlot(p);
             
             p.static.tracking.tform = p.trial.tracking.tform;
-            % pds.tracking.updateMatrix(p);
+            % save calibration to file
+            if isfield(p.static.tracking, 'calPath')
+                calOutput = p.static.tracking;
+                save(p.static.tracking.calPath.saved, '-struct', 'calOutput')
+                fprintf('Calibration saved as:\n\t%s\n',p.static.tracking.calPath.saved);
+            end
             
             finishCalibration;
+            fprintLineBreak('='); %done
+
         end
         
 end %state switch block
@@ -349,7 +327,7 @@ end %state switch block
 % Initialize default module parameters
     function initParams(p, sn)
         % list of default parameters
-        maxSamples = 50;
+        minSamples = 50;
         
         def = struct(...
             'on', false,... % should only be switched on/off by calling pds.tracking.runCalibrationTrial(p)  % i.e. nargin==1
@@ -362,8 +340,8 @@ end %state switch block
             'dotType',2,...    % use basic PTB anti-aliased dots by default
             'fixLim', [2 2],...  % fixation window (deg)
             'fixReward', 0.1,... % small default reward volume for calibration
-            'maxSamples', maxSamples,... % is this necessary?
-            'fixations', [] ... %nan(3, maxSamples) ...
+            'minSamples', minSamples,... % is this necessary?
+            'fixations', [] ... %nan(3, minSamples) ...
             );
         
         p.trial.(sn) = pds.applyDefaults(p.trial.(sn), def);
@@ -416,39 +394,48 @@ end %state switch block
 
 %% printDirections;
     function printDirections
+        fprintLineBreak('=')
         disp('Running Calibration Trial')
-        fprintf('[f] \tLabel fixation (no reward)\n[F] \tLabel fixation & advance to next target (w/ reward)\n')
-        fprintf('[e] \tErase last fixation\n[E] \tErase all fixations (i.e. restart calibration)\n')
-        fprintf('[u] \tUpdate calibration transform\n[U]\tReset calibration to zero\n')
+        fprintLineBreak('-')
+        fprintf('[f] \tLabel fixation (no reward)\n\t[F]\tLabel & advance to next target (w/ reward)\n')
+        fprintf('[e] \tErase last fixation\n\t[E]\tErase ALL fixations (i.e. restart calibration)\n')
+        fprintf('[u] \tUpdate calibration transform\n\t[U]\tReset calibration to zero\n')
         
         % fprintf('s \tsave calibration to parameters\n')
-        fprintf('[t] \tShow next target\n')
-        fprintf('[p] \tExit calibration and return to pause state\n')
+        fprintf('[t] \tShow next target (unhide, if hidden)\n\n')
+        fprintf('[p] \tExit calibration & return to pause state\n')
         fprintf('\n')
         fprintf('[1-9]\tPresent target at # grid location\n')
-        fprintf('[0]\tHide/Show targets\n')
-        
+        fprintf('[0] \tHide/Show targets\n')
+        fprintLineBreak('=')
     end
 
 %% updateCalibTransform(p)
     function updateCalibTransform(p)
         
-        n = p.trial.tracking.thisFix;
+        % find all recorded fixations that match current viewdist
+        n = imag(p.trial.tracking.fixations(3,:,srcIdx(1))) == p.trial.display.viewdist;
         
-        if n>=10
+        % n = p.trial.tracking.thisFix;
+        
+        if sum(n)>=10 % minimum number of data points to perform fit
             %% Fit calibration to fixation data
             for i = srcIdx
                 % Decompose raw tracking data and target positions from calibration data (p.trial.tracking.fixations)
-                xyRaw = imag(p.trial.tracking.fixations(:, 1:n, i));  % only raw vals should be stored in fixations.
-                targXY = real(p.trial.tracking.fixations(:, 1:n, i));
+                xyRaw = imag(p.trial.tracking.fixations(:, n, i));  % only raw vals should be stored in fixations.
+                targXY = real(p.trial.tracking.fixations(:, n, i));
                 
                 % Fit geometric transform
                 % - tform types: ['nonreflective', 'affine', 'projective', 'polynomial']  ...make this selectable based on source field
                 % - eye/target data are input conceptually backwards, but polynomial tform methods are limited to inverse transform
                 p.trial.tracking.tform(i) = fitgeotrans(targXY(1:2,:)', xyRaw(1:2,:)', 'polynomial',3);
                 
-                fprintf('Tracking calibration [%d] updated\n',i);
-                %                 disp(p.trial.tracking.tform(i));
+                fprintf('Tracking calibration [%d] updated for viewdist %scm\n', i, num2str(p.trial.display.viewdist));
+                
+                % group all of these distance measurements together (makes adding/removing points otf more feasible)
+                p.trial.tracking.fixations(:,:,i) = [p.trial.tracking.fixations(:, ~n, i), p.trial.tracking.fixations(:, n, i)];
+                % update i
+                
             end
             fprintf('\n');
             
@@ -464,9 +451,9 @@ end %state switch block
                     % [POLYNOMIAL] requires manual setup
                     %   - all lesser indices must exist, else poly tform object construction fails
                     %   - ?? is there no clean/agnostic way to initialize a polynomial transform?? (e.g. t = affine2d;)
-%                     % 2nd degree
-%                     p.trial.tracking.tform(i) = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0], [0 0 1 0 0 0]);
-                    %     % 3rd degree
+                    % % 2nd degree (...doesn't quite capture periphery well)
+                    %  p.trial.tracking.tform(i) = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0], [0 0 1 0 0 0]);
+                    % 3rd degree
                     p.trial.tracking.tform(i) = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0 0 0 0 0], [0 0 1 0 0 0 0 0 0 0]);
                     
                     fprintf('~~~\tCalibration transform [%d] initialized\n', i)
@@ -481,7 +468,9 @@ end %state switch block
 
 %% updateCalibPlot(p)
     function updateCalibPlot(p)
-        n = 1:p.trial.tracking.thisFix;
+        % n = 1:size(p.trial.tracking.fixations,2); %p.trial.tracking.thisFix;
+        % find all recorded fixations that match current viewdist
+        n = imag(p.trial.tracking.fixations(3,:,srcIdx(1))) == p.trial.display.viewdist;        
         
         % Initialize
         Hf = figure(p.condMatrix.baseIndex+1); clf %             figure(42); clf
@@ -493,14 +482,15 @@ end %state switch block
         hold on;   box off
         axis equal; hold on
         
-        allTargs = p.trial.tracking.targets.xyPx - p.trial.display.ctr(1:2)';
+        % XY pixel locations of all current targets 
+        allTargs = p.static.tracking.targets.xyPx - p.trial.display.ctr(1:2)';
         cols = hsv(size(allTargs,2));
         
         % plot targets
         plot( allTargs(1,:), -allTargs(2,:), 'd','color',.8*[1 1 1])
         
         % mark currently active target
-        plot( allTargs(1,p.trial.tracking.targets.i), -allTargs(2,p.trial.tracking.targets.i), 'ro', 'markersize',10, 'linewidth',1.2);
+        plot( allTargs(1,p.static.tracking.targets.i), -allTargs(2,p.static.tracking.targets.i), 'ro', 'markersize',10, 'linewidth',1.2);
         
         % Report target visibility in gui fig
         if p.trial.tracking.col(4)
@@ -511,7 +501,7 @@ end %state switch block
         
         axis(1.2*axis);
         
-        if ~isempty(n)
+        if any(n)
             % plot fixations
             for i = srcIdx
                 fixTargs = real(p.trial.tracking.fixations(1:2, n, i))' - p.trial.display.ctr(1:2);
@@ -522,23 +512,30 @@ end %state switch block
                     [uTargs, ~, fix2targ] = unique(fixTargs, 'rows');
                     [~, fixCols] = ismember(uTargs, allTargs','rows');
                     
-                    if any(fixCols==0)
-                        % mismatch between target positions and recorded fixations
-                        % Resetting calibration to prevent crash
-                        resetCalibration(p)
-                    else
-                        fixCols = fixCols(fix2targ); % expand for each target repeat
-                        
-                        plot( uTargs(:,1), -uTargs(:,2), 'kd')
-                        % plot raw data
-                        scatter(fixVals(:,1)- p.trial.display.ctr(1), -(fixVals(:,2)- p.trial.display.ctr(2)), [], cols(fixCols,:), 'markerfacecolor','none','markeredgealpha',.3);
-                        
-                        if isfield(p.trial.tracking, 'tform')
-                            % plot calibrated data
-                            fixCaled = transformPointsInverse(p.trial.tracking.tform(i), fixVals)- p.trial.display.ctr(1:2);
-                            scatter(fixCaled(:,1), -fixCaled(:,2), [], cols(fixCols,:), 'filled', 'markeredgecolor','none','markerfacealpha',.3);
-                        end
-                    end
+                    % not all points will match this set of targets...don't crash
+                    nn = fixCols~=0;
+                    % % %                     if any(fixCols==0)
+                    % % %                         % mismatch between target positions and recorded fixations
+                    % % %                         % Resetting calibration to prevent crash
+                    % % %                         warning('Calibration reset by fallback')
+                    % % %                         resetCalibration(p)
+                    % % %                     else
+                        try
+                            fixCols = fixCols(fix2targ); % expand for each target repeat
+
+                            plot( uTargs(:,1), -uTargs(:,2), 'kd')
+                            % plot raw data
+                            scatter(fixVals(:,1)- p.trial.display.ctr(1), -(fixVals(:,2)- p.trial.display.ctr(2)), [], cols(fixCols,:), 'markerfacecolor','none','markeredgealpha',.3);
+
+                            if isfield(p.trial.tracking, 'tform')
+                                % plot calibrated data
+                                fixCaled = transformPointsInverse(p.trial.tracking.tform(i), fixVals)- p.trial.display.ctr(1:2);
+                                scatter(fixCaled(:,1), -fixCaled(:,2), [], cols(fixCols,:), 'filled', 'markeredgecolor','none','markerfacealpha',.3);
+                            end
+%                         catch
+                            
+                        end 
+% % %                     end
                 end
             end
         end
@@ -550,11 +547,11 @@ end %state switch block
 %% resetCalibration(p)
     function resetCalibration(p)
         % packaged for easy call/editing
-        p.trial.tracking.fixations = nan(3, p.trial.tracking.maxSamples, max(srcIdx));
+        p.trial.tracking.fixations = nan(3, p.trial.tracking.minSamples, max(srcIdx));
         p.trial.tracking.thisFix = 0;
-        p.trial.tracking.targets = setupTargets(p);
+        p.static.tracking.targets = setupTargets(p);
         updateTarget(p);
-        updateCalibPlot(p);
+%         updateCalibPlot(p);
         
     end %resetCalibration
 
@@ -565,12 +562,12 @@ end %state switch block
         if isfield(p.trial.tracking, 'nextTarg')
             i = p.trial.tracking.nextTarg;
         else
-            i = randsample(1:p.trial.tracking.targets.nTargets, 1); % first target location
+            i = randsample(1:p.static.tracking.targets.nTargets, 1); % first target location
         end
         
-        p.trial.tracking.targets.i = i;
-        ii = find(p.trial.tracking.targets.randOrd==i);
-        p.trial.tracking.nextTarg = p.trial.tracking.targets.randOrd(mod(ii, p.trial.tracking.targets.nTargets)+1);
+        p.static.tracking.targets.i = i;
+        ii = find(p.static.tracking.targets.randOrd==i);
+        p.trial.tracking.nextTarg = p.static.tracking.targets.randOrd(mod(ii, p.static.tracking.targets.nTargets)+1);
         
         updateCalibPlot(p);
         
@@ -587,8 +584,12 @@ end %state switch block
             p.trial.tracking.thisFix = p.trial.tracking.thisFix + 1;
             for i = srcIdx
                 % Keep target & eye values together using complex numbers:  target == real(xyz), eye == imag(xyz)
+                % -- targetXYZ == stimulusXYZ 
+                % -- eyeXYZ == [rawEyeXY, viewDist]
+                % ** Z will often but not always be same for both **
+                %    -- allows targets to be presented in screen-plane or egocentric coords while keeping separate record of viewing distance
                 p.trial.tracking.fixations(:, p.trial.tracking.thisFix, i) = ...
-                    [p.trial.tracking.targets.xyPx(:,p.trial.tracking.targets.i); p.trial.display.viewdist] + ... % Target position in real component
+                    [p.static.tracking.targets.xyPx(:,p.static.tracking.targets.i); p.static.tracking.targets.targPos(3,p.static.tracking.targets.i)] + ... % Target position in real component
                     1i.*[p.trial.tracking.posRaw(:,min([i,end])); p.trial.display.viewdist]; % Measured eye position in imaginary component
                 
             end
@@ -627,7 +628,7 @@ if 1
 end
 zz = zeros(size(xy,1),1);
 
-targets.targPos = [xy, zz(:)]' .* p.trial.tracking.gridScale;
+targets.targPos = [xy, zz(:)]' ;
 % Target position in WORLD coordinates [CM]
 % add targPos to the viewDist baseline for final depth in world coordinates
 targets.targPos(3,:) = targets.targPos(3,:) + p.trial.display.viewdist;

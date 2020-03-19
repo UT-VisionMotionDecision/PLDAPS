@@ -20,7 +20,9 @@ if nargin<1 || isempty(txt)
 end
 % how many repeats
 if nargin<2 || isempty(n)
-    n = 64;
+    n = 64;     % standard length
+elseif ~isinteger(n)
+    n = round(64*n);   % allow scaling of standard length
 end
 
 if nargout<1
