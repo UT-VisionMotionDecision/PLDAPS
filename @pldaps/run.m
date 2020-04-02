@@ -234,6 +234,14 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             % Apply upcoming condition parameters for the nextTrial
             p = p.condMatrix.nextCond(p);
             
+            % % % 
+            % % % % TESTING block manipulations  (**cannot be mixed within a trial**)
+            % % % if iseven(p.condMatrix.iPass)
+            % % %     p.trial.display.viewdist = 45;
+            % % % end
+            % % % 
+            % % % 
+
         elseif ~isempty(p.conditions)
             % PLDAPS 4.2 legacy mode: p.conditions must be full set of trial conds (inculding all repeats)
             p.defaultParameters.addLevels(p.conditions(nextTrial), {sprintf('Trial%dParameters', nextTrial)});

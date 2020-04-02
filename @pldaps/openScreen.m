@@ -500,6 +500,12 @@ p.trial.display.white = WhiteIndex(p.trial.display.ptr);
 p.trial.display.black = BlackIndex(p.trial.display.ptr);
 
 
+%% Establish p.static display parameters
+% Isn't/shouldn't be entire .display struct, but core elements that are needed
+% for comparison (like physical distance) across experimental trials
+p.static.display.viewdist = p.trial.display.viewdist;
+
+
 %% Flip screen to get initial timestamp & finish
 p.trial.display.t0 = Screen('Flip', p.trial.display.ptr);
 

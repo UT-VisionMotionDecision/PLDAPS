@@ -3,47 +3,70 @@ function p = setViewdist(p, newdist)
 %
 % Update any display variables that are dependent on viewing distance
 %
-
+% NOTE on [p.static] vs [p.trial]
+% --This is confusing and way sub-optimal, but must have a way to convey
+% status & info across trials. Things like physical distance aren't just
+% "reset" when parameters for a new trial are initialized.
+% p.static must only be used ONCE to compare current state (p.trial) against
+% existing state (p.static), if different, correct & update.
 
 %% defaults
-
-% check for physical positioning module [grbl]
-if isfield(p.trial,'grbl') && p.trial.grbl.use
-    positionModule = 'grbl';
-    %   Relies on p.trial.display.grblPos for position in machine coordinates (cm);
-    %   -- effective viewing distance = p.trial.display.homeDist - p.trial.display.grblPos
-    
-else
-    positionModule = [];
-end
+doUpdate = 0;
 
 if nargin>1
     % assign to active trial parameter
     p.trial.display.viewdist = newdist;
 end
 
-% check if different from previous, if not [return]
-if p.static.display.viewdist == p.trial.display.viewdist
+% check if viewdist different from previous
+if p.trial.display.viewdist ~= p.static.display.viewdist
+    doUpdate = 1;
+end
+
+
+% check for physical positioning module [grbl]
+if isfield(p.trial,'grbl') && p.trial.grbl.use
+    sn = 'grbl';
+    % get current position directly from device
+    p.trial.(sn) = grbl.updatePos(p.trial.(sn));
+    % Compute new grbl position in machine coordinates (cm)
+    % -- p.trial.display.homeDist is the viewing distance when display is in the HOME position
+    % -- ** Should be farthest point away from subject
+    % Determine .grblPos by subtracting off the desired viewing distance from .homeDist:
+    %    p.trial.display.grblPos = p.trial.display.homeDist - p.trial.display.viewdist;
+    %      !!NOTE!!
+    %      .grblPos should always be derived from .viewdist, not the other way around !!
+    thisPos = p.trial.display.homeDist - p.trial.display.viewdist;
+    if p.trial.(sn).pos(1) ~= thisPos
+        % update needed
+        doUpdate = 1;
+        p.trial.display.grblPos = thisPos;
+
+    end
+    
+else
+    % no current alternatives...assume position updated externally
+    sn = '';
+end
+
+
+% shortcircuit
+if ~doUpdate
     return
 end
 
+    
 %% Update physical positioning
-switch positionModule
+switch sn
     case 'grbl'
         % Arduino CNC controller for ViewDist display stepper motors
-        % (see:  www.github.com/czuba/grbl
-        
-        % Compute new grbl position in machine coordinates (cm)
-        % -- p.trial.display.homeDist is the viewing distance when display is in the HOME position
-        % -- ** Should be farthest point away from subject
-        % Determine .grblPos by subtracting off the desired viewing distance from .homeDist:
-        p.trial.display.grblPos = p.trial.display.homeDist - p.trial.display.viewdist;
-        
+        % (see:  www.github.com/czuba/grbl )
+                
         % Move to the new position
-        p.trial.(sn) = grbl.completeMove(p.trial.(sn), sprintf('G1 x%4.2f f%4.2f', p.trial.display.grblPos, 60/2),  0);
+        p.trial.(sn) = grbl.completeMove(p.trial.(sn), sprintf('G1 x%4.2f f%4.2f', p.trial.display.grblPos, 60/2),  .8);
         
-        % Extract current values to p.static for future trial comparison
-        p.static.display.grblPos = p.trial.display.grblPos;
+%         % Extract current values to p.static for future trial comparison
+%         p.static.display.grblPos = p.trial.display.grblPos;
         
     otherwise
         % do nothing, assume position updated externally
@@ -70,35 +93,50 @@ p.static.display.viewdist = p.trial.display.viewdist;
 
 %% updateDisplayParams(p)
     function updateDisplayParams(p)
+        viewdist = p.trial.display.viewdist;
+        prevViewdist = p.static.display.viewdist;
+        
         % Compute visual angle of the display (while accounting for any stereomode splits)
         switch p.trial.display.stereoMode
             case {2,3}
                 % top-bottom split stereo
-                p.trial.display.width   = 2*atand( p.trial.display.widthcm/2    /p.trial.display.viewdist);
-                p.trial.display.height  = 2*atand( p.trial.display.heightcm/4   /p.trial.display.viewdist);
+                p.trial.display.width   = 2*atand( p.trial.display.widthcm/2    /viewdist);
+                p.trial.display.height  = 2*atand( p.trial.display.heightcm/4   /viewdist);
             case {4,5}
                 % left-right split stereo
-                p.trial.display.width   = 2*atand( p.trial.display.widthcm/4    /p.trial.display.viewdist);
-                p.trial.display.height  = 2*atand( p.trial.display.heightcm/2   /p.trial.display.viewdist);
+                p.trial.display.width   = 2*atand( p.trial.display.widthcm/4    /viewdist);
+                p.trial.display.height  = 2*atand( p.trial.display.heightcm/2   /viewdist);
             otherwise
-                p.trial.display.width   = 2*atand( p.trial.display.widthcm/2    /p.trial.display.viewdist);
-                p.trial.display.height  = 2*atand( p.trial.display.heightcm/2   /p.trial.display.viewdist);
+                p.trial.display.width   = 2*atand( p.trial.display.widthcm/2    /viewdist);
+                p.trial.display.height  = 2*atand( p.trial.display.heightcm/2   /viewdist);
         end
         p.trial.display.ppd = p.trial.display.winRect(4)/p.trial.display.height; % calculate pixels per degree
-        p.trial.display.cmpd = 2*atand(0.5/p.trial.display.viewdist); % cm per degree at viewing distance line of sight
+        p.trial.display.cmpd = 2*atand(0.5/viewdist); % cm per degree at viewing distance line of sight
         % visual [d]egrees          % updated to ensure this param reflects ppd (i.e. not an independent/redundant calculation)
         p.trial.display.dWidth =  p.trial.display.pWidth/p.trial.display.ppd;
         p.trial.display.dHeight = p.trial.display.pHeight/p.trial.display.ppd;
         
-        p.trial.display.fixPos(3) = p.trial.display.viewdist;
+        p.trial.display.fixPos(3) = viewdist;
         
-        
-        
+        % depth clipping planes (zNear & zFar) should really be adjusted here too,
+        % to ensure depth clipping doesn't occur unexpectedly
+        p.trial.display.zNear = p.trial.display.zNear;
+        % set far limit at consistent deg visual disparity for new viewing distance
+        farDisp = p.trial.display.ipd*(prevViewdist-p.trial.display.zFar) / (prevViewdist*p.trial.display.zFar);
+        p.trial.display.zFar = (farDisp * viewdist^2) / (p.trial.display.ipd - farDisp*viewdist);
+
         
         %% some more
         % visual [d]egrees          % updated to ensure this param reflects ppd (i.e. not an independent/redundant calculation)
         p.trial.display.dWidth =  p.trial.display.pWidth/p.trial.display.ppd;
         p.trial.display.dHeight = p.trial.display.pHeight/p.trial.display.ppd;
+        
+        % compile glPerspective input parameters based on new geometry
+        p.trial.display.glPerspective = [atand(p.trial.display.wHeight/2/viewdist)*2,...
+            p.trial.display.wWidth/p.trial.display.wHeight,...
+            p.trial.display.zNear,... % near clipping plane (cm)
+            p.trial.display.zFar];  % far clipping plane (cm)
+        
         
     end
 
