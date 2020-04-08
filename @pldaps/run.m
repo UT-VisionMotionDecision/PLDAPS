@@ -152,7 +152,7 @@ if isfield(p.trial.pldaps.modNames,'currentStim')
         disp(p.trial.(p.trial.pldaps.modNames.currentStim{1}));
     end
 end
-fprintLineBreak('_-',32); fprintLineBreak;
+fprintLineBreak('_-', 0.5); fprintLineBreak;
 
 
 %% Last chance to check variables
@@ -238,6 +238,8 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             % % % % TESTING block manipulations  (**cannot be mixed within a trial**)
             % % % if iseven(p.condMatrix.iPass)
             % % %     p.trial.display.viewdist = 45;
+            % % % else
+            % % %     p.trial.display.viewdist = 90;
             % % % end
             % % % 
             % % % 

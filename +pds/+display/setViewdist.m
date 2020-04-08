@@ -23,9 +23,11 @@ if p.trial.display.viewdist ~= p.static.display.viewdist
     doUpdate = 1;
 end
 
+fprintf('\n\tppd = %3.3f\t', p.trial.display.ppd);
 
 % check for physical positioning module [grbl]
-if isfield(p.trial,'grbl') && p.trial.grbl.use
+% -- ugly coding due to 'params' class garbage
+if (isfield(p.trial,'grbl') || (isa(p.trial,'params') && isField(p.trial,'grbl')))   &&   p.trial.grbl.use 
     sn = 'grbl';
     % get current position directly from device
     p.trial.(sn) = grbl.updatePos(p.trial.(sn));
@@ -41,7 +43,6 @@ if isfield(p.trial,'grbl') && p.trial.grbl.use
         % update needed
         doUpdate = 1;
         p.trial.display.grblPos = thisPos;
-
     end
     
 else
@@ -82,13 +83,21 @@ updateDisplayParams(p);
 
 % 3D OpenGL rendering parameters
 if p.trial.display.useGL
-    % nested function
-    updateOpenGlParams(p.trial.display);
+    % Apply updated openGL params to viewport configuration
+    updateOpenGlParams(p.trial.display);  %nested function
 end
 
 
 % extract core/fundamental values to p.static for comparison in future trials
 p.static.display.viewdist = p.trial.display.viewdist;
+
+
+fprintf('%3.3f\n', p.trial.display.ppd);
+
+
+% % % % % % % % % % % 
+%% Nested Functions
+% % % % % % % % % % % 
 
 
 %% updateDisplayParams(p)
@@ -124,12 +133,6 @@ p.static.display.viewdist = p.trial.display.viewdist;
         % set far limit at consistent deg visual disparity for new viewing distance
         farDisp = p.trial.display.ipd*(prevViewdist-p.trial.display.zFar) / (prevViewdist*p.trial.display.zFar);
         p.trial.display.zFar = (farDisp * viewdist^2) / (p.trial.display.ipd - farDisp*viewdist);
-
-        
-        %% some more
-        % visual [d]egrees          % updated to ensure this param reflects ppd (i.e. not an independent/redundant calculation)
-        p.trial.display.dWidth =  p.trial.display.pWidth/p.trial.display.ppd;
-        p.trial.display.dHeight = p.trial.display.pHeight/p.trial.display.ppd;
         
         % compile glPerspective input parameters based on new geometry
         p.trial.display.glPerspective = [atand(p.trial.display.wHeight/2/viewdist)*2,...
@@ -137,6 +140,25 @@ p.static.display.viewdist = p.trial.display.viewdist;
             p.trial.display.zNear,... % near clipping plane (cm)
             p.trial.display.zFar];  % far clipping plane (cm)
         
+        
+        %   ------------------------        
+        % Necessary evil to allow these parameter changes to carry over to subsequent trials
+        % Poll current pldaps 'levels' state (...crappy params class stuff)
+        % Create new 'level', that contains all current .display settings
+        % -- (overkill, but getting struct diff alone is a nightmare)
+        newLvlStruct = struct;
+        newLvlStruct.display = p.trial.display;
+        
+        %unlock the defaultParameters
+        prevState = p.defaultParameters.setLock(false);
+        % Create the new level
+        p.defaultParameters.addLevels({newLvlStruct}, {sprintf('viewdistUpdateTrial%d', p.defaultParameters.pldaps.iTrial)});
+        % append this new level to the baseParamsLevels
+        p.static.pldaps.baseParamsLevels = [p.static.pldaps.baseParamsLevels, length(p.defaultParameters.getAllLevels)];
+        
+        
+        %re-lock the defaultParameters
+        p.defaultParameters.setLock(prevState);
         
     end
 

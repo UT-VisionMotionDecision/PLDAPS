@@ -34,7 +34,8 @@ classdef params < handle
             structviewerHandle = p.structviewer(p);
         end
         
-        function setLock(p,lock)
+        function prevState = setLock(p,lock)
+            prevState = p.locked;
             p.locked = lock;
         end
         
