@@ -4,12 +4,23 @@ function pldapsDefaultTrialFunction(p,state, sn)
 % ...eventually. Try to symlink w/ relative path to updated file name first
 
 % stimulus name is only used for one variable: eyeW
-    if nargin<3
-        error('Use of PLDAPS modules without 3rd input string for module name is no longer allowed. See also  pldapsModule.m')
-        % default p.trial.stimulus field was killed off a while back --TBC 12/2019
-        %         sn='stimulus';
-    end
-    
+if nargin<3
+    error('Use of PLDAPS modules without 3rd input string for module name is no longer allowed. See also  pldapsModule.m')
+    % default p.trial.stimulus field was killed off a while back --TBC 12/2019
+    %         sn='stimulus';
+end
+
+%% Redirect to:  pldapsDefaultTrial.m
+
+pldapsDefaultTrial(p, state, sn);
+
+return
+
+%% Old code
+% shortened name and not going to maintain two different code versions
+% 
+% 2020-
+    %
     switch state
         % FRAME STATES  (always place these at the top of your switch statement b/c they happen most frequently)
         case p.trial.pldaps.trialStates.frameUpdate

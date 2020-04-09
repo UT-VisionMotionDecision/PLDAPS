@@ -1,4 +1,10 @@
 function addToPathWithoutGit(dir, excludes, withSubdirs)
+% function addToPathWithoutGit(dir, excludes, withSubdirs)
+% 
+% Add [dir] to Matlab path without including all the hidden versioning junk (.git, .svn)
+% -- Optionally also exclude subdirs matching any entries in [excludes] string (or cell of strings)
+% -- by default includes all subdirectories, set [withSubdirs] to false to only add the main [dir]
+% 
     if nargin<3 || withSubdirs
         a = genpath(dir);
         withSubdirs = ' and subdirectories';
