@@ -56,9 +56,6 @@ switch state
         % drawTheFixation(p, sn);  % maintain stimulus components during iti
         
         
-    case p.trial.pldaps.trialStates.trialPrepare
-                
-        
     case p.trial.pldaps.trialStates.trialSetup
         % --- Trial Setup: pre-allocate important variables for storage and
         if p.trial.(sn).on
@@ -90,7 +87,10 @@ switch state
             
             printDirections;
         end
+
         
+    case p.trial.pldaps.trialStates.trialPrepare
+                
         
         %--------------------------------------------------------------------------
         % --- Manage stimulus before frame draw
@@ -161,6 +161,7 @@ switch state
                         % TODO:  ideally use a modKey to only erase calibration points for current viewdist
                     else
                         p.trial.tracking.thisFix = p.trial.tracking.thisFix - 1;
+                        p.trial.tracking.thisFix(p.trial.tracking.thisFix<0) = 0; % bottom out index to prevent error
                     end
                     
                     
@@ -380,14 +381,6 @@ end %state switch block
     end %drawGLFixation
 
 
-
-% end % end main function
-
-
-
-% % % % % % % % %
-
-
 %% Nested Functions
 % % % % % % % % %
 
@@ -409,6 +402,7 @@ end %state switch block
         fprintf('[0] \tHide/Show targets\n')
         fprintLineBreak('=')
     end
+
 
 %% updateCalibTransform(p)
     function updateCalibTransform(p)
@@ -520,7 +514,7 @@ end %state switch block
                     % % %                         warning('Calibration reset by fallback')
                     % % %                         resetCalibration(p)
                     % % %                     else
-                        try
+%                         try
                             fixCols = fixCols(fix2targ); % expand for each target repeat
 
                             plot( uTargs(:,1), -uTargs(:,2), 'kd')
@@ -534,7 +528,7 @@ end %state switch block
                             end
 %                         catch
                             
-                        end 
+%                         end 
 % % %                     end
                 end
             end
