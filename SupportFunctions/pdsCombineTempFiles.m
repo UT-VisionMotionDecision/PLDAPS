@@ -1,99 +1,137 @@
-% function [PDS, dv] = pdsCombineTempFiles(TEMPdir, filename)
-% %   function [PDS, dv] = pdsCombineTempFiles(TEMPdir, filename)
-% %
-% % The function loads temp PDS files that have been saved into the TEMP
-% % folder and combines them into a single PDS structure as would be
-% % expected, were it to be saved appropriately...
-% %
-% % The output file is saved into the same folder with the original name +
-% % "_SALVAGED". user can then manually change this.
+function [pds, pdsName] = pdsCombineTempFiles(baseName, basePath)
+% function [pds, pdsName] = pdsCombineTempFiles(baseName, basePath)
 % 
-% %% GET FILES:
+% Recovery function for compiling PDS output from a set of temp files
+%   (i.e. after a crash during experiment)
 % 
-% % get all files that match filename:
-% files = dir([TEMPdir '/' filename '*']);    
+% 2020-09-03 TBC  Updating ancient/psuedocode to modern pldaps
 % 
-% if isempty(files)
-%     fprintf('\n\nSorry there were no files under that name.\nYou probably screwed up\n\n');
-%     return
-% else
-%     fprintf(['\n\nGoing to salvage all PDS files named:\n\n     '  filename '\n\nand raise PDS from the ashes of the dead\n\n']);
-% end
-% 
-% %% ONE FOR ALL & ALL FOR ONE:
-% 
-% % fancy waitbar:
-% h = waitbar(0, 'Please wait while raising PDS from ashes of the dead');
-% 
-% %get all PDS files for requested dataset:
-% for t = 1:length(files)
-%     C{t} = files(t).name;
-% end
-% 
-% % sort files in numeric (rather than alphabetical) order:
-% sfiles = sort_nat(C);
-% 
-% % copy the PDStemp for the current file into the main PDS struct:
-% for t = 1:length(sfiles)   
-%     load([TEMPdir '/' sfiles{t}], '-mat')
-%     
-%     flds = fields(PDStemp);
-%     for f = 1:length(flds)    
-%         % cells go here:
-%         if iscell(PDStemp.(flds{f}))
-%             PDS.(flds{f}){t}    = PDStemp.(flds{f}){1};
-%          
-%         % numerics go here:    
-%         elseif isnumeric(PDStemp.(flds{f})) || islogical(PDStemp.(flds{f}))       
-%              if length(PDStemp.(flds{f}))==1
-%                 PDS.(flds{f})(t)      = PDStemp.(flds{f});
-%              else
-%                 if size(PDStemp.(flds{f}),1) > 1                % if it's in the form of colum per trial
-%                     PDS.(flds{f})(:,t)    = PDStemp.(flds{f});
-%                 elseif size(PDStemp.(flds{f}),2) > 1
-%                     PDS.(flds{f})    = PDStemp.(flds{f});       % if there's 1 row full of data for all trials (e.g. PDS.dots.dur)
-%                 end
-%              end      
-%         % structures go here and go through the same process again:
-%         elseif isstruct(PDStemp.(flds{f}))
-%  
-%             subflds = fields(PDStemp.(flds{f})); 
-%             for subf = 1:length(subflds)
-%                 % cells go here:
-%                 if iscell(PDStemp.(flds{f}).(subflds{subf}))
-%                     PDS.(flds{f}).(subflds{subf}){t}    = PDStemp.(flds{f}).(subflds{subf}){1};
-%                  
-%                 % numerics go here:
-%                 elseif isnumeric(PDStemp.(flds{f}).(subflds{subf}))
-%                      if length(PDStemp.(flds{f}).(subflds{subf}))==1
-%                         PDS.(flds{f}).(subflds{subf})(t)      = PDStemp.(flds{f}).(subflds{subf});
-%                      else
-%                         if size(PDStemp.(flds{f}).(subflds{subf}),1) > 1
-%                             PDS.(flds{f}).(subflds{subf})(:,t)    = PDStemp.(flds{f}).(subflds{subf});
-%                         elseif size(PDStemp.(flds{f}).(subflds{subf}),2) > 1
-%                             PDS.(flds{f}).(subflds{subf})      = PDStemp.(flds{f}).(subflds{subf});
-%                         end
-%                      end
-%                      
-%                 elseif isstruct(PDStemp.(flds{f}).(subflds{subf}))
-%                     fprintf('\n\n\nWTF?! Yet ANOTHER struct?! no way fuck this im done\n\n\n\n');
-%                 end
-%             end 
-%         end
-%     end
-% % update waitbar every 5 files:
-% if mod(t,5)==0
-%     waitbar(t/length(sfiles), h)
-% end
-% 
-% end
-%   
-% delete(h)
-%         
-% save([TEMPdir '/' filename(1:end-4) '_SALVAGED.PDS'], 'PDS', 'dv', '-mat')
-% 
-% fprintf(['\n\n' filename ' is alive! ALIIIIIVE! \nand saved in \n' TEMPdir '\n']);
-% 
-% 
-% 
-% 
+
+
+%   !!! Figure out a way to save TEMP files better, so that a record of components outside of
+%       the [p.trial] field can be accounted for (...at least in their initial state)
+
+% % NOTE:
+% % Currently unable to recreate some [important] elements of output struct:
+% %     .condMatrix  (or .conditions)
+% %     .static
+% %     .pdsCore
+% % 
+
+
+%% Parse inputs
+% Base Path (usually the recording day directory)
+if nargin<2 || isempty(basePath)
+    basePath = pwd;
+end
+% clean up path
+basePath = homeTilda(basePath);
+
+% PDS file selection modal if [baseName] not specified
+if nargin<1
+    baseName = [];
+end
+
+
+%% Find matching PDS files
+fd = dir(fullfile(basePath, [baseName,'*.PDS']));
+if isempty(fd)
+    % try standard pds sub-directory
+    fd = dir(fullfile(basePath, 'pds', [baseName,'*.PDS']));
+end
+
+nTrials = length(fd);
+fprintf('\n~~~\tLoading & compiling %d temp trial files matching:\t"%s*.PDS" \n\tfrom:\t%s\n',nTrials, baseName, basePath)
+% Make progress bar object for command window output
+try
+    pb = progBar(2:nTrials, min(30,nTrials));
+end
+
+
+%% ReCreate PDS output structure (...as best we can)
+% initialize (prevent confusion with possible fxns on path)
+pds = struct;
+[pds.baseParams,pds.condMatrix,pds.pdsCore,pds.static] = deal([]);
+[pds.conditionNames,pds.conditions,pds.data]=deal({});
+verbo = 0; % 0 == silence output from pdsImport
+
+
+%% Create baseParams
+% load first trial struct (this should be "trial00000", which is saved out before PLDAPS trial loop begins)
+p = load(fullfile(fd(1).folder, fd(1).name),'-mat');
+fn = fieldnames(p);
+if length(fn)==1 && isa(p.(fn{1}),'pldaps')
+    % initial save was complete pldaps object (expected)
+    p = p.(fn{1});
+    pds = p.save;   %pds.baseParams = p.trial;
+else
+    % initial save was struct version of p.trial before experiment start
+    pds.baseParams = pdsImport(fullfile(fd(1).folder, fd(1).name), [], verbo);
+    % must create a 'dummy' pldaps object based on the baseParams
+    %   - allows use of standard pldaps class methods (e.g. getDifferenceFromStruct)
+    p = pldaps(pds.baseParams.session.subject, pds.baseParams);
+end
+% TODO: !!! Figure out a way to save TEMP files better, so that a record of components outside of
+%       the [p.trial] field is saved (...at least in their initial state)
+
+
+
+%% Compile all trial files into .data{}
+for i = 2:nTrials
+    % Load each trial
+    thisTr = pdsImport(fullfile(fd(i).folder, fd(i).name), [], verbo);
+    % Determine difference from initial struct & add to .data
+    pds.data{thisTr.trialnumber} = getDifferenceFromStruct(p.defaultParameters, thisTr);
+    % update progress
+    if exist('pb','var')
+        pb.check(i);
+    end
+end
+
+
+%% Record info about reconstruction
+pds.reconSrc.path = basePath;
+pds.reconSrc.name = {fd.name};
+% update file name to reflect reconstruction
+pds.baseParams.session.fileOrig = pds.baseParams.session.file;
+[fp,fn,fe] = fileparts(pds.baseParams.session.file);
+pdsName = fullfile([fn,'-recon',fe]);
+pds.baseParams.session.file = pdsName;
+
+
+
+end % main function
+
+
+
+% % % % % % % %
+% % % % % % % %
+%% SubFunctions
+% % % % % % % %
+% % % % % % % %
+
+
+%% homeTilda
+function outPath = homeTilda(inPath)
+% shorten $HOME path to "~"
+%
+
+if isunix % mac or linux
+    [~,homeDir] = unix('echo $HOME');
+    homeDir = homeDir(1:end-1);
+    
+    if contains(inPath, homeDir)
+        i = strfind(inPath, homeDir);
+        inPath(i:length(homeDir)) = [];
+        outPath = fullfile('~',inPath);
+    else
+        % do nothing
+        outPath = inPath;
+    end
+    
+else
+    % Windoze...do nothing
+    outPath = inPath;
+end
+
+end %homeTilda

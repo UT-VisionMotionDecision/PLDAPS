@@ -11,6 +11,8 @@ function p = setViewdist(p, newdist)
 % existing state (p.static), if different, correct & update.
 
 %% defaults
+debug = false;
+
 doUpdate = 0;
 
 if nargin>1
@@ -23,7 +25,10 @@ if p.trial.display.viewdist ~= p.static.display.viewdist
     doUpdate = 1;
 end
 
-fprintf('\n\tppd = %3.3f\t', p.trial.display.ppd);
+% DEBUG
+if debug
+    fprintf('\n\tppd = %3.3f\t', p.trial.display.ppd);
+end
 
 % check for physical positioning module [grbl]
 % -- ugly coding due to 'params' class garbage
@@ -92,7 +97,10 @@ end
 p.static.display.viewdist = p.trial.display.viewdist;
 
 
-fprintf('%3.3f\n', p.trial.display.ppd);
+% DEBUG
+if debug
+    fprintf('%3.3f\n', p.trial.display.ppd);
+end
 
 
 % % % % % % % % % % % 

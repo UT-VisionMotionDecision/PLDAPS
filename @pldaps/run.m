@@ -184,20 +184,23 @@ p = beginExperiment(p);
 p.trial.flagNextTrial  = 0; % flag for ending the trial
 p.trial.iFrame     = 0;  % frame index
 
-% Save defaultParameters as trial 0
 % NOTE: the following line converts p.trial into a struct.
 % ------------------------------------------------
 % !!! Beyond this point, p.trial is NO LONGER A POINTER TO p.defaultParameters !!!
 % !!! Contents can be accessed as normal, but params class methods will error  !!!
 % ------------------------------------------------
 p.trial=mergeToSingleStruct(p.defaultParameters);
-result = saveTempFile(p);
+
+% Record of baseline params class levels
+p.static.pldaps.baseParamsLevels = p.defaultParameters.getAllLevels();
+
+% Save temp file as "trial 0"
+result = saveTempFile(p, true);
 if ~isempty(result)
     disp(result.message)
 end
 
-% Record of baseline params class levels
-p.static.pldaps.baseParamsLevels = p.defaultParameters.getAllLevels();
+
 
 % Switch to high priority mode
 if p.trial.pldaps.maxPriority
@@ -266,10 +269,21 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         % There has to be a way to revise params class (particularly removing "find"
         % calls, which are known to be very slow), but have had little success at
         % deciphering the params.m code so far. --TBC 2017-10
-        tmpts = mergeToSingleStruct(p.defaultParameters);
-        save( fullfile(p.trial.pldaps.dirs.data, '.TEMP', 'deepTrialStruct'), '-struct', 'tmpts');
-        clear tmpts
-        p.trial = load(fullfile(p.trial.pldaps.dirs.data, '.TEMP', 'deepTrialStruct'));
+        
+        try
+            % create a deep copy in p.trial
+            %   ...not a whole lot prettier, but should be a lot more efficient   --TBC 2020
+            %   (method found in:  http://undocumentedmatlab.com/articles/general-use-object-copy)
+            p.trial = getArrayFromByteStream( getByteStreamFromArray( mergeToSingleStruct(p.defaultParameters) ) );
+            
+        catch
+            % fallback to sketchy save-reload workaround
+            fprintf(2,'!')
+            tmpts = mergeToSingleStruct(p.defaultParameters);
+            save( fullfile(p.trial.pldaps.dirs.data, '.TEMP', 'deepTrialStruct'), '-struct', 'tmpts');
+            clear tmpts
+            p.trial = load(fullfile(p.trial.pldaps.dirs.data, '.TEMP', 'deepTrialStruct'));
+        end
         
         % Document currently active levels for this trial
         p.trial.pldaps.allLevels = p.defaultParameters.getAllLevels;
@@ -425,42 +439,17 @@ end
 
 %% PDS output:  Compile & save the data
 if ~p.trial.pldaps.nosave
-    % create output struct
-    PDS = struct;
-    % get the raw contents of Params hierarchy (...not for mere mortals)
-    [rawParamsStruct, rawParamsNames] = p.defaultParameters.getAllStructs();
-    % Partition baseline parameters present at the onset of all trials (*)
-    PDS.pdsCore.initialParameters       = rawParamsStruct(p.static.pldaps.baseParamsLevels);
-    PDS.pdsCore.initialParameterNames   = rawParamsNames(p.static.pldaps.baseParamsLevels);
-    PDS.pdsCore.initialParameterIndices = p.static.pldaps.baseParamsLevels;
-    % Include a less user-hostile output struct
-    PDS.baseParams = mergeToSingleStruct(p.defaultParameters);
-    % ! ! ! NOTE: baseParamsLevels can be changed during experiment (i.e. during a pause),
-    % ! ! ! so this merged struct could be misleading.
-    % ! ! ! Truly activeLevels are documented on every trial in:  data{}.pldaps.activeLevels
-    % ! ! ! Reconstruct them by p
+    % Use pldaps.save method to save PLDAPS experiment session
+    % - Converts pldaps object to a struct containing standard/unpacked data & parameters output fields:
+    %   [.baseParams, .data{}, .conditions [and/or] .condMatrix, .static]
+    p.save;
     
-    levelsCondition = 1:length(rawParamsStruct);
-    levelsCondition(ismember(levelsCondition, p.static.pldaps.baseParamsLevels)) = [];
-    if ~isempty(p.condMatrix)
-        PDS.condMatrix = p.condMatrix;
-        PDS.condMatrix.H = [];
-    end
-    PDS.conditions = rawParamsStruct(levelsCondition);
-    PDS.conditionNames = rawParamsNames(levelsCondition);
-    PDS.data = p.data;
-    PDS.static = p.static;  %#ok<STRNU>  PDS.functionHandles = p.functionHandles;
-    savedFileName = fullfile(p.trial.session.dir, 'pds', p.trial.session.file);
-    save(savedFileName, '-mat', '-struct', 'PDS')
-    disp('****************************************************************')
-    fprintf('\tPLDAPS data file saved as:\n\t\t%s\n', savedFileName)
-    disp('****************************************************************')
     
-    % Detect & report dropped frames
+    %% Detect & report dropped frames
     frameDropCutoff = 1.1;
     frameDrops = cell2mat(cellfun(@(x) [sum(diff(x.timing.flipTimes(1,:))>(frameDropCutoff*p.trial.display.ifi)), x.iFrame], p.data, 'uni',0)');
     ifiMu = mean(cell2mat(cellfun(@(x) diff(x.timing.flipTimes(1,:)), p.data, 'uni',0)));
-    if 1%sum(frameDrops(:,1))>0
+    if 1
         fprintf(2, '\t**********\n');
         fprintf(2,'\t%d (of %d) ', sum(frameDrops,1)); fprintf('trial frames exceeded %3.0f%% of expected ifi\n', frameDropCutoff*100);
         fprintf('\tAverage ifi = %3.2f ms (%2.2f Hz)', ifiMu*1000, 1/ifiMu);
@@ -472,31 +461,11 @@ if ~p.trial.pldaps.nosave
     
 end
 
+
 %% Close up shop & free up memory
 if p.trial.display.useOverlay==2
     glDeleteTextures(2,p.trial.display.lookupstexs(1));
 end
-
-% % % %% Clean up stray glBuffers (...else crash likely on subsequent runs)
-% % % if isfield(p.trial.display, 'useGL') && p.trial.display.useGL
-% % %     global glB GL %#ok<TLEV>
-% % %     if isstruct(glB)
-% % %         fn1 = fieldnames(glB);
-% % %         for i = 1:length(fn1)
-% % %             if isstruct(glB.(fn1{i})) && isfield(glB.(fn1{i}),'h')
-% % %                 % contains buffer handle
-% % %                 glDeleteBuffers(1, glB.(fn1{i}).h);
-% % %                 % fprintf('\tDeleted glBuffer glB.%s\n', fn1{i});
-% % %                 glB = rmfield(glB, fn1{i});
-% % %                 
-% % %             elseif glIsProgram(glB.(fn1{i}))
-% % %                 % is a GLSL program
-% % %                 glDeleteProgram(glB.(fn1{i}))
-% % %             end
-% % %         end
-% % %         clearvars -global glB
-% % %     end
-% % % end
 
 
 %% Make sure enough time passes for any pending async flips to occur
@@ -516,7 +485,8 @@ end
 % close up shop
 sca;    Screen('CloseAll');
 
-end
+
+end %run.m
 
 
 % % % % % % % % % % % %
