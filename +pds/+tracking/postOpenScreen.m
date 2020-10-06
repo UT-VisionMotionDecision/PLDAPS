@@ -4,6 +4,11 @@ function postOpenScreen(p)
 % Identify tracking source & setup calibration fields
 % - Called by pldapsDefaultTrial in state:  experimentPostOpenScreen
 % 
+% Checks & loads most recent calibration from subject-specific calibration directory:
+%   <PLDAPSroot>/rigPrefs/tracking/<subject>/
+% New calibrations will be saved in this directory as:
+%   ./<subj>_YYYMMDD_<source>.mat
+% 
 
 % Identify source (def: 'eyelink')
 if isfield(p.trial.pldaps.modNames, 'tracker')
@@ -36,25 +41,17 @@ else
 end
 
 
-% function handle for updating tracked position on each display refresh
-% AHCKK!! Function handles in the pldaps struct COMPLETELY BORK TIMING!!
-% !~!  Experiment will drop EVERY FRAME just for function handles being present,
-% regardless if they're called/used or not!  Must stuff them in p.static
-%
-%       TODO:  But really must fix properly. This is such a degenerate problem
-%
-if isfield(p.static, src) && isfield(p.static.(src), 'updateFxn')
-    p.static.tracking.updateFxn.(src) = p.static.(src).updateFxn;
-else
-    % Make an educated guess
-    % -- !! updateFxn must be setup to return handle with appropriate inputs if no inputs provided
-    % -- ...if updateFxn doesn't need inputs, use a dummy
-    p.static.tracking.updateFxn.(src) = eval(sprintf('@pds.%s.updateFxn;', src)); %eval(sprintf('pds.%s.updateFxn', src));   %
-end
+%% Create tracking object in p.static
+p.static.tracking = pds.tracking.trackObj(p);
+
+% % % DEBUG
+% % p.static.tracking.handles.vd
+% % notify(p.static.display,'viewDistSet')
 
 
 %% Initialize calibration matrix with default
-% Subject specific calibration directory
+% Calibration directory:  (subject-specific)
+%   <PLDAPSroot>/rigPrefs/tracking/<subject>
 subj = char(p.trial.session.subject(1));
 trackingCalDir = fullfile(p.trial.pldaps.dirs.proot, 'rigPrefs', 'tracking', subj);
 
@@ -62,21 +59,34 @@ if ~exist(trackingCalDir,'dir')
     mkdir(trackingCalDir)
 end
 
+% Calibration FileName: new calibrations will be saved as:
+%   ./<subj>_YYYMMDD_<source>.mat
+calFileName = sprintf('%s_%s_%s.mat', subj, datestr(now,'yyyymmdd'), src);
+
+% Setup calibration in following precident:
+%   - Load calibration from file
+%   -- default to most recently saved calibration file
+%   -- can be overridden by defining fullfile path in:  p.trial.<source>.calSource
+%   - Initialize source-specific transform from PLDAPS struct
+%   -- p.trial.<source>.tform               (preferred)
+%   -- p.trial.<source>.calibration_matrix  (unpreferred)
+%   - Fallback to unity transform
+% 
 if isempty(dir(fullfile(trackingCalDir, [subj,'_*'])))
     if  isfield(p.trial.(src), 'tform') && ~isempty(p.trial.(src).tform)
         % pull calib matrix from (src) if pre-defined
         initTform = p.trial.(src).tform;
-        fprintf('Calibration loaded from PLDAPS class default')
+        fprintf('\tCalibration transform loaded from PLDAPS class default\n')
         
     elseif isfield(p.trial.(src), 'calibration_matrix') && ~isempty(p.trial.(src).calibration_matrix)
         % create tform from calibration matrix
         initTform = projective2d(p.trial.(src).calibration_matrix);
-        fprintf('Calibration loaded from PLDAPS class default')
+        fprintf('\tCalibration matrix loaded from PLDAPS class default\n')
         
     else
         % failsafe blank 2nd deg polynomial (best guess if eyetracking)
         initTform = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0], [0 0 1 0 0 0]);
-        fprintf('Calibration initialized as blank (unity transform)')
+        fprintf('\tCalibration initialized as blank (unity transform)\n')
         
     end
     initCalSource = [];
@@ -98,27 +108,79 @@ else
         initCalSource = fullfile(trackingCalDir, fd(i).name);
     end
     % load calSource into:  p.static
-    p.static.tracking = load(initCalSource);
+    loadedCal = load(initCalSource);
+    fn = fieldnames(loadedCal);
+    if length(fn)==1 && isobject(loadedCal.(fn{1}))
+        % update tracking object with loaded properties
+        loadedCal = loadedCal.(fn{1});
+        fn = properties(loadedCal);
+        for i = 1:length(fn)
+            if ~isempty(loadedCal.(fn{i})) % skip empty fields
+                p.static.tracking.(fn{i}) = loadedCal.(fn{i});
+            end
+        end
+    elseif isstruct(loadedCal)
+        % use struct fields to update tracking object
+        p.static.tracking.updateTform(loadedCal);
+    else
+        fprintf(2, 'Incompatible tracking calibration loaded from:  %s\n', initCalSource)
+        keyboard
+    end
     
     initTform = p.static.tracking.tform;
-    fprintf('Calibration loaded from file:\n\t%s\n', initCalSource)
+    fprintf('\tCalibration loaded from file:\t%s\n', initCalSource)
     
 end
 
-calFileName = sprintf('%s_%s_%s.mat', subj, datestr(now,'yyyymmdd'), src);
-p.static.tracking.calPath = struct('source', initCalSource, 'saved',fullfile(trackingCalDir, calFileName));
-
 % Avoid dimensionality crash (e.g. if tracking bino, but default only defined for mono)
-for i = 1:max(p.trial.tracking.srcIdx)
-    thisCalib = initTform( min([i,end]));
-
-    % p.static.tracking.calib.matrix(i) = thisCalib;
-    p.static.tracking.tform(i) = thisCalib;
+si = p.trial.tracking.srcIdx;
+if max(max(si),numel(si)) > numel(initTform)
+    for i = 1:max(si)
+        thisTform(i) = initTform( min([i,end]));
+    end
+    initTform = thisTform;
 end
 
+
+% Apply calibration transform to tracking object
+% - do all at once, else could crash if class of initTform is different from class of [default] tracking tform
+p.static.tracking.tform = initTform;
+
+% Record paths in p.static.tracking object
+p.static.tracking.calPath = struct('source', initCalSource, 'saved',fullfile(trackingCalDir, calFileName));
+
+% Place working copy of calibration transform in PLDAPS p.trial structure
 p.trial.(src).tform = p.static.tracking.tform;
-% record starting point (incase things get screwy)
-p.trial.tracking.t0 = p.static.tracking.tform;
+% Store frame samples in source
+p.trial.(src).posRawFrames = nan(2,max(si),1);
+p.trial.(src).posFrames = nan(2,max(si),1);
+
+% Record calibration starting point (incase things get screwy)
+p.trial.tracking.t0 = p.trial.(src).tform;
+
+
+%% updateFxn
+% function handle for updating tracked position on each display refresh
+% AHCKK!! Function handles in the pldaps struct COMPLETELY BORK TIMING!!
+% !~!  Experiment will drop EVERY FRAME just for function handles being present,
+% regardless if they're called/used or not!  Must stuff them in p.static
+%
+%       TODO:  But really must fix properly. This is such a degenerate problem
+%
+% FIRST: check for updateFxn from <source> field in p.static
+% - allows for use of tracking source modules outside of +pds package
+if isfield(p.static, src) && isfield(p.static.(src), 'updateFxn')
+    p.static.tracking.updateFxn.(src) = p.static.(src).updateFxn;
+elseif ~isempty(which(sprintf('pds.%s.updateFxn',src)))
+    % NEXT: use default path in PLDAPS +pds package
+    %   pds.(module).updateFxn.m
+    % -- !! updateFxn must be setup to return handle with appropriate inputs if no inputs provided
+    % -- ...if updateFxn doesn't need inputs, use a dummy
+    p.static.tracking.updateFxn.(src) = eval(sprintf('@pds.%s.updateFxn;', src)); %eval(sprintf('pds.%s.updateFxn', src));   %
+else
+    error('PLDAPS:tracking:updateFxn', 'Tracking updateFxn could not be found for source: %s\n\tSee:  help pds.tracking', src)
+end
+
 
 
 end %main function

@@ -8,6 +8,16 @@ function p = runModularTrial(p)
 %               might change to ASYNC buffer flipping. but won't for now.
 % 03/2016 jk    modular version
 
+
+% % % %
+% WTF!?!?!??
+% EVENT HANDLE EXISTS, but event WILL NOT TRIGGER, even manually!!?
+%
+% p.static.tracking.handles.vd
+% notify(p.static.display,'viewDistSet')
+% 
+% % % % % 
+
     %get all functionHandles that we want to use
     [modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p);
 

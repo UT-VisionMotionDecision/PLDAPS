@@ -1,35 +1,21 @@
-function p = runCalibrationTrial(p, state, sn)
+function p = runCalibrationTrialApp(p, state, sn)
 % function p = pds.tracking.runCalibrationTrial(p, state, sn)
 % 
 % Activate calibration trial from pause state by calling:
 %       pds.tracking.runCalibrationTrial(p)  % i.e. nargin==1
 % 
-% - p.static.tracking object is created by pds.tracking.setup & pds.tracking.postOpenScreen,
-%   which are executed w/in pldapsDefaultTrial.m
-% 
 % See also:  pds.tracking
 % 
 % 2020-01-xx  TBC  Wrote it.
-% 2020-09-xx  TBC  Updating for p.static OOP components (important/ongoing PLDAPS pivot & necessary for viewdist coordination)
 % 
 
-% TODO:  Initialization is wiping out existing .fixations (...but only on first run of loaded calibration)
-%        - Need to update primary calibration data storage to use tracking object (limiting p.trial back-and-forth)
-%   Consistency issues:
-%       - rendering params (.tracking.col) are still in p.trial  (this sort of makes sense, but could become confusing)
-%       - .rawPos is placed in p.trial.tracking by updateFxn
-%       -- (orphaned from object & calibration, but appropriate for trial data (esp if moved to record on every frame)
-% 
 
 if nargin<3 || isempty(sn)
     sn = 'tracking';
 end
-% NOTE:  .(sn) not used during dev., most instances hardcoded with .tracking for now
-% ...can update for flexibility later
 
-
-% Populate local workspace variables
-srcIdx = p.static.tracking.srcIdx; % p.trial.(sn).srcIdx; % NOTE: This should/must be a one-based, not zero-based index!
+% populate local workspace variables
+srcIdx = p.trial.(sn).srcIdx; % NOTE: This should/must be a one-based, not zero-based index!
 
 if nargin<2 || isempty(state)
     % special case to initiate calibration trial(s) from pause state
@@ -62,8 +48,14 @@ switch state
     %     %--------------------------------------------------------------------------
     %     % --- After screen is open: Setup default parameters
     case p.trial.pldaps.trialStates.experimentPostOpenScreen
-        % setup run params in PLDAPS struct
+        %
+        %  !!! This won't be run if .tracking module is not active during start of experiment !!!
+        %
+        % initialize PLDAPS structure
         initParams(p, sn);
+        
+        % create tracking object
+        p.static.(sn) = pds.tracking.trackObj(p);
         
         %--------------------------------------------------------------------------
         % TRIAL STATES
@@ -75,10 +67,10 @@ switch state
         % --- Trial Setup: pre-allocate important variables for storage and
         if p.trial.(sn).on
             % identify tracking source
-            src = p.static.tracking.source;
+            src = p.trial.tracking.source;
             
             if ~isfield(p.trial.tracking, 't0') || isempty(p.trial.tracking.t0)
-                p.trial.tracking.t0 = p.static.tracking.tform;
+                p.trial.tracking.t0 = p.trial.tracking.tform;
             end
             
             % targX, targY, eyeX, eyeY, distance
@@ -86,19 +78,20 @@ switch state
             % eyeXYZ = imag(p.trial.(sn).fixations);
             
             % Initialize fixaitons (or recall from p.static) for this trial
-            % %             if isempty(p.static.tracking.fixations)
-            % %                 p.static.tracking.fixations = nan( [3, p.static.tracking.minSamples, max(srcIdx)]);
-            % %                 p.static.tracking.thisFix = 0;
-            % %             else
-            % %                 p.static.tracking.fixations = p.static.tracking.fixations;
-            % %                 p.trial.tracking.thisFix = p.static.tracking.thisFix;
-            % %             end
+            if ~isfield(p.static.tracking,'fixations') || isempty(p.static.tracking.fixations)
+                p.trial.tracking.fixations = nan( [3, p.trial.tracking.minSamples, max(srcIdx)]);
+                p.trial.tracking.thisFix = 0;
+            else
+                p.trial.tracking.fixations = p.static.tracking.fixations;
+                p.trial.tracking.thisFix = p.static.tracking.thisFix;
+            end
             updateCalibTransform(p)
             
-            % p.static.tracking.targets = setupTargets(p);
-            p.static.tracking.setupTargets();
+            p.static.tracking.targets = setupTargets(p);
             updateTarget(p);
-                        
+            
+            % initialize GUI/plotting window
+            p.static.tracking.eyeCalApp = pds.tracking.eyeCalApp;
             updateCalibPlot(p);
             
             printDirections;
@@ -215,14 +208,14 @@ switch state
             if p.trial.pldaps.draw.eyepos.use && p.trial.display.useOverlay
                 % show past & current eye position on screen
                 for i = srcIdx
-                    if p.static.tracking.thisFix > 0
+                    if p.trial.tracking.thisFix > 0
                         % fixations in this calibration
-                        pastFixPx = transformPointsInverse(p.static.tracking.tform(i), imag(p.static.tracking.fixations(1:2, 1:p.static.tracking.thisFix, i))')';
+                        pastFixPx = transformPointsInverse(p.trial.tracking.tform(i), imag(p.trial.tracking.fixations(1:2, 1:p.trial.tracking.thisFix, i))')';
                         Screen('DrawDots', p.trial.display.overlayptr, pastFixPx(1:2,:), 5, p.trial.display.clut.red, [], 0);    %[0 1 0 .7], [], 0);
                     end
                     
                     % eye position with current transform
-                    newEye = transformPointsInverse(p.static.tracking.tform(i), p.trial.tracking.posRaw(:,min([i,end]))')'; %p.trial.tracking.cm * p.trial.tracking.eyeRaw;
+                    newEye = transformPointsInverse(p.trial.tracking.tform(i), p.trial.tracking.posRaw(:,min([i,end]))')'; %p.trial.tracking.cm * p.trial.tracking.eyeRaw;
 %                     for i = 1:size(newEye,2)
                         % Screen('DrawDots', p.trial.display.overlayptr, newEye(1:2), 5, [0 1 0 1]', [], 0);
                         % this eye color is zero-based (to match PTB stereoBuffer indexing...for better or worse)
@@ -247,19 +240,20 @@ switch state
         % --- After the trial: cleanup workspace for saving
     case p.trial.pldaps.trialStates.trialCleanUpandSave
         if p.trial.(sn).on
+            % carry over calibration data in p.static
+            p.static.tracking.fixations = p.trial.tracking.fixations(:, 1:p.trial.tracking.thisFix, :);
+            p.static.tracking.thisFix = p.trial.tracking.thisFix;
             
-            % final updates
             updateCalibTransform(p);
             updateCalibPlot(p);
             
-            % place copy of tform & fixations in p.trial struct of this calibration trial for record keeping/posterity
-            p.trial.tracking.fixations = p.static.tracking.fixations;
-            p.trial.tracking.tform = p.static.tracking.tform;
-            
+            p.static.tracking.tform = p.trial.tracking.tform;
             % save calibration to file
-            calOutput = p.static.tracking;
-            save(p.static.tracking.calPath.saved, 'calOutput')
-            fprintf('Calibration saved as:\n\t%s\n',p.static.tracking.calPath.saved);
+            if isfield(p.static.tracking, 'calPath')
+                calOutput = p.static.tracking;
+                save(p.static.tracking.calPath.saved, '-struct', 'calOutput')
+                fprintf('Calibration saved as:\n\t%s\n',p.static.tracking.calPath.saved);
+            end
             
             finishCalibration;
             fprintLineBreak('='); %done
@@ -343,7 +337,7 @@ end %state switch block
 % Initialize default module parameters
     function initParams(p, sn)
         % list of default parameters
-        minSamples = p.static.tracking.minSamples;
+        minSamples = 50;
         
         def = struct(...
             'on', false,... % should only be switched on/off by calling pds.tracking.runCalibrationTrial(p)  % i.e. nargin==1
@@ -361,8 +355,8 @@ end %state switch block
             );
         
         p.trial.(sn) = pds.applyDefaults(p.trial.(sn), def);
-        % create static dot buffer fields in case (only needed if linux & rendering with dotType >2 & <10
-        p.static.(sn).dotBuffers = [];
+        %         % create static dot buffer fields in case (only needed if linux & rendering with dotType >2 & <10
+        %         p.static.(sn).dotBuffers = [];
         
     end % end initParams
 
@@ -372,28 +366,28 @@ end %state switch block
         % .texRectCtr is centered on screen .display.
         if p.trial.(sn).on
             %                     ctr = round(p.trial.display.ctr(1:2)') - [1, 0.5]; %!?? whats the deal with this offset correction??
-            for i = p.static.display.bufferIdx
-                Screen('SelectStereoDrawBuffer',p.static.display.ptr, i);
-                Screen('DrawDots', p.static.display.ptr, targPx, sz, p.trial.tracking.col, [], 2);   %p.trial.(sn).targPos(1:2, i+1)
+            for i = p.trial.display.bufferIdx
+                Screen('SelectStereoDrawBuffer',p.trial.display.ptr, i);
+                Screen('DrawDots', p.trial.display.ptr, targPx, sz, p.trial.tracking.col, [], 2);   %p.trial.(sn).targPos(1:2, i+1)
             end
         end
     end %drawTheFixation
 
 
-% % % %% drawGLFixation(p, sn)
-% % %     function drawGLFixation%(p, sn)
-% % %
-% % %         if p.trial.(sn).on
-% % %             % Render dot in 3D space
-% % %             p.static.(sn).dotBuffers = pldapsDrawDotsGL(...    (xyz, dotsz, dotcolor, center3D, dotType, glslshader)
-% % %                 p.trial.(sn).targPos'...
-% % %                 , p.trial.(sn).dotSz...
-% % %                 , p.trial.(sn).col...
-% % %                 , -p.trial.display.obsPos...
-% % %                 , p.trial.(sn).dotType...
-% % %                 , p.static.(sn).dotBuffers);
-% % %         end
-% % %     end %drawGLFixation
+%% drawGLFixation(p, sn)
+    function drawGLFixation%(p, sn)
+        
+        if p.trial.(sn).on
+            % Render dot in 3D space
+            p.static.(sn).dotBuffers = pldapsDrawDotsGL(...    (xyz, dotsz, dotcolor, center3D, dotType, glslshader)
+                p.trial.(sn).targPos'...
+                , p.trial.(sn).dotSz...
+                , p.trial.(sn).col...
+                , -p.trial.display.obsPos...
+                , p.trial.(sn).dotType...
+                , p.static.(sn).dotBuffers);
+        end
+    end %drawGLFixation
 
 
 %% Nested Functions
@@ -423,26 +417,27 @@ end %state switch block
     function updateCalibTransform(p)
         
         % find all recorded fixations that match current viewdist
-        n = imag(p.static.tracking.fixations(3,:,srcIdx(1))) == p.static.display.viewdist;
-                
+        n = imag(p.trial.tracking.fixations(3,:,srcIdx(1))) == p.trial.display.viewdist;
+        
+        % n = p.trial.tracking.thisFix;
+        
         if sum(n)>=10 % minimum number of data points to perform fit
             %% Fit calibration to fixation data
             for i = srcIdx
                 % Decompose raw tracking data and target positions from calibration data (p.trial.tracking.fixations)
-                xyRaw = imag(p.static.tracking.fixations(:, n, i));  % only raw vals should be stored in fixations.
-                targXY = real(p.static.tracking.fixations(:, n, i));
+                xyRaw = imag(p.trial.tracking.fixations(:, n, i));  % only raw vals should be stored in fixations.
+                targXY = real(p.trial.tracking.fixations(:, n, i));
                 
                 % Fit geometric transform
                 % - tform types: ['nonreflective', 'affine', 'projective', 'polynomial']  ...make this selectable based on source field
                 % - eye/target data are input conceptually backwards, but polynomial tform methods are limited to inverse transform
-                p.static.tracking.tform(i) = fitgeotrans(targXY(1:2,:)', xyRaw(1:2,:)', 'polynomial',3);
+                p.trial.tracking.tform(i) = fitgeotrans(targXY(1:2,:)', xyRaw(1:2,:)', 'polynomial',3);
                 
-                fprintf('Tracking calibration [%d] updated for viewdist %scm\n', i, num2str(p.static.display.viewdist));
+                fprintf('Tracking calibration [%d] updated for viewdist %scm\n', i, num2str(p.trial.display.viewdist));
                 
-                % group all of same distance measurements together (makes adding/removing points otf more feasible)
-                p.static.tracking.fixations(:,:,i) = [p.static.tracking.fixations(:, ~n, i), p.static.tracking.fixations(:, n, i)];
-                % update index of current sample [.thisFix] to reordered fixations
-                p.static.tracking.thisFix = size(p.static.tracking.fixations,2);
+                % group all of these distance measurements together (makes adding/removing points otf more feasible)
+                p.trial.tracking.fixations(:,:,i) = [p.trial.tracking.fixations(:, ~n, i), p.trial.tracking.fixations(:, n, i)];
+                % update i
                 
             end
             fprintf('\n');
@@ -450,9 +445,8 @@ end %state switch block
         else
             %% initialize calibration transform
             %   fields if empty or not enough data present
-            if ~isfield(p.static.tracking,'tform') || isempty(p.static.tracking.tform)
+            if ~isfield(p.trial.tracking,'tform') || isempty(p.trial.tracking.tform)
                 % NOTE: All indexed tform methods must match...therefore, initialization must be consistent
-                % !~TODO: This needs fix to prevent class consistency error (what is better/global aproach for this???)
                 for i = 1:srcIdx
                     % [PROJECTIVE] or [AFFINE] are ok mixed/unitialized
                     %   p.trial.tracking.tform(i) = projective2d;
@@ -463,7 +457,7 @@ end %state switch block
                     % % 2nd degree (...doesn't quite capture periphery well)
                     %  p.trial.tracking.tform(i) = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0], [0 0 1 0 0 0]);
                     % 3rd degree
-                    p.static.tracking.tform(i) = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0 0 0 0 0], [0 0 1 0 0 0 0 0 0 0]);
+                    p.trial.tracking.tform(i) = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0 0 0 0 0], [0 0 1 0 0 0 0 0 0 0]);
                     
                     fprintf('~~~\tCalibration transform [%d] initialized\n', i)
                 end
@@ -479,22 +473,29 @@ end %state switch block
     function updateCalibPlot(p)
         % n = 1:size(p.trial.tracking.fixations,2); %p.trial.tracking.thisFix;
         % find all recorded fixations that match current viewdist
-        n = imag(p.static.tracking.fixations(3,:,srcIdx(1))) == p.static.display.viewdist;        
+        n = imag(p.trial.tracking.fixations(3,:,srcIdx(1))) == p.trial.display.viewdist;        
         
         % Initialize
-        % TODO:  Update to GUI app
-        Hf = figure(p.condMatrix.baseIndex+1); clf;
-        set(Hf, 'windowstyle','normal', 'toolbar','none', 'menubar','none', 'selectionHighlight','off', ...
-            'color',.5*[1 1 1], 'position',[1200,100,600,400]-80);
+        Hf = figure(p.condMatrix.baseIndex+1); clf %             figure(42); clf
+        set(Hf, 'windowstyle','normal', 'toolbar','none', 'menubar','none', 'selectionHighlight','off', 'color',.5*[1 1 1], 'position',[1200,100,600,400]-80)
         set(Hf, 'Name', ['Calib:  ',p.trial.session.file], 'NumberTitle','off')
         
         sp = axes;  cla;
-        set(sp, 'plotboxaspectratio',[p.static.display.ctr(1:2),1])
+        % axes parameters
+        calAx = struct( ...
+            'plotboxaspectratio', [p.trial.display.ctr(1:2),1] ...
+            ,'box','off' ...
+            ,'NextPlot','add' ...
+            );
+            
+        calAx.Title.String = '[-  Target Hidden  -]';
+        
+        set(sp, 'plotboxaspectratio',[p.trial.display.ctr(1:2),1])
         hold on;   box off
         axis equal; hold on
         
         % XY pixel locations of all current targets 
-        allTargs = p.static.tracking.targets.xyPx - p.static.display.ctr(1:2)';
+        allTargs = p.static.tracking.targets.xyPx - p.trial.display.ctr(1:2)';
         cols = hsv(size(allTargs,2));
         
         % plot targets
@@ -504,7 +505,7 @@ end %state switch block
         plot( allTargs(1,p.static.tracking.targets.i), -allTargs(2,p.static.tracking.targets.i), 'ro', 'markersize',10, 'linewidth',1.2);
         
         % Report target visibility in gui fig
-        if p.trial.tracking.col(4) % rendering params still in p.trial  (this sort of makes sense, but could become confusing)
+        if p.trial.tracking.col(4)
             title('[- Target visible -]', 'fontsize',10, 'fontweight','bold');
         else
             title('[- Target hidden -]', 'fontsize',10, 'fontweight','normal'); %, 'color',[1,.1,.1]);
@@ -515,8 +516,8 @@ end %state switch block
         if any(n)
             % plot fixations
             for i = srcIdx
-                fixTargs = real(p.static.tracking.fixations(1:2, n, i))' - p.static.display.ctr(1:2);
-                fixVals  = imag(p.static.tracking.fixations(1:2, n, i))';    % - p.trial.display.ctr(1:2);
+                fixTargs = real(p.trial.tracking.fixations(1:2, n, i))' - p.trial.display.ctr(1:2);
+                fixVals  = imag(p.trial.tracking.fixations(1:2, n, i))';    % - p.trial.display.ctr(1:2);
                 
                 if ~all(isnan(fixVals(:)))
                     % only plot if fixation data present
@@ -531,18 +532,22 @@ end %state switch block
                     % % %                         warning('Calibration reset by fallback')
                     % % %                         resetCalibration(p)
                     % % %                     else
-                    fixCols = fixCols(fix2targ); % expand for each target repeat
-                    
-                    plot( uTargs(:,1), -uTargs(:,2), 'kd')
-                    % plot raw data
-                    scatter(fixVals(:,1)- p.static.display.ctr(1), -(fixVals(:,2)- p.static.display.ctr(2)), [], cols(fixCols,:), 'markerfacecolor','none','markeredgealpha',.3);
-                    
-                    % if isprop(p.static.tracking, 'tform')
-                    % plot calibrated data
-                    fixCaled = transformPointsInverse(p.static.tracking.tform(i), fixVals)- p.static.display.ctr(1:2);
-                    scatter(fixCaled(:,1), -fixCaled(:,2), [], cols(fixCols,:), 'filled', 'markeredgecolor','none','markerfacealpha',.3);
-                    %  end
-                    % % %                     end
+%                         try
+                            fixCols = fixCols(fix2targ); % expand for each target repeat
+
+                            plot( uTargs(:,1), -uTargs(:,2), 'kd')
+                            % plot raw data
+                            scatter(fixVals(:,1)- p.trial.display.ctr(1), -(fixVals(:,2)- p.trial.display.ctr(2)), [], cols(fixCols,:), 'markerfacecolor','none','markeredgealpha',.3);
+
+                            if isfield(p.trial.tracking, 'tform')
+                                % plot calibrated data
+                                fixCaled = transformPointsInverse(p.trial.tracking.tform(i), fixVals)- p.trial.display.ctr(1:2);
+                                scatter(fixCaled(:,1), -fixCaled(:,2), [], cols(fixCols,:), 'filled', 'markeredgecolor','none','markerfacealpha',.3);
+                            end
+%                         catch
+                            
+%                         end 
+% % %                     end
                 end
             end
         end
@@ -554,9 +559,9 @@ end %state switch block
 %% resetCalibration(p)
     function resetCalibration(p)
         % packaged for easy call/editing
-        p.static.tracking.fixations = nan(3, p.static.tracking.minSamples, max(srcIdx)); %p.trial.tracking.minSamples
-        p.static.tracking.thisFix = 0;
-        p.static.tracking.setupTargets(); % refresh targets using class method
+        p.trial.tracking.fixations = nan(3, p.trial.tracking.minSamples, max(srcIdx));
+        p.trial.tracking.thisFix = 0;
+        p.static.tracking.targets = setupTargets(p);
         updateTarget(p);
 %         updateCalibPlot(p);
         
@@ -566,15 +571,15 @@ end %state switch block
 %% updateTarget(p)
     function updateTarget(p)
         
-        if ~isempty(p.static.tracking.nextTarg)
-            i = p.static.tracking.nextTarg;
+        if isfield(p.trial.tracking, 'nextTarg')
+            i = p.trial.tracking.nextTarg;
         else
             i = randsample(1:p.static.tracking.targets.nTargets, 1); % first target location
         end
         
         p.static.tracking.targets.i = i;
         ii = find(p.static.tracking.targets.randOrd==i);
-        p.static.tracking.nextTarg = p.static.tracking.targets.randOrd(mod(ii, p.static.tracking.targets.nTargets)+1);
+        p.trial.tracking.nextTarg = p.static.tracking.targets.randOrd(mod(ii, p.static.tracking.targets.nTargets)+1);
         
         updateCalibPlot(p);
         
@@ -588,16 +593,16 @@ end %state switch block
             fprintf(2, '~!~\tNo fixation logged; targets currently HIDDEN from subject\n~!~\t-- Press [zero] to toggle visibility\n');
         
         else
-            p.static.tracking.thisFix = p.static.tracking.thisFix + 1;
+            p.trial.tracking.thisFix = p.trial.tracking.thisFix + 1;
             for i = srcIdx
                 % Keep target & eye values together using complex numbers:  target == real(xyz), eye == imag(xyz)
                 % -- targetXYZ == stimulusXYZ 
                 % -- eyeXYZ == [rawEyeXY, viewDist]
                 % ** Z will often but not always be same for both **
                 %    -- allows targets to be presented in screen-plane or egocentric coords while keeping separate record of viewing distance
-                p.static.tracking.fixations(:, p.static.tracking.thisFix, i) = ...
+                p.trial.tracking.fixations(:, p.trial.tracking.thisFix, i) = ...
                     [p.static.tracking.targets.xyPx(:,p.static.tracking.targets.i); p.static.tracking.targets.targPos(3,p.static.tracking.targets.i)] + ... % Target position in real component
-                    1i.*[p.trial.tracking.posRaw(:,min([i,end])); p.static.display.viewdist]; % Measured eye position in imaginary component
+                    1i.*[p.trial.tracking.posRaw(:,min([i,end])); p.trial.display.viewdist]; % Measured eye position in imaginary component
                 
             end
                 fprintf('.')
@@ -614,42 +619,42 @@ end % end main function
 % % % % % % % % %
 
 
-%% setupTargets(p)  Moved to tracking object method
-% % % function targets = setupTargets(p)
-% % % % Create target positions struct
-% % % targets = struct();
-% % % 
-% % % halfWidth_x = p.trial.tracking.gridSz(1)/2;
-% % % halfWidth_y = p.trial.tracking.gridSz(end)/2;
-% % % 
-% % % % basic 9-point target grid (in degrees)
-% % % xx = -halfWidth_x:halfWidth_x:halfWidth_x;
-% % % yy = -halfWidth_y:halfWidth_y:halfWidth_y;
-% % % [xx, yy] = meshgrid(xx, yy);
-% % % % arrange to match numpad
-% % % xy = sortrows([xx(:),yy(:)], [-2,1]);
-% % % if 1
-% % %     % add inner target points
-% % %     [x2, y2] = meshgrid( halfWidth_x/2*[-1 1], halfWidth_y/2*[1 -1]);
-% % %     xy = [xy; [x2(:), y2(:)]];
-% % % end
-% % % zz = zeros(size(xy,1),1);
-% % % 
-% % % targets.targPos = [xy, zz(:)]' ;
-% % % % Target position in WORLD coordinates [CM]
-% % % % add targPos to the viewDist baseline for final depth in world coordinates
-% % % targets.targPos(3,:) = targets.targPos(3,:) + p.trial.display.viewdist;
-% % % % % Ideally draw in 3D:
-% % % %   % convert XY degrees to CM, given the distance in depth CM
-% % % %   targets.targPos(1:2,:) = pds.deg2world(targets.targPos(1:2,:)', targets.targPos(3,:), 0); % p.deg2world(p, p.trial.(sn).stimPosDeg(1:2)');      %
-% % % % % ...use Pixels in a pinch
-% % % targets.xyPx = pds.deg2px(targets.targPos(1:2,:), targets.targPos(3,:), p.trial.display.w2px,  0) + p.trial.display.ctr(1:2)';
-% % % 
-% % % targets.timeUpdated = GetSecs;
-% % % targets.nTargets = size(targets.targPos,2);
-% % % targets.randOrd = randperm(targets.nTargets);
-% % % 
-% % % 
-% % % end
+%% setupTargets(p)
+function targets = setupTargets(p)
+% Create target positions struct
+targets = struct();
+
+halfWidth_x = p.trial.tracking.gridSz(1)/2;
+halfWidth_y = p.trial.tracking.gridSz(end)/2;
+
+% basic 9-point target grid (in degrees)
+xx = -halfWidth_x:halfWidth_x:halfWidth_x;
+yy = -halfWidth_y:halfWidth_y:halfWidth_y;
+[xx, yy] = meshgrid(xx, yy);
+% arrange to match numpad
+xy = sortrows([xx(:),yy(:)], [-2,1]);
+if 1
+    % add inner target points
+    [x2, y2] = meshgrid( halfWidth_x/2*[-1 1], halfWidth_y/2*[1 -1]);
+    xy = [xy; [x2(:), y2(:)]];
+end
+zz = zeros(size(xy,1),1);
+
+targets.targPos = [xy, zz(:)]' ;
+% Target position in WORLD coordinates [CM]
+% add targPos to the viewDist baseline for final depth in world coordinates
+targets.targPos(3,:) = targets.targPos(3,:) + p.trial.display.viewdist;
+% % Ideally draw in 3D:
+%   % convert XY degrees to CM, given the distance in depth CM
+%   targets.targPos(1:2,:) = pds.deg2world(targets.targPos(1:2,:)', targets.targPos(3,:), 0); % p.deg2world(p, p.trial.(sn).stimPosDeg(1:2)');      %
+% % ...use Pixels in a pinch
+targets.xyPx = pds.deg2px(targets.targPos(1:2,:), targets.targPos(3,:), p.trial.display.w2px,  0) + p.trial.display.ctr(1:2)';
+
+targets.timeUpdated = GetSecs;
+targets.nTargets = size(targets.targPos,2);
+targets.randOrd = randperm(targets.nTargets);
+
+
+end
 
 

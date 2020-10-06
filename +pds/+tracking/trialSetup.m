@@ -16,7 +16,9 @@ function p = trialSetup(p)
 % 2020-01-13  TBC  Refining for pds.tracking
     
 
-% update active calibration matrix from static storage
+% update active calibration matrix from storage in p.static.tracking object
 p.trial.tracking.tform = p.static.tracking.tform;
+
 % place copy in tracking source struct/module too
-p.trial.(p.trial.tracking.source).cal_tform = p.static.tracking.tform;
+% - Added "tracking_" to source field name to prevent overwriting different transform in source module
+p.trial.(p.trial.tracking.source).tracking_tform = p.static.tracking.tform;

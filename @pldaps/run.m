@@ -65,7 +65,12 @@ end
 
 %% Open PLDAPS windows
 % Open PsychToolbox Screen
-p = openScreen(p);
+p = openScreen2(p);
+
+
+    % create pdsDisplay object
+    p.static.display = pds.display.pdsDisplay(p);
+
 
 % Setup PLDAPS experiment condition
 p.defaultParameters.pldaps.maxFrames = ceil(p.defaultParameters.pldaps.maxTrialLength * p.defaultParameters.display.frate);
@@ -138,6 +143,12 @@ if p.trial.pldaps.useModularStateFunctions
     runStateforModules(p,'experimentPostOpenScreen',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
     
     p.updateModNames;
+end
+
+try
+    % update display object
+    % - other initializations may have made changes (i.e. setting viewdist)
+    p.static.display.updateFromStruct(p.trial.display);
 end
 
 
@@ -255,7 +266,8 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         else
             p.defaultParameters.setLevels([p.static.pldaps.baseParamsLevels]);
         end
-        
+
+
         % ---------- p.defaultParameters >>to>> p.trial [struct!] ----------
         %it looks like the trial struct gets really partitioned in
         %memory and this appears to make some get (!) calls slow.

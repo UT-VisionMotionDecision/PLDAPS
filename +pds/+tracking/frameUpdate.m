@@ -24,24 +24,30 @@ function p = frameUpdate(p)
 
 if p.trial.tracking.use                     % this is wasteful convention; if you don't use, don't call outside fxn in first place.
     src = p.trial.tracking.source;
-    cm = p.trial.(src).cal_tform;
+    tform = p.trial.(src).tracking_tform;
     % contents of this should be a geometric transform object,
     
-    % Get current position data
-    %     posRaw = pds.mouse.updateFxn(p);
+    % Get current position data from tracking source
     posRaw = feval(p.static.tracking.updateFxn.(src), p);
 
     % NOTE: function handles MUST be stored in p.static, NOT in p.trial
     %       ...krufty holdover of the 'params' class; nixing it has long been on the TODO list
     
-    % Apply separate calibration matrix to each eye (bino compatible)
+    % Record all frame samples in tracking source
+    pos2src = isfield(p.trial.(src),'posFrames');
+    
+    % Apply separate calibration to each eye (bino compatible)
     for i = 1:size(posRaw,2)
         ii = p.trial.tracking.srcIdx(i);
         
-        pos(:,i) = transformPointsInverse(cm(min([ii,end])), posRaw(:,i)')';
-        % TODO:  Had to switch to Inverse from transformPointsForward method
+        pos(:,i) = transformPointsInverse(tform(min([ii,end])), posRaw(:,i)')';
+        % NOTE:  switched to Inverse from transformPointsForward method
         % because forward method doesn't exist for polynomial class tforms
             
+        if pos2src
+            p.trial.(src).posFrames(:,i,p.trial.iFrame) = pos(:,i);
+            p.trial.(src).posRawFrames(:,i,p.trial.iFrame) = posRaw(:,i);
+        end
     end
     
 % % %     %Print raw pos to command window while sanity checking
@@ -52,6 +58,7 @@ if p.trial.tracking.use                     % this is wasteful convention; if yo
     p.trial.tracking.pos = pos;
     p.trial.tracking.posRaw = posRaw;
     
+        
     % Apply calibrated data as current eye position
     if p.trial.(src).useAsEyepos
         p.trial.eyeX = pos(1,:)';

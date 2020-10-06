@@ -125,17 +125,13 @@ end
         
         % Poll mouse
         if p.trial.mouse.use
-            [cursorX,cursorY,isMouseButtonDown] = GetMouse(p.trial.mouse.windowPtr);
+            [cursorX,cursorY,buttonState] = GetMouse(p.trial.mouse.windowPtr);
             % Return data in trial struct
             p.trial.mouse.samples = p.trial.mouse.samples+1;
             p.trial.mouse.samplesTimes(p.trial.mouse.samples)=GetSecs;
-%             if p.trial.tracking.use
-%                 mousexyz = [cursorX, cursorY, 1] * p.trial.mouse.calibration_matrix;
-%                 p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples) = mousexyz(1:2);
-%             else
-                p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples) = [cursorX;cursorY];
-%             end
-            p.trial.mouse.buttonPressSamples(:,p.trial.mouse.samples) = isMouseButtonDown';
+            p.trial.mouse.cursorSamples(1:2,p.trial.mouse.samples) = [cursorX;cursorY];            
+            p.trial.mouse.buttonPressSamples(:,p.trial.mouse.samples) = buttonState';
+            
             % Use as eyepos if requested
             if p.trial.mouse.useAsEyepos
                 if p.trial.pldaps.eyeposMovAv==1
@@ -432,8 +428,8 @@ end
 
         if p.trial.display.useGL
             % tedious task for every trial, but better to get it right
-            % % %             p.trial.display.glPerspective = [atand(p.trial.display.wHeight/2/p.trial.display.viewdist)*2,...
-            % % %                 p.trial.display.wWidth/p.trial.display.wHeight,...
+            % % %             p.trial.display.glPerspective = [atand(p.trial.display.heightcm/2/p.trial.display.viewdist)*2,...
+            % % %                 p.trial.display.widthcm/p.trial.display.heightcm,...
             % % %                 p.trial.display.zNear,... % near clipping plane (cm)
             % % %                 p.trial.display.zFar];  % far clipping plane (cm)
 
@@ -667,8 +663,8 @@ end
         
         if isfield(p.trial.display, 'useGL') && p.trial.display.useGL
             %   .display.glPerspective == [fovy, aspect, zNear, zFar]
-            p.trial.display.glPerspective = [atand(p.trial.display.wHeight/2/p.trial.display.viewdist)*2,...
-                p.trial.display.wWidth/p.trial.display.wHeight,...
+            p.trial.display.glPerspective = [atand(p.trial.display.heightcm/2/p.trial.display.viewdist)*2,...
+                p.trial.display.widthcm/p.trial.display.heightcm,...
                 p.trial.display.zNear,... % near clipping plane (cm)
                 p.trial.display.zFar];  % far clipping plane (cm)
         end
