@@ -67,9 +67,17 @@ function s = pldapsClassDefaults(s)
  s.	display.	stereoMode = 0;
  s. display.    crosstalk = 0;
  s.	display.	switchOverlayCLUTs = false;
- s. display.    useGL = false; % flag for custom 3D rendering features
+ s. display.    useGL = false;  % flag for custom 3D rendering features
+ s. display.    rb3d = false;   % special ProPixx 3D rendering mode
  s. display.    preOpenScreenFxn = [];
  s. display.    postOpenScreenFxn = [];
+
+%low-level OpenGl rendering params (all units in cm)
+ s. display.    obsPos = [0 0 0 0]; % observer position
+ s. display.    fixPos = [0 0 s.display.viewdist]; % fixation position
+ s. display.    upVect = [0 1 0]; % "upward" direction vector
+ s. display.    zNear = 5; % near zBuffer limit
+ s. display.    zFar = 500; % far zBuffer limit
 
 %s.	eyelink.
  s.	eyelink.	buffereventlength = 30;
@@ -181,13 +189,13 @@ function s = pldapsClassDefaults(s)
 
 %s.	plexon.
 %s.	plexon.	spikeserver.
+ s.	plexon.	spikeserver.	use = 0;
  s.	plexon.	spikeserver.	continuous = false;
  s.	plexon.	spikeserver.	eventsonly = false;
  s.	plexon.	spikeserver.	remoteip = 'xx.xx.xx.xx';
  s.	plexon.	spikeserver.	remoteport = 3333;
  s.	plexon.	spikeserver.	selfip = 'xx.xx.xx.xx';
  s.	plexon.	spikeserver.	selfport = 3332;
- s.	plexon.	spikeserver.	use = 0;
  s. plexon. spikeserver.    spikeCount = 0;
 
 %s.	session.

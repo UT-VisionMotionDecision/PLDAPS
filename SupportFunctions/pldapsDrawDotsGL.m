@@ -77,19 +77,10 @@ function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, 
 % Need global GL definitions:
 global GL;
     
-% % Global struct for buffer objects
-% global glB
-
 if nargin <7 || isempty(dotBuffers)
     % initialize empty structure for OpenGL buffer objects
     dotBuffers = struct;
 end
-
-% if isfield(pmodule,'glB')
-%     glB = pmodule.glB;
-% else
-%     dotBuffers = glB;
-% end
     
 if nargin <2
     error('Not enough inputs to %s.',mfilename);
@@ -161,11 +152,13 @@ if nargin < 6
 end
 
 %% Drawing loop
+% Create a marker to return this view to initial state after drawing
+glPushMatrix;
 
 % Was a 'center3D' argument specified?
 if ~isempty(center3D)
-    % Create a marker to return this view to same state as before
-    glPushMatrix;
+%     % Create a marker to return this view to same state as before
+%     glPushMatrix;
     
     if numel(center3D)==3
         % single translation to new center
@@ -313,7 +306,7 @@ if useDiskMode==1
 
     
 elseif useDiskMode==2
-    %% Draw as Mercactor spheres
+    %% Draw as Mercator spheres
     
     % get relative translation steps between each dot for faster drawing
     xyz = diff([[0 0 0]', xyz], 1,2);
@@ -327,7 +320,7 @@ elseif useDiskMode==2
     end
     
     % Loop through each dot
-    glPushMatrix;
+    glPushMatrix; % center of dot cluster: all dot positions are relative to this (i.e. not streamed)
     if ncolors == 1
         % Set color just once
         %   (TBC: setting color on each dot draw can add 10-20% total execution time)
@@ -335,7 +328,8 @@ elseif useDiskMode==2
         for i = 1:ndots
             % set position
             glTranslated(xyz(1,i), xyz(2,i), -xyz(3,i));
-            moglcore( 'glutSolidSphere', dotsz(ii(1,i)), dotType, dotType);
+            %fprintf('%8.3g\t%s\n', dotsz(ii(1,i)), mat2str(xyz(:,i), 3))
+            moglcore( 'glutSolidSphere', single(dotsz(ii(1,i))), dotType, dotType);
         end
     else
         for i = 1:ndots
@@ -346,7 +340,7 @@ elseif useDiskMode==2
             moglcore( 'glutSolidSphere', dotsz(ii(1,i)), dotType, dotType);
         end
     end
-    glPopMatrix;
+    glPopMatrix; % back to center
     
 else
     %% Draw dots as GL.POINTS (like normal PTB; super fast, but size defined in pixels, not space!)
@@ -440,10 +434,10 @@ if ~useDiskMode % clean up after drawing GL.POINTS
 end % No specific Sphere drawing clean up to do
 
 
-if ~isempty(center3D)
+% if ~isempty(center3D)
     % Restore old modelview matrix from backup:
     glPopMatrix;
-end
+% end
 
 
 end

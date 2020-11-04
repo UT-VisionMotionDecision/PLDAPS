@@ -4,6 +4,8 @@ function result = saveTempFile(p, saveAll)
 % Only saves contents of p.trial to temp file by default,
 % set optional input [saveAll] to save the entire PLDAPS object
 % instead of only p.trial
+% - trial temp files are saved as "version 7" .mat files,
+%   providing sig. file size reduction (~10-20x) from compression rel. to version 7.3
 % 
 % TEMP file location ==  fullfile(p.trial.pldaps.dirs.data, '.TEMP')
 % 
@@ -38,10 +40,10 @@ if ~p.trial.pldaps.nosave && p.trial.pldaps.save.trialTempfiles
     end
     try 
         if ~saveAll
-            save( tmpFile, trialString);
+            save( tmpFile, trialString, '-v7');
         else
             % save complete PLDAPS session object (not just p.trial contents)
-            save( tmpFile, '-mat', 'p');
+            save( tmpFile, '-mat', '-v7', 'p');
         end
         
     catch result

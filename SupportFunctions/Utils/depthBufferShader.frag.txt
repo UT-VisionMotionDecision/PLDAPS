@@ -1,0 +1,36 @@
+/* A pixel shader for visualizing the depth buffer. */
+
+#version 120
+
+varying vec4 v_uv;
+uniform sampler2D color_tex; 
+uniform sampler2D depth_tex; 
+uniform vec4 camera_params; 
+uniform vec2 mouse; 
+
+float LinearizeDepth(float z)
+{
+  float n = camera_params.z; // camera z near
+  float f = camera_params.w; // camera z far
+  return (2.0 * n) / (f + n - z * (f - n));	
+}
+
+void main() 
+{ 
+  vec2 uv = v_uv.xy; 
+  vec4 fragcol = vec4(1.0, 0.0, 0.0, 1.0);
+  float d = texture2D(depth_tex,uv).r; 
+
+  if (uv.x < (mouse.x-0.0025))
+  {
+    fragcol.rgb = vec3(d);
+  }
+  else if (uv.x > (mouse.x+0.0025))
+  {
+    float z = LinearizeDepth(d);
+    fragcol.rgb = vec3(z) * 10.0;
+  }
+
+  gl_FragColor.rgb = fragcol.rgb;
+  gl_FragColor.a = 1.0; 
+}

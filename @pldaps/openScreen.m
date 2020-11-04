@@ -1,24 +1,41 @@
-function p = openScreen(p)
+function p = openScreen2(p)
 %openScreen    opens PsychImaging Window with preferences set for special
 %              decives like datapixx.
+% 
+% Updating for use of OOP display class defined in pds.display.pdsDisplay.m
+% - [p.static.display] houses the pdsDisplay class object
+% - [p.trial.display] still exists, and utilizes the same default parameter mechanism(s) for initialization
+%   - p.trial.display is now updated on every trial to reflect not only pldaps base levels state, but also p.static.display
+% 
+% - The pdsDisplay class object allows for important new features:
+%   - events can be triggered when fields of p.static.display are changed/updated
+%     (e.g. when .display.viewdist is changed, code to initiate a motorized display movement can be triggered)
+%   - dependent variables (e.g. .display.ppd) compute their values on-the-fly when referenced,
+%     ensuring the values returned are consistent
+%   - handle to p.static.display can be embedded within modules without creating duplicate structures
+%   LIMITATIONS:
+%   - fields of .display cannot be readily extended
+%   - will want to monitor execution time to make sure observable properties & events aren't causing significant slowdowns
+% 
 %
-% required fields
-% p.defaultParameters.display.
-%   stereoMode      [double] -  0 is no stereo
-%   normalizeColor  [boolean] - 1 normalized color range on PTB screen
-%   useOverlay      [double]  - 0,1,2 opens different overlay windows
-%                             - 0=no overlay, 1=datapixx, 2=software
-%   stereoFlip      [string]  - 'left', 'right', or [] flips one stereo
-%                               image for the planar screen
-%   colorclamp      [boolean] - 1 clamps color between 0 and 1
-%   scrnNum         [double]  - number of screen to open
-%   sourceFactorNew [string]  - see Screen Blendfunction?
-%   destinationFactorNew      - see Screen Blendfunction?
-%   widthcm
-%   heightcm
-%   viewdist
-%   bgColor
-
+% see also pds.display.pdsDisplay
+% 
+% pdsDisplay class properties of [p.static.display.]:
+% 
+%     'displayName'           'scrnNum'             'bgColor'             'screenSize'          'heightcm'            
+%     'widthcm'               'w2px'                'px2w'                'ipd'                 'ptr'                 
+%     'winRect'               'ctr'                 'bufferIdx'           'stereoMode'          'multisample'         
+%     'colorclamp'            'forceLinearGamma'    'normalizeColor'      'sourceFactorNew'     'destinationFactorNew'
+%     'stereoFlip'            'gamma'               'info'                'useOverlay'          'overlayptr'          
+%     'overlaytex'            'shader'              'overlayShaderIdx'    'preOpenScreenFxn'    'postOpenScreenFxn'   
+%     'switchOverlayCLUTs'    'rb3d'                'crosstalk'           'homeDist'            'grblPos'             
+%     'useGL'                 'clut'                'white'               'black'               'humanCLUT'           
+%     'monkeyCLUT'            't0'                  'width'               'height'              'ppd'                 
+%     'cmpd'                  'glPerspective'       'widthPx'             'heightPx'            'viewdist'            
+%     'fixPos'                'obsPos'              'upVect'              'zNear'               'zFar'
+%          
+% 
+% 
 % 12/12/2013 jly wrote it   Mostly taken from Init_StereoDispPI without any
 %                           of the switch-case in the front for each rig.
 %                           This assumes you have set up your display
@@ -30,6 +47,7 @@ function p = openScreen(p)
 %                           moved default parameters to the
 %                           pldapsClassDefaultParameters
 % 2020-03-04  TBC  House cleaning
+% 2020-10-06  TBC  Converting .display structure to pdsDisplay class object
 
 
 %% PTB general interface settings
@@ -49,12 +67,12 @@ PsychImaging('PrepareConfiguration');
 % Add appropriate tasks to psych imaging pipeline
 if p.trial.display.normalizeColor == 1
     fprintLineBreak
+    % Sets all displays & textures to use color range from 0-1 (e.g. NOT 0-255)
+    % This is standard for all modern code
     disp('Normalized High res Color Range enabled')
-%     disp('Sets all displays & textures to use color range from 0-1 (e.g. NOT 0-255),')
-%     disp('while also setting color range to ''unclamped''.')
-%     disp('****************************************************************')
     PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange', 1);
 end
+
 
 %% Datapixx
 if p.trial.datapixx.use
@@ -84,8 +102,8 @@ PsychImaging('AddTask', 'General', framebufferResolution, 'disableDithering',1);
         
 
 %% Stereo specific adjustments
-
-p.trial.display.bufferIdx = 0; % basic/monocular Screen buffer index;
+% Basic/monocular Screen buffer is always index 0;
+p.trial.display.bufferIdx = 0; 
 
 if p.trial.display.stereoMode > 0
     fprintLineBreak
@@ -152,12 +170,12 @@ end
 %   [p.trial.display.preOpenScreenFxn]
 %   --  e.g. for demo generation or coding on a hiDPI laptop (e.g. macbook pro, etc), set rigpref for:
 %       .display.preOpenScreenFxn = sprintf('PsychImaging(''AddTask'', ''General'', ''UseRetinaResolution'');');
-% ~!~WARNING~!~
-%   Function handles in p.trial will sow havoc in the 'params class' hierarchy...
-%   Don't use until params class usage has been properly fixed/removed --TBC Mar 2020
 if ~isempty(p.trial.display.preOpenScreenFxn)
     if ishandle(p.trial.display.preOpenScreenFxn)
         % eval as function handle
+        % ~!~WARNING~!~
+        %   Function handles in p.trial will sow havoc in the 'params class' hierarchy...
+        %   Don't use until params class usage has been properly fixed/removed --TBC Mar 2020
         feval(p.trial.display.preOpenScreenFxn);
     elseif ischar(p.trial.display.preOpenScreenFxn)
         % eval as string
@@ -170,23 +188,23 @@ end
 
 %% Open double-buffered onscreen window with the requested stereo mode
 disp('****************************************************************')
-fprintf('Opening screen %d with background %s in stereo mode %d\r', p.trial.display.scrnNum, mat2str(p.trial.display.bgColor), p.trial.display.stereoMode)
+fprintf('Opening screen %d with background %s in stereo mode %d\r', ...
+        p.trial.display.scrnNum, mat2str(p.trial.display.bgColor), p.trial.display.stereoMode)
 disp('****************************************************************')
+
 [ptr, winRect] = PsychImaging('OpenWindow', p.trial.display.scrnNum, p.trial.display.bgColor, p.trial.display.screenSize, [], [], p.trial.display.stereoMode, p.trial.display.multisample);
 p.trial.display.ptr = ptr;
 p.trial.display.winRect = winRect;
 
 
 % % % [p.trial.display.postOpenScreenFxn]
-% Functional modifications to PsychImaging prior to PTB screen creation
-%   --  e.g. for demo generation or coding on a hiDPI laptop (e.g. macbook pro, etc), set rigpref for:
-%       .display.preOpenScreenFxn = sprintf('PsychImaging(''AddTask'', ''General'', ''UseRetinaResolution'');');
-% ~!~WARNING~!~
-%   Function handles in p.trial will sow havoc in the 'params class' hierarchy...
-%   Don't use until params class usage has been properly fixed/removed --TBC Mar 2020
+% Functional modifications to PsychImaging immediately AFTER PTB screen creation
 if ~isempty(p.trial.display.postOpenScreenFxn)
     if ishandle(p.trial.display.postOpenScreenFxn)
         % eval as function handle
+        % ~!~WARNING~!~
+        %   Function handles in p.trial will sow havoc in the 'params class' hierarchy...
+        %   Don't use until params class usage has been properly fixed/removed --TBC Mar 2020
         feval(p.trial.display.postOpenScreenFxn);
     elseif ischar(p.trial.display.postOpenScreenFxn)
         % eval as string
@@ -210,34 +228,24 @@ if p.trial.display.useOverlay==2
     p.trial.display.winRect(3) = p.trial.display.winRect(3)/2;
 end
 
-% physical [w]orld dimensions (cm)
-if p.trial.display.stereoMode >= 2 && p.trial.display.stereoMode <=5
-    % Adjust for half-width stereo display  (...distinct from above correction, where in winRect is already halved)
-    p.trial.display.wWidth=p.trial.display.widthcm/2;
-else
-    p.trial.display.wWidth=p.trial.display.widthcm;
-end
-p.trial.display.wHeight=p.trial.display.heightcm;
-
-% Compute visual angle of the display (while accounting for any stereomode splits)
+% Make adjustments to physical dimensions to accomodate any stereomode splits
 switch p.trial.display.stereoMode
     case {2,3}
         % top-bottom split stereo
-        p.trial.display.width   = 2*atand( p.trial.display.widthcm/2    /p.trial.display.viewdist);
-        p.trial.display.height  = 2*atand( p.trial.display.heightcm/4   /p.trial.display.viewdist);
+        p.trial.display.heightcm = p.trial.display.heightcm/2;
     case {4,5}
         % left-right split stereo
-        p.trial.display.width   = 2*atand( p.trial.display.widthcm/4    /p.trial.display.viewdist);
-        p.trial.display.height  = 2*atand( p.trial.display.heightcm/2   /p.trial.display.viewdist);
-    otherwise
-        p.trial.display.width   = 2*atand( p.trial.display.widthcm/2    /p.trial.display.viewdist);
-        p.trial.display.height  = 2*atand( p.trial.display.heightcm/2   /p.trial.display.viewdist);
+        p.trial.display.widthcm = p.trial.display.widthcm/2;
 end
 
-p.trial.display.ppd = p.trial.display.winRect(4)/p.trial.display.height; % calculate pixels per degree
-p.trial.display.cmpd = 2*atand(0.5/p.trial.display.viewdist); % cm per degree at viewing distance line of sight
-p.trial.display.frate = round(1/Screen('GetFlipInterval',p.trial.display.ptr));   % frame rate (in Hz)
-p.trial.display.ifi=Screen('GetFlipInterval', p.trial.display.ptr);               % Inter-frame interval (frame rate in seconds)
+% Compute visual angle of the display
+p.trial.display.width   = 2*atand( p.trial.display.widthcm/2    /p.trial.display.viewdist);
+p.trial.display.height  = 2*atand( p.trial.display.heightcm/2   /p.trial.display.viewdist);
+
+p.trial.display.ppd     = p.trial.display.winRect(4)/p.trial.display.height; % calculate pixels per degree
+p.trial.display.cmpd    = 2*atand(0.5/p.trial.display.viewdist); % cm per degree at viewing distance line of sight
+p.trial.display.frate   = round(1/Screen('GetFlipInterval',p.trial.display.ptr));   % frame rate (in Hz)
+p.trial.display.ifi     = Screen('GetFlipInterval', p.trial.display.ptr);               % Inter-frame interval (frame rate in seconds)
 
 p.trial.display.ctr = [p.trial.display.winRect(3:4), p.trial.display.winRect(3:4)]./2 - 0.5;          % Rect defining screen center
 p.trial.display.info = Screen('GetWindowInfo', p.trial.display.ptr);              % Record a bunch of general display settings
@@ -245,26 +253,72 @@ p.trial.display.info = Screen('GetWindowInfo', p.trial.display.ptr);            
 
 
 % [p]ixel dimensions
-p.trial.display.pWidth=p.trial.display.winRect(3)-p.trial.display.winRect(1);
-p.trial.display.pHeight=p.trial.display.winRect(4)-p.trial.display.winRect(2);
+p.trial.display.widthPx     = diff(p.trial.display.winRect([1,3]));
+p.trial.display.heightPx    = diff(p.trial.display.winRect([2,4]));
 
 % visual [d]egrees          % fixing redundancy with original .width & .height (prev calc [re]introduced error due to small angle approximation)
-p.trial.display.dWidth =  p.trial.display.width;    % p.trial.display.pWidth/p.trial.display.ppd;   
-p.trial.display.dHeight = p.trial.display.height;   % p.trial.display.pHeight/p.trial.display.ppd;
+p.trial.display.widthDeg    = p.trial.display.width;    % p.trial.display.widthPx/p.trial.display.ppd;   
+p.trial.display.heightDeg   = p.trial.display.height;   % p.trial.display.heightPx/p.trial.display.ppd;
 
 % space conversions
-p.trial.display.w2px=[p.trial.display.pWidth/p.trial.display.wWidth; p.trial.display.pHeight/p.trial.display.wHeight];
-p.trial.display.px2w=[p.trial.display.wWidth/p.trial.display.pWidth; p.trial.display.wHeight/p.trial.display.pHeight];
+p.trial.display.w2px = [p.trial.display.widthPx/p.trial.display.widthcm; p.trial.display.heightPx/p.trial.display.heightcm];
+p.trial.display.px2w = [p.trial.display.widthcm/p.trial.display.widthPx; p.trial.display.heightcm/p.trial.display.heightPx];
 
-% Set screen rotation
-p.trial.display.ltheta = 0.00*pi;                                    % Screen rotation to adjust for mirrors
-p.trial.display.rtheta = -p.trial.display.ltheta;
-p.trial.display.scr_rot = 0;                                         
+% OpenGL viewport params
+p.trial.display.fixPos(3)   = p.trial.display.viewdist; % sync fixation position in depth to viewing distance (default = [0 0 viewdist];) 
+% %     % Leave these to be set/adjusted by user; typically pldapsClassDefaults will be fully sufficient
+% %     p.trial.display.obsPos      = [0 0 0 0]; % observer position (*observer is origin*)
+% %     p.trial.display.upVect      = [0 1 0];  % "upward" direction vector
+% %     p.trial.display.zNear       = 5;    % near zBuffer limit
+% %     p.trial.display.zFar        = 500;  % far zBuffer limit
 
 % Make text clean
 Screen('TextFont',p.trial.display.ptr,'Helvetica');
 Screen('TextSize',p.trial.display.ptr,16);
 Screen('TextStyle',p.trial.display.ptr,1);
+
+
+
+%% Reposition PTB screen origin   (w.i.p...)
+% TODO:  Apply offset to align Screen origin (0,0) to screen center & normal Y-axis direction
+% - instead of PTB standard: (0,0)==upper left corner & reversed Y-axis dir
+% ??? Where could a HookFunction Blit operation be appended for:
+%       "Offset:-w/2:-h/2:Scaling:1:-1"
+% 
+% Ah Ha!!:
+% Screen('HookFunction', windowPtr, 'SetWindowBackendOverrides' [, hookname][,pixelSize][, refreshInterval][, proj]);
+%     Assign override values for various window properties, as provided by the backend client instead of the windowing system.
+%     - 'hookname' is accepted, but currently ignored. Pass '' or [] for now.
+%     - 'pixelSize' The net color depth of the display, as returned by Screen('PixelSize', windowPtr);
+%     - 'refreshInterval' The video refresh interval duration in seconds, as reported by
+%       the display backend, and after proper translation returned by Screen('NominalFramerate', windowPtr),
+%       Screen('Framerate', windowPtr), and Screen('GetFlipInterval', windowPtr).
+%     - 'proj' Override projection matrix/matrices for 2D drawing:
+%       proj = [] == don't change,
+%       proj = 1 == Disable overrides,
+%       proj = 4x4 matrix for mono-mode drawing,
+%       proj = 4x4x2 matrices for separate matrices in stereo modes (:,:,1) left eye, (:,:,2) right eye.
+% 
+%     * Requires  kPsychNeedFinalizedFBOSinks
+% 
+% % %         % SubFunction:  getOrtho2dMatrix(left, right, bottom, top)
+% % %         winPx = p.trial.display.winRect(3:4);
+% % %         % PTB standard:
+% % %         orthoMat = getOrtho2dMatrix( 0, winPx(1), winPx(2), 0);
+% % %         % % New ortho proj. consistent with OpenGL 3D
+% % %         % orthoMat = getOrtho2dMatrix(-winPx(1)/2, winPx(1)/2, -winPx(2)/2, winPx(2)/2);
+% % % 
+% % %         Screen('HookFunction', p.trial.display.ptr, 'SetWindowBackendOverrides', [], ...
+% % %                 Screen('PixelSize', p.trial.display.ptr), ...
+% % %                 Screen('NominalFramerate', p.trial.display.ptr), ...
+% % %                 orthoMat);
+% 
+% No: ...does not work on standard PTB screens. FinalizedFBOSinks sends rendering to different offscreen
+%     buffer designed for VR-HMD devices...need way to override PTB proj matrix without diverging from
+%     rest of rendering pipeline.
+% 
+
+
 
 
 %% Overlay selection & creation
@@ -285,7 +339,7 @@ if p.trial.display.useOverlay==1
             %             p.trial.display.overlayptr = SetAnaglyphStereoParameters('CreateGreenOverlay', p.trial.display.ptr);
             % Manually create overlay window so we can make tweaks to setup performed by SetAnaglyphStereoParameters
             glUseProgram(0);
-            p.trial.display.overlayptr = Screen('OpenOffscreenWindow', p.trial.display.ptr, 0, [0 0 p.trial.display.pWidth p.trial.display.pHeight], 8, 32);            
+            p.trial.display.overlayptr = Screen('OpenOffscreenWindow', p.trial.display.ptr, 0, [0 0 p.trial.display.widthPx p.trial.display.heightPx], 8, 32);            
             % Put stimulus color range back how it was
             Screen('ColorRange', p.trial.display.ptr, oldColRange);
             
@@ -334,7 +388,7 @@ elseif p.trial.display.useOverlay==2
     disp('Using software overlay window')
     disp('****************************************************************')
 	oldColRange = Screen('ColorRange', p.trial.display.ptr, 255);
-    p.trial.display.overlayptr=Screen('OpenOffscreenWindow', p.trial.display.ptr, 0, [0 0 p.trial.display.pWidth p.trial.display.pHeight], 8, 32);
+    p.trial.display.overlayptr=Screen('OpenOffscreenWindow', p.trial.display.ptr, 0, [0 0 p.trial.display.widthPx p.trial.display.heightPx], 8, 32);
     % Put stimulus color range back how it was
     Screen('ColorRange', p.trial.display.ptr, oldColRange);
     
@@ -363,42 +417,42 @@ elseif p.trial.display.useOverlay==2
 
     p.trial.display.shader = LoadGLSLProgramFromFiles(fullfile(p.trial.pldaps.dirs.proot, 'SupportFunctions', 'Utils', 'overlay_shader.frag'), debuglevel, icmShaders);
     % Incremement overlay window index to allow for stereo buffer creation (buffer object indexing --e.g. onscreen & overlay windows-- starts at 0)
-    p.trial.display.overlayShaderIdx = 0+length(p.trial.display.bufferIdx);
+    overlayShaderIdx = 0+length(p.trial.display.bufferIdx);
 
     if p.trial.display.info.GLSupportsTexturesUpToBpc >= 32
         % Full 32 bits single precision float:
-        p.trial.display.internalFormat = GL.LUMINANCE_FLOAT32_APPLE;
+        internalFormat = GL.LUMINANCE_FLOAT32_APPLE;
     elseif p.trial.display.info.GLSupportsTexturesUpToBpc >= 16
         % No float32 textures:
         % Choose 16 bpc float textures:
-        p.trial.display.internalFormat = GL.LUMINANCE_FLOAT16_APPLE;
+        internalFormat = GL.LUMINANCE_FLOAT16_APPLE;
     else
         % No support for > 8 bpc textures at all and/or no need for
         % more than 8 bpc precision or range. Choose 8 bpc texture:
-        p.trial.display.internalFormat = GL.LUMINANCE;
+        internalFormat = GL.LUMINANCE;
     end
 
     % Create look up textures
-    p.trial.display.lookupstexs=glGenTextures(2);
+    lookupstexs=glGenTextures(2);
     
     % set variables in the shader
     glUseProgram(p.trial.display.shader);
     glUniform1i(glGetUniformLocation(p.trial.display.shader,'lookup1'),3);
     glUniform1i(glGetUniformLocation(p.trial.display.shader,'lookup2'),4);
     
-    glUniform2f(glGetUniformLocation(p.trial.display.shader, 'res'), p.trial.display.pWidth*(1/sampleX), p.trial.display.pHeight);  % [partially] corrects overaly width & position on retina displays
+    glUniform2f(glGetUniformLocation(p.trial.display.shader, 'res'), p.trial.display.widthPx*(1/sampleX), p.trial.display.heightPx);  % [partially] corrects overaly width & position on retina displays
     bgColor=p.trial.display.bgColor;
     glUniform3f(glGetUniformLocation(p.trial.display.shader, 'transparencycolor'), bgColor(1), bgColor(2), bgColor(3));
-    glUniform1i(glGetUniformLocation(p.trial.display.shader, 'overlayImage'), p.trial.display.overlayShaderIdx);
+    glUniform1i(glGetUniformLocation(p.trial.display.shader, 'overlayImage'), overlayShaderIdx);
     glUniform1i(glGetUniformLocation(p.trial.display.shader, 'Image'), 0);
     glUseProgram(0);
 
     % Assign the overlay texture as the input 1 (which mapps to 'overlayImage' as set above)
     % It gets passed to the HookFunction call.
     % Input 0 is the main pointer by default.
-    pString = sprintf('TEXTURERECT2D(%i)=%i ', p.trial.display.overlayShaderIdx, p.trial.display.overlaytex);
-    pString = [pString sprintf('TEXTURERECT2D(3)=%i ', p.trial.display.lookupstexs(1))];
-    pString = [pString sprintf('TEXTURERECT2D(4)=%i ', p.trial.display.lookupstexs(2))];
+    pString = sprintf('TEXTURERECT2D(%i)=%i ', overlayShaderIdx, p.trial.display.overlaytex);
+    pString = [pString sprintf('TEXTURERECT2D(3)=%i ', lookupstexs(1))];
+    pString = [pString sprintf('TEXTURERECT2D(4)=%i ', lookupstexs(2))];
     
     %add information to the current processing chain
     idString = sprintf('Overlay Shader : %s', icmIdString);
@@ -471,12 +525,12 @@ if p.trial.datapixx.rb3d &&  numel(p.trial.display.crosstalk)==2
     % Shader setup done:
     glUseProgram(0);
     
-    p.trial.display.crosstalkShader = shader;
+    crosstalkShader = shader;
     % Apply to the FinalOutputFormattingBlit
     idString = sprintf('Crosstalk Shader : %s', icmIdString);
     % pString  = [ pString icmConfig ]; ...no additional textureRect2Ds to map
     Screen('HookFunction', p.trial.display.ptr, 'Reset', 'FinalOutputFormattingBlit');
-    Screen('HookFunction', p.trial.display.ptr, 'AppendShader', 'FinalOutputFormattingBlit', idString, p.trial.display.crosstalkShader, icmConfig);
+    Screen('HookFunction', p.trial.display.ptr, 'AppendShader', 'FinalOutputFormattingBlit', idString, crosstalkShader, icmConfig);
     PsychColorCorrection('ApplyPostGLSLLinkSetup', p.trial.display.ptr, 'FinalFormatting');
 end
 
@@ -500,13 +554,34 @@ p.trial.display.white = WhiteIndex(p.trial.display.ptr);
 p.trial.display.black = BlackIndex(p.trial.display.ptr);
 
 
-%% Establish p.static display parameters
-% Isn't/shouldn't be entire .display struct, but core elements that are needed
-% for comparison (like physical distance) across experimental trials
-p.static.display.viewdist = p.trial.display.viewdist;
-
-
 %% Flip screen to get initial timestamp & finish
 p.trial.display.t0 = Screen('Flip', p.trial.display.ptr);
+
+
+%% Establish p.static display object
+% Create pdsDisplay object based on contents of p.trial.display
+% - This way it will inherit formative/principle levels of params hierarchy:
+%   (pldapsDefaults,rigPrefs,constructorDefaults,sessionParams)
+p.static.display = pds.display.pdsDisplay(p);
+
+end %main function
+
+% % % % % % % % % 
+%% Sub-Functions
+% % % % % % % % % 
+
+function orthoMat = getOrtho2dMatrix(left, right, bottom, top)
+% function orthoMat = getOrtho2dMatrix(left, right, bottom, top)
+% 
+% Emulate gluOrtho2d called by Screen('OpenWindow'..)
+% - Source code in PsychWindowSupport.c > PsychSetupView )
+% 
+
+znear = -1; zfar = 1; % per OpenGl gluOrtho2D znear==-1, zfar==1
+orthoMat = [2/(right-left), 0, 0, 0; ...
+            0, 2/(top-bottom), 0, 0; ...
+            0, 0, -2/(zfar-znear), 0; ...
+            -(right+left)/(right-left), -(top+bottom)/(top-bottom), -(zfar+znear)/(zfar-znear), 1]';
+end
 
 

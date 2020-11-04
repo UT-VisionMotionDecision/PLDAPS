@@ -16,9 +16,6 @@ function p = run(p)
 % Sub-System for module creation & interaction
 % - currently just pldapsModule.m for module creation
 %
-%
-%
-% no longer HideCursor.
 
 
 %% Setup and File management
@@ -65,11 +62,7 @@ end
 
 %% Open PLDAPS windows
 % Open PsychToolbox Screen
-p = openScreen2(p);
-
-
-    % create pdsDisplay object
-    p.static.display = pds.display.pdsDisplay(p);
+p = openScreen(p);
 
 
 % Setup PLDAPS experiment condition
@@ -149,6 +142,9 @@ try
     % update display object
     % - other initializations may have made changes (i.e. setting viewdist)
     p.static.display.updateFromStruct(p.trial.display);
+    
+    % Create condMatrix info figure
+    p.condMatrix.updateInfoFig(p);
 end
 
 
@@ -175,7 +171,6 @@ end
 
 % disable keyboard
 ListenChar(2);
-% HideCursor;
 KbQueueFlush(p.trial.keyboard.devIdx);
 
 
@@ -212,7 +207,6 @@ if ~isempty(result)
 end
 
 
-
 % Switch to high priority mode
 if p.trial.pldaps.maxPriority
     oldPriority=Priority;
@@ -231,7 +225,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         
         % return handle status of p.trial (...this handle/struct business is so jank!)
         p.trial = p.defaultParameters;
-
+        
         % increment trial counter
         nextTrial = p.defaultParameters.incrementTrial(+1);
         %load parameters for next trial and lock defaultParameters
@@ -250,14 +244,17 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             
             % % % 
             % % % % TESTING block manipulations  (**cannot be mixed within a trial**)
-            % % % if iseven(p.condMatrix.iPass)
-            % % %     p.trial.display.viewdist = 45;
-            % % % else
-            % % %     p.trial.display.viewdist = 90;
-            % % % end
-            % % % 
-            % % % 
-
+            % % %
+% %             if iseven(p.condMatrix.iPass)
+% %                 p.static.display.viewdist = 45;
+% %             else
+% %                 p.static.display.viewdist = 100;
+% %             end
+ 
+            
+            % Sync pdsDisplay object with [.trial.display] struct
+            p.trial.display = p.static.display.syncToTrialStruct(p.trial.display);
+            
         elseif ~isempty(p.conditions)
             % PLDAPS 4.2 legacy mode: p.conditions must be full set of trial conds (inculding all repeats)
             p.defaultParameters.addLevels(p.conditions(nextTrial), {sprintf('Trial%dParameters', nextTrial)});
@@ -267,24 +264,24 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             p.defaultParameters.setLevels([p.static.pldaps.baseParamsLevels]);
         end
 
+        % Document currently active levels for this trial
+        p.trial.pldaps.allLevels = p.defaultParameters.getAllLevels;
+        p.trial.pldaps.activeLevels = p.defaultParameters.getActiveLevels;
 
-        % ---------- p.defaultParameters >>to>> p.trial [struct!] ----------
-        %it looks like the trial struct gets really partitioned in
-        %memory and this appears to make some get (!) calls slow.
-        %We thus need a deep copy. The superclass matlab.mixin.Copyable
-        %is supposed to do that, but that is ver very slow, so we create
-        %a manual deep copy by saving the struct to a file and loading it
-        %back in. --JK 2016(?)
-        % Profiler suggests the overloaded subsref function of the params class
-        % is a culprit; repeated "find" & "cellfun" calls in particular. Flipping
-        % p.trial to a normal struct bypasses these overloaded class invocations.
-        % There has to be a way to revise params class (particularly removing "find"
-        % calls, which are known to be very slow), but have had little success at
-        % deciphering the params.m code so far. --TBC 2017-10
+        % ---------- p.defaultParameters >> to >> p.trial [struct!] ----------
+        % % Params class headaches:
+        % The overloaded subsref function of the PARAMS class is REALLY slow
+        % (repeated "find" & "cellfun" calls in particular) & limiting in increasingly 
+        % problematic ways (e.g. presence of ANY function handles criples
+        % all timing reliability...even if inside of a module that is never active!).
+        %
+        % Converting p.trial to a normal struct here bypasses these overloaded class invocations.
+        % Eventually the Params class will be removed/remade all together, but
+        % that day will keep getting pushed back while we do actual science. --TBC 2020-10
         
         try
             % create a deep copy in p.trial
-            %   ...not a whole lot prettier, but should be a lot more efficient   --TBC 2020
+            % - not a whole lot prettier, but avoids disc writes & should be a lot more efficient   --TBC 2020
             %   (method found in:  http://undocumentedmatlab.com/articles/general-use-object-copy)
             p.trial = getArrayFromByteStream( getByteStreamFromArray( mergeToSingleStruct(p.defaultParameters) ) );
             
@@ -296,19 +293,12 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             clear tmpts
             p.trial = load(fullfile(p.trial.pldaps.dirs.data, '.TEMP', 'deepTrialStruct'));
         end
-        
-        % Document currently active levels for this trial
-        p.trial.pldaps.allLevels = p.defaultParameters.getAllLevels;
-        p.trial.pldaps.activeLevels = p.defaultParameters.getActiveLevels;
-        
+                
         % lock the defaultParameters structure
         p.defaultParameters.setLock(true);
         
         %---------------------------------------------------------------------%
         % RUN THE TRIAL
-        %            KbQueueStop
-        %            keyboard
-        %            KbQueueStart
         p = feval(p.trial.pldaps.trialMasterFunction,  p);
         %---------------------------------------------------------------------%
         
@@ -328,11 +318,11 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             dTrialStruct = p.trial;
         else
             %store the difference of the trial struct to .data
-%               dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial);
             % NEW:  include condition parameters in p.data, instead of relying on p.conditions being 1:1 with trial number
             dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial, p.static.pldaps.baseParamsLevels);
         end
         p.data{p.defaultParameters.pldaps.iTrial} = dTrialStruct;
+        
         
         %% experimentAfterTrials  (Modular PLDAPS)
         if p.trial.pldaps.useModularStateFunctions && ~isempty(p.trial.pldaps.experimentAfterTrialsFunction)
@@ -362,7 +352,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         ptype = p.trial.pldaps.pause.type;
         % [ptype]: 1=standard pause, 2=pause loop (hacky O.T.F. keyboard polling...prob code detritus)
         
-        % p.trial is once again a pointer (!)
+        % p.trial is once again a pointer (!?)
         p.trial = p.defaultParameters; % This effectively resets the .pldaps.quit~=0 that triggered execution of this block
         
         % NOTE: This will ALWAYS create a new 'level' (even if nothing is changed during pause)
@@ -370,17 +360,16 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         % over without overwriting prior settings, or getting lost in .conditions parameters. --TBC 2017-10
         p.defaultParameters.addLevels({struct}, {sprintf('PauseAfterTrial%dParameters', p.defaultParameters.pldaps.iTrial)});
         
-        if ptype==1
+        if ptype %==1
             ListenChar(0);
-            ShowCursor;
             % p.trial
             fprintf('Experiment paused. Type "dbcont" to continue...\n')
             keyboard %#ok<MCKBD>
             fprintf(2,'\b...experiment resumed.\n')
             ListenChar(2);
-%             HideCursor;
-        elseif ptype==2
-            pauseLoop(p);
+
+        % elseif ptype==2
+            % "pauseLoop" is dead. Long live, pauseLoop!
         end
         
         % Clear out keyboard queue
@@ -409,7 +398,6 @@ p.defaultParameters.setLevels(p.static.pldaps.baseParamsLevels);
 p.trial = p.defaultParameters;
 
 % return cursor and command-line control
-ShowCursor;
 ListenChar(0);
 Priority(0);
 
@@ -444,9 +432,15 @@ if p.trial.datapixx.use
     p.trial.timing.exptEndTime = pds.plexon.rstart(0);
 end
 
-% Time consuming transfer that is self contained, yet hogs all of matlab attention while transferring
-% ...figure out how to parallelize so we can continue other shutdown steps
- pds.eyelink.finish(p);  %parfeval(@pds.eyelink.finish, 0, p);    % Fails to run in parallel execution in background...batch() doesn't work either...?
+%% Close Eyelink
+if p.trial.eyelink.use
+    pds.eyelink.finish(p);
+    % EDF data transfer:
+    % Time consuming transfer is self contained, yet hogs all of matlab attention while transferring
+    % RECOMMENDED: Set .eyelink.saveEDF == false; then initialize transfer of all corresponding
+    % eyelink EDF data files at the end of a recording session/day using:
+    %       pds.eyelink.fetchEdf.m
+end
 
 
 %% PDS output:  Compile & save the data
@@ -505,71 +499,4 @@ end %run.m
 % % Sub-Functions
 % % % % % % % % % % % %
 
-%we are pausing, will create a new defaultParaneters Level where changes
-%would go.
-function pauseLoop(p)
-ShowCursor;
-%         ListenChar(1); % is this necessary
-KbQueueRelease();
-KbQueueCreate();
-KbQueueStart();
-
-while p.trial.pldaps.quit==1
-    %the keyboard chechking we only capture ctrl+alt key presses.
-    [p.trial.keyboard.pressedQ,  p.trial.keyboard.firstPressQ]=KbQueueCheck(); % fast
-    if p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.Lctrl)&&p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.Lalt)
-        %D: Debugger
-        if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.dKey)
-            disp('stepped into debugger. Type "dbcont" to start first trial...')
-            keyboard %#ok<MCKBD>
-            
-            %E: Eyetracker Setup
-        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.eKey)
-            try
-                if(p.trial.eyelink.use)
-                    pds.eyelink.calibrate(p);
-                end
-            catch ME
-                disp(ME);
-            end
-            
-            %M: Manual reward
-        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.mKey)
-            pds.behavior.reward.give(p);
-            
-            %P: PAUSE (end the pause)
-        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.pKey)
-            p.trial.pldaps.quit = 0;
-            ListenChar(2);
-%             HideCursor;
-            break;
-            
-            %Q: QUIT
-        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.qKey)
-            p.trial.pldaps.quit = 2;
-            break;
-            
-            %X: Execute text selected in Matlab editor
-        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.xKey)
-            activeEditor=matlab.desktop.editor.getActive;
-            if isempty(activeEditor)
-                fprintf(2, 'No Matlab editor open -> Nothing to execute\n');
-            else
-                if isempty(activeEditor.SelectedText)
-                    fprintf(2, 'Nothing selected in the active editor Widnow -> Nothing to execute\n');
-                else
-                    try
-                        eval(activeEditor.SelectedText)
-                    catch ME
-                        disp(ME);
-                    end
-                end
-            end
-            
-            
-        end %IF CTRL+ALT PRESSED
-    end
-    pause(0.1);
-end
-
-end
+% NONE.

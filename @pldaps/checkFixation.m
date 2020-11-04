@@ -2,21 +2,34 @@ function held = checkFixation(p, sn)
 % function held = checkFixation(p, sn)
 % 
 % Default fixation check modular PLDAPS
-% Uses pdist to compare pixel coordinates in:
+% Uses pdist to compare pixel coordinates from:
 %    [p.trial.eyeX, p.trial.eyeY]
 % with
 %     p.trial.(sn).fixPosPx &
 %     p.trial.(sn).fixLimPx
 % 
+% Limits evaluated based on p.trial.(sn).mode:
+%   (mode 2 recommended)
+%   0 = skip/passthrough, always report held=true
+%   1 = square window, fixLimPx=[x,y] or [x]
+%       - xy limits are half-width of full fixation window
+%       - singular value will give square window
+%       - only operates on one eye position (not binocular)
+%   2 = circle window, fixLimPx=[x,y] or [x]
+%       - xy limits are radius along horizontal & vertical axis
+%       - singular value will give circle
+%       - operates on all eye positions available (bino or mono)
+%         , held=true only if BOTH eyes w/in limits
+%   
 % Assigns logical fixation held status to:  p.trial.(sn).isheld
 % and returns logical [held] variable, if requested
 % 
 % If no [sn] input, tries to use p.trial.pldaps.modNames.currentFix{1},
 % otherwise defaults to 'fix'.
 % 
-% If p.trial.(sn).mode = 0 will automatically pass through as true
 %
 % 2018-08-16  TBC  Wrote it.
+% 2020-10-13  TBC  Cleaned & commented
 
 % assume true to allow code to run w/o any eye tracking setup
 held = true;
@@ -41,27 +54,27 @@ if p.trial.mouse.useAsEyepos || p.trial.eyelink.useAsEyepos
             end
             
             fixXY = p.trial.(sn).fixPosPx(1:2);
-            eyeXY = [ (p.trial.eyeX-p.trial.display.ctr(1)), (p.trial.eyeY-p.trial.display.ctr(2)) ]; %p.trial.display.ctr(2)];
-            held = all(pdist2( fixXY, eyeXY, 'seuclidean', limRat)...
+            % calc eyeXY relative to center of screen
+            eyeXY = [ (p.trial.eyeX-p.trial.display.ctr(1)), -(p.trial.eyeY-p.trial.display.ctr(2)) ];
+            dists = pdist2( fixXY, eyeXY, 'seuclidean', limRat);
+            held = all(dists ...
                    <=  p.trial.(sn).fixLimPx(1));
-               %% Updated 'classic' version (...but no speed penalty for pdist use seen in ViewDist rig tests, 08-2018)
-               %             held = all(circlewindow(fixXY-eyeXY, p.trial.(sn).fixLimPx));
+            
+            
+            % fprintf('%s\t%s\t%s\n', pad(mat2str(fixXY,4),18), pad(mat2str(eyeXY,4),18), pad(mat2str(dists,4),18));
 
-            %fpXY = p.trial.(sn).fixPosPx(1:2) + p.trial.display.ctr(1:2);
-        % % %     %ptype = 'euclidean';
-        % % %     held = all(pdist2([p.trial.(sn).fixPosPx(1:2); [p.trial.eyeX p.trial.eyeY]])...
-        % % %            <= pdist2([0,0], p.trial.(sn).fixLimPx(1:2)));d
-
+               
         case 0
             p.trial.(sn).isheld = held;
             return
         otherwise
             % square window  (***this is jank, and not recommended)
-            held = squarewindow(0, p.trial.display.ctr(1:2)+p.trial.(sn).fixPosPx-[p.trial.eyeX(1) p.trial.eyeY(1)], p.trial.(sn).fixLimPx(1), p.trial.(sn).fixLimPx(2));
+            % calc eyeXY relative to center of screen
+            eyeXY = [ (p.trial.eyeX-p.trial.display.ctr(1)), -(p.trial.eyeY-p.trial.display.ctr(2)) ];
+            held = squarewindow(0, eyeXY - p.trial.(sn).fixPosPx, p.trial.(sn).fixLimPx(1), p.trial.(sn).fixLimPx(end));
     end
     % Record in pldaps structure before returning
     p.trial.(sn).isheld = held;
 end
 
-
-end
+end %main function

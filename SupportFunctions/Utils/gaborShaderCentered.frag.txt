@@ -1,0 +1,36 @@
+/* gaborShaderCentered.frag.txt
+ * 
+ * Shader for drawing of basic parameterized gabor patches.
+ * Simplified & standardized to produce luminance gabor with Michelson contrast output
+ *
+ * This is the fragment shader. It gets the per-patch-constant
+ * parameters as varyings from the vertex shader and hardware
+ * interpolators, then performs per fragment calculations to
+ * compute and write the final pixel color.
+ *
+ * Based on: BasicGaborShader.frag.txt
+ * (c) 2007-2016 by Mario Kleiner, licensed under MIT license.
+ *
+ * 2018-04-13  TBC  Adapted & simplified.
+ */
+
+varying vec2  coeff;
+varying vec4  baseColor;
+varying float Phase;
+varying float Expmultiplier;
+
+void main()
+{
+    /* Query current output texel position wrt. to Center of Gabor: */
+    vec2 pos = gl_TexCoord[0].xy;
+
+    /* Evaluate sine grating at requested position, angle and phase: */
+    float sv = sin(dot(coeff, pos) - Phase);
+
+    /* Compute exponential hull for the gabor: */
+    float ev = exp(dot(pos, pos) * Expmultiplier);
+
+    /* Multiply/Modulate base color and alpha with calculated sine/gauss      */
+    /* values, assign as final fragment output color: */
+    gl_FragColor = (baseColor * clamp(ev * sv, -2.0, 2.0));
+}

@@ -42,13 +42,12 @@ if p.trial.eyelink.use
     
     % check if eyelink initializes
     if ~Eyelink('IsConnected')
-        fprintf('****************************************************************\r')
-        fprintf('****************************************************************\r')
+        fprintLineBreak('*!',.5)
         fprintf('Eyelink Init aborted. Eyelink is not connected.\n');
-        fprintf('PLDAPS is NOT using EYELINK Toolbox for eyetrace. \r')
-        fprintf('if you want to use EYELINK Toolbox for your eyetracking needs, \rtry Eyelink(''Shutdown'') and then retry p = pds.eyelink.setup(p)\r')
+        fprintf('PLDAPS is NOT using Eyelink for eyetracking.\n')
+        fprintf('if you intend to use the Eyelink for tracking,\ntry Eyelink(''Shutdown'') and then retry p = pds.eyelink.setup(p)\n')
         
-        fprintf(2, '~!~\tPRESS ENTER TO CONFIRM YOU READ THIS MESSAGE ~!~\m'); pause
+        fprintf(2, '~!~\tPRESS ENTER TO CONFIRM YOU READ THIS MESSAGE ~!~\n'); pause
         Eyelink('Shutdown')
         % adjust parameters to disable eyelink usage
         p.trial.eyelink.use = 0;
@@ -56,6 +55,7 @@ if p.trial.eyelink.use
         if p.trial.mouse.use
             p.trial.mouse.useAsEyepos = 1;
         end
+        fprintLineBreak
         return
     end
     

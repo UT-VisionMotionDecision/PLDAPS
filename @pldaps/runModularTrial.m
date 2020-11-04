@@ -9,15 +9,6 @@ function p = runModularTrial(p)
 % 03/2016 jk    modular version
 
 
-% % % %
-% WTF!?!?!??
-% EVENT HANDLE EXISTS, but event WILL NOT TRIGGER, even manually!!?
-%
-% p.static.tracking.handles.vd
-% notify(p.static.display,'viewDistSet')
-% 
-% % % % % 
-
     %get all functionHandles that we want to use
     [modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p);
 
@@ -34,6 +25,7 @@ function p = runModularTrial(p)
     runStateforModules(p, 'trialSetup', modules, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 
     %     %switch to high priority mode
+    % This is already done by p.run. Repeating it here is time sink
     %     if p.trial.pldaps.maxPriority
     %         oldPriority=Priority;
     %         maxPriority=MaxPriority('GetSecs');

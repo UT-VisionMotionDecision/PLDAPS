@@ -1,4 +1,4 @@
-function [xy,z] = deg2world(p,xy,z) %,zIsR)
+function [xy,z] = deg2world(p,xyIn,z) %,zIsR)
 %deg2world    convert from degrees of visual angle to world coordinates
 % calculates the world coordinates for an array of degress of visul angle
 % taking the depence of x and y degrees into account (i.e. that the
@@ -26,14 +26,14 @@ function [xy,z] = deg2world(p,xy,z) %,zIsR)
         z = p.trial.display.viewdist;
     end
     
-    xy = sind(xy);
+    xy = sind(xyIn);
     
     % distance to tangent screen at requested visual field position
     sr = z./sqrt(1-sum(xy.^2));
     
-    xy = [sr; sr].*xy;
+    xy = sr.*xy;
 
-    %     if(nargout>1 && nargin<4 && zIsR)
-        z = sr.*sqrt(1-sum(xy.^2));
-    %     end
+    if nargout>1
+        z = sr; %z.*sqrt(1-sum(sind(xyIn).^2));
+    end
 end

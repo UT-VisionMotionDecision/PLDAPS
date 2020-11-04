@@ -16,6 +16,8 @@ pldapsDefaultTrial(p, state, sn);
 
 return
 
+
+
 %% Old code
 % shortened name and not going to maintain two different code versions
 % 
@@ -443,8 +445,8 @@ end
 
         if p.trial.display.useGL
             % tedious task for every trial, but better to get it right
-            p.trial.display.glPerspective = [atand(p.trial.display.wHeight/2/p.trial.display.viewdist)*2,...
-                p.trial.display.wWidth/p.trial.display.wHeight,...
+            p.trial.display.glPerspective = [atand(p.trial.display.heightcm/2/p.trial.display.viewdist)*2,...
+                p.trial.display.widthcm/p.trial.display.heightcm,...
                 p.trial.display.zNear,... % near clipping plane (cm)
                 p.trial.display.zFar];  % far clipping plane (cm)
             setupGLPerspective(p.trial.display); % subfunction
@@ -675,8 +677,8 @@ end
         
         if isfield(p.trial.display, 'useGL') && p.trial.display.useGL
             %   .display.glPerspective == [fovy, aspect, zNear, zFar]
-            p.trial.display.glPerspective = [atand(p.trial.display.wHeight/2/p.trial.display.viewdist)*2,...
-                p.trial.display.wWidth/p.trial.display.wHeight,...
+            p.trial.display.glPerspective = [atand(p.trial.display.heightcm/2/p.trial.display.viewdist)*2,...
+                p.trial.display.widthcm/p.trial.display.heightcm,...
                 p.trial.display.zNear,... % near clipping plane (cm)
                 p.trial.display.zFar];  % far clipping plane (cm)
         end

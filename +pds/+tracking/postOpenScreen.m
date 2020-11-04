@@ -52,7 +52,14 @@ p.static.tracking = pds.tracking.trackObj(p);
 %% Initialize calibration matrix with default
 % Calibration directory:  (subject-specific)
 %   <PLDAPSroot>/rigPrefs/tracking/<subject>
-subj = char(p.trial.session.subject(1));
+subj = p.trial.session.subject;
+if isstring(subj)
+    % if "string", just subject name
+    subj = char(subj(1));
+elseif ischar(subj)
+    % do nothing
+end
+
 trackingCalDir = fullfile(p.trial.pldaps.dirs.proot, 'rigPrefs', 'tracking', subj);
 
 if ~exist(trackingCalDir,'dir')

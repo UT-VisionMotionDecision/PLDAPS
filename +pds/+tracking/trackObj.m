@@ -11,8 +11,8 @@ classdef trackObj < handle
     
     
     properties (Access = public)
-        updateFxn@struct    % set of function handles to tracked device(s); e.g. pds.mouse.updateFxn.m
-        calPath@struct      % paths to loaded/saved calibration data == struct('source',[],'saved',[]);
+        updateFxn           % set of function handles to tracked device(s); e.g. pds.mouse.updateFxn.m
+        calPath             % paths to loaded/saved calibration data == struct('source',[],'saved',[]);
         source
         tform               
         gridSz              % target grid size ([x,y] in vis. deg)
@@ -26,7 +26,7 @@ classdef trackObj < handle
     properties (Transient)
         % These properties shoud/need not be saved
         srcIdx
-        targets@struct      % calibration [fixation] target struct
+        targets             % calibration [fixation] target struct
                             % initialized with deg2pix conversions upon creation
     end
     properties (Hidden, Transient)
@@ -228,6 +228,14 @@ classdef trackObj < handle
             % -- unclear how to produce AbortSet features of a property change event...
             switch evnt.EventName
                 case 'PostSet'
+                    % Copy viewdist over to fixPos
+                    % %                     % - Possible this is not good, if supposed to fixate off display, but reasonable place to start
+                    % %                     evnt.AffectedObject.fixPos(3) = evnt.AffectedObject.viewdist;
+                    % %                     % Update OpenGL params
+                    % %                     %   (~~~ WARNING ~~~: potentially slow OpenGL context switching)
+                    % %                     evnt.AffectedObject.updateOpenGlParams();
+                    
+                    % DEBUG
                     fprintf('\n**\tviewdist updated to %6.2f cm\n',evnt.AffectedObject.viewdist); %src.viewdist)
             end
             
