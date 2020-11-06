@@ -33,6 +33,12 @@ end
 % -- ugly coding due to 'params' class garbage
 if (isfield(p.trial,'grbl') || (isa(p.trial,'params') && isField(p.trial,'grbl')))   &&   p.trial.grbl.use 
     sn = 'grbl';
+    switch p.trial.(sn).state
+        case 'Alarm'
+            % initiate homing
+            grbl.homeWithWarning(p, sn);
+    end
+    
     % get current position directly from device
     p.trial.(sn) = grbl.updatePos(p.trial.(sn));
     % Compute new grbl position in machine coordinates (cm)
@@ -66,7 +72,6 @@ switch sn
     case 'grbl'
         % Arduino CNC controller for ViewDist display stepper motors
         % (see:  www.github.com/czuba/grbl )
-                
         % Move to the new position
         p.trial.(sn) = grbl.completeMove(p.trial.(sn), sprintf('G1 x%4.2f f%4.2f', p.trial.display.grblPos, 60/2),  .8);
         
@@ -88,7 +93,7 @@ end
 %
 
 % dependent variables now implemented *as dependents* in pdsDisplay class
-if ~isempty(newdist)
+if exist('newdist','var') && ~isempty(newdist)
     p.static.display.viewdist = newdist;
 end
 
