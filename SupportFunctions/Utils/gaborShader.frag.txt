@@ -28,7 +28,7 @@ void main()
     vec2 pos = gl_TexCoord[0].xy;
 
     /* Evaluate sine grating at requested position, angle and phase: */
-    float sv = sin(dot(coeff, pos) + Phase);
+    float sv = sin(dot(coeff, pos) - Phase);
 
     /* Compute exponential hull for the gabor: */
     float ev = exp(dot(pos, pos) * Expmultiplier);

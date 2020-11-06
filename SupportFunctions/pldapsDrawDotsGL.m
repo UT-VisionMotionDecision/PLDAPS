@@ -1,5 +1,5 @@
 function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader, dotBuffers)
-% function pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader)
+% function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader, dotBuffers)
 % 
 % Streamlined version of PTB moglDrawDots3d.m (circa ver. 3.0.14)
 %   -- Removes preliminary safety checks
@@ -11,7 +11,11 @@ function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, 
 %                   recommended: 5-6  (i.e. 320-1280 sides)
 %         >=10  n-segments of a mercator sphere (...simple, but over-samples poles)
 %                   recommended: 12-22;
-%       
+%
+% TODO: update help with new info on new params/shapes/defaults & usage examples.
+%       ...[center3D] has a particularly tricky/flexible implementation .  --TBC 2019-12)
+% 
+% ~~~Orig help text below~~~ 
 % Draw a large number of dots in 3D very efficiently.
 %
 %
@@ -42,7 +46,7 @@ function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, 
 % 'dotdiameter' optional: Either a single scalar spec of dot diameter, or a
 % vector of as many dotdiameters as dots 'n', or left out. If left out, a
 % dot diameter of 1.0 pixels will be used. Drawing of dots of different
-% sizes is much less efficient than drawing of dots of identical sizes! Try
+% sizes is much less efficient than drawing of dots of identical sizes! Attempt
 % to group many dots of identical size into separate calls to this function
 % for best performance!
 %
@@ -63,27 +67,20 @@ function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, 
 % shader program will be used. You can use this, e.g., to bind a custom vertex
 % shader to perform complex per-dot calculations very fast on the GPU.
 %
-% See 
+% See also:  PTB moglDrawDots3d.m
 
 % History:
 % 03/01/2009  mk  Written.
+% 2017-xx-xx  TBC  Adapted from PTB moglDrawDots3d.m (circa ver. 3.0.14)
+% 
 
 % Need global GL definitions:
 global GL;
     
-% % Global struct for buffer objects
-% global glB
-
 if nargin <7 || isempty(dotBuffers)
     % initialize empty structure for OpenGL buffer objects
     dotBuffers = struct;
 end
-
-% if isfield(pmodule,'glB')
-%     glB = pmodule.glB;
-% else
-%     dotBuffers = glB;
-% end
     
 if nargin <2
     error('Not enough inputs to %s.',mfilename);
@@ -155,11 +152,13 @@ if nargin < 6
 end
 
 %% Drawing loop
+% Create a marker to return this view to initial state after drawing
+glPushMatrix;
 
 % Was a 'center3D' argument specified?
 if ~isempty(center3D)
-    % Create a marker to return this view to same state as before
-    glPushMatrix;
+%     % Create a marker to return this view to same state as before
+%     glPushMatrix;
     
     if numel(center3D)==3
         % single translation to new center
@@ -307,7 +306,7 @@ if useDiskMode==1
 
     
 elseif useDiskMode==2
-    %% Draw as Mercactor spheres
+    %% Draw as Mercator spheres
     
     % get relative translation steps between each dot for faster drawing
     xyz = diff([[0 0 0]', xyz], 1,2);
@@ -321,7 +320,7 @@ elseif useDiskMode==2
     end
     
     % Loop through each dot
-    glPushMatrix;
+    glPushMatrix; % center of dot cluster: all dot positions are relative to this (i.e. not streamed)
     if ncolors == 1
         % Set color just once
         %   (TBC: setting color on each dot draw can add 10-20% total execution time)
@@ -329,7 +328,8 @@ elseif useDiskMode==2
         for i = 1:ndots
             % set position
             glTranslated(xyz(1,i), xyz(2,i), -xyz(3,i));
-            moglcore( 'glutSolidSphere', dotsz(ii(1,i)), dotType, dotType);
+            %fprintf('%8.3g\t%s\n', dotsz(ii(1,i)), mat2str(xyz(:,i), 3))
+            moglcore( 'glutSolidSphere', single(dotsz(ii(1,i))), dotType, dotType);
         end
     else
         for i = 1:ndots
@@ -340,7 +340,7 @@ elseif useDiskMode==2
             moglcore( 'glutSolidSphere', dotsz(ii(1,i)), dotType, dotType);
         end
     end
-    glPopMatrix;
+    glPopMatrix; % back to center
     
 else
     %% Draw dots as GL.POINTS (like normal PTB; super fast, but size defined in pixels, not space!)
@@ -434,10 +434,10 @@ if ~useDiskMode % clean up after drawing GL.POINTS
 end % No specific Sphere drawing clean up to do
 
 
-if ~isempty(center3D)
+% if ~isempty(center3D)
     % Restore old modelview matrix from backup:
     glPopMatrix;
-end
+% end
 
 
 end

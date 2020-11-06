@@ -16,10 +16,33 @@ function p = pmTrialMovie(p, state, sn)
 % NOTE: During movie capture, Screen only uses the top left corner of the .rect
 % parameter is used for image capture; the width & height of each frame is computed
 % from p.trial.(sn).rect during initial movie file creation (experimentPostOpenScreen).
+% 
+% Demo video recommendations:
+% --  Higher res movies --
+%     To capture hiDPI ('retina display') resolution movies,
+%     add this line to you openScreen.m BEFORE the PTB screen is opened:
+% PsychImaging('AddTask', 'General', 'UseRetinaResolution')
+% 
+% 
+% ** Stereo Post-Processing: **
+% If a non-overlapping stereomode (e.g. 2:5,>=10,ProPixx) is active this function will output two movies
+% per trial, one for each eye's view. They can be easily concatenated into a single side-by-side (cross-fusable)
+% movie file in the terminal using the following ffmpg one-liner:
+%   ffmpeg -i left.mp4 -i right.mp4 -filter_complex hstack output.mp4
+% (...naturally, update [left] and [right] to your filenames, and your desired [output] file name)
 %
+% --  Anaglyph stereo demos --
+%     For less wonky colors and grey backgrounds
+%     add these lines to you openScreen.m just AFTER the PTB screen is opened:
+% if ismember(p.trial.display.stereoMode, [6 7 8 9])
+%     % SetAnaglyphStereoParameters('OptimizedColorAnaglyphMode', ptr);
+%     SetAnaglyphStereoParameters('FullColorAnaglyphMode', ptr);
+% end
+% 
 % 
 % 2017-11-21  TBC  Extracted from principle elements of PLDAPS, and modularized.
 % 2018-06-07  TBC  stereoMode friendly, specify 'frontBuffer'
+% 2020-03-12  TBC  Stereo postprocessing mashup with ffmpg
 % 
 
 switch state

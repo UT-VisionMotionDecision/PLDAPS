@@ -22,20 +22,26 @@ if(nargin<3)
     repeats = 1;
 end
 
-%  Virtual device handle
-[~,name] = fileparts(p.trial.sound.wavfiles.(sound_name));
-pahandle = p.trial.sound.(name);
+warning('~!~\nMigrate code from pds.audio to pds.sound\n')
+pds.sound.play(p, sound_name, repeats);
 
-%  Find out if there is currently a sound playing on that device
-status = PsychPortAudio('GetStatus',pahandle);
-
-%  If there is a sound playing then stop it.
-if(status.Active~=0)
-    PsychPortAudio('Stop',pahandle);
 end
 
-%  Play the requested sound repeats number of times
-if(isinf(repeats))
-    repeats = 0;
-end
-PsychPortAudio('Start',pahandle,repeats);
+
+% % % %  Virtual device handle
+% % % [~,name] = fileparts(p.trial.sound.wavfiles.(sound_name));
+% % % pahandle = p.trial.sound.(name);
+% % % 
+% % % %  Find out if there is currently a sound playing on that device
+% % % status = PsychPortAudio('GetStatus',pahandle);
+% % % 
+% % % %  If there is a sound playing then stop it.
+% % % if(status.Active~=0)
+% % %     PsychPortAudio('Stop',pahandle);
+% % % end
+% % % 
+% % % %  Play the requested sound repeats number of times
+% % % if(isinf(repeats))
+% % %     repeats = 0;
+% % % end
+% % % PsychPortAudio('Start',pahandle,repeats);

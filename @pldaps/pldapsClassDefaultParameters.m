@@ -1,4 +1,8 @@
 function s=pldapsClassDefaultParameters(s)
+
+% % New filename: pldapsClassDefaults.m
+% Will try to symlink w/ relative path to updated file
+
  if nargin<1
 	s=struct;
  end
@@ -57,8 +61,8 @@ function s=pldapsClassDefaultParameters(s)
  s. display.    crosstalk = 0;
  s.	display.	switchOverlayCLUTs = false;
  s. display.    useGL = false; % flag for custom 3D rendering features
-
-% Movie making moved to pds.pldapsMovie module
+ s. display.    preOpenScreenFxn = [];
+ s. display.    postOpenScreenFxn = [];
 
 %s.	eyelink.
  s.	eyelink.	buffereventlength = 30;
@@ -67,13 +71,16 @@ function s=pldapsClassDefaultParameters(s)
  s.	eyelink.	collectQueue = false;  % No Eyelink queue! This is a timesink, no longer recommended (TBC 2018)
  s.	eyelink.	custom_calibration = false;
  s.	eyelink.	custom_calibrationScale = 0.4; % 0.4 ok for >= 55 cm viewing distance on most (propixx) projection setups
- s.	eyelink.	saveEDF = false;
+ s.	eyelink.	saveEDF = false;     % better off manually transferring by running this at end of session:      pds.eyelink.fetchEdf(p.trial.session.dir)
  s.	eyelink.	use = true;
  s.	eyelink.	useAsEyepos = true;
  s.	eyelink.	useRawData = false;
 
 %s.	git.
  s.	git.	use = false;
+ 
+%s. keyboard.
+ s. keyboard.   devIdx = -1; % PTB default to first keyboard detected
 
 %s.	mouse.
  s.	mouse.	initialCoordinates = [];
@@ -85,11 +92,11 @@ function s=pldapsClassDefaultParameters(s)
 %s.	newEraSyringePump.
  s.	newEraSyringePump.	alarmMode = 1;
  s.	newEraSyringePump.	allowNewDiameter = false;
- s.	newEraSyringePump.	diameter = 38;
+ s.	newEraSyringePump.	diameter = 38; % 38==60 mL syringe; 29.7==20 mL syringe
  s.	newEraSyringePump.	lowNoiseMode = 0;
  s.	newEraSyringePump.	port = '/dev/cu.usbserial';
- s.	newEraSyringePump.	rate = 60; % ml per minute (...formerly 2900 mL/hr);
- s.	newEraSyringePump.	triggerMode = 'T2';
+ s.	newEraSyringePump.	rate = 60; % ml per minute (...formerly 2900 mL/hr)
+ s.	newEraSyringePump.	triggerMode = 'ST';
  s.	newEraSyringePump.	use = false;
  s.	newEraSyringePump.	volumeUnits = 'ML';
 
@@ -183,6 +190,15 @@ function s=pldapsClassDefaultParameters(s)
  s.	sound.	deviceid = [ ];
  s.	sound.	use = true;
  s.	sound.	useForReward = true;
+ 
+% Matlab-side [eye]tracker calibration
+ s. tracking. use               = true;
+ s. tracking. on                = false;
+ s. tracking. gridSz            = [20, 16];  % [x,y] size of target grid, in deg
+ s. tracking. gridScale         = 1; % scale of calbiration targets relative to display dimensions
+ s. tracking. tform             = []; % geometric transform object (index if binocular) See:  pds.tracking.runCalibrationTrial>>updateCalibTransform
+ 
+
 end
 
 

@@ -4,11 +4,17 @@ function p = stop(p,sound_name)
 %
 %  SEE NOTES FOR play
 
-%  Virtual device handle
-[~,name] = fileparts(p.trial.sound.wavfiles.(sound_name));
-pahandle = p.trial.sound.(name);
+warning('~!~\nMigrate code from pds.audio to pds.sound\n')
+pds.sound.stop(p, sound_name);
 
-%  Stop the requested sound
-PsychPortAudio('Stop',pahandle);
 end
 
+
+% %  Virtual device handle
+% [~,name] = fileparts(p.trial.sound.wavfiles.(sound_name));
+% pahandle = p.trial.sound.(name);
+% 
+% %  Stop the requested sound
+% PsychPortAudio('Stop',pahandle);
+% end
+% 

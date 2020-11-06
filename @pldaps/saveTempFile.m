@@ -1,29 +1,52 @@
-function result = saveTempFile(p)
-%saveTempFile    save the data from a single Trial to a file in a TEMP
-%                folder
-% result = saveTempFile(p)
+function result = saveTempFile(p, saveAll)
+%function result = saveTempFile(p, saveAll)
+% save the data from a single Trial to a .TEMP file
+% Only saves contents of p.trial to temp file by default,
+% set optional input [saveAll] to save the entire PLDAPS object
+% instead of only p.trial
+% - trial temp files are saved as "version 7" .mat files,
+%   providing sig. file size reduction (~10-20x) from compression rel. to version 7.3
+% 
+% TEMP file location ==  fullfile(p.trial.pldaps.dirs.data, '.TEMP')
+% 
+% 201x-xx-xx --- Written as a pldaps component
+% 2020-09-10 TBC Added saveAll option
+% 
+
+if nargin<2
+    saveAll = false;
+end
 
 result= [];
-tmpdir = fullfile(p.trial.pldaps.dirs.data, '.TEMP');
-tmpfile = sprintf('trial%05d', p.trial.pldaps.iTrial);
+
+trialString = sprintf('trial%05d', p.trial.pldaps.iTrial);
+[~, fname, fext] = fileparts(p.trial.session.file);
+tmpDir = fullfile(p.trial.pldaps.dirs.data, '.TEMP');
+tmpFile = fullfile(tmpDir, [fname, trialString, fext]);
 
 if ~p.trial.pldaps.nosave && p.trial.pldaps.save.trialTempfiles
     % make separate copy of p.trial (...why??)
-	evalc( sprintf('%s = p.trial', tmpfile) );
+	evalc( sprintf('%s = p.trial', trialString) );
     
-    if ~exist(tmpdir,'dir')
+    if ~exist(tmpDir,'dir')
         warning('pldaps:saveTempFile','TEMP directory in data directory does not exist, trying to create it')
         try
-            mkdir(tmpdir);
+            mkdir(tmpDir);
         catch result
-            warning('pldaps:saveTempFile','Failed creating TEMP directory:\t%s', tmpdir)
+            warning('pldaps:saveTempFile','Failed creating TEMP directory:\t%s', tmpDir)
             p.trial.pldaps.quit = 2;
             return;
         end
     end
-    try  
-        save( fullfile(tmpdir, [p.trial.session.file(1:end-4), tmpfile, p.trial.session.file(end-3:end)]), tmpfile);
+    try 
+        if ~saveAll
+            save( tmpFile, trialString, '-v7');
+        else
+            % save complete PLDAPS session object (not just p.trial contents)
+            save( tmpFile, '-mat', '-v7', 'p');
+        end
+        
     catch result
-         warning('pldaps:saveTempFile','Failed to save temp file in %s', tmpdir)
+         warning('pldaps:saveTempFile','Failed to save temp file in %s', tmpDir)
     end
 end

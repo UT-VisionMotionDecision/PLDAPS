@@ -6,9 +6,16 @@ function p = setup(p)
 %
 % 20xx-xx-xx  AAA   Wrote it.
 % 2018-03-28  TBC   Binocular compatibility
-    
+
+% NOTE: cannot 'useRawData' with matlab-side calibration (pds.tracking...) if mouse simulation mode enabled.
+%       Ideally poll Eyelink for mouse simulation mode enabled and set .useRawData == false
+
 if p.trial.eyelink.use 
     
+    if p.trial.eyelink.useAsEyepos
+        p.trial.pldaps.modNames.tracker = 'eyelink';
+    end
+        
     fprintLineBreak;
     fprintf('\tSetting up EYELINK Toolbox for eyetrace. \n');
     fprintLineBreak;
@@ -16,21 +23,14 @@ if p.trial.eyelink.use
         
     Eyelink('Initialize');
         
-    p.trial.eyelink.setup=EyelinkInitDefaults(); % don't pass in the window pointer or you can mess up the color range
+    p.trial.eyelink.setup = EyelinkInitDefaults(); % don't pass in the window pointer or you can mess up the color range
+    % Set EDF file to PLDAPS session start time
+    p.trial.eyelink.edfFile = datestr(p.trial.session.initTime, 'mmddHHMM');
     
-    p.trial.eyelink.edfFile=datestr(p.trial.session.initTime, 'mmddHHMM');
-    
-    p.trial.eyelink.edfFileLocation = pwd; %dv.pref.datadir;
+    p.trial.eyelink.edfFileLocation = fullfile(p.trial.session.dir, 'eye');
     fprintf('EDFFile: %s\n', p.trial.eyelink.edfFile );
     
     p.trial.eyelink.setup.window = p.trial.display.ptr;
-    % dv.defaultParameters.eyelink.backgroundcolour = BlackIndex(dv.defaultParameters.display.ptr);
-    % dv.defaultParameters.eyelink.msgfontcolour    = WhiteIndex(dv.defaultParameters.display.ptr);
-    % dv.defaultParameters.eyelink.imgtitlecolour   = WhiteIndex(dv.defaultParameters.display.ptr);
-    % dv.defaultParameters.eyelink.targetbeep = 0;
-    % dv.defaultParameters.eyelink.calibrationtargetcolour= WhiteIndex(dv.defaultParameters.eyelink.window);
-    % dv.defaultParameters.eyelink.calibrationtargetsize= .5;
-    % dv.defaultParameters.eyelink.calibrationtargetwidth=0.5;
     p.trial.eyelink.setup.displayCalResults = 1;
     p.trial.eyelink.setup.eyeimgsize=50;
     EyelinkUpdateDefaults(p.trial.eyelink.setup);
@@ -39,31 +39,32 @@ if p.trial.eyelink.use
     if ~isfield(p.trial.eyelink, 'fixdotW')
         p.trial.eyelink.fixdotW = ceil(0.2 * p.trial.display.ppd);
     end
-
     
     % check if eyelink initializes
     if ~Eyelink('IsConnected')
-        fprintf('****************************************************************\r')
-        fprintf('****************************************************************\r')
+        fprintLineBreak('*!',.5)
         fprintf('Eyelink Init aborted. Eyelink is not connected.\n');
-        fprintf('PLDAPS is NOT using EYELINK Toolbox for eyetrace. \r')
-        fprintf('if you want to use EYELINK Toolbox for your eyetracking needs, \rtry Eyelink(''Shutdown'') and then retry p = pds.eyelink.setup(p)\r')
+        fprintf('PLDAPS is NOT using Eyelink for eyetracking.\n')
+        fprintf('if you intend to use the Eyelink for tracking,\ntry Eyelink(''Shutdown'') and then retry p = pds.eyelink.setup(p)\n')
         
-        if p.trial.sound.use
-            Beeper(500); Beeper(400)
-        end
-        disp('PRESS ENTER TO CONFIRM YOU READ THIS MESSAGE'); pause
+        fprintf(2, '~!~\tPRESS ENTER TO CONFIRM YOU READ THIS MESSAGE ~!~\n'); pause
         Eyelink('Shutdown')
+        % adjust parameters to disable eyelink usage
         p.trial.eyelink.use = 0;
+        p.trial.eyelink.useAsEyepos = 0;
+        if p.trial.mouse.use
+            p.trial.mouse.useAsEyepos = 1;
+        end
+        fprintLineBreak
         return
     end
     
-    % open file to record data to
+    % open EDF data file
     err = Eyelink('Openfile', p.trial.eyelink.edfFile);
     if err
         fprintf('Cannot create EDF file ''%s'' ', p.trial.eyelink.edfFile);
-        Eyelink('Shutdown')
-        return;
+        Eyelink('Shutdown');
+        return
     end
     
     %% Setup Eyelink enviro & report values in cmd window
@@ -226,7 +227,7 @@ if p.trial.eyelink.use
     [~, p.trial.eyelink.EYE_USED] = Eyelink('ReadFromTracker', 'active_eye');
     
     [~, isBino] = Eyelink('ReadFromTracker', 'binocular_enabled');
-    if isBino
+    if str2num(isBino)
         p.trial.eyelink.EYE_USED = 'BINO';
     end
     

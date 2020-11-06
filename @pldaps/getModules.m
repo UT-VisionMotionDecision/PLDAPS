@@ -61,9 +61,11 @@ if iscell(moduleType)
     % check for presence & value of a specified subfield
     for i = 1:size(moduleType,1)
         thisField = moduleType{i,1};
-        thisVal = moduleType{i,2};
         moduleNames(cellfun(@(x) ~isfield(p.trial.(x), thisField), moduleNames)) = []; % check for presence
-        moduleNames = moduleNames(cellfun(@(x) p.trial.(x).(thisField) == thisVal, moduleNames)); % matching value
+        if size(moduleType,2)>1
+            thisVal = moduleType{i,2};
+            moduleNames = moduleNames(cellfun(@(x) p.trial.(x).(thisField) == thisVal, moduleNames)); % matching value
+        end
     end
     return
 

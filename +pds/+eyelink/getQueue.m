@@ -14,9 +14,9 @@ if p.trial.eyelink.use
         if p.trial.eyelink.collectQueue
             [samplesIn, eventsIn, p.trial.eyelink.drained] = Eyelink('GetQueuedData');
         else
-            sample=Eyelink('NewestFloatSample');
+            sample = Eyelink('NewestFloatSample');
             if ~isstruct(sample)
-                samplesIn=[];
+                samplesIn = [];
             else
                 % Format [sample] fields to match array output of 'GetQueuedData'
                 %   sample fields: [time, type, flags, px, py, hx, hy, pa, gx, gy, rx, ry, status, input, buttons, htype, hdata];
@@ -52,7 +52,7 @@ if p.trial.eyelink.use
         xBase = 13; % samples(14)==left X; samples(15)==right X
         yBase = 15; % samples(16)==left Y; samples(17)==right Y
         if p.trial.eyelink.useRawData
-            %the raw data is 10 fields prior to calibrated data
+            %the raw data is 10 fields prior to eyelink calibrated [gaze] data
             xBase = xBase-10;
             yBase = yBase-10;
         end
@@ -67,18 +67,19 @@ if p.trial.eyelink.use
             p.trial.eyeY = double(p.trial.eyelink.samples(eyeIdx+yBase, p.trial.eyelink.sampleNum));
         end
         
+        if ~p.trial.tracking.use && p.trial.eyelink.useRawData
+            % Apply separate calibration matrix to each eye (bino compatible)
+            for i = 1:numel(p.trial.eyeX)
+                eXY = p.trial.eyelink.calibration_matrix(:,:,eyeIdx(i)) * [p.trial.eyeX(i), p.trial.eyeY(i), 1]';
+                p.trial.eyeX(i) = eXY(1);
+                p.trial.eyeY(i) = eXY(2);
+            end
+        end
+        
         % Also report delta eye position
         nback = p.trial.eyelink.sampleNum + [-1,0];     nback(nback<1) = 1;
         p.trial.eyeDelta = [diff(p.trial.eyelink.samples(eyeIdx+xBase, nback), [], 2),...
             diff(p.trial.eyelink.samples(eyeIdx+yBase, nback), [], 2)];
         
-        if p.trial.eyelink.useRawData
-            % Apply separate calibration matrix to each eye (bino compatible)
-            for i = 1:numel(p.trial.eyeX)
-                eXY = p.trial.eyelink.calibration_matrix(:,:,eyeIdx(i)+10) * [p.trial.eyeX(i), p.trial.eyeY(i), 1]';
-                p.trial.eyeX(i) = eXY(1);
-                p.trial.eyeY(i) = eXY(2);
-            end
-        end
     end
 end

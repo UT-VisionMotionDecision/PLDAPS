@@ -13,51 +13,56 @@ function [stateValue, stateName] = getReorderedFrameStates(trialStates,moduleReq
       
 end
 
-%trial states that are not in a frame are negative, just to allow both
-% to be more independent
-%     p.trial.pldaps.trialStates.trialSetup=-1;
-%     p.trial.pldaps.trialStates.trialPrepare=-2;
-%     p.trial.pldaps.trialStates.trialCleanUpandSave=-3;
+% ----------------------------------------------------------------
+% NEGATIVE states that are only executed ONCE per [trial] or [experiment]
+% - order/timing predetermined by PLDAPS methods:  run.m  &  runModularTrial.m
 %     
-%     p.trial.pldaps.trialStates.experimentPostOpenScreen=-4;
-%     p.trial.pldaps.trialStates.experimentPreOpenScreen=-5;
-%     p.trial.pldaps.trialStates.experimentCleanUp=-6;
-%     p.trial.pldaps.trialStates.experimentAfterTrials=-7;
+% POSITIVE states are evaluated on EVERY display [frame] update/refresh
+% - order of execution by ascending state value (assigned in pldapsClassDefaults.m)
+% ----------------------------------------------------------------
+% Default [p.trial.pldaps.trialStates] order:
+% 
+%   .experimentPreOpenScreen    = -5
+%   .experimentPostOpenScreen   = -6
+%   
+%     .trialSetup               = -1
+%     .trialPrepare             = -2
+% 
+%       .frameUpdate            =  1
+%       .framePrepareDrawing    =  2
+%       .frameDraw              =  3
+%       .frameGLDrawLeft        =  4
+%       .frameGLDrawRight       =  5
+%       .frameDrawingFinished   =  6
+%       .frameFlip              =  7
+% 
+%     .trialItiDraw             = -3
+%     .trialCleanUpandSave      = -4
+%   .experimentAfterTrials      = -7
+%   .experimentCleanUp          = -8
 %     
-%positive states will be called in order of their value
+% 
+% ----------------------------------------------------------------
+% Typical operations/uses of each state:
+% 
+% [.frameUpdate]
+%   - get current eyepostion, curser position or keypresses 
 %
-%     %default order is:
-%
-%     %get current eyepostion, curser position or keypresses 
-%     p.trial.pldaps.trialStates.frameUpdate=1;
-%
+% [.framePrepareDrawing]
 %     %here you can prepare all drawing, e.g. have the dots move
 %     %if you need to update to the latest e.g. eyeposition
 %     %you can still do that later, this could be all expected heavy
 %     %calculations
-%     p.trial.pldaps.trialStates.framePrepareDrawing=2; 
 %
+% [.frameDraw]
 %     %once you know you've calculated the final image, draw it
-%     p.trial.pldaps.trialStates.frameDraw=3;
 %     
-%     %----------!removed for now!----------
-%     p.trial.pldaps.trialStates.frameIdlePreLastDraw=-Inf;%4;
-%     %if there is something that needs updating. here is a fucntion to do it
-%     %as late as possible
+% [.frameDrawingFinished]
+%   - last chance for any non-drawing operations before frame flip
 %
-%     %----------!removed for now!----------
-%     p.trial.pldaps.trialStates.frameDrawTimecritical=-Inf;%5;
-%     %if this function is not used, drawingFinished will be called after
-%     %frameDraw is done, otherwise drawingFinished will not be called
-%
-%     p.trial.pldaps.trialStates.frameDrawingFinished=6;
+% [.frameFlip]
+%   - flip the PTB screen to display next stimulus frame
+%   - record timing of presentation
+%   - this state is typically only utilized by pldapsDefaultTrial.m
+%     , use within own modules/code is not prohibited, but not recommended either.
 % 
-%     %----------!removed for now!----------
-%     %this function gets called after everything has been drawn, and repeatedly
-%     %until it's time to expect (and do) the flip
-%     p.trial.pldaps.trialStates.frameIdlePostDraw=-Inf;%7;
-%
-%     %do the flip (or when async) record the time 
-%     p.trial.pldaps.trialStates.frameFlip=8;
-
-    

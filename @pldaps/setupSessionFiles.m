@@ -17,8 +17,10 @@ else
     subjStr = p.defaultParameters.session.subject; % subject name
     labelStr = p.defaultParameters.session.experimentSetupFile; % session label
     % if subject is string array (Matlab >2017), use second element as 
-    if isa(subjStr, 'string') 
-        labelStr = [labelStr, char(subjStr(1,2))];
+    if isa(subjStr, 'string')
+        if numel(subjStr)>1
+            labelStr = [labelStr, char(subjStr(1,2))];
+        end
         subjStr = subjStr(1,1);
     end
     % ...clean up formatting for file name
