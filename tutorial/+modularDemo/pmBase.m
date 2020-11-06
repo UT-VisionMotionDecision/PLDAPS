@@ -32,21 +32,38 @@ function p = pmBase(p, state, sn)
 % 
 % 
 
+% 
+% Within another module, one could modify features of the experiment
+% based on behavioral state determined in this module with code
+% similar to the following:
+% 
+%  %...inside of another PLDAPS module (e.g. w/in .frameUpdate state):
+%     % get behavioral state module name
+%     snBehav = p.trial.pldaps.modNames.behavior{1};
+%     % modify based on state
+%     switch p.trial.(snBehav).state
+%         case p.trial.(snBehav).states.HOLDFIX
+%             p.trial.(sn).dotSz = 1.5;
+%     end
+% 
+
+        
 switch state
     
     case p.trial.pldaps.trialStates.frameUpdate
         
         checkState(p,sn);  % this is the main work that this module does
         
+        
     %case p.trial.pldaps.trialStates.framePrepareDrawing
     
     case p.trial.pldaps.trialStates.trialSetup
 
-        p.trial.(sn).state = p.trial.(sn).states.WAITFIX;
-        p.trial.(sn).statesStartTime = nan(p.trial.(sn).nstates, 1);    %nan(5,1);
-        p.trial.(sn).statesStartFrame = nan(p.trial.(sn).nstates, 1);
-        p.trial.(sn).statesStartTime(p.trial.(sn).state) = 0;
-        p.trial.(sn).statesStartFrame(p.trial.(sn).state) = 1;
+        p.trial.(sn).state              = p.trial.(sn).states.WAITFIX;
+        p.trial.(sn).statesStartTime    = nan(p.trial.(sn).nstates, 1);
+        p.trial.(sn).statesStartFrame   = nan(p.trial.(sn).nstates, 1);
+        p.trial.(sn).statesStartTime(p.trial.(sn).state)    = 0;
+        p.trial.(sn).statesStartFrame(p.trial.(sn).state)   = 1;
         
         if p.trial.(sn).waitForGoSignal
             p.trial.(sn).wait = true;
@@ -54,12 +71,11 @@ switch state
             p.trial.(sn).wait = false;
         end
         
-%         p.trial.(p.trial.pldaps.modNames.currentStim{:}).nFrames = p.trial.(sn).stateDurFrames(p.trial.(sn).states.MOTION);
-%         p.trial.(p.trial.pldaps.modNames.currentStim{:}).on = false;
+        % Ensure current fixation module is ON
         p.trial.(p.trial.pldaps.modNames.currentFix{:}).on = true;
         p.trial.(sn).timestamp = datetime;
 
-        % Ensure stateDur(3) is at least as long as longest active module
+        % Ensure STIMULUS stateDur(3) is at least as long as longest active module
         % Not crazy about this hack...its here as a safety net, not SOP.  TBC 2019-08-29
         maxDur = p.trial.(sn).stateDur(3);
         for i = 1:length(p.trial.pldaps.modNames.matrixModule)
@@ -75,9 +91,13 @@ switch state
         % Put any unused matrix conditions back into the order queue
         putBackConds; % Nested Function
                 
+        
         % EXPT STATES
     case p.trial.pldaps.trialStates.experimentPreOpenScreen
         initParams(p, sn);
+        % register behavioral state module name
+        p.trial.pldaps.modNames.behavior = {sn};
+        
         
     case p.trial.pldaps.trialStates.experimentPostOpenScreen
         % convert state duration into nframes
@@ -90,11 +110,11 @@ switch state
             p.trial.(sn).scaleDur = 1;
         end
             
-        
 end
 
-
 return
+% NOTE: Using [return] here instead of [end] allows nested functions
+% access to the same workspace as the main function. --TBC 2020
 
 % % % % % % % % % % % %
 % Nested-Functions

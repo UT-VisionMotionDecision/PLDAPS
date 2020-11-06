@@ -8,13 +8,32 @@ function [p] = doRfPos_gabGrid(subj, stimMode, viewdist)
 %   [stimMode]  Stimulus type               ("string", default: "gabors")   (...no other modes currently defined)
 %   [viewdist]  
 % 
-% USAGE:
+% 
 %   [pss] is the PLDAPS settings struct that is used to initialize modules
 %   & parameters for this experimental session, and makeup the standard [p.trial]
 %   structure that is integral to PLDAPS.
-%   
+% 
+% ----------------
+% USAGE:
 %   No inputs necessary to run demo from command window:
 %   >> p = modularDemo.doRfPos_gabGrid
+% 
+% 
+%   TRACKING CALIBRATION
+%   To adjust eye/mouse tracking calibration:
+%   - pause the experiment by pressing [p] key during a trial
+%   - From the command window, start a tracking calibration trial:
+%     >> pds.tracking.runCalibrationTrial(p)
+%   - Follow directions printed in command window; briefly:
+%     - [0] to reveal first fixation point
+%     - [spacebar] to record fixation & advance to next point
+%     - [u] to update calibration once sufficient points (>=10) have been recorded
+%     - [p] to exit calibration, save to file, & return to pause state
+%   
+% 
+% 2018-xx-xx TBC  Wrote it for RF mapping
+% 2020-10-xx TBC  Updated to use consistent OpenGL rendering coordinates at screen center
+% 2020-11-05 TBC  Cleaned & commented for modular tutorial
 % 
 
 
@@ -37,8 +56,25 @@ if nargin<3 || isempty(viewdist)
     viewdist = 57.29; % 57.29 == (1cm == 1deg)
 end
 
-pss.tracking.use = true;
+
 pss.pldaps.pause.preExperiment = 0;
+
+% 
+% TUTORIAL TIP:
+%   When learning/debugging PLDAPS, its helpful to set debug points inside your
+%   modules so that you can examine how elements of your experiment operate/interact.
+%   Overriding the default pldaps.trialMasterFunction ('runModularTrial') with the
+%   following line:
+pss.pldaps.trialMasterFunction = 'runModularTrial_frameLock';
+%   will allow you to manually step through your code without trial time elapsing.
+%   -!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-
+%   -----DO NOT use the  _frameLock  variant in your normal experiments!--------------
+%   Since this _frameLock version completely breaks PLDAPS time keeping accuracy, a prominent
+%   warning will be displayed in the command window when this trial function is used.
+%   When running an proper experiment, best practice is to let .trialMasterFunction
+%   inherit the default value from pldapsClassDefault.m by not setting it at all.
+%   -!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-
+% 
 
 pss.newEraSyringePump.use = false;
 pss.newEraSyringePump.refillVol = 40;
@@ -65,10 +101,13 @@ pss.pldaps.draw.eyepos.use = true;
 
 %% display settings
 pss.display.viewdist = viewdist;  % 57.29 == (1cm == 1deg)
-pss.display.ipd = 3.25;  % human == 6.5;  macaque == 3.25;
+pss.display.ipd = 6.5;  % human == 6.5;  macaque == 3.25;
 pss.display.useOverlay = 1;
 
-pss.display.stereoMode = 0;
+% pss.display.screenSize = [];
+% pss.display.scrnNum = 0;
+
+pss.display.stereoMode = 4;
 
 pss.display.useGL = 1;
 pss.display.multisample = 2;
@@ -87,12 +126,17 @@ pss.(sn) =  pldapsModule('modName',sn, 'name','modularDemo.pmFixDot', 'order',1,
 
 pss.(sn).use = true;
 pss.(sn).on = true;
-pss.(sn).mode = 2;          % limit type (0==pass/none, 1==square, 2==euclidean/circle)     default: 2
+pss.(sn).mode = 2;          % eye position limit mode (0==pass/none, 1==square, 2==euclidean/circle)     default: 2
 pss.(sn).fixPos = [0 0];    % fixation xy in vis.deg, z in cm; (z defaults to viewdist)    (%NOTE: units & usage are distinct from .display.fixPos)
 pss.(sn).fixLim = fixRadius*[1 1]; % fixation window limits (x,y)  % (visual degrees; if isscalar, y==x; if mode==2, radius limit; if mode==1, box half-width limit;)
-pss.(sn).dotType = 12; % 2 = classic PTB anti-aliased dot, 3:9 = geodesic sphere (Linux-only), 10:22 3D sphere (mercurator; slow) (see help text from pmFixDot module for info on extended dotTypes available)
-pss.(sn).dotSz = 0.5; % pixels if dotType<=2, else vis. deg
-
+pss.(sn).dotType = 12;      % 2 = classic PTB anti-aliased dot, 3:9 = geodesic sphere (Linux-only), 10:22 3D sphere (mercurator; slow) (see help text from pmFixDot module for info on extended dotTypes available)
+if pss.(sn).dotType <=2
+    % pixels if classic PTB fixation dot
+    pss.(sn).dotSz = 5; 
+else
+    % visual degrees of OpenGL dot
+    pss.(sn).dotSz = 0.5; % vis. deg
+end
 
 % set this module as the active fixation module
 % -- This is used to get/assign/update current .eyeX, .eyeY, .deltaXY positions
@@ -106,8 +150,6 @@ pss.(sn) =  pldapsModule('modName',sn, 'name','modularDemo.pmBase', 'order',2,..
 
 stimDur = 3.6;
 pss.(sn).stateDur = [NaN, 0.24, stimDur, NaN];
-
-%pss.pldaps.maxTrialLength = 2*fixDur;
 
 
 %% (10) drifting gabor module:  glDraw.pmMatrixGabs.m
@@ -189,7 +231,7 @@ switch stimMode
 
         
         % Stimulus onset timing & n-reps per trial
-        ncopies = 6;
+        ncopies = 12;
         tmpModule.isi = .0;
         
         stimModuleDur = stimDur/ncopies;
@@ -316,11 +358,11 @@ p.condMatrix.conditions = c;
 %                       (* here the 0 distinguishes it from simple randMode [3])
 %                       
 
-% p.condMatrix = condMatrix(p, 'randMode',[1,2,3], 'nPasses',inf);
+p.condMatrix = condMatrix(p, 'randMode',[1,2,3], 'nPasses',inf);
 % 
 % p.condMatrix = condMatrix(p, 'randMode',[2], 'nPasses',2);
 
-p.condMatrix = condMatrix(p, 'randMode',[3,0], 'nPasses',1);
+% p.condMatrix = condMatrix(p, 'randMode',[3,0], 'nPasses',1);
 
 % p.condMatrix = condMatrix(p, 'randMode',[0], 'nPasses',1);
 

@@ -72,7 +72,7 @@ function outStruct = createRigPrefs(additionalSettings)
     if ~isempty(a)
         sfn = sprintf('pldaps_prefs_pre%s.mat', datestr(now, 'yyyy-mm-dd_HH-MM-SS'));
         try % to be cleaner
-            sfn = fullfile( p.defaultParameters.pldaps.dirs.proot, 'rigPrefs', sfn);
+            sfn = fullfile( p.defaultParameters.pldaps.dirs.proot, 'rigPrefs', 'oldPrefs', sfn);
             if ~exist(fileparts(sfn),'dir'), mkdir(fileparts(sfn)); end
         catch
             sfn = fullfile( pwd, sfn);

@@ -66,9 +66,13 @@ if ~exist(trackingCalDir,'dir')
     mkdir(trackingCalDir)
 end
 
+% Some stereomodes affect screen layout enough to significantly impact calibration
+% (e.g. vert/horiz split-screen)
+stMode = sprintf('stMode%02d',p.static.display.stereoMode);
+
 % Calibration FileName: new calibrations will be saved as:
 %   ./<subj>_YYYMMDD_<source>.mat
-calFileName = sprintf('%s_%s_%s.mat', subj, datestr(now,'yyyymmdd'), src);
+calFileName = sprintf('%s_%s_%s_%s.mat', subj, datestr(now,'yyyymmdd'), stMode, src);
 
 % Setup calibration in following precident:
 %   - Load calibration from file
@@ -110,6 +114,10 @@ else
         fd = dir(fullfile(trackingCalDir, [subj,'_*']));
         % limit matches to this source
         fd = fd(contains({fd.name}, src));
+        % also match stereomode, if possible
+        if any(contains({fd.name}, stMode))
+            fd = fd(contains({fd.name}, stMode));
+        end
         % default to most recent
         [~, i] = max(datenum({fd.date}));
         initCalSource = fullfile(trackingCalDir, fd(i).name);
@@ -150,8 +158,11 @@ end
 
 
 % Apply calibration transform to tracking object
-% - do all at once, else could crash if class of initTform is different from class of [default] tracking tform
+% - do all at once (not by index), else could crash if class of initTform is different from class of [default] tracking tform
 p.static.tracking.tform = initTform;
+
+% Run transform update method to ensure consistent with current viewdist parameter
+p.static.tracking.updateTform();
 
 % Record paths in p.static.tracking object
 p.static.tracking.calPath = struct('source', initCalSource, 'saved',fullfile(trackingCalDir, calFileName));
@@ -164,6 +175,7 @@ p.trial.(src).posFrames = nan(2,max(si),1);
 
 % Record calibration starting point (incase things get screwy)
 p.trial.tracking.t0 = p.trial.(src).tform;
+
 
 
 %% updateFxn

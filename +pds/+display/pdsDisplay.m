@@ -212,6 +212,10 @@ classdef pdsDisplay < dynamicprops
             o.updateOpenGlParams();
 
             % TODO:  Check for modules & active states in p.trial here....
+            if isprop(o,'p') && isfield(o.p.static, 'tracking')
+                % update OOP tracking object calibration
+                o.p.static.tracking.updateTform();
+            end
             %
             % .grbl
             % 

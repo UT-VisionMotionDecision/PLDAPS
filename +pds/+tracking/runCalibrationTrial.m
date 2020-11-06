@@ -66,11 +66,7 @@ switch state
         initParams(p, sn);
         
         %--------------------------------------------------------------------------
-        % TRIAL STATES
-    case p.trial.pldaps.trialStates.trialItiDraw
-        % drawTheFixation(p, sn);  % maintain stimulus components during iti
-        
-        
+        % TRIAL STATES        
     case p.trial.pldaps.trialStates.trialSetup
         % --- Trial Setup: pre-allocate important variables for storage and
         if p.trial.(sn).on
@@ -89,13 +85,6 @@ switch state
             % eyeXYZ = imag(p.trial.(sn).fixations);
             
             % Initialize fixaitons (or recall from p.static) for this trial
-            % %             if isempty(p.static.tracking.fixations)
-            % %                 p.static.tracking.fixations = nan( [3, p.static.tracking.minSamples, max(srcIdx)]);
-            % %                 p.static.tracking.thisFix = 0;
-            % %             else
-            % %                 p.static.tracking.fixations = p.static.tracking.fixations;
-            % %                 p.static.tracking.thisFix = p.static.tracking.thisFix;
-            % %             end
             updateCalibTransform(p)
             
             % p.static.tracking.targets = setupTargets(p);
@@ -108,89 +97,19 @@ switch state
         end
 
         
-    case p.trial.pldaps.trialStates.trialPrepare
+    % case p.trial.pldaps.trialStates.trialPrepare
                 
         
         %--------------------------------------------------------------------------
         % --- Manage stimulus before frame draw
-    case p.trial.pldaps.trialStates.framePrepareDrawing %frameUpdate
+    case p.trial.pldaps.trialStates.framePrepareDrawing
         if p.trial.(sn).on
                         
             %% Keyboard functions
             if any(p.trial.keyboard.firstPressQ)
+                % Check keyboard for defined actions (nested function)
+                doKeyboardChecks;
                 
-                if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.fKey)
-                    % [f,F] key - log fixation
-                    logFixation(p);
-                    if p.trial.keyboard.modKeys.shift
-                        % [F] ...and give reward
-                        pds.behavior.reward.give(p, p.trial.tracking.fixReward); % default small amount for calibration
-                    end
-                    
-                    
-                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.vKey)
-                    % [v] key - Validate fixation
-                    %           Reward & move to next random point, but don't add point to calibration data
-                    %           TODO: extend this to do a real validation & report accuracy
-                    updateTarget(p);
-                    % give reward
-                    pds.behavior.reward.give(p, p.trial.tracking.fixReward); % default small amount for calibration
-
-                    
-                elseif p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.spaceKey)
-                    % [SPACEBAR] - log fixation & move to next random target
-                    logFixation(p);
-                    updateTarget(p);
-                    %updateCalibPlot(p);
-                    
-                    % give reward
-                    pds.behavior.reward.give(p, p.trial.tracking.fixReward);
-                    
-                    
-                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.uKey)
-                    % [u, U] key - update calibration matrix
-                    fprintf('\n');
-                    updateCalibTransform(p);
-                    %updateCalibPlot(p);
-
-                    
-                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.tKey)
-                    % [T] key - update targets (i.e. change target w/o logging fixation)
-                    p.trial.tracking.col(4) = 1;
-                    updateTarget(p);
-                    
-
-                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.zerKey) || p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.KPzerKey)
-                    % [ZERO] key - blank targets
-                    if ~p.trial.tracking.col(4)
-                        p.trial.tracking.col(4) = 1;
-                    else
-                        p.trial.tracking.col(4) = 0;
-                    end
-                    
-                    
-                elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.eKey)
-                    % [E] key - remove last fixation
-                    % [SHIFT-E] remove ALL fixations!
-                    if p.trial.keyboard.modKeys.shift
-                        resetCalibration(p);
-                        % TODO:  ideally use a modKey to only erase calibration points for current viewdist
-                    else
-                        p.static.tracking.thisFix = p.static.tracking.thisFix - 1;
-                        p.static.tracking.thisFix(p.static.tracking.thisFix<0) = 0; % bottom out index to prevent error
-                    end
-                    updateCalibPlot(p);
-                    
-                    
-                elseif  ~isempty(p.trial.keyboard.numKeys.pressed)   %(p.trial.keyboard.codes.oneKey)
-                    % [1-9] Jump to specified target location
-                    if p.trial.keyboard.numKeys.pressed(end)>0
-                        p.static.tracking.nextTarg = p.trial.keyboard.numKeys.pressed(end);
-                        % disp(p.trial.tracking.nextTarg)
-                        updateTarget(p)
-                    end
-                    
-                end
                 % update plot on any user interaction
                 updateCalibPlot(p);
             end
@@ -251,8 +170,8 @@ switch state
             
             % save calibration to file
             calOutput = p.static.tracking;
-            save(p.static.tracking.calPath.saved, 'calOutput')
-            fprintf('Calibration saved as:\n\t%s\n',p.static.tracking.calPath.saved);
+            save(p.static.tracking.calPath.saved, 'calOutput', '-v7')
+            fprintf('Calibration saved as:\n\t%s\n', p.static.tracking.calPath.saved);
             
             finishCalibration;
             fprintLineBreak('='); %done
@@ -361,11 +280,83 @@ end %state switch block
     end % end initParams
 
 
+%% doKeyboardChecks
+    function doKeyboardChecks
+        if  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.fKey)
+            % [f,F] key - log fixation
+            logFixation(p);
+            if p.trial.keyboard.modKeys.shift
+                % [F] ...and give reward
+                pds.behavior.reward.give(p, p.trial.tracking.fixReward); % default small amount for calibration
+            end
+            
+            
+        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.vKey)
+            % [v] key - Validate fixation
+            %           Reward & move to next random point, but don't add point to calibration data
+            %           TODO: extend this to do a real validation & report accuracy
+            updateTarget(p);
+            % give reward
+            pds.behavior.reward.give(p, p.trial.tracking.fixReward); % default small amount for calibration
+            
+            
+        elseif p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.spaceKey)
+            % [SPACEBAR] - log fixation & move to next random target
+            logFixation(p);
+            updateTarget(p);
+            
+            % give reward
+            pds.behavior.reward.give(p, p.trial.tracking.fixReward);
+            
+            
+        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.uKey)
+            % [u, U] key - update calibration matrix
+            fprintf('\n');
+            updateCalibTransform(p);
+            
+            
+        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.tKey)
+            % [T] key - update targets (i.e. change target w/o logging fixation)
+            p.trial.tracking.col(4) = 1;
+            updateTarget(p);
+            
+            
+        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.zerKey) || p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.KPzerKey)
+            % [ZERO] key - blank targets
+            if ~p.trial.tracking.col(4)
+                p.trial.tracking.col(4) = 1;
+            else
+                p.trial.tracking.col(4) = 0;
+            end
+            
+            
+        elseif  p.trial.keyboard.firstPressQ(p.trial.keyboard.codes.eKey)
+            % [E] key - remove last fixation
+            % [SHIFT-E] remove ALL fixations!
+            if p.trial.keyboard.modKeys.shift
+                resetCalibration(p);
+                % TODO:  ideally use a modKey to only erase calibration points for current viewdist
+            else
+                p.static.tracking.thisFix = p.static.tracking.thisFix - 1;
+                p.static.tracking.thisFix(p.static.tracking.thisFix<0) = 0; % bottom out index to prevent error
+            end
+            
+            
+        elseif  ~isempty(p.trial.keyboard.numKeys.pressed)   %(p.trial.keyboard.codes.oneKey)
+            % [1-9] Jump to specified target location
+            if p.trial.keyboard.numKeys.pressed(end)>0
+                p.static.tracking.nextTarg = p.trial.keyboard.numKeys.pressed(end);
+                % disp(p.trial.tracking.nextTarg)
+                updateTarget(p)
+            end 
+        end
+    end %end keyboardChecks
+
+
+
 %% drawTheFixation(p, sn)
     function drawTheFixation %(p, sn)
-        % .texRectCtr is centered on screen .display.
         if p.trial.(sn).on
-            %                     ctr = round(p.trial.display.ctr(1:2)') - [1, 0.5]; %!?? whats the deal with this offset correction??
             for i = p.static.display.bufferIdx
                 Screen('SelectStereoDrawBuffer',p.static.display.ptr, i);
                 Screen('DrawDots', p.static.display.ptr, targPx, sz, p.trial.tracking.col, [], 2);   %p.trial.(sn).targPos(1:2, i+1)
@@ -389,9 +380,6 @@ end %state switch block
 % % %         end
 % % %     end %drawGLFixation
 
-
-%% Nested Functions
-% % % % % % % % %
 
 
 %% printDirections
@@ -479,7 +467,6 @@ end %state switch block
 
 %% updateCalibPlot(p)
     function updateCalibPlot(p)
-        % n = 1:size(p.trial.tracking.fixations,2); %p.static.tracking.thisFix;
         % find all recorded fixations that match current viewdist
         n = imag(p.static.tracking.fixations(3,:,srcIdx(1))) == p.static.display.viewdist;        
         
@@ -606,52 +593,10 @@ end %state switch block
         end
     end
 
-end % end main function
+end %main function
 
 
-% % % % % % % % %
 % % % % % % % % %
 %% Sub Functions
 % % % % % % % % %
-% % % % % % % % %
-
-
-%% setupTargets(p)  Moved to tracking object method
-% % % function targets = setupTargets(p)
-% % % % Create target positions struct
-% % % targets = struct();
-% % % 
-% % % halfWidth_x = p.trial.tracking.gridSz(1)/2;
-% % % halfWidth_y = p.trial.tracking.gridSz(end)/2;
-% % % 
-% % % % basic 9-point target grid (in degrees)
-% % % xx = -halfWidth_x:halfWidth_x:halfWidth_x;
-% % % yy = -halfWidth_y:halfWidth_y:halfWidth_y;
-% % % [xx, yy] = meshgrid(xx, yy);
-% % % % arrange to match numpad
-% % % xy = sortrows([xx(:),yy(:)], [-2,1]);
-% % % if 1
-% % %     % add inner target points
-% % %     [x2, y2] = meshgrid( halfWidth_x/2*[-1 1], halfWidth_y/2*[1 -1]);
-% % %     xy = [xy; [x2(:), y2(:)]];
-% % % end
-% % % zz = zeros(size(xy,1),1);
-% % % 
-% % % targets.targPos = [xy, zz(:)]' ;
-% % % % Target position in WORLD coordinates [CM]
-% % % % add targPos to the viewDist baseline for final depth in world coordinates
-% % % targets.targPos(3,:) = targets.targPos(3,:) + p.trial.display.viewdist;
-% % % % % Ideally draw in 3D:
-% % % %   % convert XY degrees to CM, given the distance in depth CM
-% % % %   targets.targPos(1:2,:) = pds.deg2world(targets.targPos(1:2,:)', targets.targPos(3,:), 0); % p.deg2world(p, p.trial.(sn).stimPosDeg(1:2)');      %
-% % % % % ...use Pixels in a pinch
-% % % targets.xyPx = pds.deg2px(targets.targPos(1:2,:), targets.targPos(3,:), p.trial.display.w2px,  0) + p.trial.display.ctr(1:2)';
-% % % 
-% % % targets.timeUpdated = GetSecs;
-% % % targets.nTargets = size(targets.targPos,2);
-% % % targets.randOrd = randperm(targets.nTargets);
-% % % 
-% % % 
-% % % end
-
 

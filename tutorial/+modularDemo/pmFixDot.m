@@ -21,8 +21,7 @@ switch state
         p.trial.(sn).eyePos = [p.trial.eyeX, p.trial.eyeY]';
         % pixel conversion for .fixPos & .fixLim  (nested function)
         updatePixelValues;
-
-        
+                
     case p.trial.pldaps.trialStates.frameDraw
         if ~p.trial.display.useGL
             drawTheFixation(p, sn);
