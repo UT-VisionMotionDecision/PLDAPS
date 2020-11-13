@@ -60,6 +60,7 @@ elseif ischar(subj)
     % do nothing
 end
 
+% calibrations stored in subject specific directory:  <pldapsRoot>/rigPrefs/tracking/<subject>
 trackingCalDir = fullfile(p.trial.pldaps.dirs.proot, 'rigPrefs', 'tracking', subj);
 
 if ~exist(trackingCalDir,'dir')
@@ -71,7 +72,7 @@ end
 stMode = sprintf('stMode%02d',p.static.display.stereoMode);
 
 % Calibration FileName: new calibrations will be saved as:
-%   ./<subj>_YYYMMDD_<source>.mat
+%   ./<subj>_YYYMMDD_stMode##_<source>.mat
 calFileName = sprintf('%s_%s_%s_%s.mat', subj, datestr(now,'yyyymmdd'), stMode, src);
 
 % Setup calibration in following precident:
@@ -84,6 +85,7 @@ calFileName = sprintf('%s_%s_%s_%s.mat', subj, datestr(now,'yyyymmdd'), stMode, 
 %   - Fallback to unity transform
 % 
 if isempty(dir(fullfile(trackingCalDir, [subj,'_*'])))
+    % no calibration files in this subject's directory
     if  isfield(p.trial.(src), 'tform') && ~isempty(p.trial.(src).tform)
         % pull calib matrix from (src) if pre-defined
         initTform = p.trial.(src).tform;
@@ -95,15 +97,14 @@ if isempty(dir(fullfile(trackingCalDir, [subj,'_*'])))
         fprintf('\tCalibration matrix loaded from PLDAPS class default\n')
         
     else
-        % failsafe blank 2nd deg polynomial (best guess if eyetracking)
-        initTform = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0], [0 0 1 0 0 0]);
-        fprintf('\tCalibration initialized as blank (unity transform)\n')
-        
+        initTform = [];
     end
     initCalSource = [];
     
 else
+    % Select [most] relevant existing calibration
     if isfield(p.trial.(src), 'calSource') && isempty(p.trial.(src).calSource)
+        % Predefined calibration source file
         initCalSource = p.trial.(src).calSource;
         if ~exist(initCalSource,'file')
             % if doesn't exist on path, assume is file name w/in trackingCalDir
@@ -112,40 +113,56 @@ else
     else
         % find saved calibrations
         fd = dir(fullfile(trackingCalDir, [subj,'_*']));
-        % limit matches to this source
+        % find files with matching source  [hard limit]
         fd = fd(contains({fd.name}, src));
-        % also match stereomode, if possible
+        % find files with matching source  [soft limit]
         if any(contains({fd.name}, stMode))
             fd = fd(contains({fd.name}, stMode));
         end
         % default to most recent
-        [~, i] = max(datenum({fd.date}));
-        initCalSource = fullfile(trackingCalDir, fd(i).name);
-    end
-    % load calSource into:  p.static
-    loadedCal = load(initCalSource);
-    fn = fieldnames(loadedCal);
-    if length(fn)==1 && isobject(loadedCal.(fn{1}))
-        % update tracking object with loaded properties
-        loadedCal = loadedCal.(fn{1});
-        fn = properties(loadedCal);
-        for i = 1:length(fn)
-            if ~isempty(loadedCal.(fn{i})) % skip empty fields
-                p.static.tracking.(fn{i}) = loadedCal.(fn{i});
-            end
+        if ~isempty(fd)
+            [~, i] = max(datenum({fd.date}));
+            initCalSource = fullfile(trackingCalDir, fd(i).name);
+        else
+            % no matches found
+            initCalSource = [];
         end
-    elseif isstruct(loadedCal)
-        % use struct fields to update tracking object
-        p.static.tracking.updateTform(loadedCal);
-    else
-        fprintf(2, 'Incompatible tracking calibration loaded from:  %s\n', initCalSource)
-        keyboard
     end
-    
-    initTform = p.static.tracking.tform;
-    fprintf('\tCalibration loaded from file:\t%s\n', initCalSource)
-    
+    if ~isempty(initCalSource)
+        % load calSource into:  p.static
+        loadedCal = load(initCalSource);
+        fn = fieldnames(loadedCal);
+        if length(fn)==1 && isobject(loadedCal.(fn{1}))
+            % update tracking object with loaded properties
+            loadedCal = loadedCal.(fn{1});
+            fn = properties(loadedCal);
+            for i = 1:length(fn)
+                if ~isempty(loadedCal.(fn{i})) % skip empty fields
+                    p.static.tracking.(fn{i}) = loadedCal.(fn{i});
+                end
+            end
+        elseif isstruct(loadedCal)
+            % use struct fields to update tracking object
+            p.static.tracking.updateTform(loadedCal);
+        else
+            fprintf(2, 'Incompatible tracking calibration loaded from:  %s\n', initCalSource)
+            keyboard
+        end
+        
+        initTform = p.static.tracking.tform;
+        fprintf('\tCalibration loaded from file:\t%s\n', initCalSource)
+    else
+        fprintf(2, '\tUnable to find compatible tracking calibration for [%s, %s]...\n',subj,src)
+        initTform = [];
+    end
 end
+
+if isempty(initTform)
+    % failsafe blank 2nd deg polynomial (best guess if eyetracking)
+    initTform = images.geotrans.PolynomialTransformation2D([0 1 0 0 0 0], [0 0 1 0 0 0]);
+    fprintf('\tCalibration initialized as blank (unity transform)\n')
+end
+
 
 % Avoid dimensionality crash (e.g. if tracking bino, but default only defined for mono)
 si = p.trial.tracking.srcIdx;

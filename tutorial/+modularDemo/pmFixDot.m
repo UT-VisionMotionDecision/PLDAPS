@@ -21,7 +21,8 @@ switch state
         p.trial.(sn).eyePos = [p.trial.eyeX, p.trial.eyeY]';
         % pixel conversion for .fixPos & .fixLim  (nested function)
         updatePixelValues;
-                
+        
+        
     case p.trial.pldaps.trialStates.frameDraw
         if ~p.trial.display.useGL
             drawTheFixation(p, sn);
@@ -37,15 +38,18 @@ switch state
                 Screen('FrameRect', p.trial.display.overlayptr, fixWinCol, p.trial.(sn).fixRect, 3);
             end
         end
-            
+        
+        
     case {p.trial.pldaps.trialStates.frameGLDrawLeft, p.trial.pldaps.trialStates.frameGLDrawRight}
         if p.trial.display.useGL
             drawGLFixation(p, sn);
         end
         
+        
         % TRIAL STATES
     case p.trial.pldaps.trialStates.trialItiDraw
         % drawTheFixation(p, sn);  % maintain fixation during iti
+        
         
     case p.trial.pldaps.trialStates.trialPrepare
         
@@ -54,11 +58,23 @@ switch state
             p.trial.(sn).fixPos(3) = p.trial.display.viewdist;
         end
         
+        if ~isempty(p.static.(sn).dotBuffers)
+            % populate buffer params from p.static (to carryover across trials)
+            p.trial.(sn).dotBuffers = p.static.(sn).dotBuffers;
+        end
+        
         % fixation window rect
         %(must be done here to allow O.T.F. changes in fixLim)
         % pixel conversion for .fixPos & .fixLim  (nested function)
         updatePixelValues;
-
+        
+        
+    case p.trial.pldaps.trialStates.trialCleanUpandSave
+        if ~isempty(p.trial.(sn).dotBuffers)
+            % reuse dotBuffers by passing them through p.static between trials
+            p.static.(sn).dotBuffers = p.trial.(sn).dotBuffers;
+        end
+        
         
         % EXPT STATES
     case p.trial.pldaps.trialStates.experimentPreOpenScreen
@@ -70,12 +86,10 @@ switch state
         %updatePixelValues; 
         
         % Shader path to local PLDAPS install if needed for geospheres
-        % ...this is a shady/complex setup stage...FIXME
+        p.trial.(sn).shaderPath = [];
         if IsLinux && p.trial.(sn).dotType>2 && p.trial.(sn).dotType<10
             % linux geospheres
             p.trial.(sn).shaderPath = fullfile(p.trial.pldaps.dirs.proot,'SupportFunctions','Utils');
-        else
-            p.trial.(sn).shaderPath = [];
         end
         
     case p.trial.pldaps.trialStates.experimentCleanUp
@@ -96,32 +110,38 @@ end
             'dotSz',5,...   % fix dot size
             'col',[1 1 1 1]',...    % fix dot color [R G B A]
             'dotType',2,...    % use basic PTB anti-aliased dots by default
-            'fixLim', [2 2]...  % fixation window (deg)
+            'fixLim', [2 2],...  % fixation window (deg)
+            'dotBuffers', []...
             );
+        % "pldaps requestedStates" for this module
+        % - done here so that modifications only needbe made once, not everywhere this module is used
+        rsNames = {'frameUpdate','frameDraw','frameGLDrawLeft','frameGLDrawRight', ...
+                   'trialItiDraw','trialPrepare','trialCleanUpandSave', ...
+                   'experimentPreOpenScreen','experimentPostOpenScreen','experimentCleanUp'};
         
+        % Apply default params
         p.trial.(sn) = pds.applyDefaults(p.trial.(sn), def);
+        p = pldapsModuleSetStates(p, sn, rsNames);
+        
         % create static dot buffer fields in case (only needed if linux & rendering with dotType >2 & <10
-        p.static.(sn).dotBuffers = [];
+        p.static.(sn).dotBuffers = p.trial.(sn).dotBuffers; % initialized as []
         
     end % end initParams
 
 
 %% updatePixelValues
     function updatePixelValues
-        % ???? should fixPos be inherited from 3D coords in .display.fixPos, since used there to define frustrum???
-        % YES   for .fixPos(3),     which is in units of CM
-        % NO    for .fixPos(1:2),   which are in units of visual degrees(!)
-        % !!NOTE!!  Confusion with currentFixation .fixPos and pdsDisplay.fixPos
-        %           - the latter is in CM, and is less clear how to [dynamically/flexibly] integrate with rendering
-        %             of various PTB elements
+        % ???? should fixPos be inherited from 3D coords in .display.fixPos,
+        % since used there to define frustrum???  ...or vice versa?
         %
-        p.trial.(sn).fixPos(3) = p.trial.display.viewdist;
+        % !!NOTE!! Something still not quite syncing up with fixation lim & location when
+        %          fixation z location is ~= viewdist. Doesn't currently come up, but 
+        %          in need of attention.  --TBC 2020
         
         if p.trial.display.useGL
-            % For XYZ-space, need to convert from cm to pixels
-            % **** currently only xy coords are converted; Z not considered when rendering!
+            % For XYZ-space, need to convert from deg/cm to pixels
             [p.trial.(sn).fixPosCm(1:2), p.trial.(sn).fixPosCm(3)] = pds.deg2world(p.trial.(sn).fixPos(1:2), p.trial.(sn).fixPos(3), 1);
-            p.trial.(sn).fixPosPx = pds.deg2px(p.trial.(sn).fixPos(1:2)', p.trial.(sn).fixPos(3), p.trial.display.w2px)'; % p.trial.(sn).fixPos(1:2) * diag(p.trial.display.w2px);
+            p.trial.(sn).fixPosPx = pds.deg2px(p.trial.(sn).fixPos(1:2)', p.trial.(sn).fixPos(3), p.trial.display.w2px, 1)';
             % Adjust dot size to consistent visual angle across depth
             dotCm = p.deg2world(p, [p.trial.(sn).dotSz*[-.5,.5]; 0,0], p.trial.(sn).fixPos(3));
             p.trial.(sn).dotSzCm =  diff(dotCm(1,:));
@@ -130,11 +150,12 @@ end
             % dot size must be integer pixel value
             if p.trial.(sn).dotSz<1
                 p.trial.(sn).dotSz = round(p.trial.(sn).dotSz * p.trial.display.ppd);
-                %p.trial.(sn).dotType = 2;
             elseif mod(p.trial.(sn).dotSz,1)~=0
                 p.trial.(sn).dotSz = round(p.trial.(sn).dotSz);
             end
-            p.trial.(sn).fixPosPx = pds.deg2px(p.trial.(sn).fixPos(1:2)', p.trial.(sn).fixPos(3), p.trial.display.w2px)'; %p.trial.(sn).fixPos(1:2) * p.trial.display.ppd;
+            
+            % **** Z not considered when rendering only in 2D
+            p.trial.(sn).fixPosPx = pds.deg2px(p.trial.(sn).fixPos(1:2)', p.trial.display.viewdist, p.trial.display.w2px, 0)'; %p.trial.(sn).fixPos(1:2) * p.trial.display.ppd;
         end
         p.trial.(sn).fixLimPx = p.trial.(sn).fixLim * p.trial.display.ppd;
         p.trial.(sn).fixRect = CenterRectOnPointd( [-p.trial.(sn).fixLimPx([1,end]), p.trial.(sn).fixLimPx([1,end])], p.trial.(sn).fixPosPx(1)+p.trial.display.ctr(1), -p.trial.(sn).fixPosPx(2)+p.trial.display.ctr(2));
@@ -163,14 +184,25 @@ end
     function drawGLFixation(p, sn)
         %fprintf('%8.3g\t%s\n', p.trial.(sn).dotSzCm, mat2str(p.trial.(sn).fixPosCm, 3))
         if p.trial.(sn).on
+            % Compute rendering center based on viewport
+            % - see dotCenter usage in pldapsDrawDotsGL.m
+            dotCenter = p.trial.display.obsPos; dotCenter(1,4) = nan; % translation to observer pos 
+            dotCenter(2,:) = [p.trial.display.fixPos(:); nan]'; % translate to WORLD fixation pos
+            % **NOTE: Inclusion of .obsPos translation may be unnecessary/unwanted
+            %         ...circa 2020, obsPos has virtually always been [0,0,0] so largely untested
+            
+            % Adjust envirocentric dot positions relative to rendering location
+            dotXyzCm = (p.trial.(sn).fixPosCm - p.trial.display.fixPos)'; % Subtract off fixation position
+
             % Render dot in 3D space
-            p.static.(sn).dotBuffers = pldapsDrawDotsGL(...    (xyz, dotsz, dotcolor, center3D, dotType, glslshader)
-                p.trial.(sn).fixPosCm'...
-                , p.trial.(sn).dotSzCm...
-                , p.trial.(sn).col...
-                , p.trial.display.obsPos(1:3)...
-                , p.trial.(sn).dotType...
-                , p.static.(sn).dotBuffers);
+            p.trial.(sn).dotBuffers = pldapsDrawDotsGL(...    (xyz, dotsz, dotcolor, center3D, dotType, glslshader)
+                dotXyzCm ... p.trial.(sn).fixPosCm'
+                , p.trial.(sn).dotSzCm ...
+                , p.trial.(sn).col ...
+                , dotCenter ...p.trial.display.obsPos(1:3) ...
+                , p.trial.(sn).dotType ...
+                , p.trial.(sn).shaderPath ...
+                , p.trial.(sn).dotBuffers);
         end
     end %drawGLFixation
 

@@ -9,9 +9,5 @@ function runStateforModules(p, state, modules, moduleFunctionHandles, moduleRequ
 stateNumber = p.trial.pldaps.trialStates.(state); % avoid repetetive digging into params object 
 
 for iModule = moduleRequestedStates.(state)
-%     if moduleLocationInputs(iModule)
         moduleFunctionHandles{iModule}(p, stateNumber, modules{iModule});
-%     else
-%         moduleFunctionHandles{iModule}(p, stateNumber);
-%     end
 end

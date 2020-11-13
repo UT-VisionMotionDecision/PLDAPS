@@ -130,7 +130,9 @@ end
 %% experimentPostOpenScreen
 if p.trial.pldaps.useModularStateFunctions
     % Update list of module names now that everything is initialized    (see help pldaps.getModules)
-    p.updateModNames;    % TODO: Should this be done BEFORE or AFTER experimentPostOpenScreen state execution? ...both is ugly, but somewhat logical.
+    p.updateModNames;
+    % ???: Should this be done BEFORE or AFTER experimentPostOpenScreen state execution?
+    %      ...BOTH is ugly, but logical/safe given potential for unknown setup dependencies
 
     [moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
     runStateforModules(p,'experimentPostOpenScreen',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
@@ -138,11 +140,11 @@ if p.trial.pldaps.useModularStateFunctions
     p.updateModNames;
 end
 
-try
-    % update display object
-    % - other initializations may have made changes (i.e. setting viewdist)
-    p.static.display.updateFromStruct(p.trial.display);
-    
+% Update display object
+% - other initializations may have made changes (i.e. setting viewdist)
+p.static.display.updateFromStruct(p.trial.display); % (pdsDisplay object method)
+
+try    
     % Create condMatrix info figure
     p.condMatrix.updateInfoFig(p);
 end
@@ -163,7 +165,7 @@ fprintLineBreak('_-', 0.5); fprintLineBreak;
 
 
 %% Last chance to check variables
-if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true) %0=don't,1 is debugger, 2=pause loop
+if(p.trial.pldaps.pause.type==1 && p.trial.pldaps.pause.preExperiment==true)
     disp('Ready to begin trials. Type "dbcont" to start first trial...')
     keyboard
     fprintf(2,'\b ~~~Start of experiment~~~\n')

@@ -40,7 +40,7 @@ function [xy,z] = deg2px(xyIn, z, w2px, zIsR)
         if isscalar(z)
             z = z * ones(1,size(xy,2));
         end
-        sr=sqrt(z);
+        sr=z; %sqrt(z);
     else
         sr=z./sqrt(1-sum(xy.^2));
     end

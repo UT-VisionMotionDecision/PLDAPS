@@ -122,7 +122,9 @@ if renderTimesToo
     plot( stateTicks, repmat(find(goodtr), [size(stateTicks,1),1]), 'gx');
     title('RenderTimes')
     xlabel('frame #'), ylabel('trial')
-    set(gca,'plotboxaspectratio',pbaspect, 'clim',prctile(fr(:),[5, 99.9]), 'tickdir','out'); box off
+    colormap(gca, flipud(hot(12)));
+    cl = max([0, ifi; prctile(fr(:),[2, 99.9])]); % scale to at least 1 frame,
+    set(gca,'plotboxaspectratio',pbaspect, 'clim',cl, 'tickdir','out'); box off
     cb = colorbar; ylabel(cb, 'msec')
     
     subplot(spy, spx, 4);       %*** subplot 4 ***

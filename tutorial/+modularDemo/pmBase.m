@@ -306,8 +306,15 @@ def = struct(...
     'goSignal', KbName('RightShift'),...
     'stateDur', [nan, 0.24, 3, nan]);
 
+% "pldaps requestedStates" for this module
+% - done here so that modifications only needbe made once, not everywhere this module is used
+rsNames = {'frameUpdate', ...
+    'trialSetup','trialCleanUpandSave', ...
+    'experimentPreOpenScreen','experimentPostOpenScreen'};
+        
 % make it so
 p.trial.(sn) = pds.applyDefaults(p.trial.(sn), def);
+p = pldapsModuleSetStates(p, sn, rsNames);
 
 end %initParams
 

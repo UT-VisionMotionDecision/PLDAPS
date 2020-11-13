@@ -107,7 +107,7 @@ pss.display.useOverlay = 1;
 % pss.display.screenSize = [];
 % pss.display.scrnNum = 0;
 
-pss.display.stereoMode = 4;
+pss.display.stereoMode = 4; % 0==mono 2D; 3-or-4==freeFuse 3D;  See Screen('OpenWindow?')
 
 pss.display.useGL = 1;
 pss.display.multisample = 2;
@@ -121,15 +121,14 @@ pss.(sn) = pldapsModule('modName',sn, 'name','pldapsDefaultTrial', 'order',-100)
 %% (1) fixation module
 % see help  modularDemo.pmFixDot
 sn = 'fix';
-pss.(sn) =  pldapsModule('modName',sn, 'name','modularDemo.pmFixDot', 'order',1,...
-    'requestedStates', {'frameUpdate','frameDraw','frameGLDrawLeft','frameGLDrawRight','trialItiDraw','trialPrepare','experimentPreOpenScreen','experimentPostOpenScreen','experimentCleanUp'});
+pss.(sn) =  pldapsModule('modName',sn, 'name','modularDemo.pmFixDot', 'order',1);
 
 pss.(sn).use = true;
 pss.(sn).on = true;
-pss.(sn).mode = 2;          % eye position limit mode (0==pass/none, 1==square, 2==euclidean/circle)     default: 2
-pss.(sn).fixPos = [0 0];    % fixation xy in vis.deg, z in cm; (z defaults to viewdist)    (%NOTE: units & usage are distinct from .display.fixPos)
+pss.(sn).mode = 2;          % eye position limit mode (0==pass/none, 1==square, 2==circle[euclidean]);  mode==2 strongly recommended;
+pss.(sn).fixPos = [0 0];    % fixation xy in vis.deg, z in cm;    %NOTE: Recommended to leave z-position empty to ensure fixation is always rendered at current .display.viewdist
 pss.(sn).fixLim = fixRadius*[1 1]; % fixation window limits (x,y)  % (visual degrees; if isscalar, y==x; if mode==2, radius limit; if mode==1, box half-width limit;)
-pss.(sn).dotType = 12;      % 2 = classic PTB anti-aliased dot, 3:9 = geodesic sphere (Linux-only), 10:22 3D sphere (mercurator; slow) (see help text from pmFixDot module for info on extended dotTypes available)
+pss.(sn).dotType = 5;      % 2 = classic PTB anti-aliased dot, 3:9 = geodesic sphere (Linux-only), 10:22 3D sphere (mercator; slow) (see help text from pmFixDot module for info on extended dotTypes available)
 if pss.(sn).dotType <=2
     % pixels if classic PTB fixation dot
     pss.(sn).dotSz = 5; 
@@ -145,8 +144,7 @@ pss.pldaps.modNames.currentFix = {sn};
 
 %% (2) base trial timing & behavioral control module
 sn = 'pmBase';
-pss.(sn) =  pldapsModule('modName',sn, 'name','modularDemo.pmBase', 'order',2,...);
-        'requestedStates', {'frameUpdate','trialSetup','trialCleanUpandSave','experimentPreOpenScreen','experimentPostOpenScreen'});
+pss.(sn) =  pldapsModule('modName',sn, 'name','modularDemo.pmBase', 'order',2);
 
 stimDur = 3.6;
 pss.(sn).stateDur = [NaN, 0.24, stimDur, NaN];
@@ -202,8 +200,8 @@ switch stimMode
         
         % *** Total stimulus duration [stimDur] set during pmBase module setup above ***
         
-        tmpModule = pldapsModule('modName',sn, 'name','modularDemo.pmMatrixGabs', 'matrixModule',true, 'order',10,...
-            'requestedStates', {'frameUpdate', 'framePrepareDrawing', 'frameDraw', 'trialPrepare', 'trialCleanUpandSave', 'experimentPreOpenScreen', 'experimentPostOpenScreen', 'experimentCleanUp'});
+        tmpModule = pldapsModule('modName',sn, 'name','modularDemo.pmMatrixGabs', 'matrixModule',true, 'order',10);
+            %'requestedStates', {'frameUpdate', 'framePrepareDrawing', 'frameDraw', 'trialPrepare', 'trialCleanUpandSave', 'experimentPreOpenScreen', 'experimentPostOpenScreen', 'experimentCleanUp'});
         
         % adjustments & defaults
         tmpModule.use = true;
@@ -378,6 +376,14 @@ p.condMatrix = condMatrix(p, 'randMode',[1,2,3], 'nPasses',inf);
 %% Run it!!
 p.run;
 
-
+% % Create a summary plot of display timing accuracy
+% pds.plotTiming(p);
+%     % 
+%     % **NOTE: This would NOT be especially meaningful if using
+%     % the '_frameLock' mode described at top of this demo, but is
+%     % a good starting point for assessing accuracy during standard
+%     % PLDAPS usage.
+%     % (i.e. w/default:  .pldaps.trialMasterFunction = 'runModularTrial';)
+%     % 
 
 end

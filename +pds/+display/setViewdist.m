@@ -52,8 +52,8 @@ if (isfield(p.trial,'grbl') || (isa(p.trial,'params') && isField(p.trial,'grbl')
     if p.trial.(sn).pos(1) ~= thisPos
         % update needed
         doUpdate = 1;
-        p.trial.display.grblPos = thisPos;
     end
+    p.trial.display.grblPos = thisPos;
     
 else
     % no current alternatives...assume position updated externally

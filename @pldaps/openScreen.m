@@ -1,4 +1,4 @@
-function p = openScreen2(p)
+function p = openScreen(p)
 %openScreen    opens PsychImaging Window with preferences set for special
 %              decives like datapixx.
 % 

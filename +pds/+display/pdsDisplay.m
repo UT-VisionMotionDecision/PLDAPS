@@ -206,6 +206,7 @@ classdef pdsDisplay < dynamicprops
             end
             disp('.')
             
+            % ensure .display.fixPos(3) == viewdist
             o.fixPos(3) = o.viewdist;
             % Update OpenGL params
             %   (~~~ WARNING ~~~: potentially slow OpenGL context switching)
