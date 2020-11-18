@@ -18,8 +18,19 @@ if p.trial.newEraSyringePump.use
     %config= [config, ' Terminator=13 ProcessingMode=Cooked']; % nope...not compatible with pump comm
     
     %% Open port
+    oldverbo = IOPort('Verbosity',0); % don't abort on fail
     [h, errmsg]=IOPort('OpenSerialPort', p.trial.newEraSyringePump.port, config);   % Mac:'/dev/cu.usbserial' Linux:'/dev/ttyUSB0'
-
+    
+    % Reset IOPort verbosity
+    IOPort('Verbosity', oldverbo);
+    
+    if h<0
+        % if fails to open port, IOPort will return an invalid (-1) handle to signal the failure
+        fprintf(2, '\n~!~\tUnable to open syringe pump com on port: %s\n\t%s\tWill attempt to continue with syringe pump disabled (p.trial.newEraSyringePump.use=0)\n',p.trial.newEraSyringePump.port, errmsg);
+        p.trial.newEraSyringePump.use = false;
+        return
+    end
+    
     WaitSecs(0.1);
     if ~isempty(errmsg)
         error('pds:newEraSyringePump:setup', 'Failed to open serial Port with message:\n\t%s\n', errmsg);

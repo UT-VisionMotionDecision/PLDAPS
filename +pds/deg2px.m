@@ -1,5 +1,7 @@
-function [xy,z] = deg2px(xy, z, w2px, zIsR)
-%deg2px    convert from degrees of visual angle to pixel coordinates
+function [xy,z] = deg2px(xyIn, z, w2px, zIsR)
+% function [xy,z] = pds.deg2px(xyIn, z, w2px, zIsR)
+% 
+% convert from degrees of visual angle to pixel coordinates
 % calculates the pixel coordinates for an array of degress of visul angle
 % taking the depence of x and y degrees into account (i.e. that the
 % distance of the position e.g. y increases when x is large
@@ -25,16 +27,25 @@ function [xy,z] = deg2px(xy, z, w2px, zIsR)
     if nargin<4 || isempty(zIsR)
         zIsR = false;
     end
-    
-    xy=sind(xy);
+    % check proper xy input orientation
+    if numel(xyIn)==2
+        xyIn = xyIn(:);
+    elseif size(xyIn,2)==2 && size(xyIn,1)~=2
+        xyIn = xyIn';
+    end
+
+    xy=sind(xyIn);
     
     if zIsR %z argument is the radius/total distance
-        sr=sqrt(z);
+        if isscalar(z)
+            z = z * ones(1,size(xy,2));
+        end
+        sr=z; %sqrt(z);
     else
         sr=z./sqrt(1-sum(xy.^2));
     end
     
-    xy = [w2px(1)*sr; w2px(2)*sr].*xy;
+    xy = w2px*sr.*xy;
     
     if nargout>1 && zIsR
         z=mean(w2px)*sr.*sqrt(1-sum(xy.^2));

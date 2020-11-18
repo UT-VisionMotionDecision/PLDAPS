@@ -118,12 +118,12 @@ end
 
 if p.trial.display.useOverlay==1 % Datapixx overlay
     if p.trial.datapixx.use
-        disp('****************************************************************')
-        disp('****************************************************************')
-        disp('Adding Overlay Pointer')
-        disp('Combining color look up tables that can be found in')
-        disp('dv.disp.humanCLUT and dv.disp.monkeyCLUT')
-        disp('****************************************************************')
+        %disp('****************************************************************')
+        fprintLineBreak
+        disp('Initializing Datapixx Overlay')
+        %disp('Combining color look up tables that can be found in')
+        %disp('dv.disp.humanCLUT and dv.disp.monkeyCLUT')
+        %disp('****************************************************************')
         
         % Set overlay transparency color to background, ensuring it matches post-gamma correction
         bgColor=p.trial.display.bgColor;
@@ -172,7 +172,8 @@ if p.trial.display.useOverlay==1 % Datapixx overlay
     end
     
 elseif p.trial.display.useOverlay==2 % software overlay
-
+    fprintLineBreak
+    disp('Initializing PLDAPS Software Overlay')
     %assign transparency color
     bgColor=p.trial.display.bgColor;
     glUniform3f(glGetUniformLocation(p.trial.display.shader, 'transparencycolor'), bgColor(1), bgColor(2), bgColor(3));
@@ -226,7 +227,7 @@ end
 if isfield(p.trial.datapixx, 'crosstalk') && any(p.trial.datapixx.crosstalk(:))
     Datapixx('SetPropixx3DCrosstalkRL', p.trial.datapixx.crosstalk(:,1));    % ...only takes scalar gain param
     Datapixx('SetPropixx3DCrosstalkLR', p.trial.datapixx.crosstalk(:,end));    % ...only takes scalar gain param
-    disp('****************************************************************')
+    fprintLineBreak
     fprintf('Stereo Crosstalk correction implemented by Propixx firmware:\n');
     fprintf('\tL-(gain*R): [')
     fprintf('%05.2f, ', p.trial.datapixx.crosstalk(:,1).*100)
@@ -234,7 +235,6 @@ if isfield(p.trial.datapixx, 'crosstalk') && any(p.trial.datapixx.crosstalk(:))
     fprintf('\tR-(gain*L): [')
     fprintf('%05.2f, ', p.trial.datapixx.crosstalk(:,end).*100)
     fprintf('\b\b]%%\n')
-    fprintf('****************************************************************\n')
 end
 
 %% Final status checks & updates before flip and return

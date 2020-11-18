@@ -8,8 +8,8 @@ function p = checkModKeys(p)
 % 2019-07-30  TBC  Wrote it.
 
 % This is so gross...there has to be a better way!
-keySets = [KbName('LeftControl'),KbName('RightControl'); KbName('LeftAlt'),KbName('RightAlt'); KbName('LeftShift'),KbName('RightShift')]';
-isheld = max(p.trial.keyboard.lastPressSamples(keySets,:),[],2) > max(p.trial.keyboard.lastReleaseSamples(keySets,:),[],2);
+keyIdx = p.trial.keyboard.modKeys.codes;
+isheld = max(p.trial.keyboard.lastPressSamples(keyIdx,:),[],2) > max(p.trial.keyboard.lastReleaseSamples(keyIdx,:),[],2);
 
 isheld = max(reshape(isheld, [2,3]));
 keyStr = {'ctrl','alt','shift'};

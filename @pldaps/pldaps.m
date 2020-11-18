@@ -33,12 +33,12 @@ classdef pldaps < handle
      function p = pldaps(varargin)
          %% setup default parameters
         %classdefaults: create default structure from function
-        defaults{1}=pldaps.pldapsClassDefaultParameters();
-        defaultsNames{1}='pldapsClassDefaultParameters';
+        defaults{1} = pldaps.pldapsClassDefaults;    % pldaps.pldapsClassDefaultParameters();
+        defaultsNames{1} = 'pldapsClassDefaults';
         
         %rigdefaults: load from prefs?
-        defaults{2}=getpref('pldaps');
-        defaultsNames{2}='pldapsRigPrefs';
+        defaults{2} = getpref('pldaps');
+        defaultsNames{2} = 'pldapsRigPrefs';
         
         p.defaultParameters=params(defaults,defaultsNames);
         
@@ -117,10 +117,109 @@ classdef pldaps < handle
 
 
      end   
+     
+     
+     %% PDS = save(p, savedFileName)
+     % Moving output struct operations into PLDAPS class methods
+
+     function PDS = save(p, savedFileName)
+         % parse inputs
+         if nargin<2 || isempty(savedFileName)
+             savedFileName = fullfile(p.trial.session.dir, 'pds', p.trial.session.file);
+         end
+         
+         % create output struct
+         PDS = struct;
+         
+         fn = fieldnames(p);
+         % check for presence of a params class object
+         for i = 1:length(fn)
+             hasParamsClass = isa(p.(fn{i}),'params');
+             if hasParamsClass
+                 break
+             end
+         end
+         
+         for i = 1:length(fn)
+             switch class(p.(fn{i}))
+                 case 'params'
+                     % get the raw contents of Params hierarchy (...not for mere mortals)
+                     [rawParamsStruct, rawParamsNames] = p.(fn{i}).getAllStructs();
+                     
+                     % Partition baseline parameters present at the onset of all trials (*)
+                     PDS.pdsCore.initialParameters       = rawParamsStruct(p.static.pldaps.baseParamsLevels);
+                     PDS.pdsCore.initialParameterNames   = rawParamsNames(p.static.pldaps.baseParamsLevels);
+                     PDS.pdsCore.initialParameterIndices = p.static.pldaps.baseParamsLevels;
+                     
+                     % Include a less user-hostile copy of  [p.trial]  in output struct
+                     % ! ! ! NOTE: baseParamsLevels can be changed during experiment (i.e. during a pause),
+                     % ! ! ! so this merged struct could be misleading.
+                     % ! ! ! Truly activeLevels are documented on every trial in:  data{}.pldaps.activeLevels
+                     oldLevels = p.(fn{i}).setLevels(p.static.pldaps.baseParamsLevels);
+                     PDS.baseParams = mergeToSingleStruct(p.(fn{i}));
+                     % put things back the way you found them
+                     p.(fn{i}).setLevels(oldLevels);
+                     
+                     levelsCondition = 1:length(rawParamsStruct);
+                     levelsCondition(ismember(levelsCondition, p.static.pldaps.baseParamsLevels)) = [];
+                     PDS.conditions = rawParamsStruct(levelsCondition);
+                     PDS.conditionNames = rawParamsNames(levelsCondition);
+                     
+                 case 'condMatrix'
+                     if ~isempty(p.(fn{i}))
+                         PDS.(fn{i}) = p.(fn{i});
+                         % clear out GUI handles
+                         PDS.(fn{i}).H = [];
+                     end
+                     
+                 case 'struct'
+                     switch fn{i}
+                         case 'trial'
+                             if hasParamsClass
+                                 % p.trial output is already converted to PDS.baseParams by params class save
+                             else
+                                 % treat as any other struct
+                                 PDS.(fn{i}) = p.(fn{i});
+                             end
+                         otherwise
+                             PDS.(fn{i}) = p.(fn{i});
+                     end
+                     
+                 otherwise
+                     switch fn{i}
+                         case 'conditions'
+                             if hasParamsClass
+                                 % do nothing. ...another krufty params class workaround
+                             else
+                                 % treat as any other field
+                                 PDS.(fn{i}) = p.(fn{i});
+                             end
+                         otherwise
+                             PDS.(fn{i}) = p.(fn{i});
+                     end
+             end %class switch
+         end %p fieldnames
+         
+         
+         fprintLineBreak
+         if nargout==0
+             % save to file
+             save(savedFileName, '-mat', '-struct', 'PDS');
+             fprintf('\tPLDAPS data file saved as:\n\t\t%s\n', savedFileName);
+         else
+             % return struct & save instructions
+             saveCmdString = sprintf('save(''%s'', ''-mat'', ''-struct'', ''PDS'')', savedFileName);
+             fprintf(2, '\tPLDAPS data output returned as struct (but not saved!)\n\tSave manually:\n\t\t%s\n', saveCmdString);
+         end
+         fprintLineBreak
+             
+     end %save
+     
+     
  end
  
 
-%% --- Static Methods ---
+ %% --- Static Methods ---
 methods(Static)
     % Status of these conversion functions is unknown, and all display a warning directing users tooward
     % pds.<method> versions instead. For now, I will disable them, & listen for complaints. --TBC Summer 2018
@@ -143,10 +242,11 @@ methods(Static)
     % Call from command window with:
     % >> p.moreReward
     
-    s = pldapsClassDefaultParameters(s)
+    s = pldapsClassDefaults(s); %Parameters(s)
     
     [stateValue, stateName] = getReorderedFrameStates(trialStates,moduleRequestedStates)
+    
+end %static methods
 
-end
 
 end % classdef

@@ -20,7 +20,15 @@ function p = pmSessionMovie(p, state, sn)
 %     To capture hiDPI ('retina display') resolution movies,
 %     add this line to you openScreen.m BEFORE the PTB screen is opened:
 % PsychImaging('AddTask', 'General', 'UseRetinaResolution')
-%         
+% 
+% 
+% ** Stereo Post-Processing: **
+% If a non-overlapping stereomode (e.g. 2:5,>=10,ProPixx) is active this function will output two movies
+% per trial, one for each eye's view. They can be easily concatenated into a single side-by-side (cross-fusable)
+% movie file in the terminal using the following ffmpg one-liner:
+%   ffmpeg -i left.mp4 -i right.mp4 -filter_complex hstack output.mp4
+% (...naturally, update [left] and [right] to your filenames, and your desired [output] file name)
+%
 % --  Anaglyph stereo demos --
 %     For less wonky colors and grey backgrounds
 %     add these lines to you openScreen.m just AFTER the PTB screen is opened:
@@ -39,7 +47,9 @@ function p = pmSessionMovie(p, state, sn)
 switch state
         
     case p.trial.pldaps.trialStates.frameFlip
+%     case p.trial.pldaps.trialStates.frameDrawingFinished
         if p.trial.(sn).create
+            
             if p.trial.display.frate > p.trial.(sn).frameRate
                 % downsample frames
                 thisframe = mod(p.trial.iFrame, p.trial.display.frate/p.trial.(sn).frameRate)>0;

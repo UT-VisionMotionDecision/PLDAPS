@@ -1,5 +1,5 @@
 function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader, dotBuffers)
-% function pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader)
+% function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, glslshader, dotBuffers)
 % 
 % Streamlined version of PTB moglDrawDots3d.m (circa ver. 3.0.14)
 %   -- Removes preliminary safety checks
@@ -11,7 +11,11 @@ function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, 
 %                   recommended: 5-6  (i.e. 320-1280 sides)
 %         >=10  n-segments of a mercator sphere (...simple, but over-samples poles)
 %                   recommended: 12-22;
-%       
+%
+% TODO: update help with new info on new params/shapes/defaults & usage examples.
+%       ...[center3D] has a particularly tricky/flexible implementation .  --TBC 2019-12)
+% 
+% ~~~Orig help text below~~~ 
 % Draw a large number of dots in 3D very efficiently.
 %
 %
@@ -42,7 +46,7 @@ function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, 
 % 'dotdiameter' optional: Either a single scalar spec of dot diameter, or a
 % vector of as many dotdiameters as dots 'n', or left out. If left out, a
 % dot diameter of 1.0 pixels will be used. Drawing of dots of different
-% sizes is much less efficient than drawing of dots of identical sizes! Try
+% sizes is much less efficient than drawing of dots of identical sizes! Attempt
 % to group many dots of identical size into separate calls to this function
 % for best performance!
 %
@@ -63,27 +67,21 @@ function dotBuffers = pldapsDrawDotsGL(xyz, dotsz, dotcolor, center3D, dotType, 
 % shader program will be used. You can use this, e.g., to bind a custom vertex
 % shader to perform complex per-dot calculations very fast on the GPU.
 %
-% See 
+% See also:  PTB moglDrawDots3d.m
 
 % History:
 % 03/01/2009  mk  Written.
+% 2017-xx-xx  TBC  Adapted from PTB moglDrawDots3d.m (circa ver. 3.0.14)
+% 
 
+%% Validate inputs & set defaults
 % Need global GL definitions:
 global GL;
     
-% % Global struct for buffer objects
-% global glB
-
 if nargin <7 || isempty(dotBuffers)
-    % initialize empty structure for OpenGL buffer objects
-    dotBuffers = struct;
+    % initialize for OpenGL buffer objects
+    dotBuffers = [];
 end
-
-% if isfield(pmodule,'glB')
-%     glB = pmodule.glB;
-% else
-%     dotBuffers = glB;
-% end
     
 if nargin <2
     error('Not enough inputs to %s.',mfilename);
@@ -111,19 +109,20 @@ if nargin < 3 || isempty(dotcolor)
     dotcolor = [1 1 1 1]';
 end
 
-% Proper orientation of color vector: 1 column per dot, 3[4] rows == RGB[A]
-if (size(dotcolor, 1) == 1) && ((size(dotcolor, 2)==4) || (size(dotcolor, 2)==3))
+% Proper orientation of color vector: (RGB[A], nDots) == (3[4] rows=RGB[A], 1 column per dot)
+ncolors = size(dotcolor);
+if (ncolors(1) == 1) && (ncolors(2)==4 || ncolors(2)==3)
+    % transpose color input
     dotcolor = dotcolor';
+    ncolors = size(dotcolor);
 end
 
-ncolors = size(dotcolor, 2);
-ncolcomps = size(dotcolor, 1);
-if ncolcomps ~=4 
-    if ncolcomps ==3  % fill in with alpha==1
-        dotcolor(4,:) = 1;
-    elseif  ncolors~=1 && ncolors~=ndots
-        error('"dotcolor" must be a matrix with 3 or 4 rows and at least 1 column, or as many columns as dots to draw!');
-    end
+if ncolors(1)==3
+    % fill in with alpha==1
+    dotcolor(4,:) = 1;
+end
+if  ncolors(2)~=1 && ncolors(2)~=ndots
+    error('"dotcolor" must be a matrix with 3 or 4 rows and at least 1 column, or as many columns as dots to draw!');
 end
 
 if nargin < 4
@@ -154,16 +153,19 @@ if nargin < 6
     glslshader = [];
 end
 
+% OpenGL z is in negative direction
+xyz(3,:) = -xyz(3,:);
+
 %% Drawing loop
+% Create a marker to return this view to initial state after drawing
+glPushMatrix;
 
 % Was a 'center3D' argument specified?
 if ~isempty(center3D)
-    % Create a marker to return this view to same state as before
-    glPushMatrix;
-    
+    % Move to center3D; interpretation dependent on size/shape of input
     if numel(center3D)==3
         % single translation to new center
-        glTranslated(center3D(1), center3D(2), -center3D(3));
+        glTranslated(center3D(1), center3D(2), -center3D(3));   % OpenGL z is in negative direction
         
     elseif size(center3D,1)==16 && numel(center3D)==16
         % is a modelview matrix? (in column-major form)
@@ -177,7 +179,7 @@ if ~isempty(center3D)
             if ~isnan(center3D(rti,4))
                 glRotated(center3D(rti,1), center3D(rti,2), center3D(rti,3), center3D(rti,4));
             else
-                glTranslated(center3D(rti,1), center3D(rti,2), -center3D(rti,3));
+                glTranslated(center3D(rti,1), center3D(rti,2), -center3D(rti,3));   % OpenGL z is in negative direction
             end
         end
     end
@@ -214,13 +216,29 @@ if useDiskMode==1
     oldShader = glGetIntegerv(GL.CURRENT_PROGRAM);
     
     % Initialize buffers (only once!)
-    if ~isfield(dotBuffers, 'glsl')
-        % Load the speedy shader
+    if isstruct(dotBuffers) && isfield(dotBuffers, 'glsl')
+        % dotBuffers already exist! Update their positions & colors
+        glUseProgram(dotBuffers.glsl);
+        % fprintf('-') % DEBUG
+
+        % Update position buffer (via "orphaning")
+        glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.pos.h);
+        glBufferData(GL.ARRAY_BUFFER, dotBuffers.pos.mem, 0, GL.STREAM_DRAW);
+        glBufferSubData(GL.ARRAY_BUFFER, 0, dotBuffers.pos.mem, single(xyz(:)));
+        
+        % Update color buffer
+        glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.col.h);
+        glBufferData(GL.ARRAY_BUFFER, dotBuffers.col.mem, 0, GL.STREAM_DRAW);
+        glBufferSubData(GL.ARRAY_BUFFER, 0, dotBuffers.col.mem, single(dotcolor(:)));
+
+    else
+        % Load the speedy shader & create new dotBuffers
         shaderpath = {which('geosphere.vert'), which('geosphere.frag')};%{fullfile(glslshader, 'geosphere.vert'), fullfile(glslshader, 'geosphere.frag')};
         dotBuffers.glsl = LoadGLSLProgramFromFiles(shaderpath, 0);
         % Set new one:
         glUseProgram(dotBuffers.glsl);
-        
+        % fprintf('.') % DEBUG
+
         [vv,ff] = glDraw.icosphere(dotType-3);
         % convert vv into direct triangles (...would be better if indexed vectors, but whatever)
         ff = ff';
@@ -249,26 +267,12 @@ if useDiskMode==1
         % color buffer: [r, g, b, a]
         % Data will stream to this buffer for each frame
         % jnk = whos('col'); dotBuffers.col.mem = jnk.bytes;   % gets memory size of var
-        dotBuffers.col.mem = numel(dotcolor)*bytesPerEl;  % 4 bytes/el.  
+        dotBuffers.col.mem = numel(dotcolor)*bytesPerEl;  % 4 bytes/el. for single precision
         dotBuffers.col.h = glGenBuffers(1);
         dotBuffers.col.i = 2; % attribute index
         glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.col.h);
         glBufferData(GL.ARRAY_BUFFER, dotBuffers.col.mem, single(dotcolor(:)), GL.STREAM_DRAW);
-        
-    else
-        % Set new one:
-        glUseProgram(dotBuffers.glsl);
-
-        % Update position buffer (via "orphaning")
-        glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.pos.h);
-        glBufferData(GL.ARRAY_BUFFER, dotBuffers.pos.mem, 0, GL.STREAM_DRAW);
-        glBufferSubData(GL.ARRAY_BUFFER, 0, dotBuffers.pos.mem, single(xyz(:)));
-        
-        % Update color buffer
-        glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.col.h);
-        glBufferData(GL.ARRAY_BUFFER, dotBuffers.col.mem, 0, GL.STREAM_DRAW);
-        glBufferSubData(GL.ARRAY_BUFFER, 0, dotBuffers.col.mem, single(dotcolor(:)));
-        
+                
     end
 
 
@@ -283,8 +287,9 @@ if useDiskMode==1
     % color buffer
     glEnableVertexAttribArray(dotBuffers.col.i);
     glBindBuffer(GL.ARRAY_BUFFER, dotBuffers.col.h);
-    glVertexAttribPointer(dotBuffers.col.i, 4, GL.FLOAT, GL.TRUE, 0, 0);
-
+    % glVertexAttribPointer(dotBuffers.col.i, 4, GL.FLOAT, GL.TRUE, 0, 0);
+    glVertexAttribPointer(dotBuffers.col.i, 4, GL.FLOAT, GL.FALSE, 0, 0);  % should this be forced into normalized range?  ...seems not, so long as user passes values in standard 0-1 range for normalized color
+    
     % Assign buffer usage   (!!specific to glDrawArrays*Instanced*!!)
     % // The first parameter is the attribute buffer #
     % // The second parameter is the "rate at which generic vertex attributes advance when rendering multiple instances"
@@ -307,7 +312,7 @@ if useDiskMode==1
 
     
 elseif useDiskMode==2
-    %% Draw as Mercactor spheres
+    %% Draw as Mercator spheres
     
     % get relative translation steps between each dot for faster drawing
     xyz = diff([[0 0 0]', xyz], 1,2);
@@ -321,15 +326,16 @@ elseif useDiskMode==2
     end
     
     % Loop through each dot
-    glPushMatrix;
-    if ncolors == 1
+    glPushMatrix; % center of dot cluster: all dot positions are relative to this (i.e. not streamed)
+    if ncolors(2) == 1
         % Set color just once
         %   (TBC: setting color on each dot draw can add 10-20% total execution time)
         glColor4fv( dotcolor(:,1) );
         for i = 1:ndots
             % set position
             glTranslated(xyz(1,i), xyz(2,i), -xyz(3,i));
-            moglcore( 'glutSolidSphere', dotsz(ii(1,i)), dotType, dotType);
+            %fprintf('%8.3g\t%s\n', dotsz(ii(1,i)), mat2str(xyz(:,i), 3))
+            moglcore( 'glutSolidSphere', single(dotsz(ii(1,i))), dotType, dotType);
         end
     else
         for i = 1:ndots
@@ -340,7 +346,7 @@ elseif useDiskMode==2
             moglcore( 'glutSolidSphere', dotsz(ii(1,i)), dotType, dotType);
         end
     end
-    glPopMatrix;
+    glPopMatrix; % back to center
     
 else
     %% Draw dots as GL.POINTS (like normal PTB; super fast, but size defined in pixels, not space!)
@@ -365,17 +371,17 @@ else
     glEnableClientState(GL.VERTEX_ARRAY);
     
     % Multiple colors, one per dot, provided?
-    if ncolors > 1
+    if ncolors(2) > 1
         % Yes. Setup a color array for fast drawing:
         glColorPointer(ncolcomps, GL.DOUBLE, 0, double(dotcolor));
         glEnableClientState(GL.COLOR_ARRAY);
     else
         % No. Just set one single common color:
-        if ncolcomps == 4
+        %if ncolcomps == 4  ...alpha value ALWAYS included 
             glColor4dv(double(dotcolor));
-        else
-            glColor3dv(double(dotcolor));
-        end
+        %else
+        %    glColor3dv(double(dotcolor));
+        %end
     end
     
     % Change of shader binding requested?
@@ -414,7 +420,7 @@ end
 %% Clean up
 
 if ~useDiskMode % clean up after drawing GL.POINTS
-    if ncolors > 1
+    if ncolors(2) > 1
         % Disable color array for fast drawing:
         glColorPointer(ncolcomps, GL.DOUBLE, 0, 0);
         glDisableClientState(GL.COLOR_ARRAY);
@@ -434,10 +440,10 @@ if ~useDiskMode % clean up after drawing GL.POINTS
 end % No specific Sphere drawing clean up to do
 
 
-if ~isempty(center3D)
+% if ~isempty(center3D)
     % Restore old modelview matrix from backup:
     glPopMatrix;
-end
+% end
 
 
 end

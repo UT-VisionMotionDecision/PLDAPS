@@ -1,20 +1,46 @@
-# PLDAPS 4.3.0
-==========
+# PLDAPS 4.4.0
+
+**PL**exon **DA**tapixx **PS**ychtoolbox - Neurophysiology experiment toolbox for MATLAB
+---
+### New developments with version 4.4.0
+
+**Tracking** [ pds.tracking.trackObj.m, OOP ]
+
+ - _On by default:_    p.trial.tracking.use = true; 
+ - Eye/mouse/misc. tracking implemented with OOP object, located in [p.static.tracking]
+ - Calibration of raw signals performed on matlab-side allows for independent tracking of multiple sources (e.g. binocular eye) that can be set/recalled for multiple viewing distances. To run calibration, pause experiment, then execute the following from the command window:
+     - `pds.tracking.runCalibrationTrial(p)`
+ - Calibrations are stored in user-specific & modality-specific calibration files automatically; most recent/appropriate calibration is automatically loaded during experiment startup.
+ - _For usage, see new tutorial example:_   **`modularDemo.doRfPos_gabGrid`**
+
+
+**New tutorial for _'modular PLDAPS'_**
+
+ - Located in `./tutorials/modularDemo`
+ - Execute from the command window with  `p = modularDemo.doRfPos_gabGrid()`
+ - ...modular experimental design isn't itself new, but full fledged demo code is.
+ - More thorough README explanation to come...
+
+
+**Viewing distance flexibility with new _pdsDisplay object_**
+ - OOP-based `p.static.display` object is automatically synced to the standard `p.trial.display`; No manual changes to experiment code are necessary to use
+ - OOP allows for automated communication between different experimental elements through event & listener triggers 
+
+---
 
 #### A Wiki is coming!
 An effort to develop [at least basic] documentation is being made in [the Wiki](https://github.com/HukLab/PLDAPS/wiki)
 
 ---
+
 #### [glDraw] Branch
 
 The glDraw branch is now the default PLDAPS branch, and also the only branch under active development. *Continued use of the `openreception` branch is discouraged.*
 
 As new features are written & tested on the [czuba's] development fork, they will be transferred to stable release status here on the main HukLab PLDAPS project page.
 
-
----
-
-**PL**exon **DA**tapixx **PS**ychtoolbox - Neurophysiology experiment toolbox for MATLAB
+ =======
+ 
 
 Version 4.3.0 (glDraw commit 354b233) brings additional low-level OpenGL drawing functionality, improved compatibility with various stereo drawing modes, and overall refinements.
 

@@ -2,8 +2,8 @@
     function sf = screenFigure(p, startPos, size, windowPointer, xlims,ylims,fontSize,axisColor)
         %ok, let's not fiddle with pixels, use cm
         % this will hold all essential information used to scale the data
-        sf.startPos=round(startPos.*[p.trial.display.pWidth/p.trial.display.wWidth p.trial.display.pHeight/p.trial.display.wHeight] + [p.trial.display.pWidth/2 p.trial.display.pHeight/2]);
-        sf.size=ceil(size.*[p.trial.display.pWidth/p.trial.display.wWidth p.trial.display.pHeight/p.trial.display.wHeight]);
+        sf.startPos=round(startPos.*[p.trial.display.pWidth/p.trial.display.widthcm p.trial.display.pHeight/p.trial.display.heightcm] + [p.trial.display.pWidth/2 p.trial.display.pHeight/2]);
+        sf.size=ceil(size.*[p.trial.display.pWidth/p.trial.display.widthcm p.trial.display.pHeight/p.trial.display.heightcm]);
         sf.window=windowPointer;
         sf.xlims = xlims;
         sf.ylims=  ylims;

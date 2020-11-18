@@ -28,5 +28,6 @@ for i = 1:numel(strobeVals)
     t0 = GetSecs;
     pds.datapixx.strobe(strobeVals(i));
     % Wait a fraction of a ms for signal to register downstream
-    WaitSecs('UntilTime', t0+1.5e-5);
+    WaitSecs('UntilTime', t0 + 1e-7);  % omniplex safe
+    % WaitSecs('UntilTime', t0+1.5e-5);  % MAP safe (...system retired 2020)
 end

@@ -3,6 +3,12 @@ function p = pdsDefaultTrialStructure(p, stimulusname)
 % pdsDefaultTrialStructure sets up the p struct for displaying all the
 % standard task parameters we use in huk lab
 
+% Discourage use
+fprintf(2, fprintLineBreak('~', 1.2))
+fprintf(2, '~!~\t%s\tUsage of this function is deprecated ~!~\n', mfilename);
+fprintf('Please update your code to be consistent with modular PLDAPS style\n')
+fprintf(2, fprintLineBreak('~', 1.2))
+
 if nargin<2
     stimulusname='stimulus';
 end

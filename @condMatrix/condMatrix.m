@@ -8,6 +8,39 @@ classdef condMatrix < dynamicprops
 %     glDraw.pmBase
 % 
 % ****************************************************************
+% Name-value pair parameters:
+% 
+% [randMode]     (def: 0)
+%   Randomize order of upcoming pass through condition matrix
+%   -- if numel(.randMode) does not equal to number of dimensions in .conditions matrix,
+%      then will be treated as a simple switch
+%           case 1 % randomize across all dimensions
+%           case 2 % randomize within columns w/ Shuffle.m
+%           case 3 % randomize within rows (...this will fail with >3 condDims!)
+%           otherwise % do nothing
+%   -- else each dimension will be randomized separately using ShuffleMex.m
+%        -- positive randMode values will randomize the numbered dimension
+%        -- zero randMode values will do nothing to that dimension
+%        -- negative randMode values will shuffle order of numbered dimension,
+%           while maintaining all other dimension
+%    EXAMPLE 1:
+%       - condMatrix dimensions == (xpos, ypos, ori)
+%       - .randMode = [1, 2, -3] will present cycle through each orientation,
+%         present the same orientation at every xy location in random order,
+%         then select a different random orientation --exclusive of already
+%         presented oriientations-- present it at every xy location, etc, etc.
+%    EXAMPLE 2:
+%       - condMatrix dimensions == (direction, speed)
+%       - .randMode = [2,-1]
+% 
+% [nPasses]      (def: inf)
+%   Number of full passes through condition matrix
+%   
+% [useFrameDurations]    (def: false)
+%   Flag for signaling the conversion of matrix module onset durations [.modOnDur]
+%   from frame count to seconds.  ...this is hacky, but here for now
+% 
+% ****************************************************************
 % SETUP EXAMPLE:
 % % RF mapping stimulus with matrix of xy positions & drift directions
 % % ...after creating the Pldaps opject (e.g.  p = pldaps(subj, settingsStruct); )
@@ -35,36 +68,12 @@ classdef condMatrix < dynamicprops
 %     %% Add condition matrix to the pldaps structure
 %     p.condMatrix.conditions = c;
 %     % *** NOT p.conditions = c; % !! leave this empty, everything is in .condMatrix now
+%     %
 %     % Initialize the condMatrix object, passing control parameters as string-value pairs
-%     p.condMatrix = condMatrix(p, 'randMode', [1,2,3,4], 'nPasses',inf);
+%     p.condMatrix = condMatrix(p, 'randMode', [1,2,3], 'nPasses',inf);
 % 
 %     %% Run it!!
 %     p.run;
-% 
-% ****************************************************************
-% condMatrix control parameters:
-% 
-% randMode:     (def: 0)
-%   Randomize order of upcoming pass through condition matrix
-%   -- if numel(.randMode) does not equal to number of dimensions in .conditions matrix,
-%      then will be treated as a simple switch
-%           case 1 % randomize across all dimensions
-%           case 2 % randomize within columns w/ Shuffle.m
-%           case 3 % randomize within rows (...this will fail with >2 condDims!)
-%           otherwise % do nothing
-%   -- else each dimension will be randomized separately using ShuffleMex.m
-%        -- positive randMode values will randomize across that dimension
-%        -- zero randMode values will do nothing to that dimension
-%        -- negative randMode values will shuffle order of that dimension,
-%           while maintaining all other dimensions
-%    EXAMPLE:  .randMode = [1,0,-3] will shuffle columns but not rows, then randomize the 3rd dim 'pages'
-% 
-% nPasses:      (def: inf)
-%   Number of full passes through condition matrix
-%   
-% useFrameDurations:    (def: false)
-%   Flag for signaling the conversion of matrix module onset durations [.modOnDur]
-%   from frame count to seconds.  ...this is hacky, but here for now
 % 
 % ****************************************************************
 % 
@@ -72,11 +81,11 @@ classdef condMatrix < dynamicprops
 % 
 % 2018-xx-xx  TBC  Wrote it.
 % 2019-08-30  TBC  Commenting and [some] cleanup
+% 
 
 
 properties (Access = public)
-    conditions % TODO: make this a pointer to p.conditions, or vice-versa?
-%     condFields % static list of condition field names
+    conditions  % cell of matrixModule fields that define each condition
     
     i           % index # of current position in .condMatrix.order
     iPass       % index # of current pass
@@ -90,7 +99,12 @@ properties (Access = public)
     modNames    % module names struct
     maxFrames   % max number of frames per trial
     
+end
+
+properties (Access = public, Transient = true)
+    % Don't include figure handles/objects in saved outputs
     H           = struct('infoFig',[]); % Handles to relevant objects (e.g. Info Figure)
+        
 end
 
 properties (Access = private, Transient = true)
@@ -158,7 +172,13 @@ methods
             cm.(fn{i}) = argin.(fn{i});
         end
         
-
+        % Error check .randMode
+        % - if >2 matrix dimensions, scalar randMode==3 will crash
+        %   change to indexed dimensions & warn
+        if isscalar(cm.randMode) && cm.randMode==3 && ndims(cm.conditions)>2
+            warning('condMatrix:setup', '[condMatrix.randMode]==3 incompatible with >2 dimensions')
+        end
+        
 % % %         % --- Do we need copies of core/static pldaps variables w/in this class?
 % % %         cm.ptr       = p.trial.display.ptr;
         cm.modNames  = p.trial.pldaps.modNames;
@@ -207,40 +227,7 @@ methods
             p.trial.(targetModule{i}).condIndex = ii;
         end
         
-        % Update Info Fig    (This is still SUPER rudimentary, but better than nothing. --TBC)
-        if ishandle(cm.H.infoFig)
-            pctRemain = (1-(numel(cm.order)-cm.i) / numel(cm.conditions)) *100;
-            cm.H.infoFig.Children(1).Children(end).String = sprintf('Trial:  %5d\nPass:  %5d  (%02.1f%%)', p.trial.pldaps.iTrial, cm.iPass, pctRemain);  % cm.i/numel(cm.order)*100);
-            %             drawnow; % required for figure update on ML>=2018a
-                        refreshdata(cm.H.infoFig);%.Children(1));
-        else
-            % Info figure
-            Hf = figure(p.condMatrix.baseIndex); clf;
-            set(Hf, 'windowstyle','normal', 'toolbar','none', 'menubar','none', 'selectionHighlight','off', 'color',.5*[1 1 1], 'position',[1500,100,400,300])
-            set(Hf, 'Name', p.trial.session.file, 'NumberTitle','off')
-            
-            % Axes for text
-            ha = axes;
-            box off;
-            set(ha, 'color',.5*[1 1 1], 'fontsize',10);
-            axis(ha, [0 1 0 1]); axis off
-            fsz = 12;
-            % Basic trial info text
-            ht(1) = text(ha, 0, 0.8, sprintf('Trial:  %5d\nPass:  %5d', p.trial.pldaps.iTrial, cm.iPass));
-            try
-                ht(2) = text(ha, 0, 0.5, sprintf('Fix Pos:    %s\nFix Lim:    %s',...
-                    mat2str(p.trial.(p.trial.pldaps.modNames.currentFix{1}).fixPos),...
-                    mat2str(p.trial.(p.trial.pldaps.modNames.currentFix{1}).fixLim)));
-            end
-            set(ht, 'fontsize',fsz);
-            
-            % only need handle to parent figure to access all contents
-            cm.H.infoFig = Hf;
-            %             drawnow; % required for figure update on ML>=2018a
-            %             refreshdata(cm.H.infoFig);%.Children(1));
-        end
-        drawnow limitrate;
-
+        updateInfoFig(cm, p);
     end
     
     %% getNextCond
@@ -305,7 +292,7 @@ methods
         
         % Generate new .order set for condition matrix
         sz = size(cm.conditions);
-        condDims = max([1, sum(sz>1)]);
+        condDims = max([1, sum(sz>1)]); % workaround for  ndims(scalar)==2 (?!?)
         % Initialize list of condition indexes
         newOrder = reshape(1:numel(cm.conditions), sz);
         
@@ -320,7 +307,8 @@ methods
                     % Negative dimension modes shuffle order of that dim, while maintaining order of all others.
                     % This eval solution is scrappy, but it works, and haven't found similar functionality elsewhere --TBC 2018-08
                     ii = abs(cm.randMode(i));
-                    eval(['newOrder = newOrder(',repmat(':,',1, ii-1), mat2str(randperm(sz(ii))), repmat(':,',1, condDims-ii),');'])
+                    eStr = ['newOrder = newOrder(',repmat(':,',1, ii-1), mat2str(randperm(sz(ii))), repmat(',:',1, condDims-ii),');']
+                    eval(eStr)
                 else
                     % 0 does nothing to that dimension
                 end
@@ -331,8 +319,21 @@ methods
                     newOrder = reshape(Shuffle(newOrder(:)), sz);
                 case 2  % randomize within columns
                     newOrder = Shuffle(newOrder);
-                case 3  % randomize within rows (not good...this will fail with >2 condDims!)
-                    newOrder = Shuffle(newOrder');
+                case 3  % randomize within rows
+                    switch ndims(newOrder)
+                        case {1,2}
+                            newOrder = Shuffle(newOrder');
+                        case 3
+                            % Transpose will fail with >2 condDims! ...how to make robust equivalent??
+                            for i = randperm(size(newOrder,3))
+                                newOrder(:,:,i) = Shuffle(newOrder(:,:,i)');
+                            end
+                        otherwise
+                            error('condMatrix:randMode:dimensionMismatch',...
+                                'Cannot use simple randMode==3 with %d dimension matrix.\nTry indexed randModes for desired result instead...',ndims(newOrder));
+                            
+                    end
+                    % newOrder = Shuffle(newOrder');
                 otherwise
                     % do nothing
             end
@@ -347,7 +348,50 @@ methods
         rng(rng0);
     end
     
+    
+    %% updateInfoFig
+    function updateInfoFig(cm, p)
+     % Update Info Fig    (This is still SUPER rudimentary, but better than nothing. --TBC)
+        if ishandle(cm.H.infoFig)
+            pctRemain = (1-(numel(cm.order)-cm.i) / numel(cm.conditions)) *100;
+            % trial count text
+            cm.H.infoFig.Children(1).Children(end).String = sprintf('Trial:  %5d\nPass:  %5d  (%02.1f%%)', p.trial.pldaps.iTrial, cm.iPass, pctRemain);  % cm.i/numel(cm.order)*100);
+            % fixation text
+            cm.H.infoFig.Children(1).Children(end-1).String = sprintf('Fix Pos:    %s\nFix Lim:    %s',...
+                    mat2str(p.trial.(p.trial.pldaps.modNames.currentFix{1}).fixPos),...
+                    mat2str(p.trial.(p.trial.pldaps.modNames.currentFix{1}).fixLim));
+            refreshdata(cm.H.infoFig);%.Children(1));
+            
+        else
+            % Info figure
+            Hf = figure(cm.baseIndex); clf;
+            set(Hf, 'windowstyle','normal', 'toolbar','none', 'menubar','none', 'selectionHighlight','off', 'color',.5*[1 1 1], 'units','normalized');%'position',[1000,100,400,300])
+            set(Hf, 'Name', p.trial.session.file, 'NumberTitle','off', 'position', [.8,.02,.18,.2]);
+            
+            % Axes for text
+            ha = axes;
+            box off;
+            set(ha, 'color',.5*[1 1 1], 'fontsize',10);
+            axis(ha, [0 1 0 1]); axis off
+            fsz = 12;
+            % Basic trial info text
+            ht(1) = text(ha, 0, 0.8, sprintf('Trial:  %5d\nPass:  %5d', p.trial.pldaps.iTrial, cm.iPass));
+            try
+                ht(2) = text(ha, 0, 0.5, sprintf('Fix Pos:    %s\nFix Lim:    %s',...
+                    mat2str(p.trial.(p.trial.pldaps.modNames.currentFix{1}).fixPos),...
+                    mat2str(p.trial.(p.trial.pldaps.modNames.currentFix{1}).fixLim)));
+            end
+            set(ht, 'fontsize',fsz);
+            
+            % only need handle to parent figure to access all contents
+            cm.H.infoFig = Hf;
+            %             drawnow; % required for figure update on ML>=2018a
+            %             refreshdata(cm.H.infoFig);%.Children(1));
+        end
+        drawnow limitrate;    
+    end
+
 end
 
 
-end
+end %classdef

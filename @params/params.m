@@ -34,7 +34,8 @@ classdef params < handle
             structviewerHandle = p.structviewer(p);
         end
         
-        function setLock(p,lock)
+        function prevState = setLock(p,lock)
+            prevState = p.locked;
             p.locked = lock;
         end
         
@@ -181,7 +182,11 @@ classdef params < handle
         end
                 
         %% setLevels(p, value)
-        function setLevels(p,value)
+        function oldLevels = setLevels(p,value)
+            if nargout>0
+                % return previously active levels
+                oldLevels = getActiveLevels(p);
+            end
             if islogical(value)
                 if length(value)==length(p.structs) 
                     p.activeLevels=value;

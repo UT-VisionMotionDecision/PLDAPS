@@ -11,8 +11,8 @@ function p = initTicks(p)
 %   p [class]
 %     .trial [struct] - main variables structure (see PLDAPShelp)
 %       .display   - display structure 
-%           .dWidth screen width in degree
-%           .dHeight screen height in degree
+%           .width screen width in degree
+%           .height screen height in degree
 % OUTPUTS:
 %   p [class]
 %     .trial [struct] - main variables structure (modified)
@@ -45,8 +45,8 @@ gridSize_sm = 1; % (deg)
 gridSize_lg = 5; % large grid must be a multiple of small grid (...a reasonable constraint, amirite)
 tickSize = 0.05 * p.trial.display.ppd;  % (deg)
 
-hgrid = gridSize_sm:gridSize_sm:(p.trial.display.dWidth/2);
-vgrid = gridSize_sm:gridSize_sm:(p.trial.display.dHeight/2);
+hgrid = gridSize_sm:gridSize_sm:(p.trial.display.width/2);
+vgrid = gridSize_sm:gridSize_sm:(p.trial.display.height/2);
 
 [xgrid, ygrid] = meshgrid( [0, -hgrid, hgrid], [0, -vgrid, vgrid]);
 tgrid = [xgrid(:), ygrid(:)];
