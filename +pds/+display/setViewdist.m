@@ -1,14 +1,36 @@
 function p = setViewdist(p, newdist, forceUpdate)
-% function p = setViewdist(p, newdist)
+% function p = pds.display.setViewdist(p, newdist)
 %
 % Update any display variables that are dependent on viewing distance
-%
+% **Generally unnecessary to call this function directly**
+%   Best practice to update value of [p.static.display.viewdist], 
+%   then allow object 'property set' event listener to do it's thing.
+% 
+% With advent of pdsDisplay object class (Fall 2020), variables that
+% are dependent on viewing distance can now be coded to be just that!
+% The traditional [p.trial.display] still exists, its just updated on
+% every trial based on the contents of the [p.static.display] object.
+% 
+% If .grbl module is present for automated display positioning, this
+% function will initiate homing sequence & repositioning automagically!
+% --------------------------
+% INPUTS:
+% [p]           Standard PLDAPS object
+% [newdist]     Desired new viewing distance (in cm)
+%               - only updates if different from previous
+% [forceUpdate] Update regardless of change in viewdist.
+%               - important for initialization & tracking calibration
+% 
+% --------------------------
 % NOTE on [p.static] vs [p.trial]
-% --This is confusing and way sub-optimal, but must have a way to convey
-% status & info across trials. Things like physical distance aren't just
-% "reset" when parameters for a new trial are initialized.
-% p.static must only be used ONCE to compare current state (p.trial) against
-% existing state (p.static), if different, correct & update.
+% -- Things like physical distance aren't just "reset" when parameters for
+%    a new trial are initialized, so it is necessary to override some aspects
+%    of [p.trial]
+% -- [p.static] later morphed into a more general way to maintain OOP objects
+%    across trials
+% 
+% 2020-11-xx TBC  Wrote it.
+% 
 
 %% defaults
 debug = false;
@@ -37,6 +59,7 @@ if (isfield(p.trial,'grbl') || (isa(p.trial,'params') && isField(p.trial,'grbl')
         case 'Alarm'
             % initiate homing
             grbl.homeWithWarning(p, sn);
+            p.trial.(sn).homingState = 1; % true homing completed
     end
     
     % get current position directly from device
@@ -74,23 +97,13 @@ switch sn
         % (see:  www.github.com/czuba/grbl )
         % Move to the new position
         p.trial.(sn) = grbl.completeMove(p.trial.(sn), sprintf('G1 x%4.2f f%4.2f', p.trial.display.grblPos, 60/2),  .8);
-        
-%         % Extract current values to p.static for future trial comparison
-%         p.static.display.grblPos = p.trial.display.grblPos;
-        
+                
     otherwise
         % do nothing, assume position updated externally
 end
 
 
-
 %% Update dependent variables
-
-% 
-% 
-% % % % % % % %  partial code to this point:  updating for p.static object
-% 
-%
 
 % dependent variables now implemented *as dependents* in pdsDisplay class
 if exist('newdist','var') && ~isempty(newdist)
@@ -106,10 +119,6 @@ end
 % Create new PLDAPS 'level' so that current viewdist params carry over to subsequent trials
 updatePldapsDisplayParams(p);
 
-% % extract core/fundamental values to p.static for comparison in future trials
-% p.static.display.viewdist = p.trial.display.viewdist;
-
-
 % DEBUG
 if debug
     fprintf('%3.3f\n', p.trial.display.ppd);
@@ -121,16 +130,16 @@ end
 % % % % % % % % % % % 
 
 
-%% updateDisplayParams(p)
+%% updatePldapsDisplayParams(p)
     function updatePldapsDisplayParams(p)
         
-        %   ------------------------        
+        %   ------------------------
         % Necessary evil to allow these parameter changes to carry over to subsequent trials
         % Poll current pldaps 'levels' state (...crappy params class stuff)
         % Create new 'level', that contains all current .display settings
         % -- (overkill, but getting struct diff alone is a nightmare)
         newLvlStruct = struct;
-        newLvlStruct.display = p.static.display; % ? copy() 
+        newLvlStruct.display = p.static.display; % ? copy()
         
         %unlock the defaultParameters
         prevState = p.defaultParameters.setLock(false);
@@ -145,74 +154,6 @@ end
         
     end
 
-
-%% updateOpenGlParams(p.trial.display)
-% % %     function updateOpenGlParams(ds)
-% % %         global GL
-% % %         
-% % %         % readibility & avoid digging into this struct over & over
-% % %         glP = ds.glPerspective;
-% % %         
-% % %         % Setup projection matrix for each eye
-% % %         % (** this does not change per-eye, so just do it once here)
-% % %         % -- these context switches are slow and should NOT be done w/in time-dependent phases(e.g. during experimentPostOpenScreen, trialSetup...)
-% % %         Screen('BeginOpenGL', ds.ptr)
-% % %         
-% % %         for view = 0%:double(ds.stereoMode>0)
-% % %             % All of these settings will apply to BOTH eyes once implimented
-% % %             
-% % %             % Select stereo draw buffer WITHIN a 3D openGL context!
-% % %             % unbind current FBOS first (per PTB source:  "otherwise bad things can happen...")
-% % %             glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, uint32(0))
-% % %             
-% % %             % Bind this view's buffers
-% % %             fbo = uint32(view+1);
-% % %             glBindFramebufferEXT(GL.READ_FRAMEBUFFER_EXT, fbo);
-% % %             glBindFramebufferEXT(GL.DRAW_FRAMEBUFFER_EXT, fbo);
-% % %             glBindFramebufferEXT(GL.FRAMEBUFFER_EXT, fbo);
-% % %             
-% % %             
-% % %             % Setup projection for stereo viewing
-% % %             glMatrixMode(GL.PROJECTION)
-% % %             glLoadIdentity;
-% % %             % glPerspective inputs: ( fovy, aspect, zNear, zFar )
-% % %             gluPerspective(glP(1), glP(2), glP(3), glP(4));
-% % %             
-% % %             % Enable proper occlusion handling via depth tests:
-% % %             glEnable(GL.DEPTH_TEST);
-% % %             
-% % %             % Enable alpha-blending for smooth dot drawing:
-% % %             glEnable(GL.BLEND);
-% % %             glBlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
-% % %             
-% % %             % 3D anti-aliasing?
-% % %             % NOTE: None of the standard smoothing enables improve rendering of gluDisk or sphere.
-% % %             % Only opening PTB window with multisampling (==4) has any effect
-% % %             
-% % %             % basic colors
-% % %             glClearColor(ds.bgColor(1), ds.bgColor(2), ds.bgColor(3), 1);
-% % %             glColor4f(1,1,1,1);
-% % %             
-% % %             % Disable lighting
-% % % %             glDisable(GL.LIGHTING);
-% % %             % glDisable(GL.BLEND);
-% % %             
-% % %             % % %             if ds.goNuts
-% % %                             % ...or DO ALL THE THINGS!!!!
-% % %                             % Enable lighting
-% % %                             glEnable(GL.LIGHTING);
-% % %                             glEnable(GL.LIGHT0);
-% % %                             % Set light position:
-% % %                             glLightfv(GL.LIGHT0,GL.POSITION, [1 2 3 0]);
-% % %                             % Enable material colors based on glColorfv()
-% % %                             glEnable(GL.COLOR_MATERIAL);
-% % %                             glColorMaterial(GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
-% % %                             glMaterialf(GL.FRONT_AND_BACK, GL.SHININESS, 48);
-% % %                             glMaterialfv(GL.FRONT_AND_BACK, GL.SPECULAR, [.8 .8 .8 1]);
-% % %             % % %             end
-% % %         end
-% % %         Screen('EndOpenGL', ds.ptr)
-% % %     end %setupGLPerspective
 
 end %main function
 
