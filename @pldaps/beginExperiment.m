@@ -14,6 +14,7 @@ function p = beginExperiment(p)
 % 2018-04-18 tbc    Updated to query git branch/tag name
 %                   otherwise, default to hardcoded string
 % 2018-05-01 tbc    Expanded git version tracking information
+% 2020-11-18 tbc  Bumped version to 4.4  Synced with czuba glDraw branch (commit 315cf5e)
 
 %% get PLDAPS version
 % Pldaps root directory shorthand
@@ -22,8 +23,8 @@ proot = p.trial.pldaps.dirs.proot;
 here = pwd;
 cd(proot);
 
-defName = 'glDraw_nonGit';
-p.trial.pldaps.version.number = 4.2;
+defName = 'glDraw_nonGit'; % if PLDAPS code in path is from a git repo, this will be overwritten with the proper name of the currently active branch
+p.trial.pldaps.version.number = 4.4;
 
 [name, remoteUrl, commit, info, status, gdiff] = deal([]);
 try
