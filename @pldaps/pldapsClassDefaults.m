@@ -92,7 +92,7 @@ function s = pldapsClassDefaults(s)
  s.	eyelink.	useRawData = false;
 
 %s.	git.
- s.	git.	use = false;
+ s.	git.	use = true;
  
 %s. keyboard.
  s. keyboard.   devIdx = -1; % PTB default to first keyboard detected

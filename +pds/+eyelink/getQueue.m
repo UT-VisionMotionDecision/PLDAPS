@@ -67,7 +67,7 @@ if p.trial.eyelink.use
             p.trial.eyeY = double(p.trial.eyelink.samples(eyeIdx+yBase, p.trial.eyelink.sampleNum));
         end
         
-        if ~p.trial.tracking.use && p.trial.eyelink.useRawData
+        if ~p.trial.tracking.use && p.trial.eyelink.useRawData && ~isempty(p.trial.eyelink.calibration_matrix)
             % Apply separate calibration matrix to each eye (bino compatible)
             for i = 1:numel(p.trial.eyeX)
                 eXY = p.trial.eyelink.calibration_matrix(:,:,eyeIdx(i)) * [p.trial.eyeX(i), p.trial.eyeY(i), 1]';
