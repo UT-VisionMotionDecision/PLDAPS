@@ -2,6 +2,43 @@ function s=pldapsClassDefaultParameters(s)
 
 % % New filename: pldapsClassDefaults.m
 % Will try to symlink w/ relative path to updated file
+% 
+% % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % 
+% WARNING:  Outdated file naming
+% --------------------------------------------- 
+% This file is unused & obsolete.
+% 
+% pldapsClassDefaults.m  is now used to
+% initialize a new experiment session object.
+% 
+% 
+% % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % 
+
+error('Wrong pldaps default setup file...look to @pldaps.pldapsClassDefaults.m for current defaults.')
+
+return
+
+% % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % 
+
+
+
+
+
+
+
+
+
+
+
 
  if nargin<1
 	s=struct;
