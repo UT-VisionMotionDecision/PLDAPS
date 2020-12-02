@@ -196,9 +196,7 @@ end %state switch block
         for i = thisModuleIndex+1:length(moduleNames)
             p.trial.(moduleNames{i}).use = false;
         end
-        
-        %p.trial.(sn).tmp.oldDrawEyeState = p.trial.pldaps.draw.eyepos;
-        
+                
         p.trial.(sn).on = true;
         
         % Programmatically resume from pause
@@ -484,7 +482,10 @@ end %state switch block
         
         % XY pixel locations of all current targets 
         allTargs = p.static.tracking.targets.xyPx - p.static.display.ctr(1:2)';
-        cols = lines(size(allTargs,2));
+        
+        % color by target location onscreen
+        % - convert targ loc to polar, then subdivide r by 3, t by 9
+        cols = lines(64);
         
         % plot targets
         plot( allTargs(1,:), -allTargs(2,:), 'd','color',.8*[1 1 1])
@@ -505,46 +506,47 @@ end %state switch block
         if any(n)
             % plot fixations
             for i = srcIdx
+                % only plot if fixation data present in current transform
                 fixTargs = real(p.static.tracking.fixations(1:2, n, i))' - p.static.display.ctr(1:2);
                 fixVals  = imag(p.static.tracking.fixations(1:2, n, i))';    % - p.trial.display.ctr(1:2);
                 
                 if ~all(isnan(fixVals(:)))
-                    % only plot if fixation data present
-                    [uTargs, ~, fix2targ] = unique(fixTargs, 'rows');
-                    [~, fixCols] = ismember(uTargs, allTargs','rows');
+                    % unique target locations
+                    [uTargs] = unique(fixTargs, 'rows');
                     
-                    % not all points will match this set of targets...don't crash
-                    nn = fixCols~=0;
-                    % % %                     if any(fixCols==0)
-                    % % %                         % mismatch between target positions and recorded fixations
-                    % % %                         % Resetting calibration to prevent crash
-                    % % %                         warning('Calibration reset by fallback')
-                    % % %                         resetCalibration(p)
-                    % % %                     else
-                    fixCols = fixCols(fix2targ); % expand for each target repeat
-                    
+                    % color target markers by location on screen     (...crufty)
+                    [targTh,targR] = cart2pol(fixTargs(:,1), fixTargs(:,2));
+                    % condition polar coords for indexing
+                    targTh = wrapTo360(rad2deg(targTh));    targR = targR/p.trial.display.ppd;
+                    targColIdx = ceil(targTh/30) + 12*ceil(targR/7.5);
+                    targColIdx(targColIdx<=0) = 1; % prevent index error at center
+                                        
+                    % plot target locations
                     plot( uTargs(:,1), -uTargs(:,2), 'kd')
-                    if any(fixCols)
-                        % plot raw data
-                        scatter(fixVals(:,1)- p.static.display.ctr(1), -(fixVals(:,2)- p.static.display.ctr(2)), [], cols(fixCols,:), 'markerfacecolor','none','markeredgealpha',.3);
-                        
-                        % plot calibrated data
-                        fixCaled = transformPointsInverse(p.static.tracking.tform(i), fixVals)- p.static.display.ctr(1:2);
-                        scatter(fixCaled(:,1), -fixCaled(:,2), [], cols(fixCols,:), 'filled', 'markeredgecolor','none','markerfacealpha',.3);
-                    end
+                    % plot raw data (open circles)
+                    scatter(fixVals(:,1)- p.static.display.ctr(1), -(fixVals(:,2)- p.static.display.ctr(2)), [], cols(targColIdx,:), 'markerfacecolor','none','markeredgealpha',.4);
+                    
+                    % plot calibrated data (filled circles)
+                    fixCaled = transformPointsInverse(p.static.tracking.tform(i), fixVals)- p.static.display.ctr(1:2);
+                    scatter(fixCaled(:,1), -fixCaled(:,2), [], cols(targColIdx,:), 'filled', 'markeredgecolor','none','markerfacealpha',.4);
                 end
             end
         end
-        
         drawnow
-    end
+    end %updateCalibPlot
 
 
 %% resetCalibration(p)
     function resetCalibration(p)
         % packaged for easy call/editing
-        p.static.tracking.fixations = nan(3, p.static.tracking.minSamples, max(srcIdx)); %p.trial.tracking.minSamples
-        p.static.tracking.thisFix = 0;
+        
+        % find all recorded fixations that match current viewdist
+        n = imag(p.static.tracking.fixations(3,:,srcIdx(1))) == p.static.display.viewdist;
+        % remove any fixation data with matching viewdist
+        p.static.tracking.fixations(:,n,:) = [];
+
+        % p.static.tracking.fixations = nan(3, p.static.tracking.minSamples, max(srcIdx));
+        p.static.tracking.thisFix = size(p.static.tracking.fixations, 2);   % 0;
         p.static.tracking.setupTargets(); % refresh targets using class method
         updateTarget(p);
 %         updateCalibPlot(p);
@@ -567,8 +569,7 @@ end %state switch block
         
         updateCalibPlot(p);
         
-    end
-
+    end %updateTarget
 
 
 %% logFixation(p)
@@ -591,7 +592,7 @@ end %state switch block
             end
                 fprintf('.')
         end
-    end
+    end %logFixation
 
 end %main function
 
