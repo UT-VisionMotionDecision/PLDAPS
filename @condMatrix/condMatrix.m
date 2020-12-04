@@ -91,6 +91,7 @@ properties (Access = public)
     iPass       % index # of current pass
     nPasses     % [inf] end experiment after nPasses through condition matrix
     order       % set of condition indices for the current pass
+    condReps  % counter of fully presented condition indices
     passSeed    %[sum(100*clock)] base for random seed:  rng(.passSeed + .iPass, 'twister')
     randMode    % [0] flag for randomization through condition matrix [.condMatrix.conds] (see: condMatrix.updateOrder method)
     
@@ -108,6 +109,14 @@ properties (Access = public, Transient = true)
 end
 
 properties (Access = private, Transient = true)
+    % basic internals
+    gotFeedback % record whether or not we got feedback from previous trial
+                % - TRUE if proper usage of  p.condMatrix.putBack(p);  occurred during [.trialCleanUpandSave] pldaps state
+                % - see  modularDemo.pmBase.m  for example
+    nModules    % Number of matrix modules in use
+    padded      % keep track of conditions added to pad complete trial at tend of pass
+    
+    %  derived/redundant values
     ptr         % PTB window pointer
     pWidth      % pixel width of display
     pHeight     % pixel height of display
@@ -137,7 +146,6 @@ methods
                 %             cm.condFields = fieldnames(cm.conditions);
 %                 fprintf(2, '\n\t!!!\tp.condMatrix manually initialized...this is might not be good.\n')
             end
-
         end
         
         % Parse inputs & setup default parameters
@@ -172,6 +180,15 @@ methods
             cm.(fn{i}) = argin.(fn{i});
         end
         
+        % record of matrix module names
+        cm.modNames  = p.trial.pldaps.modNames;
+        cm.nModules = numel(cm.modNames.matrixModule);
+        cm.padded = false(1,cm.nModules);
+        
+        % Initialize counter of conditions shown with zeros
+        cm.condReps = zeros(size(cm.conditions));
+        cm.gotFeedback = false;
+
         % Error check .randMode
         % - if >2 matrix dimensions, scalar randMode==3 will crash
         %   change to indexed dimensions & warn
@@ -181,7 +198,6 @@ methods
         
 % % %         % --- Do we need copies of core/static pldaps variables w/in this class?
 % % %         cm.ptr       = p.trial.display.ptr;
-        cm.modNames  = p.trial.pldaps.modNames;
 % % %         
 % % %   These don't exist at time of condMatrix initialization.
 % % %   ...consider adding a postOpenScreen routine to p.run to update condMatrix,
@@ -210,34 +226,66 @@ methods
         if nargin<3 || isempty(targetModule)
             targetModule = cm.modNames.matrixModule;
         end
+        
+        nModules = numel(targetModule);
+        cm.padded = false(1, nModules);
+        
+        % Apply conditions to targetModule(s) serially
+% %         if cm.gotFeedback   % use smart updating
+            
+            for i = 1:nModules
+                % ensure we don't exceed available indices
+                ii = getNextCond; % nested function
                 
-        % Apply to targetModule(s) serially, updateOrder if necessary
-        for i = 1:numel(targetModule)
-            % refresh order if run out of available indexes
-            if cm.i+1 > numel(cm.order)
-                updateOrder(cm);
+                % Apply fields of condition [ii] to matrix module [i]
+                fn = fieldnames(cm.conditions{ii});
+                % cycle through each condition field
+                for k = 1:numel(fn)
+                    p.trial.(targetModule{i}).(fn{k}) = cm.conditions{ii}.(fn{k});
+                end
+                p.trial.(targetModule{i}).condIndex = ii;
             end
-            cm.i = cm.i+1;
-            ii = cm.order(cm.i);
-            fn = fieldnames(cm.conditions{ii}); %cm.condFields;
-            % cycle through each condition field
-            for k = 1:numel(fn)
-                p.trial.(targetModule{i}).(fn{k}) = cm.conditions{ii}.(fn{k});
-            end
-            p.trial.(targetModule{i}).condIndex = ii;
-        end
+% %         else
+% %             % proceed with assumption that all conditions assigned to previous trial were presented faithfully
+% %             % - This is just a fallback condition, recommended to always provide proper feedback to condMatrix upon trial completion
+% %             %   with proper usage of  p.condMatrix.putBack(p);  during [.trialCleanUpandSave] pldaps state
+% %             %   See:  modularDemo.pmBase.m
+% %             
+% %             
+% %         end
         
         updateInfoFig(cm, p);
-    end
+        % reset feedback flag
+        cm.gotFeedback = false;
+        
+        % ----------------------
+        % % Nested Function % %
+        % getNextCond
+        function nextCondI = getNextCond
+                    if cm.i+1 <= numel(cm.order)
+                        % queue next condition from order
+                        cm.i = cm.i+1;
+                        nextCondI = cm.order(cm.i);
+                    else
+                        % updateOrder, or pad if necessary
+                        if i>1
+                            % when available conditions are exceeded mid-trial assignment,
+                            % pad with random sample of conditions, but don't alter [cm.order] or [cm.i]
+                            nextCondI = randperm(numel(cm.conditions),1);
+                            cm.padded(i) = true;
+                        else
+                            % ONLY advance to a new 'pass' when:
+                            % - ALL conditions of proceeding pass (incl. "putbacks") have been presented
+                            % - AND we are at the start of a new trial
+                            updateOrder(cm);
+                            cm.i = cm.i+1;
+                            nextCondI = cm.order(cm.i);
+                        end
+                    end
+        end %getNextCond
+        % ----------------------
     
-    %% getNextCond
-    function nextCondI = getNextCond(cm)
-        try
-            nextCondI = cm.order(cm.i+1);
-        catch
-            nextCondI = nan;
-        end
-    end
+    end %nextCond
     
     
     %% setNextCond
@@ -247,7 +295,8 @@ methods
         else
             cm.order = [cm.order; nextCondI(:)];
         end
-    end
+        
+    end %setNextCond
     
     
     %% putBack: unused conds
@@ -262,21 +311,31 @@ methods
                 %                     unusedConds(end+1) = p.trial.(mN).condIndex;
                 %                 end
             end
-            unusedConds = theseConds(~wasShown);
+            unusedConds = theseConds(~wasShown & ~cm.padded);
+            % don't count conds that were used only as padding to fill out last trial in a pass
+            %  ...else broken trials can erroneously drop presentations or runup the order
         end
-        % Append incomplete condition indexes to the end of order list
+        
+        % Append incomplete condition indices to the end of order list
         cm.order(end+(1:numel(unusedConds))) = unusedConds;
         if any(wasShown<0)
             fprintf(2, '~!~\tWARNING: Incomplete stimulus presentation detected on trial %d.\n', p.trial.trialnumber)
         end
 
-        % Return set of unusedConds to caller [if requested]
+        % increment counter of conditions presented (exclude padding)
+        ii = theseConds(wasShown & ~cm.padded);
+        cm.condReps(ii) = cm.condReps(ii)+1;
+        
+        cm.gotFeedback = true;
+        
+        % Return set of "conditions shown" to caller [if requested]
         if ~nargout
             return
         else
             output = theseConds(logical(wasShown)); %unusedConds;
         end
-    end
+        
+    end %putBack
     
     
     %% updateOrder: Generate new order set
@@ -346,14 +405,16 @@ methods
         
         % Return rng state to previous
         rng(rng0);
-    end
+        
+    end %updateOrder
     
     
     %% updateInfoFig
     function updateInfoFig(cm, p)
-     % Update Info Fig    (This is still SUPER rudimentary, but better than nothing. --TBC)
+     % Update Info Fig    (This is still SUPER rudimentary, but better than nothing. --TBC)        
         if ishandle(cm.H.infoFig)
-            pctRemain = (1-(numel(cm.order)-cm.i) / numel(cm.conditions)) *100;
+            pctRemain = mean(cm.condReps(:)==cm.iPass)*100; %(1-(numel(cm.order)-cm.i) / numel(cm.conditions)) *100;
+            
             % trial count text
             cm.H.infoFig.Children(1).Children(end).String = sprintf('Trial:  %5d\nPass:  %5d  (%02.1f%%)', p.trial.pldaps.iTrial, cm.iPass, pctRemain);  % cm.i/numel(cm.order)*100);
             % fixation text
@@ -389,9 +450,10 @@ methods
             %             refreshdata(cm.H.infoFig);%.Children(1));
         end
         drawnow limitrate;    
-    end
+        
+    end %updateInfoFig
 
-end
+end %methods
 
 
 end %classdef

@@ -232,9 +232,9 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         nextTrial = p.defaultParameters.incrementTrial(+1);
         %load parameters for next trial and lock defaultParameters
         if ~isempty(p.condMatrix)
-            if p.condMatrix.iPass > p.condMatrix.nPasses
-                break
-            end
+            % initial pass number
+            iPass = p.condMatrix.iPass;
+            
             % create new params level for this trial
             % (...strange looking, but necessary to create a fresh 'level' for the new trial)
             p.defaultParameters.addLevels( {struct}, {sprintf('Trial%dParameters', nextTrial)});
@@ -244,15 +244,21 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             % Apply upcoming condition parameters for the nextTrial
             p = p.condMatrix.nextCond(p);
             
-            % % % 
-            % % % % TESTING block manipulations  (**cannot be mixed within a trial**)
-            % % %
-% %             if iseven(p.condMatrix.iPass)
-% %                 p.static.display.viewdist = 45;
-% %             else
-% %                 p.static.display.viewdist = 100;
-% %             end
- 
+            % check for start of new pass
+            if p.condMatrix.iPass ~= iPass
+                % check for experiment completion
+                if p.condMatrix.iPass > p.condMatrix.nPasses
+                    break
+                end
+                % % %
+                % % % % TESTING block manipulations  (**cannot be mixed within a trial**)
+                % % %
+                % %             if iseven(p.condMatrix.iPass)
+                % %                 p.static.display.viewdist = 45;
+                % %             else
+                % %                 p.static.display.viewdist = 100;
+                % %             end
+            end
             
             % Sync pdsDisplay object with [.trial.display] struct
             p.trial.display = p.static.display.syncToTrialStruct(p.trial.display);
