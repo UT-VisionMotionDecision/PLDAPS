@@ -33,7 +33,7 @@ classdef pldaps < handle
      function p = pldaps(varargin)
          %% setup default parameters
         %classdefaults: create default structure from function
-        defaults{1} = pldaps.pldapsClassDefaults;    % pldaps.pldapsClassDefaultParameters();
+        defaults{1} = pldaps.pldapsClassDefaults;
         defaultsNames{1} = 'pldapsClassDefaults';
         
         %rigdefaults: load from prefs?

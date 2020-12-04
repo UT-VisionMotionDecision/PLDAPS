@@ -2,6 +2,8 @@ function p = frameUpdate(p)
 % p = pds.tracking.frameUpdate(p)
 % get current sample from tracked source & apply calibration
 % 
+% Called during [frameUpdate] state of [pldapsDefaultTrial]
+% 
 % TODO:  Add explainer for how updateFxn should be constructed for different
 % tracker sources.
 % 
@@ -22,7 +24,9 @@ function p = frameUpdate(p)
 % Evolved from pds.eyelink.getQueue.m
 
 
-if p.trial.tracking.use                     % this is wasteful convention; if you don't use, don't call outside fxn in first place.
+% NO: % if p.trial.tracking.use
+%     - this is an old/wasteful convention; if you don't use, don't call outside fxn in first place.
+
     src = p.trial.tracking.source;
     tform = p.trial.(src).tracking_tform;
     % contents of this should be a geometric transform object,
@@ -30,7 +34,7 @@ if p.trial.tracking.use                     % this is wasteful convention; if yo
     % Get current position data from tracking source
     posRaw = feval(p.static.tracking.updateFxn.(src), p);
 
-    % NOTE: function handles MUST be stored in p.static, NOT in p.trial
+    % NOTE: function handles CANNOT exist in p.trial; they MUST be stored in p.static instead
     %       ...krufty holdover of the 'params' class; nixing it has long been on the TODO list
     
     % Record all frame samples in tracking source
@@ -64,7 +68,5 @@ if p.trial.tracking.use                     % this is wasteful convention; if yo
         p.trial.eyeX = pos(1,:)';
         p.trial.eyeY = pos(2,:)';
     end
-                
-end
-    
+                    
 end %main function

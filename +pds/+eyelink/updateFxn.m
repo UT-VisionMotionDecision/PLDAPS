@@ -40,7 +40,7 @@ function pos = updateFxn(p)
 
 %% Initialize
 
-useRaw = false;%p.trial.eyelink.useRawData;
+useRaw = p.trial.eyelink.useRawData;
 % NOTE:  cannot 'useRaw' if mouse simulation mode enabled.
 %     useRaw = false;
 
