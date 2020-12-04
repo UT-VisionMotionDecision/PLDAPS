@@ -30,6 +30,8 @@ end
 
 % Populate local workspace variables
 srcIdx = p.static.tracking.srcIdx; % p.trial.(sn).srcIdx; % NOTE: This should/must be a one-based, not zero-based index!
+persistent Hf Ax    % [Hf] & [Ax] are local persistent variable to figure & axes handles
+
 
 if nargin<2 || isempty(state)
     % special case to initiate calibration trial(s) from pause state
@@ -109,10 +111,8 @@ switch state
             if any(p.trial.keyboard.firstPressQ)
                 % Check keyboard for defined actions (nested function)
                 doKeyboardChecks;
-                
-                % update plot on any user interaction
-                updateCalibPlot(p);
             end
+            
         end
         
         
@@ -129,13 +129,19 @@ switch state
             % nested fxns have access to this workspace...no inputs needed
             drawTheFixation; %(p, sn);
             
-            if p.trial.display.useOverlay  % && p.trial.pldaps.draw.eyepos.use
+            if p.trial.display.useOverlay
+                % find all recorded fixations that match current viewdist
+                n = imag(p.static.tracking.fixations(3,:,srcIdx(1))) == p.static.display.viewdist;
+
                 % Show past & current eye position on screen
                 for i = srcIdx
                     if p.static.tracking.thisFix > 0
                         % fixations in this calibration
-                        pastFixPx = transformPointsInverse(p.static.tracking.tform(i), imag(p.static.tracking.fixations(1:2, 1:p.static.tracking.thisFix, i))')';
-                        Screen('DrawDots', p.trial.display.overlayptr, pastFixPx(1:2,:), 5, p.trial.display.clut.red, [], 0);    %[0 1 0 .7], [], 0);
+                        pastFixPx = (1:length(n)<=p.static.tracking.thisFix & n); % use variable to subselect indices of current data first...
+                        if any(pastFixPx)
+                            pastFixPx = transformPointsInverse(p.static.tracking.tform(i), imag(p.static.tracking.fixations(1:2, pastFixPx, i))')';
+                            Screen('DrawDots', p.trial.display.overlayptr, pastFixPx(1:2,:), 5, p.trial.display.clut.red, [], 0);    %[0 1 0 .7], [], 0);
+                        end
                     end
                     
                     % Draw current eye position with calibration applied
@@ -199,6 +205,9 @@ end %state switch block
                 
         p.trial.(sn).on = true;
         
+        % Initialize GUI figure
+        getCalibFig;
+        
         % Programmatically resume from pause
         com.mathworks.mlservices.MLExecuteServices.consoleEval('dbcont');
         
@@ -211,12 +220,9 @@ end %state switch block
         % re-enable initial module activity state [in the p.run workspace?],
         % then return control to user in the pause state again??
         
-        
         %!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!
         % (....wtf!?? So archaic& cryptic!  MUST GET AWAY from this params class business!!
         %!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!%!
-        
-        
         
         % Poll current pldaps 'levels' state (...goofy params class stuff)
         % Create new 'level', that re-enables modules that were active when this calibration started
@@ -346,8 +352,15 @@ end %state switch block
                 p.static.tracking.nextTarg = p.trial.keyboard.numKeys.pressed(end);
                 % disp(p.trial.tracking.nextTarg)
                 updateTarget(p)
-            end 
+            end
+        else
+            % did nothing, skip over plot update & return
+            return
         end
+        
+        % update plot on any user interaction
+        updateCalibPlot(p);
+        
     end %end keyboardChecks
 
 
@@ -463,25 +476,49 @@ end %state switch block
     end %updateCalibTransform
 
 
+%% getCalibFig
+    function getCalibFig
+        % - [Hf] & [Ax] are local persistent variable to figure & axes handles
+        if isempty(Hf) || ~ishandle(Hf)
+            % open figure for calibration data plotting/GUI
+            Hf = figure(p.condMatrix.baseIndex+1); clf;
+            set(Hf, 'windowstyle','normal', 'toolbar','none', 'menubar','none', 'selectionHighlight','off', ...
+                'color',.5*[1 1 1], 'position',[1000,100,600,400]-80);
+            set(Hf, 'Name', ['Calib:  ',p.trial.session.file], 'NumberTitle','off')            
+        else
+            % direct focus to calibration figure & clear
+            figure(Hf); % clf;
+        end
+
+        if isempty(Ax) || ~ishandle(Ax)
+            Ax = axes;
+        else
+            axes(Ax); cla
+        end
+        % tune axes to fit
+        box off;  axis equal;  hold on;
+        try
+            % XY pixel locations of all current targets
+            allTargs = p.static.tracking.targets.xyPx - p.static.display.ctr(1:2)';
+            axis(Ax, 1.3*[min(allTargs(1,:)),max(allTargs(1,:)), min(allTargs(2,:)),max(allTargs(2,:))]);
+        end
+%         set(Ax, 'plotboxaspectratio',[p.static.display.ctr(1:2),1], 'fontsize',10);
+        set(Ax, 'fontsize',10);
+
+    end %getCalibFig
+
+
 %% updateCalibPlot(p)
     function updateCalibPlot(p)
         % find all recorded fixations that match current viewdist
         n = imag(p.static.tracking.fixations(3,:,srcIdx(1))) == p.static.display.viewdist;        
         
-        % Initialize
-        % TODO:  Update to GUI app
-        Hf = figure(p.condMatrix.baseIndex+1); clf;
-        set(Hf, 'windowstyle','normal', 'toolbar','none', 'menubar','none', 'selectionHighlight','off', ...
-            'color',.5*[1 1 1], 'position',[1200,100,600,400]-80);
-        set(Hf, 'Name', ['Calib:  ',p.trial.session.file], 'NumberTitle','off')
-        
-        sp = axes;  cla;
-        set(sp, 'plotboxaspectratio',[p.static.display.ctr(1:2),1])
-        hold on;   box off
-        axis equal; hold on
-        
         % XY pixel locations of all current targets 
         allTargs = p.static.tracking.targets.xyPx - p.static.display.ctr(1:2)';
+        
+        % Direct focus to calibration figure & axes
+        % - [Hf] is local persistent variable to figure handle
+        getCalibFig;
         
         % color by target location onscreen
         % - convert targ loc to polar, then subdivide r by 3, t by 9
@@ -489,17 +526,15 @@ end %state switch block
         
         % plot targets
         plot( allTargs(1,:), -allTargs(2,:), 'd','color',.8*[1 1 1])
-        % expand axes to fit
-        axis(1.3*axis);
 
         % mark currently active target
         plot( allTargs(1,p.static.tracking.targets.i), -allTargs(2,p.static.tracking.targets.i), 'ro', 'markersize',10, 'linewidth',1.2);
         
         % Report target visibility in gui fig
         if p.trial.tracking.col(4) % rendering params still in p.trial  (this sort of makes sense, but could become confusing)
-            title('[- Target visible -]', 'fontsize',10, 'fontweight','bold');
+            title('[- Target visible -]', 'fontweight','bold');
         else
-            title('[- Target hidden -]', 'fontsize',10, 'fontweight','normal'); %, 'color',[1,.1,.1]);
+            title('[- Target hidden -]', 'fontweight','normal'); %, 'color',[1,.1,.1]);
         end
         
         
@@ -567,7 +602,7 @@ end %state switch block
         ii = find(p.static.tracking.targets.randOrd==i);
         p.static.tracking.nextTarg = p.static.tracking.targets.randOrd(mod(ii, p.static.tracking.targets.nTargets)+1);
         
-        updateCalibPlot(p);
+        % updateCalibPlot(p);
         
     end %updateTarget
 
