@@ -120,7 +120,7 @@ function s = pldapsClassDefaults(s)
  s.	pldaps.	eyeposMovAv = 1;
  s. pldaps. lastBgColor = s.display.bgColor;
  s.	pldaps.	finish = Inf;
- % s.	pldaps.	goodtrial = 0; % This is old; now in p.trial.good. Marking for future deletion. --TBC 2017
+ s.	pldaps.	goodtrial = nan; % no prior assumption; allow user to determine trial 'goodness' (i.e. Do trials become 'good'(==1|true) only when fully complete, or become 'bad'(==0|false) only when interruped/failed?)
  s.	pldaps.	iTrial = 0;
  s.	pldaps.	maxPriority = true;
  s.	pldaps.	maxTrialLength = 1; % prev default of 30(!!) sec was balooning size of data fields/files

@@ -15,4 +15,9 @@ function updateModNames(p)
 % Establish list of all module names    (see help pldaps.getModules)
 p.trial.pldaps.modNames.all             = getModules(p, 0);
 p.trial.pldaps.modNames.matrixModule    = getModules(p, bitset(0,2));
-p.trial.pldaps.modNames.tracker         = getModules(p, bitset(0,3));   
+p.trial.pldaps.modNames.tracker         = getModules(p, bitset(0,3));
+
+% assign module names for certain special cases
+if isfield(p.trial.pldaps.modNames, 'behavior')
+    p.trial.behavior.modName = p.trial.pldaps.modNames.behavior{1};
+end
