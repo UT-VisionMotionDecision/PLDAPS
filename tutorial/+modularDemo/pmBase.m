@@ -166,15 +166,9 @@ switch thisState
                 go = false;
         end
 
-        if p.trial.(sn).waitForGoSignal && p.trial.(sn).wait
-            if p.trial.keyboard.firstPressQ(p.trial.(sn).goSignal)
-                p.trial.(sn).wait = false;
-            end
-            
-        elseif isheld %p.checkFixation(p)
-            % Fixation acquired, move on!
+        if go
+            % Fixation conditions met, move on!
             setStateStart(p,sn, p.trial.(sn).states.HOLDFIX)
-            
         end
         
         

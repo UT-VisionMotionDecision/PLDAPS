@@ -41,6 +41,18 @@ else
     doUpdate = forceUpdate;
 end
 
+if exist('newdist','var') && ~isempty(newdist)
+    % Quirky loop b/c this function is now called automatically by property
+    % listener on [p.static.display.viewdist].
+    %   -If attempting to use this function to set a viewdist, then use input
+    %    to trigger the listener callback & return
+    %   - ...better to just set .viewdist & trigger callback directly
+    p.static.display.viewdist = newdist;
+    if ~forceUpdate
+        return
+    end
+end
+
 % check if viewdist different from previous
 if p.trial.display.viewdist ~= p.static.display.viewdist
     doUpdate = 1;
@@ -105,16 +117,12 @@ end
 
 %% Update dependent variables
 
-% dependent variables now implemented *as dependents* in pdsDisplay class
-if exist('newdist','var') && ~isempty(newdist)
-    p.static.display.viewdist = newdist;
-end
-
 % 3D OpenGL rendering parameters
 if p.trial.display.useGL
     % Apply updated openGL params to viewport configuration
     p.static.display.updateOpenGlParams();  % pdsDisplay METHOD (no longer a nested function)
 end
+
 
 % Create new PLDAPS 'level' so that current viewdist params carry over to subsequent trials
 updatePldapsDisplayParams(p);
@@ -140,6 +148,11 @@ end
         % -- (overkill, but getting struct diff alone is a nightmare)
         newLvlStruct = struct;
         newLvlStruct.display = p.static.display; % ? copy()
+        
+        % update overlay grid ticks & carry over to future trials
+        initTicks(p);
+        newLvlStruct.pldaps.draw.grid.tick_line_matrix = p.trial.pldaps.draw.grid.tick_line_matrix;
+        
         
         %unlock the defaultParameters
         prevState = p.defaultParameters.setLock(false);
