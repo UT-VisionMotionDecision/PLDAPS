@@ -118,10 +118,11 @@ end
 %% Update dependent variables
 
 % 3D OpenGL rendering parameters
-if p.trial.display.useGL
+% if p.trial.display.useGL
     % Apply updated openGL params to viewport configuration
+    % ALWAYS do this
     p.static.display.updateOpenGlParams();  % pdsDisplay METHOD (no longer a nested function)
-end
+% end
 
 
 % Create new PLDAPS 'level' so that current viewdist params carry over to subsequent trials
