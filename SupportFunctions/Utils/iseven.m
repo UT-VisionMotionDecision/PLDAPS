@@ -1,0 +1,1 @@
+function y = iseven(x)% ISEVEN - boolean test for eveness%	11/12/2000: wrote it -lkc%   09/15/2009: vectorized -tbcy = zeros(size(x));for i = 1:numel(x)    if rem(x(i), 2)        y(i)=0;    else        y(i)=1;    endend

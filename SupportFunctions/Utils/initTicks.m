@@ -43,10 +43,10 @@ end
 %% functional form of tick init
 gridSize_sm = 1; % (deg)
 gridSize_lg = 5; % large grid must be a multiple of small grid (...a reasonable constraint, amirite)
-tickSize = 0.05 * p.trial.display.ppd;  % (deg)
+tickSize = 0.05 * p.static.display.ppd;  % (deg)
 
-hgrid = gridSize_sm:gridSize_sm:(p.trial.display.width/2);
-vgrid = gridSize_sm:gridSize_sm:(p.trial.display.height/2);
+hgrid = gridSize_sm:gridSize_sm:(p.static.display.width/2);
+vgrid = gridSize_sm:gridSize_sm:(p.static.display.height/2);
 
 [xgrid, ygrid] = meshgrid( [0, -hgrid, hgrid], [0, -vgrid, vgrid]);
 tgrid = [xgrid(:), ygrid(:)];
@@ -71,14 +71,14 @@ tks = tks(i);
 % Convert grid points to projection mapped pixels & add tick lengths to each
 % horizontal ticks
 i = (tgrid(:,1)==0 & tgrid(:,2)~=0) | tks>1;
-tpos = pds.deg2px(kron(tgrid(i,:), [1;1])', p.trial.display.viewdist, p.trial.display.w2px)'...
+tpos = pds.deg2px(kron(tgrid(i,:), [1;1])', p.static.display.viewdist, p.static.display.w2px)'...
        + kron(tks(i), tickSize*[-1,0; 1,0]);
 % vertical ticks
 i = (tgrid(:,2)==0 & tgrid(:,1)~=0) | tks>1;
-tpos = [tpos; pds.deg2px(kron(tgrid(i,:), [1;1])', p.trial.display.viewdist, p.trial.display.w2px)'...
+tpos = [tpos; pds.deg2px(kron(tgrid(i,:), [1;1])', p.static.display.viewdist, p.static.display.w2px)'...
               + kron(tks(i), tickSize*[0,-1; 0,1])];
           
 % pass out
 p.trial.pldaps.draw.grid.tick_line_matrix = tpos';
 
-return
+end %main function

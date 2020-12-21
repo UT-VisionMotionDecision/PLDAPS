@@ -28,6 +28,8 @@ classdef pdsDisplay < dynamicprops
         destinationFactorNew
         stereoFlip
         gamma
+        frate
+        ifi
         info
         
         % PLDAPS params
@@ -211,11 +213,18 @@ classdef pdsDisplay < dynamicprops
             % Update OpenGL params
             %   (~~~ WARNING ~~~: potentially slow OpenGL context switching)
             o.updateOpenGlParams();
+            
 
             % TODO:  Check for modules & active states in p.trial here....
-            if isprop(o,'p') && isfield(o.p.static, 'tracking')
-                % update OOP tracking object calibration
-                o.p.static.tracking.updateTform();
+            if isprop(o,'p') 
+                % run viewdist updating function
+                % - compares current & requested values of dependent modules
+                pds.display.setViewdist(o.p);
+                
+                if isfield(o.p.static, 'tracking')
+                    % update OOP tracking object calibration
+                    o.p.static.tracking.updateTform();
+                end
             end
             %
             % .grbl
