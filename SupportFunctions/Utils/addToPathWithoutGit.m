@@ -18,13 +18,13 @@ function addToPathWithoutGit(dir, excludes, withSubdirs)
     else
         b=textscan(a,'%s','delimiter',':');
         b=b{1};
-        b(~cellfun(@isempty,strfind(b,'.git')))=[];
-        b(~cellfun(@isempty,strfind(b,'.svn')))=[];
+        b(contains(b, '.git')) = [];
+        b(contains(b, '.svn')) = [];
         if nargin>1
             if ~iscell(excludes), excludes = {excludes}; end
             for i = 1:numel(excludes)
                 if ~isempty(excludes{i})
-                    b(~cellfun(@isempty,strfind(b, excludes{i})))=[];
+                    b(contains(b, excludes{i})) = [];
                 end
             end
         end
