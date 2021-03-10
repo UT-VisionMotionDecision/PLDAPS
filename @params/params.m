@@ -109,14 +109,19 @@ classdef params < handle
             names = fieldnames(p);
         end
         
+        
         %% isField(p, fieldname) --yuck!!
         function is = isField(p,fieldname)
+            % hacky overloading of isfield that allows to specify multiple levels at once
+            % e.g.  isField(p.trial, 'display.ppd')
+            % ...overall, this is a crutch that should be avoided. --TBC 2020
             if(fieldname(1)~='.')
                 fieldname=['.' fieldname];
             end
             is = ismember(fieldname,{p.flatStruct.identifier});
         end
-           
+        
+        
         %% addStructs(p, struct, newName, makeActive)
         function addStructs(p,s,sN,active)
             if nargin<3
@@ -142,10 +147,12 @@ classdef params < handle
             end
         end
         
+        
         %% addLevels --> addStructs(p, struct, newName, makeActive)
         function addLevels(varargin)
             addStructs(varargin{:});
         end %p=addLevels(p,s,sN,active)
+        
         
         %% addNewStruct(p, inputStruct, newStructName, makeActive)
         function addNewStruct(p, inputStruct, newStructName, makeActive)
@@ -180,7 +187,8 @@ classdef params < handle
             p.activeLevels = logical(p.activeLevels);
             p.topLevel = find(p.activeLevels, 1, 'last');
         end
-                
+        
+        
         %% setLevels(p, value)
         function oldLevels = setLevels(p,value)
             if nargout>0
@@ -198,16 +206,37 @@ classdef params < handle
             p.topLevel=find(p.activeLevels, 1, 'last');
         end
         
+        
         %% getActiveLevels(p)
         % Return index(s) of currently active params hierarchy levels
         function activeLevels = getActiveLevels(p)
             activeLevels = find(p.activeLevels);
         end
         
+        
         %% getAllLevels(p)
         function l = getAllLevels(p)
             l=1:length(p.structs);
         end
+        
+
+        %% getLevelNames(p, theseLevels)
+        % names of requested/active Params hierarchy levels (and corresponding indices, if requested)
+        function [sN, levelIdx] = getLevelNames(p, theseLevels)
+            if nargin<2
+                % return all level names
+                theseLevels = 1:numel(p.activeLevels);
+            elseif (isscalar(theseLevels) && theseLevels==true)
+                % return names of active levels only
+                theseLevels = getActiveLevels(p);
+            end
+            % get hierarchy level names
+            sN = p.structNames(theseLevels);
+            if nargout>1
+                levelIdx = theseLevels;
+            end
+        end
+        
         
         %% getAllStructs(p)
         % output raw contents of a Params hierarchy (...not for mere mortals)
@@ -216,6 +245,7 @@ classdef params < handle
             sN = p.structNames;
             active = p.activeLevels;
         end
+        
         
         %% addField(p, id, value, [iLevel])
         function addField(p,id,value,iLevel) 
@@ -271,6 +301,7 @@ classdef params < handle
             end
         end
         
+        
         %% getParameter(p, id, [iLevel])
         function varargout = getParameter(p,id,iLevel)
             parentLevels=textscan(id,'%s','delimiter','.');
@@ -287,7 +318,8 @@ classdef params < handle
                 [varargout{1:nargout}] = builtin('subsref',p, S);
             end
         end
-                
+        
+        
         %% subsref(p, S)
         function varargout = subsref(p,S)
             if(p.locked)
@@ -372,6 +404,7 @@ classdef params < handle
             end
         end
 
+        
         %% incrementTrial(p, [delta])
         % Increment iTrial value in the "session" level of p.structs{4}.pldaps.iTrial
         % Currently a necessary evil to prevent reinitialization of the trial
@@ -390,6 +423,7 @@ classdef params < handle
                 varargout{1} = p.structs{sessionIndex}.pldaps.iTrial;
             end
         end
+        
         
         %% subsasgn 
         function p = subsasgn(p,S,value)

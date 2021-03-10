@@ -77,28 +77,59 @@ classdef condMatrix < dynamicprops
 % 
 % ****************************************************************
 % 
+% Core Methods:
+%   [nextCond]
+%       Apply upcoming condition parameters for the nextTrial
+%       - if Params Class is in use, this will:       (default behavior circa 2020, but will change at some point)
+%       1) activate hierarchy levels from [p.static.pldaps.baseParamsLevels] 
+%       2) [optional] create a new block level ( iff ~isempty(cm.blocks) ) with block-specific params, & add that level to the baseParamsLevels
+%          - NOTE: prior blocks should [ideally] also be 'pruned' from hierarchy
+%       3) create a new trial level, which will accumulate any updates to parameters/data for the upcoming trial
+%          - a unique condition will be applied to each matrixModule instance, using set of module names defined in  [p.trial.pldaps.modNames.matrixModule]
+%          - order of conditions based on [cm.order], which is setup/replenished for each pass following [cm.randMode] 
+%          - condition index is assigned w/in each matrixModule as  [p.trial.(mN).condIndex], where [mN] is the fieldname of each unique matrix module
+%          - See [modularDemo.pmBase.m] for example of how to use .condIndex and .baseIndex to send unique strobed values for each condition presented
+% 
+%   [putBack]
+%       Supply feedback at end of trial to report which conditions were successfully presented
+%       - condIndices of any matrixModules that were not [fully] shown (&& were not flagged as padding for last trial in a pass)
+%         will be appended to the end of the current .order cueue of conditions.
+%       - See [modularDemo.pmBase.m] for usage
+% 
+%
 % see also:  glDraw.pmBase
 % 
 % 2018-xx-xx  TBC  Wrote it.
 % 2019-08-30  TBC  Commenting and [some] cleanup
+% 2020-12-08  TBC  Added [basic] block capibilities & ever more commenting/explanation
 % 
 
 
-properties (Access = public)
+properties (Access = public)    
+    % --- Standard setup ---
     conditions  % cell of matrixModule fields that define each condition
-    
     i           % index # of current position in .condMatrix.order
     iPass       % index # of current pass
     nPasses     % [inf] end experiment after nPasses through condition matrix
     order       % set of condition indices for the current pass
     condReps  % counter of fully presented condition indices
     passSeed    %[sum(100*clock)] base for random seed:  rng(.passSeed + .iPass, 'twister')
-    randMode    % [0] flag for randomization through condition matrix [.condMatrix.conds] (see: condMatrix.updateOrder method)
     
+    randMode    % [0] flag for randomization through condition matrix [.condMatrix.conds] (see: condMatrix.updateOrder method)
     baseIndex   % [1000] base index value used to distinguish condition index strobed words, and as matrixModule onset strobe(?)
 
     modNames    % module names struct
     maxFrames   % max number of frames per trial
+
+    % --- Block setup ---
+    blocks      % cell of parameters to update after [n] full passes through condition matrix
+    % Blocks are only updated at start of new Pass
+    % Unlike matrixModules, blocks{} can modify ANY pldaps [p.trial] subfield or pldaps module
+    % - e.g. changes to [p.trial.display.viewdist]  or  toggling broader 'modes' of your stimulus modules
+    % - ...even matrixModules, but condition matrix parameters will take precident 
+    iBlock      % index # of current block
+                % TODO: allow randomization of block order
+    blockModulo % modulus of block update increments: triggered when  ~mod(iPass-1, blockModulo);
     
 end
 
@@ -109,12 +140,15 @@ properties (Access = public, Transient = true)
 end
 
 properties (Access = private, Transient = true)
-    % basic internals
+    % basic internal counters/parameters  [hidden]
     gotFeedback % record whether or not we got feedback from previous trial
                 % - TRUE if proper usage of  p.condMatrix.putBack(p);  occurred during [.trialCleanUpandSave] pldaps state
                 % - see  modularDemo.pmBase.m  for example
     nModules    % Number of matrix modules in use
     padded      % keep track of conditions added to pad complete trial at tend of pass
+    
+    nBlocks     % number of unique blocks
+    blockParamsLevel  % index to Params Class level containing current block parameters
     
     %  derived/redundant values
     ptr         % PTB window pointer
@@ -137,15 +171,24 @@ methods
         % If .condMatrix already exists as a struct (i.e. .condMatrix.conditions created during experiment setup),
         % extract the values from it before overwriting it with this condMatrix object.
         if ~isempty(fieldnames(p.condMatrix))
+            % Conditions
             if isfield(p.condMatrix, 'conditions')
-                % ???? How does this need to be structured?
+                % A cell of matrixModule fields defining each condition
+                % - conditions limited to fields w/in matrixModule iterations
+                % - e.g.   pldapsModule('modName',sn, 'name','modularDemo.pmMatrixGabs', 'matrixModule',true, 'order',10);
+                cm.conditions = p.condMatrix.conditions;
+            end
+            % Blocks
+            if isfield(p.condMatrix, 'blocks')
                 % -- A cell of fields, like p.conditions
                 % -- ...specific enough that a creation method would be best?
-                cm.conditions = p.condMatrix.conditions;
-                %             % list fieldnames set by conditions matrix
-                %             cm.condFields = fieldnames(cm.conditions);
-%                 fprintf(2, '\n\t!!!\tp.condMatrix manually initialized...this is might not be good.\n')
+                cm.blocks   = p.condMatrix.blocks;
+                cm.nBlocks  = numel(cm.blocks);
+            else
+                cm.blocks	= [];
+                cm.nBlocks  = 0;
             end
+            
         end
         
         % Parse inputs & setup default parameters
@@ -160,6 +203,9 @@ methods
         pp.addParameter('randMode', 0);
         pp.addParameter('baseIndex', 1000);
         pp.addParameter('useFrameDurations',false);
+        pp.addParameter('iBlock', 0);
+        pp.addParameter('blockModulo', 1);
+
         
         % Do the parsing
         try
@@ -231,28 +277,67 @@ methods
         cm.padded = false(1, nModules);
         
         % Apply conditions to targetModule(s) serially
-% %         if cm.gotFeedback   % use smart updating
+        for i = 1:nModules
+            % ensure we don't exceed available indices
+            [ii, isNewPass] = getNextCond; % nested function selects next cond, also manage .order & .iPass
             
-            for i = 1:nModules
-                % ensure we don't exceed available indices
-                ii = getNextCond; % nested function
-                
-                % Apply fields of condition [ii] to matrix module [i]
-                fn = fieldnames(cm.conditions{ii});
-                % cycle through each condition field
-                for k = 1:numel(fn)
-                    p.trial.(targetModule{i}).(fn{k}) = cm.conditions{ii}.(fn{k});
+            if i==1
+                % Initialize new trial with only the appropriate 'Params Levels' active
+                % - TODO:  replace this params class usage with a 'freshTrial' struct
+                if ~strcmpi(class(p.trial), 'params')  % == isa() & ignore case
+                    error('condMatrix:nextCond',['!!!\t[p.trial] must be a pointer to the Params Class object in [p.defaultParameters] for this version to work\n',...
+                                   '\t(...as would be expected at start of a new trial w/in p.run)']);
                 end
-                p.trial.(targetModule{i}).condIndex = ii;
+                
+                % unlock the defaultParameters
+                lockState = p.trial.setLock(false);
+                                
+                if ~isempty(cm.blocks)
+                    % Update block params (if present)
+                    if isNewPass
+                        % increment block counter & update parameters
+                        p = cm.nextBlock(p);
+                        % -----------------------%
+                        p.trial.setLevels( [p.static.pldaps.baseParamsLevels, cm.blockParamsLevel] );
+                        
+                        % Update display object from p.trial struct
+                        % - .viewdist is a speciall case parameter that triggers external updates/dependencies
+                        p.static.display.viewdist = p.trial.display.viewdist;
+                    else
+                        % block already exists, activate it & baseParams
+                        p.trial.setLevels( [p.static.pldaps.baseParamsLevels, cm.blockParamsLevel] );
+                    end
+                    
+                else
+                    % Only activate baseParamsLevels (No blocks defined in condMatrix)
+                    p.trial.setLevels( p.static.pldaps.baseParamsLevels );
+                end
+            
+                % create the new params level for this trial (but don't make it active yet)
+                p.trial.addLevels( {struct}, {sprintf('Trial%dParameters', p.trial.pldaps.iTrial)}, false);
+                
+                % Append new trial level to currently active levels
+                % - this will result in either [base + trial] or [base + block + trial] levels active
+                p.trial.setLevels( [p.trial.getActiveLevels, length(p.trial.getAllLevels)] );
+                
+                % NOTE:  p.run will take care of recording the list of active 'Levels' on every trial w/in  [p.data{}.pldaps.activeLevels]
+
+                % return 'lock' state of defaultParameters to inital state
+                if lockState
+                    p.defaultParameters.setLock(true);
+                end
+                % Good to go!   (...barrrf)
             end
-% %         else
-% %             % proceed with assumption that all conditions assigned to previous trial were presented faithfully
-% %             % - This is just a fallback condition, recommended to always provide proper feedback to condMatrix upon trial completion
-% %             %   with proper usage of  p.condMatrix.putBack(p);  during [.trialCleanUpandSave] pldaps state
-% %             %   See:  modularDemo.pmBase.m
-% %             
-% %             
-% %         end
+
+
+            % Apply fields of condition [ii] to matrix module [i]
+            fn = fieldnames(cm.conditions{ii});
+            % cycle through each condition field
+            for k = 1:numel(fn)
+                p.trial.(targetModule{i}).(fn{k}) = cm.conditions{ii}.(fn{k});
+            end
+            p.trial.(targetModule{i}).condIndex = ii;
+        end
         
         updateInfoFig(cm, p);
         % reset feedback flag
@@ -261,27 +346,29 @@ methods
         % ----------------------
         % % Nested Function % %
         % getNextCond
-        function nextCondI = getNextCond
-                    if cm.i+1 <= numel(cm.order)
-                        % queue next condition from order
-                        cm.i = cm.i+1;
-                        nextCondI = cm.order(cm.i);
-                    else
-                        % updateOrder, or pad if necessary
-                        if i>1
-                            % when available conditions are exceeded mid-trial assignment,
-                            % pad with random sample of conditions, but don't alter [cm.order] or [cm.i]
-                            nextCondI = randperm(numel(cm.conditions),1);
-                            cm.padded(i) = true;
-                        else
-                            % ONLY advance to a new 'pass' when:
-                            % - ALL conditions of proceeding pass (incl. "putbacks") have been presented
-                            % - AND we are at the start of a new trial
-                            updateOrder(cm);
-                            cm.i = cm.i+1;
-                            nextCondI = cm.order(cm.i);
-                        end
-                    end
+        function [nextCondI, isNewPass] = getNextCond
+            isNewPass = false;
+            if cm.i+1 <= numel(cm.order)
+                % queue next condition from order
+                cm.i = cm.i+1;
+                nextCondI = cm.order(cm.i);
+            else
+                % updateOrder, or pad if necessary
+                if i>1
+                    % when available conditions are exceeded mid-trial assignment,
+                    % pad with random sample of conditions, but don't alter [cm.order] or [cm.i]
+                    nextCondI = randperm(numel(cm.conditions),1);
+                    cm.padded(i) = true;
+                else
+                    % ONLY advance to a new 'pass' when:
+                    % - ALL conditions of proceeding pass (incl. "putbacks") have been presented
+                    % - AND we are at the start of a new trial
+                    updateOrder(cm);
+                    cm.i = cm.i+1;
+                    nextCondI = cm.order(cm.i);
+                    isNewPass = true;
+                end
+            end
         end %getNextCond
         % ----------------------
     
@@ -407,6 +494,45 @@ methods
         rng(rng0);
         
     end %updateOrder
+    
+    
+    %% nextBlock: apply next block parameters
+    function p = nextBlock(cm, p)
+        % Get next block index & apply any block parameters provided
+        if ~mod(cm.iBlock, cm.blockModulo)
+            % ensure we don't exceed available block indices
+            ii = getBlockIndex; % nested function
+            
+            % % % % Do this once we ditch Params Class:
+            % % %             % merge values of this block into [p.trial]  (recursive struct updating)
+            % % %             p.trial = setstructfields(p.trial, cm.blocks{ii});
+            
+            % funky Params class levels to apply block params to p.trial
+            % TODO:  Excise this so we aren't leaning on hacky "params levels"
+            newBlockLevel = cm.blocks{ii};
+            
+            % Create the new block level (but don't make it active yet)
+            p.defaultParameters.addLevels({newBlockLevel}, {sprintf('block%dParameters', ii)}, false);
+            % append this new level to the baseParamsLevels
+            cm.blockParamsLevel = length(p.defaultParameters.getAllLevels);
+        end
+        
+        % increment after evaluating (annoyingly '0-based', but makes modulo indexing easier)
+        cm.iBlock = cm.iBlock+1;
+        
+        
+        % ----------------------
+        % % Nested Function % %
+        % getNextCond
+        function nextBlockI = getBlockIndex
+            % simple modulo since no block randomization yet
+            nextBlockI = mod( floor(cm.iBlock/cm.blockModulo), cm.nBlocks)+1;
+            
+            % ...see getNextCond for random order code when ready
+        end %getNextBlock
+        % ----------------------
+    
+    end %nextBlock
     
     
     %% updateInfoFig
