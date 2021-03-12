@@ -54,7 +54,8 @@ if p.trial.pldaps.useModularStateFunctions
     %     p.trial.pldaps.modNames.matrixModule    = getModules(p, bitset(0,2));
     %     p.trial.pldaps.modNames.tracker         = getModules(p, bitset(bitset(0,1),3));
     
-    %experimentSetup before openScreen to allow modifyiers
+    % experimentPreOpenScreen: experiment/module setup prior to opening PTB screen
+    % - use for establishing default module parameters (see modularDemo.pmFixDot.m for example)
     [moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs] = getModules(p);
     runStateforModules(p,'experimentPreOpenScreen', moduleNames, moduleFunctionHandles, moduleRequestedStates, moduleLocationInputs);
 end
@@ -70,7 +71,8 @@ p.defaultParameters.pldaps.maxFrames = ceil(p.defaultParameters.pldaps.maxTrialL
 
 
 %% experimentSetupFunction
-%   (i.e. fxn handle input w/ initial pldaps object creation)
+%  - can be set by including an @fxn handle input during initial pldaps object creation
+%  - circa 2020, this is a relatively "legacy approach" to experiment setup
 if ~isempty(p.defaultParameters.session.experimentSetupFile) && ~strcmp(p.defaultParameters.session.experimentSetupFile, 'none')
     feval(p.defaultParameters.session.experimentSetupFile, p);
 end
@@ -112,13 +114,15 @@ pds.plexon.spikeserver.connect(p);
 %-------------------------------------------------------------------------%
 pds.behavior.reward.setup(p);
 
-% Initialize Datapixx including dual CLUTS and timestamp
-% logging
+% Initialize Datapixx (e.g. 'digital word' sync pulses, special Overlay/ProPixx modes)
 pds.datapixx.init(p);
 
-% HID: Initialize Keyboard, Mouse, ...etc
+% HID: 'Human' interface devices
+%-------------------------------------------------------------------------%
+% Keyboard
 pds.keyboard.setup(p);
 
+% Mouse
 if p.trial.mouse.useLocalCoordinates
     p.trial.mouse.windowPtr=p.trial.display.ptr;
 end
@@ -132,7 +136,7 @@ if p.trial.pldaps.useModularStateFunctions
     % Update list of module names now that everything is initialized    (see help pldaps.getModules)
     p.updateModNames;
     % ???: Should this be done BEFORE or AFTER experimentPostOpenScreen state execution?
-    %      ...BOTH is ugly, but logical/safe given potential for unknown setup dependencies
+    %      ...BOTH is ugly, but logical/safe given potential setup dependencies
 
     [moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
     runStateforModules(p,'experimentPostOpenScreen',moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs);
@@ -156,6 +160,7 @@ fprintf('PLDAPS filename\t\t\t(time %s)\n', datestr(p.defaultParameters.session.
 fprintf(2, '\t\t%s\n', p.defaultParameters.session.file);
 if isfield(p.trial.pldaps.modNames,'currentStim')
     try
+        % Show info about primary stimulus module
         fprintLineBreak('-');
         fprintf('p.trial.%s:\n',p.trial.pldaps.modNames.currentStim{1})
         disp(p.trial.(p.trial.pldaps.modNames.currentStim{1}));
@@ -230,38 +235,29 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         
         % increment trial counter
         nextTrial = p.defaultParameters.incrementTrial(+1);
+        
         %load parameters for next trial and lock defaultParameters
         if ~isempty(p.condMatrix)
             % initial pass number
             iPass = p.condMatrix.iPass;
             
-            % create new params level for this trial
-            % (...strange looking, but necessary to create a fresh 'level' for the new trial)
-            p.defaultParameters.addLevels( {struct}, {sprintf('Trial%dParameters', nextTrial)});
-            % Make only the baseParamsLevels and this new trial level active
-            p.defaultParameters.setLevels( [p.static.pldaps.baseParamsLevels, length(p.trial.getAllLevels)] );
-            % Good to go!
             % Apply upcoming condition parameters for the nextTrial
+            % - if present, this will also apply/increment block parameters
             p = p.condMatrix.nextCond(p);
-            
-            % check for start of new pass
-            if p.condMatrix.iPass ~= iPass
-                % check for experiment completion
-                if p.condMatrix.iPass > p.condMatrix.nPasses
-                    break
-                end
-                % % %
-                % % % % TESTING block manipulations  (**cannot be mixed within a trial**)
-                % % %
-                % %             if iseven(p.condMatrix.iPass)
-                % %                 p.static.display.viewdist = 45;
-                % %             else
-                % %                 p.static.display.viewdist = 100;
-                % %             end
-            end
             
             % Sync pdsDisplay object with [.trial.display] struct
             p.trial.display = p.static.display.syncToTrialStruct(p.trial.display);
+
+            % Check for experiment completion
+            if p.condMatrix.iPass~=iPass && p.condMatrix.iPass>p.condMatrix.nPasses
+                break
+            end
+            % %             if iseven(p.condMatrix.iPass)
+            % %                 p.static.display.viewdist = 45;
+            % %             else
+            % %                 p.static.display.viewdist = 100;
+            % %             end
+            
             
         elseif ~isempty(p.conditions)
             % PLDAPS 4.2 legacy mode: p.conditions must be full set of trial conds (inculding all repeats)
@@ -319,6 +315,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             disp(result.message)
         end
         
+        
         %% p.data{i}: Partition trial data
         % Compile all data and parameters collected/changed during this trial
         if p.defaultParameters.pldaps.save.mergedData
@@ -326,7 +323,7 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
             dTrialStruct = p.trial;
         else
             %store the difference of the trial struct to .data
-            % NEW:  include condition parameters in p.data, instead of relying on p.conditions being 1:1 with trial number
+            % NEW:  include condition [& block] parameters in p.data, instead of relying on p.conditions being 1:1 with trial number
             dTrialStruct = getDifferenceFromStruct(p.defaultParameters, p.trial, p.static.pldaps.baseParamsLevels);
         end
         p.data{p.defaultParameters.pldaps.iTrial} = dTrialStruct;
@@ -336,7 +333,9 @@ while p.trial.pldaps.iTrial < p.trial.pldaps.finish && p.trial.pldaps.quit~=2
         if p.trial.pldaps.useModularStateFunctions && ~isempty(p.trial.pldaps.experimentAfterTrialsFunction)
             % Not clear what purpose this serves that could not be accomplished in trial cleanupandsave
             % and/or at start of next trial? ...open to suggestions. --TBC 2017-10
-            oldptrial=p.trial;
+            warning('pldaps:run:experimentAfterTrials', ['Use of pldaps state [.experimentAfterTrials] is deprecated & will transition to error soon.\n', ...
+                 '\t\t (....unless someone provides compelling objection [circa Dec 2020])']);
+             oldptrial=p.trial;
             [moduleNames,moduleFunctionHandles,moduleRequestedStates,moduleLocationInputs] = getModules(p);
             p.defaultParameters.setLevels(p.static.pldaps.baseParamsLevels);
             p.trial=mergeToSingleStruct(p.defaultParameters);
