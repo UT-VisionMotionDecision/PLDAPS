@@ -160,10 +160,14 @@ end
 
 %% Color correction
 % Must be initialized before PTB screen opened, correction parameters are loaded/applied below
-if isfield(p.trial.display, 'gamma') && isfield(p.trial.display.gamma, 'power')
-    PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
-else
-	PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTable');
+if isfield(p.trial.display, 'gamma')
+    if isfield(p.trial.display.gamma, 'power') && ~isempty(p.trial.display.gamma.power)
+        PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
+    elseif isfield(p.trial.display.gamma, 'table') && ~isempty(p.trial.display.gamma.table)
+        PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTable');
+    end
+% else
+% 	PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTable');
 end
 
 % Functional modifications to PsychImaging prior to PTB screen creation
@@ -466,15 +470,12 @@ end
 
 
 %% Apply display calibration (e.g. gamma encoding or lookup table)
-if isfield(p.trial.display, 'gamma')
+if isfield(p.trial.display, 'gamma') 
     % disp('****************************************************************')
     fprintLineBreak
-    fprintf('Applying display color correction ');
-    if isfield(p.trial.display.gamma, 'table')
-        fprintf('via lookup table\n');
-        PsychColorCorrection('SetLookupTable', p.trial.display.ptr, p.trial.display.gamma.table, 'FinalFormatting');
-    elseif isfield(p.trial.display.gamma, 'power')
-        fprintf('via gamma power %3.3f\n', p.trial.display.gamma.power);
+    if isfield(p.trial.display.gamma, 'power') && ~isempty(p.trial.display.gamma.power)
+        % allow .power correction to take precident
+        fprintf('Applying display color correction via gamma power %3.3f\n', p.trial.display.gamma.power);
         PsychColorCorrection('SetEncodingGamma', p.trial.display.ptr, p.trial.display.gamma.power, 'FinalFormatting');
         % Extended gamma parameters
         if all( isfield(p.trial.display.gamma, {'bias', 'minL', 'maxL', 'gain'}) )
@@ -484,10 +485,20 @@ if isfield(p.trial.display, 'gamma')
             gain=p.trial.display.gamma.gain;
             PsychColorCorrection('SetExtendedGammaParameters', p.trial.display.ptr, minL, maxL, gain, bias);
         end
+        
+    elseif isfield(p.trial.display.gamma, 'table') && ~isempty(p.trial.display.gamma.table)
+        % [old] direct lookup table approach
+        fprintf('Applying display color correction via lookup table\n');
+        PsychColorCorrection('SetLookupTable', p.trial.display.ptr, p.trial.display.gamma.table, 'FinalFormatting');
+        
+    else
+        fprintf('No luminance/color linearization to apply\n');    
     end
 else
-    %set a linear gamma
-    PsychColorCorrection('SetLookupTable', ptr, linspace(0,1,p.trial.display.info.realBitDepth)'*[1, 1, 1], 'FinalFormatting');
+    % do nothing, direct pass through to device while allowing PTB to 'ClampOnly' by default
+    fprintf('No luminance/color linearization to apply\n');
+    %     %set a linear gamma
+    %     PsychColorCorrection('SetLookupTable', ptr, linspace(0,1,p.trial.display.info.realBitDepth)'*[1, 1, 1], 'FinalFormatting');
 end
 
 % % This seems redundant. Is it necessary?

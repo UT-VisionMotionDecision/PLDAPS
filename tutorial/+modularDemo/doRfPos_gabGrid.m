@@ -107,7 +107,7 @@ pss.display.useOverlay = 1;
 % pss.display.screenSize = [];
 % pss.display.scrnNum = 0;
 
-pss.display.stereoMode = 4; % 0==mono 2D; 3-or-4==freeFuse 3D;  See Screen('OpenWindow?')
+pss.display.stereoMode = 0; % 0==mono 2D; 3-or-4==freeFuse 3D;  See Screen('OpenWindow?')
 
 pss.display.useGL = 1;
 pss.display.multisample = 2;

@@ -14,12 +14,24 @@ function [simpleGamma, measInt, measCie, lvlSet] = calibDisplay_pldaps(p, mode)
 %  Must be run after pausing a running PLDAPS session.
 %  - This is a feature, not a bug, because it ensures that measurements are made under
 %    the exact same setup conditions as your experiment.
-%  - This is not the stereo-specific version of the calibration code
+%  This is not the stereo-specific version of the calibration code
 %    - its *not* INcompatible with stereo displays, but it doesn't make/fit
 %      separate monocular calibrations, or do any binocular crosstalk measurements
 % 
+%  When making initial calibration measurements, its important to be sure that 
+%  all other/prior calibrations are disabled when the new measurements are made.
+%  - e.g. linearization via gamma table or power, or binocular crosstalk corrections
+%  - Otherwise the result will be confounded by [unknown] prior display corrections
+%  - Easiest way to do this is to make sure the .display.gamma.power field is empty
+%    before your code executes p.run
+%  - In the modularDemo, you would want to set:  pss.display.gamma.power = [];
+%  
 %  Save the returned greyscale [simpleGamma] value in your rigPrefs as:
 %       .display.gamma.power
+% 
+%  AFTER you've run your calibration & added the results to your rigPrefs,
+%  run this calibration function again to validate. This will help ensure that your
+%  validation is performed in EXACTLY the same state as your experiment.
 % 
 % 
 % EXAMPLE:
@@ -43,6 +55,7 @@ function [simpleGamma, measInt, measCie, lvlSet] = calibDisplay_pldaps(p, mode)
 %   % [ follow command window instructions to apply & save new rigPrefs values ]
 % 
 %   % Done! Future experiments on this rig will apply this gamma correction automatically
+%   % Rerun the calibration measurements with the new settings applied to validate your results
 % ---
 % 
 % 
