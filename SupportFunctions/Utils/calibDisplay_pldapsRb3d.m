@@ -1,22 +1,49 @@
 function [simpleGamma, measInt, measCie, lvlSet] = calibDisplay_pldapsRb3d(p, mode)
-% function [simpleGamma, measInt, measCie, lvlSet] = calibDisplay_pldaps(p, mode)
+% function [simpleGamma, measInt, measCie, lvlSet] = calibDisplay_pldapsRb3d(p, mode)
 %  [p] = currently running PLDAPS structure
 %  [mode]: 0 = grey[k] only, no SPD;
 %          [1 2 3 4] == [R G B K], luminance, xyCIE, & SPD
 % 
 % Controls PR655 to measure luminance at range of intensity values
 % from one or multiple locations on the screen. 
-%  Should work on all PLDAPS setups, regardless of overlay settings (as of Oct 2017)
+% Should work on all PLDAPS setups, regardless of overlay settings
 % 
 %   ** uses tweaked subfunction versions of PR655init.m and parseSpd.m 
 % 
-% Use:
-%  Currently hackish in that it is best/easiest to run after pausing a running PLDAPS session.
-%  -- Possibly a feature, because it ensures that measurements are made under
-%  the exact same setup conditions as your experiment.
+% USAGE: 
+%  Must be run after pausing a running PLDAPS session.
+%  - This is a feature, not a bug, because it ensures that measurements are made under
+%    the exact same setup conditions as your experiment.
+%  This is a special version for use with ProPixx RB3D stereo projector modes
+%  - includes some extra setup & measurements for monocular calibration,
+%    & binocular crosstalk correction
+%  - ...still needs [more] commenting & explanation on how to properly use/implement (TBC 2021)
 % 
-%  Save the returned greyscale simpleGamma value in your rigPrefs as:
+%  Save the returned greyscale [simpleGamma] value in your rigPrefs as:
 %       .display.gamma.power
+% 
+% 
+% EXAMPLE:
+%   p = yourPldapsExperiment;
+%   % [ press 'p' key to pause PLDAPS ]
+% 
+%   simpleGamma = calibDisplay_pldaps(p);
+%   % [ follow command window prompts for calibration ]
+%   % [ calibration will return to pause state when finished ]
+% 
+%   % copy return argument to Matlab 'base' workspace
+%   assignin('base', 'simpleGamma', simpleGamma)
+% 
+%   % [ resume & exit experiment gracefully (Type "dbcont" to continue..., then press 'q' to quit) ]
+% 
+%   % from the command window (after completely exiting the PLDAPS experiment),
+%   % add [simpleGamma] to your PLDAPS rigPrefs
+%   myGamma.display.gamma.power = simpleGamma;
+%   createRigPrefs(myGamma)
+%   % [ follow command window instructions to apply & save new rigPrefs values ]
+%   
+%   % Done! Future experiments on this rig will apply this gamma correction automatically
+% ---
 % 
 % 
 % ------------------
@@ -24,49 +51,64 @@ function [simpleGamma, measInt, measCie, lvlSet] = calibDisplay_pldapsRb3d(p, mo
 % TBC 09-13-2016   Scruffy update. Functionified & subfunctioned dependencies.
 % 2017-10-18  TBC  PLDAPS update
 % 2019-02-12  TBC  Updated version for Propixx RB3D & crosstalk calibration measurements
+% 2021-03-12  TBC  General refinements & cleanup
+%                  Updated default save dir to ./PLDAPScalibrate on same level as PLDAPS installation
+%                  e.g.  ~/MLtoolbox/PLDAPScalibrate
+% 
 
 
-
-% Not compatible with Rb3d stereo calibration
-%   (...many specific settings that would muddle up this general fxn)
+%% Parse inputs & check compatibility
+% !!ONLY!! compatible with Rb3d stereo calibration
 if ~isfield(p.trial.datapixx,'rb3d') || ~p.trial.datapixx.rb3d
-    error('RB3d mode needs special treatment to control LED illuminator\nduring R/G/B calibration & crosstalk measurements.\nThis is not the function for  you...\n')
+    error('RB3d mode needs special treatment to control LED illuminator\nduring R/G/B calibration & crosstalk measurements.\nYou appear to have RB3D disabled, so this is probably not the function for  you...\n')
 end
+
 if nargin<2 || isempty(mode)
     mode = 0;
 end
 
 
+%% Paths & Filenames
 cal.dispname = input('Input name of display (i.e. rig name): ','s');
+cal.filename = [cal.dispname, datestr(p.trial.session.initTime, 'yyyymmdd')];
 
-% cal.useBuffers = input('Input name of display (i.e. rig name): ','s');
-
-%% Paths
-cal.calibDir = fullfile( fileparts(p.trial.pldaps.dirs.proot), 'Calib', datestr(date,'yyyy'));
+% Default save dir:
+% - Same enclosing* directory as your PLDAPS installation (presumably git repo; likely  ~/MLtoolbox )
+%  - **but not inside PLDAPS**, else could accidentally delete all calibration data when fixing/replacing your repo
+%  - <PLDAPS root dir>/../PLDAPScalibrate/<YYYY>
+cal.calibDir = fullfile( fileparts(p.trial.pldaps.dirs.proot), 'PLDAPScalibrate', datestr(date,'yyyy'));
 if ~exist(cal.calibDir,'dir')
     mkdir(cal.calibDir);
 end
+
 cal.rawDir = fullfile(cal.calibDir, 'Raw');
 if ~exist(cal.rawDir,'dir')
     mkdir(cal.rawDir);
 end
-cal.src = fullfile(cal.calibDir, [cal.dispname, datestr(p.trial.session.initTime, 'yyyymmdd'),'.mat']);
-cal.srcWkspc = fullfile(cal.rawDir, [cal.dispname, datestr(p.trial.session.initTime, 'yyyymmdd'),'wkspc.mat']);
+cal.src         = fullfile(cal.calibDir,    [cal.filename,'.mat']);
+cal.srcWkspc    = fullfile(cal.rawDir,      [cal.filename,'wkspc.mat']);
 
-% Defaults
+
+%% Defaults
 leaveRoomTime = 5; % sec
 cal.measmin = BlackIndex(p.trial.display.ptr); % 0;  % min intensity value
 cal.measmax = WhiteIndex(p.trial.display.ptr); % 1;  % max intensity value
 defaultScreen = max(Screen('Screens'));
 defaultMeasRes = 2^8; % number intensity levels
 defaultSampDur = 1200; % sample duration in ms
-defaultAvg = 2;%1; % number of repeats through intensity range to average: 1 for speed, 2-3 recommended
+defaultAvg = 2; % number of repeats through intensity range to average: 1 for speed, 2-3 recommended
 % ...distinct from the averaging done within photometer because this timescale will address
 % slow power fluctuations that can occur over course of a long calibration (e.g. 10+bit measRes)
 
 % sample grid (Locations of measurement points & selected points to measure)
 defaultGridSize = [3, 1]; % n-grid locations in [x y] screen dimensions
 defaultGridPts = [2, 2];%[2];%[1:3];
+
+% sync photometer to display refresh rate
+% - this can be buggy/problematic, esp for slow LCD displays or exotic refresh paradigms
+% - ALWAYS disabled for RB3D (doesn't work with 'galloping' timing imposed by Propixx RB3D mode)
+defaultSyncToSource = 1;
+
 dpxMaskIndex = [6, 5, 3, 0];   %[6, 5, 3, 0] == [R G B K];    %[0] == [K];   %
 if ~mode
     % greyscale only
@@ -95,6 +137,9 @@ if ~goDef
     %  What intensity levels do you want to measure?
     measRes = input(sprintf('How many intensities do you want to measure? (min:16, def:%g) ',defaultMeasRes));
     
+    % Sync to source refresh rate?
+    syncToSource = input(sprintf('Synchronize measurements to source refresh rate? [1=yes, 0=no; def: %d]: ', defaultSyncToSource));
+    
     % Duration of each sample?
     sampDur = input(sprintf('Duration of each sample exposure [%d ms, int]: ', defaultSampDur));
     
@@ -111,20 +156,19 @@ if ~exist('gridPts','var') || isempty(gridPts),    gridPts = defaultGridPts; end
 if ~exist('measRes','var') || isempty(measRes),    measRes = defaultMeasRes; end
 % elseif measRes>2^ScreenDacBits(whichScreen), disp('Cannot exceed bit resolution. Exiting...'),return,    end
 
+if ~exist('syncToSource','var') || isempty(syncToSource),   syncToSource = 1;  end
+if isfield(p.trial.display,'rb3d') && p.trial.display.rb3d
+    syncToSource = 0; % ALWAYS disabled for RB3D (doesn't work with 'galloping' timing imposed by Propixx RB3D mode)
+end
+
 if ~exist('sampDur','var') || isempty(sampDur),    sampDur = defaultSampDur; end
 
 if ~exist('nAverage','var') || isempty(nAverage),   nAverage = defaultAvg;  end
 
 
-% not certain this is functional with all prior color correction possibilities...best to setup in proper mode outside of this
-% forceLinear = input('Force linear gamma? [1=yes, 0=no, def:0]: ');
-% if forceLinear
-%     LoadIdentityClut(p.trial.display.ptr);
-% end
-
-
 %% Establish variables
 cal.measRes = measRes;
+cal.syncToSource = syncToSource;
 
 % Update some general system & setup variables
 winPtr = p.trial.display.ptr;
@@ -173,7 +217,7 @@ t=Screen('Flip', winPtr);
 
 
 
-% Initialize PR655 in Remote Mode
+%% Initialize PR655 in Remote Mode
 disp('Initializing PR-655')
 rm = PR655init;
 disp(rm);
@@ -195,9 +239,25 @@ pause(pdur)
 PR655write('SN3');  % average 3 samples within photometer
 pause(pdur)
 
-% Don't sync to source
-% Sync to source doesn't work with 'galloping' timing imposed by Propixx RB3D mode
-PR655write('SS0');
+% Sync to source frequency
+% - this can be buggy/problematic, esp for slow LCD displays or exotic refresh paradigms
+% - ALWAYS disabled for RB3D (doesn't work with 'galloping' timing imposed by Propixx RB3D mode)
+if cal.syncToSource
+    syncFreq = PR655getsyncfreq;
+    if ~isempty(syncFreq) && syncFreq ~= 0
+        fprintf('Measured sync frequency of: %3.0fHz.\nSyncing PR655 to source w/ adaptive exposure timing...\n',syncFreq);
+        PR655write('SE0');
+        pause(pdur)
+        PR655write('SS1');
+    else
+        cal.syncToSource = 0;
+        PR655write('SS0');
+        disp('Warning: Could not sync photometer to source frequency.');
+    end
+else
+    PR655write('SS0');
+end
+pause(pdur)
 pause(pdur)
 
 % Read out & confirm photometer settings
@@ -301,10 +361,8 @@ for maski = circshift(1:length(dpxMaskIndex), 1) % if multiple, do grey first (b
                     tmp = PR655read;
                     
                     if GetSecs-StartTime > 60
-                        disp('No measurement was returned...something broke. Saving and quitting.');
-                        [errLoc, errName] = fileparts(cal.srcWkspc);
-                        save( fullfile(errLoc,[errName,'_errorWkspc_',datestr(now,'HHMM')]) )
-                        return
+                        % if no measurement returned w/in 60 sec, save data collected & exit calibration
+                        measError_saveAndReturn();
                     end
                 end
                 % retval is raw 1-by-5 values returned by photometer: [status, units, photometric brightness, CIE 1931 x, CIE 1931 y] (...per PR655 manual)
@@ -319,10 +377,8 @@ for maski = circshift(1:length(dpxMaskIndex), 1) % if multiple, do grey first (b
                         tmp = PR655read;
                         
                         if GetSecs-StartTime > 60
-                            disp('No measurement was returned...something broke. Saving and quitting.');
-                            [errLoc, errName] = fileparts(cal.srcWkspc);
-                            save( fullfile(errLoc,[errName,'_errorWkspc_',datestr(now,'HHMM')]) )
-                            return
+                        % if no measurement returned w/in 60 sec, save data collected & exit calibration
+                        measError_saveAndReturn();
                         end
                     end
                     % parseSpd == subfunction based on PR655parsespdstr (but w/o questionable conversion&splining)
@@ -406,7 +462,27 @@ disp('Done.')
 % % end
 
 
-end
+% % % % % % % % % % % % % % % %
+%% Nested functions
+%  (shares workspace with main function)
+% % % % % % % % % % % % % % % %
+    function measError_saveAndReturn
+        % Breakout function for saving error data when measurement problems arise (no meas returned for 60 sec)
+        fprintf(2, '\n\nNo measurement was returned...something broke. \t[%s]\n', datestr(now));
+        errFile = fullfile(cal.rawDir, [cal.filename,'_errorWkspc_',datestr(now,'HHMMSS'),'.mat']);
+        fprintf(2, 'Saving data to: \n\t%s\n', errFile);
+        save( errFile );
+        % Attempt to close photometer connection
+        try
+            PR655close;
+        end
+        return
+        
+    end % measError_saveAndReturn
+
+
+end %main function
+
 % % % % % % % % % % % % % % % %
 % End of primary code block
 % % % % % % % % % % % % % % % %
@@ -415,7 +491,8 @@ end
 
 
 % % % % % % % % % % % % % % % %
-%% Subfunctions for dependencies (...lots of copy pasta here)
+%% Subfunctions
+%  simplify dependencies (...lots of copy pasta here)
 % % % % % % % % % % % % % % % %
 
 function [spd, wfs] = parseSpd(readStr)
@@ -431,7 +508,7 @@ function [spd, wfs] = parseSpd(readStr)
 %
 
 k = 0;
-start = findstr(readStr,'380,');
+start = strfind(readStr,'380,');
 while 1
     try
         k = k+1;
@@ -485,7 +562,7 @@ ntries = 0;
 
 % Repeatedly try to establish connection to PR655
 while isempty(strfind(retval,'REMOTE')) && ntries<4
-    ntries = ntries+1
+    ntries = ntries+1 %#ok<NOPRT>
     
     oldverbo = IOPort('Verbosity', 0);
     pause(pdur);

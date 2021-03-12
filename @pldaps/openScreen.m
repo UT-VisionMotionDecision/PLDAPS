@@ -160,7 +160,7 @@ end
 
 %% Color correction
 % Must be initialized before PTB screen opened, correction parameters are loaded/applied below
-if isField(p.trial, 'display.gamma.power')
+if isfield(p.trial.display, 'gamma') && isfield(p.trial.display.gamma, 'power')
     PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
 else
 	PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'LookupTable');
@@ -466,7 +466,7 @@ end
 
 
 %% Apply display calibration (e.g. gamma encoding or lookup table)
-if isField(p.trial, 'display.gamma')
+if isfield(p.trial.display, 'gamma')
     % disp('****************************************************************')
     fprintLineBreak
     fprintf('Applying display color correction ');
