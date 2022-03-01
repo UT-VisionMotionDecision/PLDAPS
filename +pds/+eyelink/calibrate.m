@@ -14,7 +14,6 @@ function p=calibrate(p)
 %                 Added .trialSetup of reward structures to prevent error (via pds.behavior.reward.trialSetup)
 % 
        
-
 if ~isfield(p.trial.eyelink, 'fixdotW')
     p.trial.eyelink.fixdotW = ceil(0.2 * p.trial.display.ppd);
 end
@@ -24,10 +23,14 @@ if isempty(p.trial.behavior.reward.timeReward)
     pds.behavior.reward.trialSetup(p);
 end
 
+
 commandwindow;
-if p.trial.sound.use
-    Beeper
-end
+
+
+%if p.trial.sound.use
+%    Beeper
+%end
+
 disp('*************************************')
 disp('Beginning Eyelink Toolbox Calibration')
 disp('*************************************')
